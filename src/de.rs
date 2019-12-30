@@ -10,7 +10,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Tiles {
     tiles: Vec<Tile>,
 }
@@ -46,6 +46,18 @@ pub struct Tile {
     pub labels: Vec<Label>,
 }
 
+impl Default for Tile {
+    fn default() -> Self {
+        Self {
+            name: "".to_string(),
+            colour: HexColour::Yellow,
+            track: vec![],
+            cities: vec![],
+            labels: vec![],
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum TrackType {
     Mid(HexFace),
@@ -64,6 +76,16 @@ pub struct Track {
     pub dit: Option<(f64, usize)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clip: Option<(f64, f64)>,
+}
+
+impl Default for Track {
+    fn default() -> Self {
+        Self {
+            track_type: TrackType::Straight(HexFace::Bottom),
+            dit: None,
+            clip: None,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -114,6 +136,17 @@ pub struct City {
     pub rotate: Option<f64>,
 }
 
+impl Default for City {
+    fn default() -> Self {
+        Self {
+            city_type: CityType::Single(Location::Centre),
+            revenue: 10,
+            nudge: None,
+            rotate: None,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum LabelType {
     City(String),
@@ -131,6 +164,17 @@ pub struct Label {
     pub nudge: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub to_centre: Option<f64>,
+}
+
+impl Default for Label {
+    fn default() -> Self {
+        Self {
+            label_type: LabelType::TileName,
+            location: Location::BottomRightCorner,
+            nudge: None,
+            to_centre: None,
+        }
+    }
 }
 
 pub fn read<P: AsRef<Path>>(path: P) -> Result<Tiles, Box<dyn Error>> {
@@ -428,14 +472,13 @@ pub fn test_tiles() -> Tiles {
             track: vec![Track {
                 track_type: HardL(HexFace::Bottom),
                 dit: Some((0.5, 10)),
-                clip: None,
+                ..Default::default()
             }],
             cities: vec![],
             labels: vec![Label {
                 label_type: Revenue(0),
                 location: Location::Centre,
-                nudge: None,
-                to_centre: None,
+                ..Default::default()
             }],
         }],
     }
