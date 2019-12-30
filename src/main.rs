@@ -12,39 +12,14 @@ use cairo::{Context, Format, ImageSurface};
 
 use rusty_train::prelude::*;
 
-fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
-    // let hex_max_d = 125.0;
-    // let hex_min_d = (3.0 as f64).sqrt() * hex_max_d / 2.0;
-
+fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
     cr.set_source_rgb(1.0, 1.0, 1.0);
     cr.rectangle(0.0, 0.0, w as f64, h as f64);
     cr.fill();
 
-    // // let flat_top = false;
-    // let flat_top = true;
-    // let x0 = if flat_top {
-    //     0.5 * hex_max_d + 10.0
-    // } else {
-    //     0.5 * hex_min_d + 10.0
-    // };
-    // let y0 = if flat_top {
-    //     0.5 * hex_min_d + 10.0
-    // } else {
-    //     0.5 * hex_max_d + 10.0
-    // };
-    // // let mut angle = if flat_top { 0.0 } else { PI / 6.0 };
-    // let angle = if flat_top { 0.0 } else { PI / 6.0 };
-    // let hex = Hex::new(hex_max_d);
-
-    // let all_tiles = tile_catalogue(&hex, &cr);
-    // let mut tile_iter = all_tiles.iter().cycle();
-
     let sparse_grid = false;
 
-    // let mut s = state.borrow_mut();
-    let s = state.borrow();
-
-    let hex = &s.hex;
+    let hex = &state.hex;
     let hex_min_d = (3.0 as f64).sqrt() * hex.max_d / 2.0;
     // let flat_top = false;
     let flat_top = true;
@@ -58,10 +33,7 @@ fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
     } else {
         0.5 * hex.max_d + 10.0
     };
-    // let mut angle = if flat_top { 0.0 } else { PI / 6.0 };
     let angle = if flat_top { 0.0 } else { PI / 6.0 };
-
-    // println!("Draw, UI mode: {:?}", s.ui_mode);
 
     for r in 0..6 {
         if sparse_grid && r % 2 == 1 {
@@ -91,34 +63,26 @@ fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
                 cr.translate(x, y);
             }
 
-            // cr.rotate(angle);
-
-            // let tile_angle = s.angle.entry((r, c)).or_insert(0.0);
-            // cr.rotate(angle + *tile_angle);
-
-            // let (tile_ix, tile_angle) = s.map.tiles.get(&(r, c)).unwrap();
             let (tile_ix, tile_angle) = if let UiMode::EditTile {
                 ref hex,
                 ref candidates,
                 ref selected,
                 ref angle,
-            } = s.ui_mode
+            } = state.ui_mode
             {
                 if hex.0 == r && hex.1 == c {
                     (candidates[*selected], *angle)
                 } else {
-                    *s.map.tiles.get(&(r, c)).unwrap()
+                    *state.map.tiles.get(&(r, c)).unwrap()
                 }
             } else {
-                *s.map.tiles.get(&(r, c)).unwrap()
+                *state.map.tiles.get(&(r, c)).unwrap()
             };
             cr.rotate(angle + tile_angle);
 
             // Draw the next hex.
-            // let t = tile_iter.next().unwrap();
-            let t = &s.map.catalogue[tile_ix];
+            let t = &state.map.catalogue[tile_ix];
             t.draw(cr, &hex);
-            // angle = angle + PI / 3.0;
 
             cr.set_matrix(m);
         }
@@ -134,10 +98,10 @@ fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
             }
             let m = cr.get_matrix();
 
-            // let active = r == s.active_row && c == s.active_col;
-            let active = if let UiMode::Normal { active_hex } = s.ui_mode {
+            let active = if let UiMode::Normal { active_hex } = state.ui_mode
+            {
                 active_hex.0 == r && active_hex.1 == c
-            } else if let UiMode::EditTile { hex, .. } = s.ui_mode {
+            } else if let UiMode::EditTile { hex, .. } = state.ui_mode {
                 hex.0 == r && hex.1 == c
             } else {
                 false
@@ -163,17 +127,13 @@ fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
 
             cr.rotate(angle);
 
-            // Draw the next hex.
-            // let t = tile_iter.next().unwrap();
-            // t.draw(cr, &hex);
-            // angle = angle + PI / 3.0;
-
-            // TODO: draw this AFTER drawing all of the tiles.
+            // Draw a border around the active tile.
             if active {
-                if let UiMode::Normal { .. } = s.ui_mode {
+                if let UiMode::Normal { .. } = state.ui_mode {
+                    // Show the active selection with a red border.
                     cr.set_source_rgb(0.7, 0.0, 0.0);
                 } else {
-                    // EDIT
+                    // Show the edit selection with a blue border.
                     cr.set_source_rgb(0.0, 0.0, 0.7);
                 }
                 cr.set_line_width(hex.max_d * 0.01);
@@ -181,7 +141,7 @@ fn draw_hexes(state: AppState, w: i32, h: i32, cr: &Context) {
                 hex.define_boundary(cr);
                 cr.stroke();
             } else {
-                // TODO: fill with a 90% transparent white layer?
+                // Cover all other tiles with a partially-transparent layer.
                 cr.set_source_rgba(1.0, 1.0, 1.0, 0.25);
                 hex.define_boundary(cr);
                 cr.fill();
@@ -199,13 +159,9 @@ fn build_ui(application: &gtk::Application) {
     let state = Rc::new(RefCell::new(State::new(&icx)));
 
     drawable(application, state.clone(), 1366, 740, move |area, cr| {
-        // let state = Rc::new(RefCell::new(State::new(cr)));
         let w = area.get_allocated_width();
         let h = area.get_allocated_height();
-
-        // println!("{} x {}", w, h);
-        draw_hexes(state.clone(), w, h, cr);
-        // draw_hexes(w, h, cr);
+        draw_hexes(&state.borrow(), w, h, cr);
 
         Inhibit(false)
     });
@@ -222,22 +178,6 @@ fn main() {
 
     application.run(&args().collect::<Vec<_>>());
 }
-
-// pub struct State {
-//     active_row: usize,
-//     active_col: usize,
-//     angle: HashMap<(usize, usize), f64>,
-// }
-
-// impl State {
-//     pub fn new() -> Self {
-//         Self {
-//             active_row: 0,
-//             active_col: 0,
-//             angle: HashMap::new(),
-//         }
-//     }
-// }
 
 pub type AppState = Rc<RefCell<State>>;
 
@@ -337,17 +277,6 @@ pub fn drawable<F>(
 ) where
     F: Fn(&DrawingArea, &Context) -> Inhibit + 'static,
 {
-    let surface = ImageSurface::create(Format::ARgb32, width, height)
-        .expect("Can't create surface");
-    let icx = Context::new(&surface);
-    draw_hexes(state.clone(), width, height, &icx);
-    let mut file = std::fs::File::create("hexes.png")
-        .expect("Couldn't create 'hexes.png'");
-    match surface.write_to_png(&mut file) {
-        Ok(_) => println!("hexes.png created"),
-        Err(_) => println!("Error creating hexes.png"),
-    }
-
     let window = gtk::ApplicationWindow::new(application);
     let drawing_area = Box::new(DrawingArea::new)();
 
@@ -489,6 +418,22 @@ pub fn drawable<F>(
                             da.queue_draw();
                         }
                         _ => {}
+                    }
+                }
+                gdk::enums::key::s | gdk::enums::key::S => {
+                    // Take a screenshot.
+                    // NOTE: may want to reserve 'S' for saving?
+                    let surface =
+                        ImageSurface::create(Format::ARgb32, width, height)
+                            .expect("Can't create surface");
+                    let icx = Context::new(&surface);
+                    let dest_file = "screenshot.png";
+                    draw_hexes(&s, width, height, &icx);
+                    let mut file = std::fs::File::create(dest_file)
+                        .expect("Couldn't create 'hexes.png'");
+                    match surface.write_to_png(&mut file) {
+                        Ok(_) => println!("Saved to {}", dest_file),
+                        Err(_) => println!("Error saving {}", dest_file),
                     }
                 }
                 _ => {}
