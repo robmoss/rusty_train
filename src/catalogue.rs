@@ -1,8 +1,10 @@
 use crate::prelude::*;
 use cairo::Context;
 
+pub type Catalogue = Vec<Tile>;
+
 /// Tiles as per the [18xx Tile Database](http://www.fwtwr.com/18xx/tiles/).
-pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Vec<Tile> {
+pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
     use HexColour::*;
     use HexCorner::*;
     use HexFace::*;

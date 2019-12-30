@@ -37,6 +37,7 @@ impl DrawLayer {
 }
 
 /// A tile contains some number of track segments and cities.
+#[derive(PartialEq)]
 pub struct Tile {
     pub colour: HexColour,
     name: String,

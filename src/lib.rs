@@ -14,6 +14,8 @@ pub mod track;
 
 pub mod catalogue;
 
+pub mod de;
+
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
 

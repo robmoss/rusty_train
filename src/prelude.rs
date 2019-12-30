@@ -34,4 +34,10 @@ pub use crate::label::Label;
 pub use crate::tile::Tile;
 
 #[doc(inline)]
+pub use crate::catalogue::Catalogue;
+
+#[doc(inline)]
 pub use crate::catalogue::tile_catalogue;
+
+#[doc(inline)]
+pub use crate::de::load;

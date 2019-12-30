@@ -273,7 +273,32 @@ impl State {
     pub fn new(ctx: &Context) -> Self {
         let hex_max_d = 125.0;
         let hex = Hex::new(hex_max_d);
+
+        let test_tiles = rusty_train::de::test_tiles();
+        let test = test_tiles.catalogue(&hex, ctx);
+        let tiles_file = "tiles.json";
+
+        // Serialise the new tiles.
+        println!("Writing {} ...", tiles_file);
+        rusty_train::de::write_pretty(tiles_file, &test_tiles)
+            .expect(&format!("Could not write {}", tiles_file));
+
+        // Deserialise the new tiles and check that they are unchanged.
+        println!("Reading {} ...", tiles_file);
+        let read_tiles = rusty_train::de::read(tiles_file)
+            .expect(&format!("Could not read {}", tiles_file));
+        let read = read_tiles.catalogue(&hex, ctx);
+        println!("{} == test_tiles() : {}", tiles_file, test == read);
+
         let catalogue = tile_catalogue(&hex, ctx);
+
+        // Compare the new tiles to the original catalogue.
+        for (ix, (test, orig)) in
+            test.iter().zip(catalogue.iter()).enumerate()
+        {
+            println!("tile #{} == original : {}", ix, test == orig);
+        }
+
         // let map = ... ?
         let num_rows = 6;
         let num_cols = 14;
