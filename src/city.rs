@@ -276,6 +276,58 @@ impl City {
             ctx.line_to(-radius, 2.0 * radius);
         }
     }
+
+    pub fn token_ixs(&self) -> Vec<usize> {
+        (0..self.num_tokens).collect()
+    }
+
+    pub fn define_token_path(
+        &self,
+        ix: usize,
+        hex: &Hex,
+        ctx: &Context,
+    ) -> bool {
+        if ix >= self.num_tokens {
+            return false;
+        }
+
+        ctx.translate(self.dx, self.dy);
+        ctx.rotate(self.angle);
+        let radius = hex.max_d * 0.125;
+        ctx.new_path();
+
+        if self.num_tokens == 1 {
+            let (x, y) = (0.0, 0.0);
+            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+        } else if self.num_tokens == 2 {
+            let x = vec![radius, -radius][ix];
+            ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
+        } else if self.num_tokens == 3 {
+            let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+            let (x, y) = vec![
+                (-radius, half_height),
+                (radius, half_height),
+                (0.0, -half_height),
+            ][ix];
+            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+        } else if self.num_tokens == 4 {
+            let (x, y) = vec![
+                (radius, radius),
+                (radius, -radius),
+                (-radius, radius),
+                (-radius, -radius),
+            ][ix];
+            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+        } else {
+            // NOTE: will have to extend this for 6-token cities.
+            unreachable!()
+        }
+
+        ctx.rotate(-self.angle);
+        ctx.translate(-self.dx, -self.dy);
+
+        return true;
+    }
 }
 
 impl Draw for City {

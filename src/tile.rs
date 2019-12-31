@@ -349,4 +349,28 @@ impl Tile {
             }
         }
     }
+
+    pub fn toks(&self) -> Vec<Tok> {
+        self.cities
+            .iter()
+            .enumerate()
+            .flat_map(|(city_ix, city)| {
+                city.token_ixs()
+                    .into_iter()
+                    .map(|token_ix| Tok { city_ix, token_ix })
+                    .collect::<Vec<_>>()
+            })
+            .collect()
+    }
+
+    pub fn define_tok_path(&self, tok: &Tok, hex: &Hex, ctx: &Context) {
+        let city = self.cities[tok.city_ix];
+        city.define_token_path(tok.token_ix, hex, ctx);
+    }
+}
+
+#[derive(Debug)]
+pub struct Tok {
+    city_ix: usize,
+    token_ix: usize,
 }
