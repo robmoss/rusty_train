@@ -40,7 +40,7 @@ impl DrawLayer {
 #[derive(PartialEq)]
 pub struct Tile {
     pub colour: HexColour,
-    name: String,
+    pub name: String,
     tracks: Vec<Track>,
     cities: Vec<City>,
     // Track indices by drawing layer.
