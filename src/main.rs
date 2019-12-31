@@ -84,6 +84,62 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             let t = &state.map.catalogue[tile_ix];
             t.draw(cr, &hex);
 
+            for (ix, token) in t.toks().iter().enumerate() {
+                // Draw a token-specific background.
+                t.define_tok_path(&token, hex, cr);
+
+                let text = if ix == 0 {
+                    cr.set_source_rgb(1.0, 0.5, 0.5);
+                    "LP"
+                } else if ix == 1 {
+                    cr.set_source_rgb(0.5, 1.0, 0.5);
+                    "PO"
+                } else if ix == 2 {
+                    cr.set_source_rgb(0.5, 0.5, 1.0);
+                    "MK"
+                } else {
+                    cr.set_source_rgb(1.0, 0.5, 1.0);
+                    "N"
+                };
+                let (x0, y0, x1, y1) = cr.fill_extents();
+                let x = 0.5 * (x0 + x1);
+                let y = 0.5 * (y0 + y1);
+                cr.fill_preserve();
+
+                // Draw background elements.
+                let stroke_path = cr.copy_path();
+                cr.save();
+                cr.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                cr.set_source_rgb(0.25, 0.6, 0.6);
+                cr.new_path();
+                cr.arc(x - 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
+                cr.arc(x + 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
+                cr.fill();
+                cr.restore();
+
+                // Redraw the outer black circle.
+                cr.new_path();
+                cr.append_path(&stroke_path);
+                cr.set_source_rgb(0.0, 0.0, 0.0);
+                cr.set_line_width(hex.max_d * 0.01);
+                cr.stroke_preserve();
+
+                // Draw the token label.
+                cr.select_font_face(
+                    "Serif",
+                    cairo::FontSlant::Normal,
+                    cairo::FontWeight::Bold,
+                );
+                cr.set_font_size(10.0);
+                let exts = cr.text_extents(text);
+                let x = x - 0.5 * exts.width;
+                let y = y + 0.5 * exts.height;
+                cr.move_to(x, y);
+                cr.set_source_rgb(0.0, 0.0, 0.0);
+                cr.show_text(text);
+            }
+
             cr.set_matrix(m);
         }
     }
@@ -102,6 +158,8 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             {
                 active_hex.0 == r && active_hex.1 == c
             } else if let UiMode::EditTile { hex, .. } = state.ui_mode {
+                hex.0 == r && hex.1 == c
+            } else if let UiMode::EditTokens { hex, .. } = state.ui_mode {
                 hex.0 == r && hex.1 == c
             } else {
                 false
@@ -132,14 +190,39 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
                 if let UiMode::Normal { .. } = state.ui_mode {
                     // Show the active selection with a red border.
                     cr.set_source_rgb(0.7, 0.0, 0.0);
-                } else {
+                } else if let UiMode::EditTile { .. } = state.ui_mode {
                     // Show the edit selection with a blue border.
                     cr.set_source_rgb(0.0, 0.0, 0.7);
+                } else if let UiMode::EditTokens { .. } = state.ui_mode {
+                    // Show the edit selection with a grey border.
+                    cr.set_source_rgb(0.3, 0.3, 0.3);
                 }
                 cr.set_line_width(hex.max_d * 0.01);
                 cr.set_line_width(hex.max_d * 0.02);
                 hex.define_boundary(cr);
                 cr.stroke();
+
+                if let UiMode::EditTokens {
+                    ref tokens,
+                    selected,
+                    ..
+                } = state.ui_mode
+                {
+                    // Retrieve the active tile and orientate it correctly.
+                    let (tile_ix, tile_angle) =
+                        *state.map.tiles.get(&(r, c)).unwrap();
+                    cr.rotate(angle + tile_angle);
+                    let t = &state.map.catalogue[tile_ix];
+
+                    // Highlight the active token space.
+                    // let (city_ix, token_ix) = tokens[selected];
+                    // t.define_token_path(city_ix, token_ix, hex, cr);
+                    let tok = &tokens[selected];
+                    t.define_tok_path(tok, hex, cr);
+                    cr.set_source_rgb(0.8, 0.2, 0.2);
+                    cr.set_line_width(hex.max_d * 0.025);
+                    cr.stroke_preserve();
+                }
             } else {
                 // Cover all other tiles with a partially-transparent layer.
                 cr.set_source_rgba(1.0, 1.0, 1.0, 0.25);
@@ -194,6 +277,11 @@ pub enum UiMode {
         candidates: Vec<TileId>,
         selected: usize,
         angle: f64,
+    },
+    EditTokens {
+        hex: MapCoord,
+        tokens: Vec<rusty_train::tile::Tok>,
+        selected: usize,
     },
 }
 
@@ -420,6 +508,21 @@ pub fn drawable<F>(
                         _ => {}
                     }
                 }
+                gdk::enums::key::t | gdk::enums::key::T => {
+                    // NOTE: switch to token mode!
+                    let hex = active_hex.clone();
+                    let ix = s.map.tiles.get(&hex).unwrap().0;
+                    let tile = &s.map.catalogue[ix];
+                    let tokens = tile.toks();
+                    if tokens.len() > 0 {
+                        s.ui_mode = UiMode::EditTokens {
+                            hex,
+                            tokens,
+                            selected: 0,
+                        };
+                        da.queue_draw();
+                    }
+                }
                 gdk::enums::key::s | gdk::enums::key::S => {
                     // Take a screenshot.
                     // NOTE: may want to reserve 'S' for saving?
@@ -480,6 +583,52 @@ pub fn drawable<F>(
                 gdk::enums::key::greater | gdk::enums::key::period => {
                     *angle += PI / 3.0;
                     da.queue_draw();
+                }
+                _ => {}
+            },
+            UiMode::EditTokens {
+                ref hex,
+                ref tokens,
+                ref mut selected,
+            } => match key {
+                gdk::enums::key::Escape => {
+                    // NOTE: cancel edit mode!
+                    s.ui_mode = UiMode::Normal { active_hex: *hex };
+                    da.queue_draw();
+                }
+                gdk::enums::key::Return => {
+                    // TODO: apply changes and exit from edit mode!
+                    s.ui_mode = UiMode::Normal { active_hex: *hex };
+                    da.queue_draw();
+                }
+                gdk::enums::key::Left => {
+                    if *selected == 0 {
+                        *selected = tokens.len() - 1
+                    } else {
+                        *selected -= 1
+                    }
+                    da.queue_draw();
+                }
+                gdk::enums::key::Right => {
+                    *selected += 1;
+                    if *selected >= tokens.len() {
+                        *selected = 0
+                    }
+                    da.queue_draw();
+                }
+                gdk::enums::key::Up => {
+                    // TODO: change the token?
+                    // The map needs to define the available tokens ...
+                }
+                gdk::enums::key::Down => {
+                    // TODO: change the token?
+                    // The map needs to define the available tokens ...
+                }
+                gdk::enums::key::_0
+                | gdk::enums::key::KP_0
+                | gdk::enums::key::BackSpace => {
+                    // TODO: delete the token
+                    println!("Delete token ...");
                 }
                 _ => {}
             },
