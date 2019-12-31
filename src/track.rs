@@ -522,6 +522,38 @@ impl Track {
         TrackCoords::new(self, hex, dt)
     }
 
+    pub fn dit_coord(&self, hex: &Hex) -> Option<Coord> {
+        self.dit.and_then(|(x, _revenue)| self.get_coord(hex, x))
+    }
+
+    pub fn get_coord(&self, hex: &Hex, x: f64) -> Option<Coord> {
+        use TrackPath::*;
+
+        if self.clipped(x) {
+            return None;
+        }
+
+        let descr = self.describe_path(hex);
+        let coord = match descr {
+            Linear { start, end } => start.interpolate(&end, x),
+            Curve {
+                centre,
+                radius,
+                angle_0,
+                angle_1,
+                clockwise,
+            } => {
+                let x = if clockwise { x } else { 1.0 - x };
+                let angle = angle_0 + x * (angle_1 - angle_0);
+                let x = centre.x + radius * angle.cos();
+                let y = centre.y + radius * angle.sin();
+                Coord { x, y }
+            }
+        };
+
+        Some(coord)
+    }
+
     pub fn start(&self, hex: &Hex) -> Coord {
         use TrackPath::*;
 

@@ -266,6 +266,29 @@ impl Tile {
         }
     }
 
+    #[allow(dead_code)]
+    fn dit_coords_in_red(&self, ctx: &Context, hex: &Hex) {
+        use DrawLayer::*;
+
+        // Draw the centre of each dit on a track segment as a red dot.
+        for layer in vec![&Under, &Normal, &Over, &Topmost] {
+            let empty = vec![];
+            ctx.set_source_rgb(1.0, 0.0, 0.0);
+            let line_cap = ctx.get_line_cap();
+            ctx.set_line_cap(cairo::LineCap::Round);
+            for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
+                let track = self.tracks[*ix];
+                if let Some(coord) = track.dit_coord(hex) {
+                    ctx.new_path();
+                    ctx.move_to(coord.x, coord.y);
+                    ctx.line_to(coord.x, coord.y);
+                    ctx.stroke();
+                }
+            }
+            ctx.set_line_cap(line_cap);
+        }
+    }
+
     fn layer_fg(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {
         let empty = vec![];
         for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
