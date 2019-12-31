@@ -41,8 +41,12 @@ impl DrawLayer {
 pub struct Tile {
     pub colour: HexColour,
     name: String,
-    tracks: HashMap<DrawLayer, Vec<Track>>,
-    cities: HashMap<DrawLayer, Vec<City>>,
+    tracks: Vec<Track>,
+    cities: Vec<City>,
+    // Track indices by drawing layer.
+    tracks_tbl: HashMap<DrawLayer, Vec<usize>>,
+    // City indices by drawing layer.
+    cities_tbl: HashMap<DrawLayer, Vec<usize>>,
     // TODO: revenue here as Option<usize> ???
     // TODO: label(s) as Vec<Label> ???
     // TODO: revenue_pos: Vec<Position> and display unique revenues in order
@@ -76,8 +80,8 @@ impl Tile {
         // part of the clipped path) and break them into separate segments
         // (e.g., straight -> mid + mid; gentle_l -> ...)
         // Hmmm ... maybe not
-        let mut track_map = HashMap::new();
-        let mut city_map = HashMap::new();
+        let mut tracks_tbl = HashMap::new();
+        let mut cities_tbl = HashMap::new();
         let default_layer = DrawLayer::Normal;
         let dt = 0.10;
         let mut track_layers = HashMap::new();
@@ -174,10 +178,10 @@ impl Tile {
         // } else {
         //     panic!("Tile has dit and city revenue")
         // };
-        for (cx, city) in cities.into_iter().enumerate() {
+        for (cx, city) in cities.iter().enumerate() {
             let mut layer = DrawLayer::Under;
             for (i, track) in tracks.iter().enumerate() {
-                if track.intersects_fill(&city, hex, dt, ctx) {
+                if track.intersects_fill(city, hex, dt, ctx) {
                     let track_layer = track_layers.get(&i).unwrap_or(&layer);
                     layer = std::cmp::max(layer, *track_layer);
                 }
@@ -185,17 +189,19 @@ impl Tile {
             if verbose {
                 println!("    City #{} in layer {:?}", cx, layer);
             }
-            city_map.entry(layer).or_insert(vec![]).push(city)
+            cities_tbl.entry(layer).or_insert(vec![]).push(cx)
         }
-        for (i, track) in tracks.into_iter().enumerate() {
+        for (i, _track) in tracks.iter().enumerate() {
             let layer = track_layers.get(&i).unwrap();
-            track_map.entry(*layer).or_insert(vec![]).push(track)
+            tracks_tbl.entry(*layer).or_insert(vec![]).push(i)
         }
         Self {
             colour,
             name,
-            tracks: track_map,
-            cities: city_map,
+            tracks,
+            cities,
+            tracks_tbl,
+            cities_tbl,
             revenues,
             // TODO: accept the labels as an argument!
             labels: vec![],
@@ -230,11 +236,13 @@ impl Tile {
 
     fn layer_bg(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {
         let empty = vec![];
-        for track in self.tracks.get(layer).unwrap_or(&empty) {
+        for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
+            let track = self.tracks[*ix];
             track.draw_bg(hex, ctx)
         }
         let empty = vec![];
-        for city in self.cities.get(layer).unwrap_or(&empty) {
+        for ix in self.cities_tbl.get(layer).unwrap_or(&empty) {
+            let city = self.cities[*ix];
             city.draw_bg(hex, ctx)
         }
     }
@@ -243,9 +251,8 @@ impl Tile {
     fn coords_in_red(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {
         let empty = vec![];
 
-        for (_ix, track) in
-            self.tracks.get(layer).unwrap_or(&empty).iter().enumerate()
-        {
+        for ix in self.tracks_tbl.get(layer).unwrap_or(&empty).iter() {
+            let track = self.tracks[*ix];
             ctx.set_source_rgb(1.0, 0.0, 0.0);
             let line_cap = ctx.get_line_cap();
             ctx.set_line_cap(cairo::LineCap::Round);
@@ -261,7 +268,8 @@ impl Tile {
 
     fn layer_fg(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {
         let empty = vec![];
-        for track in self.tracks.get(layer).unwrap_or(&empty) {
+        for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
+            let track = self.tracks[*ix];
             track.draw_fg(hex, ctx);
         }
 
@@ -269,7 +277,8 @@ impl Tile {
         // self.coords_in_red(layer, ctx, hex);
 
         let empty = vec![];
-        for city in self.cities.get(layer).unwrap_or(&empty) {
+        for ix in self.cities_tbl.get(layer).unwrap_or(&empty) {
+            let city = self.cities[*ix];
             city.draw_fg(hex, ctx)
         }
     }
