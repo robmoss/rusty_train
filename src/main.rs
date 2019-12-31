@@ -73,10 +73,12 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
                 if hex.0 == r && hex.1 == c {
                     (candidates[*selected], *angle)
                 } else {
-                    *state.map.tiles.get(&(r, c)).unwrap()
+                    let mt = state.map.tiles.get(&(r, c)).unwrap();
+                    (mt.tile_ix, mt.angle)
                 }
             } else {
-                *state.map.tiles.get(&(r, c)).unwrap()
+                let mt = state.map.tiles.get(&(r, c)).unwrap();
+                (mt.tile_ix, mt.angle)
             };
             cr.rotate(angle + tile_angle);
 
@@ -84,60 +86,11 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             let t = &state.map.catalogue[tile_ix];
             t.draw(cr, &hex);
 
-            for (ix, token) in t.toks().iter().enumerate() {
+            let mt = state.map.tiles.get(&(r, c)).unwrap();
+            for (token, map_token) in &mt.tokens {
                 // Draw a token-specific background.
                 t.define_tok_path(&token, hex, cr);
-
-                let text = if ix == 0 {
-                    cr.set_source_rgb(1.0, 0.5, 0.5);
-                    "LP"
-                } else if ix == 1 {
-                    cr.set_source_rgb(0.5, 1.0, 0.5);
-                    "PO"
-                } else if ix == 2 {
-                    cr.set_source_rgb(0.5, 0.5, 1.0);
-                    "MK"
-                } else {
-                    cr.set_source_rgb(1.0, 0.5, 1.0);
-                    "N"
-                };
-                let (x0, y0, x1, y1) = cr.fill_extents();
-                let x = 0.5 * (x0 + x1);
-                let y = 0.5 * (y0 + y1);
-                cr.fill_preserve();
-
-                // Draw background elements.
-                let stroke_path = cr.copy_path();
-                cr.save();
-                cr.clip_preserve();
-                let radius = hex.max_d * 0.125;
-                cr.set_source_rgb(0.25, 0.6, 0.6);
-                cr.new_path();
-                cr.arc(x - 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
-                cr.arc(x + 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
-                cr.fill();
-                cr.restore();
-
-                // Redraw the outer black circle.
-                cr.new_path();
-                cr.append_path(&stroke_path);
-                cr.set_source_rgb(0.0, 0.0, 0.0);
-                cr.set_line_width(hex.max_d * 0.01);
-                cr.stroke_preserve();
-
-                // Draw the token label.
-                cr.select_font_face(
-                    "Serif",
-                    cairo::FontSlant::Normal,
-                    cairo::FontWeight::Bold,
-                );
-                cr.set_font_size(10.0);
-                let exts = cr.text_extents(text);
-                let x = x - 0.5 * exts.width;
-                let y = y + 0.5 * exts.height;
-                cr.move_to(x, y);
-                cr.set_source_rgb(0.0, 0.0, 0.0);
-                cr.show_text(text);
+                map_token.draw_token(hex, cr);
             }
 
             cr.set_matrix(m);
@@ -209,14 +162,11 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
                 } = state.ui_mode
                 {
                     // Retrieve the active tile and orientate it correctly.
-                    let (tile_ix, tile_angle) =
-                        *state.map.tiles.get(&(r, c)).unwrap();
-                    cr.rotate(angle + tile_angle);
-                    let t = &state.map.catalogue[tile_ix];
+                    let mt = state.map.tiles.get(&(r, c)).unwrap();
+                    cr.rotate(angle + mt.angle);
+                    let t = &state.map.catalogue[mt.tile_ix];
 
                     // Highlight the active token space.
-                    // let (city_ix, token_ix) = tokens[selected];
-                    // t.define_token_path(city_ix, token_ix, hex, cr);
                     let tok = &tokens[selected];
                     t.define_tok_path(tok, hex, cr);
                     cr.set_source_rgb(0.8, 0.2, 0.2);
@@ -282,13 +232,135 @@ pub enum UiMode {
         hex: MapCoord,
         tokens: Vec<rusty_train::tile::Tok>,
         selected: usize,
+        old_tokens: HashMap<rusty_train::tile::Tok, MapToken>,
     },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MapToken {
+    LP,
+    PO,
+    MK,
+    N,
+}
+
+impl MapToken {
+    fn text(&self) -> &str {
+        use MapToken::*;
+
+        match self {
+            LP => "LP",
+            PO => "PO",
+            MK => "MK",
+            N => "N",
+        }
+    }
+
+    fn set_bg(&self, ctx: &Context) {
+        use MapToken::*;
+
+        match self {
+            LP => ctx.set_source_rgb(1.0, 0.5, 0.5),
+            PO => ctx.set_source_rgb(0.5, 1.0, 0.5),
+            MK => ctx.set_source_rgb(0.5, 1.0, 1.0),
+            N => ctx.set_source_rgb(1.0, 0.5, 1.0),
+        }
+    }
+
+    pub fn draw_token(&self, hex: &Hex, ctx: &Context) {
+        let text = self.text();
+        self.set_bg(ctx);
+
+        let (x0, y0, x1, y1) = ctx.fill_extents();
+        let x = 0.5 * (x0 + x1);
+        let y = 0.5 * (y0 + y1);
+        ctx.fill_preserve();
+
+        // Draw background elements.
+        let stroke_path = ctx.copy_path();
+        ctx.save();
+        ctx.clip_preserve();
+        let radius = hex.max_d * 0.125;
+        ctx.set_source_rgb(0.25, 0.6, 0.6);
+        ctx.new_path();
+        ctx.arc(x - 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
+        ctx.arc(x + 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
+        ctx.fill();
+        ctx.restore();
+
+        // Redraw the outer black circle.
+        ctx.new_path();
+        ctx.append_path(&stroke_path);
+        ctx.set_source_rgb(0.0, 0.0, 0.0);
+        ctx.set_line_width(hex.max_d * 0.01);
+        ctx.stroke_preserve();
+
+        // Draw the token label.
+        ctx.select_font_face(
+            "Serif",
+            cairo::FontSlant::Normal,
+            cairo::FontWeight::Bold,
+        );
+        ctx.set_font_size(10.0);
+        let exts = ctx.text_extents(text);
+        let x = x - 0.5 * exts.width;
+        let y = y + 0.5 * exts.height;
+        ctx.move_to(x, y);
+        ctx.set_source_rgb(0.0, 0.0, 0.0);
+        ctx.show_text(text);
+    }
+
+    pub fn next(&self) -> Self {
+        use MapToken::*;
+
+        match self {
+            LP => PO,
+            PO => MK,
+            MK => N,
+            N => LP,
+        }
+    }
+
+    pub fn prev(&self) -> Self {
+        use MapToken::*;
+
+        match self {
+            LP => N,
+            PO => LP,
+            MK => PO,
+            N => MK,
+        }
+    }
+
+    pub fn first() -> Self {
+        MapToken::LP
+    }
+
+    pub fn last() -> Self {
+        MapToken::N
+    }
+}
+
+pub struct MapTile {
+    tile_ix: usize,
+    // TODO: better representation of angle!
+    angle: f64,
+    tokens: HashMap<rusty_train::tile::Tok, MapToken>,
+}
+
+impl MapTile {
+    pub fn new(tile_ix: usize, angle: f64) -> Self {
+        Self {
+            tile_ix,
+            angle,
+            tokens: HashMap::new(),
+        }
+    }
 }
 
 pub struct Map {
     catalogue: Vec<Tile>,
-    // TODO: better representation of angle!
-    tiles: HashMap<MapCoord, (usize, f64)>,
+    tiles: HashMap<MapCoord, MapTile>,
 }
 
 pub struct State {
@@ -342,10 +414,10 @@ impl State {
                 .enumerate()
                 // Represent each tile as an index into the catalogue, and
                 // set the initial rotation to zero.
-                .map(|(ix, _tile)| (ix, 0.0))
+                .map(|(ix, _tile)| MapTile::new(ix, 0.0))
                 .cycle(),
         );
-        let tiles: HashMap<MapCoord, (usize, f64)> = map_tiles.collect();
+        let tiles: HashMap<MapCoord, MapTile> = map_tiles.collect();
         let map = Map { catalogue, tiles };
         let ui_mode = UiMode::Normal { active_hex: (0, 0) };
         Self { hex, map, ui_mode }
@@ -461,7 +533,7 @@ pub fn drawable<F>(
                     s.map
                         .tiles
                         .get_mut(active_hex)
-                        .map(|(_ix, angle)| *angle -= PI / 3.0);
+                        .map(|mt| mt.angle -= PI / 3.0);
                     da.queue_draw();
                 }
                 gdk::enums::key::greater | gdk::enums::key::period => {
@@ -469,7 +541,7 @@ pub fn drawable<F>(
                     s.map
                         .tiles
                         .get_mut(active_hex)
-                        .map(|(_ix, angle)| *angle += PI / 3.0);
+                        .map(|mt| mt.angle += PI / 3.0);
                     da.queue_draw();
                 }
                 gdk::enums::key::e | gdk::enums::key::E => {
@@ -484,7 +556,7 @@ pub fn drawable<F>(
                     // }
 
                     let hex = active_hex.clone();
-                    let ix = s.map.tiles.get(&hex).unwrap().0;
+                    let ix = s.map.tiles.get(&hex).unwrap().tile_ix;
                     let tile = &s.map.catalogue[ix];
                     match tile.colour.next_phase() {
                         Some(colour) => {
@@ -511,7 +583,8 @@ pub fn drawable<F>(
                 gdk::enums::key::t | gdk::enums::key::T => {
                     // NOTE: switch to token mode!
                     let hex = active_hex.clone();
-                    let ix = s.map.tiles.get(&hex).unwrap().0;
+                    let mt = s.map.tiles.get(&hex).unwrap();
+                    let ix = mt.tile_ix;
                     let tile = &s.map.catalogue[ix];
                     let tokens = tile.toks();
                     if tokens.len() > 0 {
@@ -519,6 +592,7 @@ pub fn drawable<F>(
                             hex,
                             tokens,
                             selected: 0,
+                            old_tokens: mt.tokens.clone(),
                         };
                         da.queue_draw();
                     }
@@ -557,7 +631,7 @@ pub fn drawable<F>(
                     let hex = hex.clone();
                     let tile_ix = candidates[*selected];
                     let angle = *angle;
-                    s.map.tiles.insert(hex, (tile_ix, angle));
+                    s.map.tiles.insert(hex, MapTile::new(tile_ix, angle));
                     s.ui_mode = UiMode::Normal { active_hex: hex };
                     da.queue_draw();
                 }
@@ -590,14 +664,18 @@ pub fn drawable<F>(
                 ref hex,
                 ref tokens,
                 ref mut selected,
+                ref mut old_tokens,
             } => match key {
                 gdk::enums::key::Escape => {
-                    // NOTE: cancel edit mode!
-                    s.ui_mode = UiMode::Normal { active_hex: *hex };
+                    // NOTE: revert the edits and exit this mode.
+                    let hex = hex.clone();
+                    let repl = old_tokens.drain().collect();
+                    s.map.tiles.get_mut(&hex).unwrap().tokens = repl;
+                    s.ui_mode = UiMode::Normal { active_hex: hex };
                     da.queue_draw();
                 }
                 gdk::enums::key::Return => {
-                    // TODO: apply changes and exit from edit mode!
+                    // NOTE: no changes to apply, just exit this mode.
                     s.ui_mode = UiMode::Normal { active_hex: *hex };
                     da.queue_draw();
                 }
@@ -617,18 +695,40 @@ pub fn drawable<F>(
                     da.queue_draw();
                 }
                 gdk::enums::key::Up => {
-                    // TODO: change the token?
-                    // The map needs to define the available tokens ...
+                    let tok = tokens[*selected].clone();
+                    let hex = hex.clone();
+                    s.map.tiles.get_mut(&hex).map(|mt| {
+                        let next = mt
+                            .tokens
+                            .get(&tok)
+                            .map(|t| t.next())
+                            .unwrap_or(MapToken::first());
+                        mt.tokens.insert(tok, next);
+                        da.queue_draw();
+                    });
                 }
                 gdk::enums::key::Down => {
-                    // TODO: change the token?
-                    // The map needs to define the available tokens ...
+                    let tok = tokens[*selected].clone();
+                    let hex = hex.clone();
+                    s.map.tiles.get_mut(&hex).map(|mt| {
+                        let next = mt
+                            .tokens
+                            .get(&tok)
+                            .map(|t| t.prev())
+                            .unwrap_or(MapToken::last());
+                        mt.tokens.insert(tok, next);
+                        da.queue_draw();
+                    });
                 }
                 gdk::enums::key::_0
                 | gdk::enums::key::KP_0
                 | gdk::enums::key::BackSpace => {
-                    // TODO: delete the token
-                    println!("Delete token ...");
+                    let tok = tokens[*selected].clone();
+                    let hex = hex.clone();
+                    s.map.tiles.get_mut(&hex).map(|mt| {
+                        mt.tokens.remove(&tok);
+                        da.queue_draw();
+                    });
                 }
                 _ => {}
             },

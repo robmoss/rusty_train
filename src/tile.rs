@@ -392,7 +392,7 @@ impl Tile {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Tok {
     city_ix: usize,
     token_ix: usize,
