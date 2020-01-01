@@ -117,12 +117,17 @@ pub enum CornerLocation {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub enum CentreLocation {
+    Centre,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum CityType {
-    CentralDit,
+    Dit(CentreLocation),
     Single(Location),
     Double(CornerLocation),
-    Triple,
-    Quad,
+    Triple(CentreLocation),
+    Quad(CentreLocation),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -368,7 +373,7 @@ impl CityType {
         use CityType::*;
 
         match self {
-            CentralDit => crate::city::City::central_dit(revenue),
+            Dit(_centre) => crate::city::City::central_dit(revenue),
             Single(location) => {
                 use crate::city::City;
                 use crate::hex::HexCorner::*;
@@ -434,8 +439,8 @@ impl CityType {
                     }
                 }
             }
-            Triple => crate::city::City::triple(revenue),
-            Quad => crate::city::City::quad(revenue),
+            Triple(_centre) => crate::city::City::triple(revenue),
+            Quad(_centre) => crate::city::City::quad(revenue),
         }
     }
 }
@@ -460,26 +465,796 @@ impl City {
 /// Should yield the same tiles as `crate::catalogue::tile_catalogue()`.
 pub fn test_tiles() -> Tiles {
     use HexColour::*;
-    use LabelType::*;
     use TrackType::*;
 
     // TODO: define all of the tiles in crate::catalogue::tile_catalogue().
 
     Tiles {
-        tiles: vec![Tile {
-            name: "3".to_string(),
-            colour: Yellow,
-            track: vec![Track {
-                track_type: HardL(HexFace::Bottom),
-                dit: Some((0.5, 10)),
+        tiles: vec![
+            Tile {
+                name: "3".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: HardL(HexFace::Bottom),
+                    dit: Some((0.5, 10)),
+                    ..Default::default()
+                }],
+                cities: vec![],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::Centre,
+                    ..Default::default()
+                }],
+            },
+            Tile {
+                name: "4".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: Straight(HexFace::Bottom),
+                    dit: Some((0.25, 10)),
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::LowerLeftFace,
+                    to_centre: Some(0.3),
+                    ..Default::default()
+                }],
                 ..Default::default()
-            }],
-            cities: vec![],
-            labels: vec![Label {
-                label_type: Revenue(0),
-                location: Location::Centre,
+            },
+            Tile {
+                name: "5".to_string(),
+                colour: Yellow,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerRight),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Single(Location::Centre),
+                    revenue: 20,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::TopLeftCorner,
+                    to_centre: Some(0.3),
+                    ..Default::default()
+                }],
                 ..Default::default()
-            }],
-        }],
+            },
+            Tile {
+                name: "6".to_string(),
+                colour: Yellow,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperRight),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Single(Location::Centre),
+                    revenue: 20,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::TopFace,
+                    to_centre: Some(0.3),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "7".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: HardR(HexFace::Bottom),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "8".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: GentleR(HexFace::Bottom),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "9".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: Straight(HexFace::Bottom),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "14".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperRight),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Double(CornerLocation::Centre),
+                    revenue: 30,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::TopRightCorner,
+                    to_centre: Some(0.15),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "15".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Double(CornerLocation::Centre),
+                    revenue: 30,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::TopLeftCorner,
+                    to_centre: Some(0.15),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "16".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "17".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "18".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "19".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "20".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "21".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "22".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: HardR(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "23".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "24".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "25".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "26".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "27".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "28".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "29".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "30".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "31".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: HardR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "39".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "40".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::UpperRight),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "41".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "42".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::Top),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "43".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "44".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "45".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "46".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "47".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "57".to_string(),
+                colour: Yellow,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Single(Location::Centre),
+                    revenue: 20,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::UpperLeftFace,
+                    to_centre: Some(0.4),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "58".to_string(),
+                colour: Yellow,
+                track: vec![Track {
+                    track_type: GentleR(HexFace::Bottom),
+                    dit: Some((0.5, 10)),
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::UpperLeftFace,
+                    to_centre: Some(0.7),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "63".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperRight),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerRight),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Double(CornerLocation::Centre),
+                    revenue: 40,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::TopLeftCorner,
+                    to_centre: Some(0.1),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "70".to_string(),
+                colour: Brown,
+                track: vec![
+                    Track {
+                        track_type: GentleL(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                ],
+                ..Default::default()
+            },
+            Tile {
+                name: "87".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Dit(CentreLocation::Centre),
+                    revenue: 10,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::RightCorner,
+                    to_centre: Some(0.4),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+            Tile {
+                name: "88".to_string(),
+                colour: Green,
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::LowerRight),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::UpperLeft),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Mid(HexFace::Top),
+                        ..Default::default()
+                    },
+                ],
+                cities: vec![City {
+                    city_type: CityType::Dit(CentreLocation::Centre),
+                    revenue: 10,
+                    ..Default::default()
+                }],
+                labels: vec![Label {
+                    label_type: LabelType::Revenue(0),
+                    location: Location::UpperRightFace,
+                    to_centre: Some(0.4),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+        ],
     }
 }
