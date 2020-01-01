@@ -363,6 +363,9 @@ impl Tile {
                 None
             }
         });
+        // TODO: Ottawa, for example, can be covered with tile 623 (Y label)
+        // and then upgraded to tile X8 (City("O")).
+        // So this check is too restrictive.
         if self_city != other_city {
             return false;
         }
