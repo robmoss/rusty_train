@@ -66,11 +66,12 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             let (tile_ix, tile_angle) = if let UiMode::EditTile {
                 ref hex,
                 ref candidates,
+                ref show_original,
                 ref selected,
                 ref angle,
             } = state.ui_mode
             {
-                if hex.0 == r && hex.1 == c {
+                if hex.0 == r && hex.1 == c && !show_original {
                     (candidates[*selected], *angle)
                 } else {
                     let mt = state.map.tiles.get(&(r, c)).unwrap();
@@ -225,6 +226,7 @@ pub enum UiMode {
     EditTile {
         hex: MapCoord,
         candidates: Vec<TileId>,
+        show_original: bool,
         selected: usize,
         angle: f64,
     },
@@ -572,6 +574,7 @@ pub fn drawable<F>(
                                 hex: hex,
                                 // candidates: (0..s.map.catalogue.len()).collect(),
                                 candidates: candidates,
+                                show_original: false,
                                 selected: 0,
                                 angle: 0.0,
                             };
@@ -618,6 +621,7 @@ pub fn drawable<F>(
             UiMode::EditTile {
                 ref hex,
                 ref candidates,
+                ref mut show_original,
                 ref mut selected,
                 ref mut angle,
             } => match key {
@@ -627,35 +631,49 @@ pub fn drawable<F>(
                     da.queue_draw();
                 }
                 gdk::enums::key::Return => {
-                    // NOTE: apply changes and exit from edit mode!
-                    let hex = hex.clone();
-                    let tile_ix = candidates[*selected];
-                    let angle = *angle;
-                    s.map.tiles.insert(hex, MapTile::new(tile_ix, angle));
-                    s.ui_mode = UiMode::Normal { active_hex: hex };
-                    da.queue_draw();
+                    if !*show_original {
+                        // NOTE: apply changes and exit from edit mode!
+                        let hex = hex.clone();
+                        let tile_ix = candidates[*selected];
+                        let angle = *angle;
+                        s.map.tiles.insert(hex, MapTile::new(tile_ix, angle));
+                        s.ui_mode = UiMode::Normal { active_hex: hex };
+                        da.queue_draw();
+                    }
                 }
                 gdk::enums::key::Up => {
-                    if *selected == 0 {
-                        *selected = candidates.len() - 1
-                    } else {
-                        *selected -= 1
+                    if !*show_original {
+                        if *selected == 0 {
+                            *selected = candidates.len() - 1
+                        } else {
+                            *selected -= 1
+                        }
+                        da.queue_draw();
                     }
-                    da.queue_draw();
                 }
                 gdk::enums::key::Down => {
-                    *selected += 1;
-                    if *selected >= candidates.len() {
-                        *selected = 0
+                    if !*show_original {
+                        *selected += 1;
+                        if *selected >= candidates.len() {
+                            *selected = 0
+                        }
+                        da.queue_draw();
                     }
-                    da.queue_draw();
                 }
                 gdk::enums::key::less | gdk::enums::key::comma => {
-                    *angle -= PI / 3.0;
-                    da.queue_draw();
+                    if !*show_original {
+                        *angle -= PI / 3.0;
+                        da.queue_draw();
+                    }
                 }
                 gdk::enums::key::greater | gdk::enums::key::period => {
-                    *angle += PI / 3.0;
+                    if !*show_original {
+                        *angle += PI / 3.0;
+                        da.queue_draw();
+                    }
+                }
+                gdk::enums::key::o | gdk::enums::key::O => {
+                    *show_original = !*show_original;
                     da.queue_draw();
                 }
                 _ => {}
