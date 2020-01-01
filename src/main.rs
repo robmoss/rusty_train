@@ -398,7 +398,7 @@ impl State {
         for (ix, (test, orig)) in
             test.iter().zip(catalogue.iter()).enumerate()
         {
-            println!("tile #{} == original : {}", ix, test == orig);
+            println!("tile #{} == '{}' : {}", ix, orig.name, test == orig);
         }
 
         // let map = ... ?
