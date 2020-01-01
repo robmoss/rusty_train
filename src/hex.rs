@@ -52,7 +52,7 @@ impl HexColour {
 }
 
 /// The hexagon faces (edges).
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum HexFace {
     Top,
     UpperRight,
@@ -71,6 +71,28 @@ impl HexFace {
     pub fn nudge(self, angle: f64, distance: f64) -> HexPosition {
         let pos: HexPosition = self.into();
         pos.nudge(angle, distance)
+    }
+
+    pub fn clockwise(&self) -> Self {
+        match *self {
+            HexFace::Top => HexFace::UpperRight,
+            HexFace::UpperRight => HexFace::LowerRight,
+            HexFace::LowerRight => HexFace::Bottom,
+            HexFace::Bottom => HexFace::LowerLeft,
+            HexFace::LowerLeft => HexFace::UpperLeft,
+            HexFace::UpperLeft => HexFace::Top,
+        }
+    }
+
+    pub fn anti_clockwise(&self) -> Self {
+        match *self {
+            HexFace::Top => HexFace::UpperLeft,
+            HexFace::UpperRight => HexFace::Top,
+            HexFace::LowerRight => HexFace::UpperRight,
+            HexFace::Bottom => HexFace::LowerRight,
+            HexFace::LowerLeft => HexFace::Bottom,
+            HexFace::UpperLeft => HexFace::LowerLeft,
+        }
     }
 
     pub fn opposite(self: &Self) -> Self {
