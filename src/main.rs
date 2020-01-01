@@ -560,27 +560,23 @@ pub fn drawable<F>(
                     let hex = active_hex.clone();
                     let ix = s.map.tiles.get(&hex).unwrap().tile_ix;
                     let tile = &s.map.catalogue[ix];
-                    match tile.colour.next_phase() {
-                        Some(colour) => {
-                            let candidates = s
-                                .map
-                                .catalogue
-                                .iter()
-                                .enumerate()
-                                .filter(|(_ix, tile)| tile.colour == colour)
-                                .map(|(ix, _tile)| ix)
-                                .collect();
-                            s.ui_mode = UiMode::EditTile {
-                                hex: hex,
-                                // candidates: (0..s.map.catalogue.len()).collect(),
-                                candidates: candidates,
-                                show_original: false,
-                                selected: 0,
-                                angle: 0.0,
-                            };
-                            da.queue_draw();
-                        }
-                        _ => {}
+                    let candidates: Vec<usize> = s
+                        .map
+                        .catalogue
+                        .iter()
+                        .enumerate()
+                        .filter(|(_ix, t)| tile.can_upgrade_to(t))
+                        .map(|(ix, _t)| ix)
+                        .collect();
+                    if candidates.len() > 0 {
+                        s.ui_mode = UiMode::EditTile {
+                            hex,
+                            candidates,
+                            show_original: false,
+                            selected: 0,
+                            angle: 0.0,
+                        };
+                        da.queue_draw();
                     }
                 }
                 gdk::enums::key::t | gdk::enums::key::T => {

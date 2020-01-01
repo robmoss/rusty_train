@@ -295,9 +295,81 @@ impl Tile {
             .collect()
     }
 
+    fn num_toks(&self) -> usize {
+        self.toks().len()
+    }
+
+    fn has_dits(&self) -> bool {
+        if self.tracks.iter().any(|track| track.dit.is_some()) {
+            return true;
+        }
+        if self.cities.iter().any(|city| city.token_ixs().is_empty()) {
+            return true;
+        }
+        return false;
+    }
+
     pub fn define_tok_path(&self, tok: &Tok, hex: &Hex, ctx: &Context) {
         let city = self.cities[tok.city_ix];
         city.define_token_path(tok.token_ix, hex, ctx);
+    }
+
+    /// Check whether a tile can be upgraded to another tile.
+    pub fn can_upgrade_to(&self, other: &Tile) -> bool {
+        // Check whether the new tile's colour is correct.
+        if let Some(colour) = self.colour.next_phase() {
+            if other.colour != colour {
+                return false;
+            }
+        }
+        // Dit tiles can only be upgraded to from other dit tiles.
+        if self.has_dits() != other.has_dits() {
+            return false;
+        }
+        let self_toks = self.num_toks();
+        let other_toks = other.num_toks();
+        // City tiles can only be upgraded to from existing city tiles.
+        if self_toks == 0 && other_toks > 0 {
+            return false;
+        }
+        // Check whether the new tile has at least as many token spaces.
+        if self_toks > other_toks {
+            return false;
+        }
+        // Check Y label compatibility.
+        let self_y = self
+            .labels
+            .iter()
+            .any(|(label, _posn)| label == &crate::label::Label::Y);
+        let other_y = other
+            .labels
+            .iter()
+            .any(|(label, _posn)| label == &crate::label::Label::Y);
+        if self_y && !other_y {
+            return false;
+        }
+        // Check city-name compatibility.
+        let self_city = self.labels.iter().find_map(|(label, _posn)| {
+            if let crate::label::Label::City(ref name) = label {
+                Some(name)
+            } else {
+                None
+            }
+        });
+        let other_city = other.labels.iter().find_map(|(label, _posn)| {
+            if let crate::label::Label::City(ref name) = label {
+                Some(name)
+            } else {
+                None
+            }
+        });
+        if self_city != other_city {
+            return false;
+        }
+        // TODO: other checks, such as preserving track connectivity?
+        // That would require having access to the map, so this would have to
+        // be an additional layer of filtering provided by the map itself.
+        return true;
     }
 }
 
