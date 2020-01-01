@@ -47,32 +47,21 @@ pub struct Tile {
     tracks_tbl: HashMap<DrawLayer, Vec<usize>>,
     // City indices by drawing layer.
     cities_tbl: HashMap<DrawLayer, Vec<usize>>,
-    // TODO: revenue here as Option<usize> ???
-    // TODO: label(s) as Vec<Label> ???
-    // TODO: revenue_pos: Vec<Position> and display unique revenues in order
-    // from smallest to largest!
-    // revenue: Option<usize>,
+    // The revenue(s) for any dits and/or cities.
     revenues: Vec<usize>,
+    // Tile labels: tile name, revenue, city name, etc.
     labels: Vec<(Label, HexPosition)>,
-    // corner_labels: Vec<(Label, HexCorner)>,
-    // face_labels: Vec<(Label, HexFace)>,
-    // TODO: have a way to look up token spaces by index!
 }
 
 impl Tile {
-    // pub fn new<P>(
     pub fn new(
         colour: HexColour,
         name: String,
         tracks: Vec<Track>,
         cities: Vec<City>,
-        // labels: Vec<(Label, P)>,
         ctx: &Context,
         hex: &Hex,
-    ) -> Self
-// where
-    //     P: Into<HexPosition>,
-    {
+    ) -> Self {
         // TODO: check track connectivity and crossing, determine layers
         // Also save this information in a form that's amenable for
         // building track networks ... ???
@@ -99,8 +88,8 @@ impl Tile {
                     if verbose {
                         println!("    Tracks {} and {} cross", i, j);
                     }
-                    // TODO: need to detect if track is already at Over
-                    // and, if so, set other's layer to Top
+                    // NOTE: if the underlying track's layer is Over, the
+                    // overlying track needs to be in the Top layer.
                     if let Some(l) = track_layers.get(&i) {
                         if l == &DrawLayer::Over {
                             track_layers.insert(j, DrawLayer::Topmost);
@@ -128,15 +117,7 @@ impl Tile {
                 println!("        key: {} val: {:?}", key, val);
             }
         }
-        // TODO: there isn't necessarily a single revenue!!!
-        // e.g., dit vs city
-        // So we can't have a single label.
-        // let track_revenues: Vec<usize> = tracks
-        //     .iter()
-        //     .filter_map(|t| t.dit.map(|(_, revenue)| revenue))
-        //     .collect();
-        // let city_revenues: Vec<usize> =
-        //     cities.iter().map(|c| c.revenue).collect();
+        // NOTE: there can be zero, one, or multiple revenues for a tile.
         let mut revenues: Vec<usize> = tracks
             .iter()
             .filter_map(|t| t.dit.map(|(_, revenue)| revenue))
@@ -144,40 +125,6 @@ impl Tile {
             .collect();
         revenues.sort();
         revenues.dedup();
-        // let track_min_rev = tracks
-        //     .iter()
-        //     .filter_map(|t| t.dit.map(|(_, rev)| rev))
-        //     .min();
-        // let track_max_rev = tracks
-        //     .iter()
-        //     .filter_map(|t| t.dit.map(|(_, rev)| rev))
-        //     .max();
-        // let track_revenue = if track_min_rev == track_max_rev {
-        //     track_min_rev
-        // } else {
-        //     panic!(
-        //         "Tile dit revenue ranges from {:?} to {:?}",
-        //         track_min_rev, track_max_rev
-        //     )
-        // };
-        // // TODO: track segments may have dits with revenue!
-        // let city_min_rev = cities.iter().map(|c| c.revenue).min();
-        // let city_max_rev = cities.iter().map(|c| c.revenue).max();
-        // let city_revenue = if city_min_rev == city_max_rev {
-        //     city_min_rev
-        // } else {
-        //     panic!(
-        //         "Tile city revenue ranges from {:?} to {:?}",
-        //         city_min_rev, city_max_rev
-        //     )
-        // };
-        // let revenue = if track_revenue.is_none() {
-        //     city_revenue
-        // } else if city_revenue.is_none() {
-        //     track_revenue
-        // } else {
-        //     panic!("Tile has dit and city revenue")
-        // };
         for (cx, city) in cities.iter().enumerate() {
             let mut layer = DrawLayer::Under;
             for (i, track) in tracks.iter().enumerate() {
@@ -203,26 +150,9 @@ impl Tile {
             tracks_tbl,
             cities_tbl,
             revenues,
-            // TODO: accept the labels as an argument!
             labels: vec![],
-            // corner_labels: vec![],
-            // face_labels: vec![],
         }
     }
-
-    // pub fn label_at_corner(
-    //     mut self,
-    //     label: Label,
-    //     corner: HexCorner,
-    // ) -> Self {
-    //     self.corner_labels.push((label, corner));
-    //     self
-    // }
-
-    // pub fn label_at_face(mut self, label: Label, face: HexFace) -> Self {
-    //     self.face_labels.push((label, face));
-    //     self
-    // }
 
     // TODO: verify labels (e.g., one revenue label for each revenue ix)
 
@@ -312,7 +242,6 @@ impl Tile {
             Label::Y => Some("Y".to_string()),
             Label::TileName => Some(self.name.to_string()),
             Label::Revenue(ref ix) => {
-                // self.revenue.map(|r| format!("{}", r)),
                 self.revenues.get(*ix).map(|r| format!("{}", r))
             }
         }
@@ -340,26 +269,6 @@ impl Tile {
         Label::TileName.select_font(ctx);
         hex.draw_tile_name(&self.name, ctx);
         // Draw other tile labels.
-        // for (label, corner) in &self.corner_labels {
-        //     if let Some(text) = self.label_text(label) {
-        //         label.select_font(ctx);
-        //         if let &Label::Revenue(_ix) = label {
-        //             hex.draw_circ_text_corner(text.as_ref(), corner, ctx)
-        //         } else {
-        //             hex.draw_text_corner(text.as_ref(), corner, ctx)
-        //         }
-        //     }
-        // }
-        // for (label, face) in &self.face_labels {
-        //     if let Some(text) = self.label_text(label) {
-        //         label.select_font(ctx);
-        //         if let &Label::Revenue(_ix) = label {
-        //             hex.draw_circ_text_face(text.as_ref(), face, ctx)
-        //         } else {
-        //             hex.draw_text_face(text.as_ref(), face, ctx)
-        //         }
-        //     }
-        // }
         for (label, pos) in &self.labels {
             // TODO: can we avoid needing to pass ix for revenue labels?
             if let Some(text) = self.label_text(label) {
