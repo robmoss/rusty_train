@@ -596,7 +596,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex))
+        .label(Label::Y, BottomLeft.to_centre(0.15, hex)),
         Tile::new(
             Brown,
             "623".to_string(),
