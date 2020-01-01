@@ -4,16 +4,31 @@
 //! and maps, and searching for train routes with optimal revenue.
 //!
 
+/// Cities and token spaces.
 pub mod city;
+
+/// Cartesian coordinates for use with hex tiles.
 pub mod coord;
+
+/// Generic trait for tiles and tile elements that draw themselves.
 pub mod draw;
+
+/// Hexagonal tiles, and attributes such as faces, corners, and colours.
 pub mod hex;
+
+/// Tile labels, such as tile names, city names, and revenue.
 pub mod label;
+
+/// Tiles that can contain track segments, cities, and token spaces.
 pub mod tile;
+
+/// Track segments.
 pub mod track;
 
+/// Game-specific tile catalogues.
 pub mod catalogue;
 
+/// Support for tile (de)serialisation.
 pub mod de;
 
 /// Exports commonly-used elements of other modules.
