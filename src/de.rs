@@ -135,6 +135,8 @@ pub struct City {
     #[serde(flatten)]
     pub city_type: CityType,
     pub revenue: usize,
+    /// An optional nudge `(angle, frac)` where `frac` is relative to the
+    /// maximal radius of the tile (i.e., from the centre to any corner).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -165,6 +167,8 @@ pub struct Label {
     #[serde(flatten)]
     pub label_type: LabelType,
     pub location: Location,
+    /// An optional nudge `(angle, frac)` where `frac` is relative to the
+    /// maximal radius of the tile (i.e., from the centre to any corner).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -295,8 +299,9 @@ impl From<&Location> for crate::hex::HexPosition {
 impl Label {
     pub fn position(&self, hex: &Hex) -> crate::hex::HexPosition {
         let position: crate::hex::HexPosition = (&self.location).into();
-        let position = if let Some((angle, distance)) = self.nudge {
-            position.nudge(angle, distance)
+        let position = if let Some((angle, frac)) = self.nudge {
+            // NOTE: convert from fractional to absolute distance.
+            position.nudge(angle, frac * 0.5 * hex.max_d)
         } else {
             position
         };
