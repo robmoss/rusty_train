@@ -36,6 +36,8 @@ impl DrawLayer {
     }
 }
 
+pub type LabelAndPos = (crate::label::Label, crate::hex::HexPosition);
+
 /// A tile contains some number of track segments and cities.
 #[derive(PartialEq)]
 pub struct Tile {
@@ -50,7 +52,7 @@ pub struct Tile {
     // The revenue(s) for any dits and/or cities.
     revenues: Vec<usize>,
     // Tile labels: tile name, revenue, city name, etc.
-    labels: Vec<(Label, HexPosition)>,
+    labels: Vec<LabelAndPos>,
 }
 
 impl Tile {
@@ -162,6 +164,18 @@ impl Tile {
     {
         self.labels.push((label, pos.into()));
         self
+    }
+
+    pub fn tracks(&self) -> &[Track] {
+        self.tracks.as_slice()
+    }
+
+    pub fn cities(&self) -> &[City] {
+        self.cities.as_slice()
+    }
+
+    pub fn labels(&self) -> &[LabelAndPos] {
+        self.labels.as_slice()
     }
 
     fn layer_bg(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {

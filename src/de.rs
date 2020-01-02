@@ -13,10 +13,10 @@ use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Tiles {
-    tiles: Vec<Tile>,
+    pub tiles: Vec<Tile>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum HexColour {
     Yellow,
     Green,
@@ -25,7 +25,21 @@ pub enum HexColour {
     Red,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl std::convert::From<crate::hex::HexColour> for HexColour {
+    fn from(src: crate::hex::HexColour) -> Self {
+        use crate::hex::HexColour::*;
+
+        match src {
+            Yellow => HexColour::Yellow,
+            Green => HexColour::Green,
+            Brown => HexColour::Brown,
+            Grey => HexColour::Grey,
+            Red => HexColour::Red,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum HexFace {
     Top,
     UpperRight,
@@ -35,7 +49,22 @@ pub enum HexFace {
     UpperLeft,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl std::convert::From<crate::hex::HexFace> for HexFace {
+    fn from(src: crate::hex::HexFace) -> Self {
+        use crate::hex::HexFace::*;
+
+        match src {
+            Top => HexFace::Top,
+            UpperRight => HexFace::UpperRight,
+            LowerRight => HexFace::LowerRight,
+            Bottom => HexFace::Bottom,
+            LowerLeft => HexFace::LowerLeft,
+            UpperLeft => HexFace::UpperLeft,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Tile {
     pub name: String,
     pub colour: HexColour,
@@ -45,6 +74,18 @@ pub struct Tile {
     pub cities: Vec<City>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub labels: Vec<Label>,
+}
+
+impl std::convert::From<&crate::tile::Tile> for Tile {
+    fn from(src: &crate::tile::Tile) -> Self {
+        Self {
+            name: src.name.clone(),
+            colour: src.colour.into(),
+            track: src.tracks().iter().map(|track| track.into()).collect(),
+            cities: src.cities().iter().map(|city| city.into()).collect(),
+            labels: src.labels().iter().map(|lnp| lnp.into()).collect(),
+        }
+    }
 }
 
 impl Default for Tile {
@@ -59,7 +100,7 @@ impl Default for Tile {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum TrackType {
     Mid(HexFace),
     Straight(HexFace),
@@ -72,7 +113,7 @@ pub enum TrackType {
     GentleRHalf(HexFace),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Track {
     #[serde(flatten)]
     pub track_type: TrackType,
@@ -80,6 +121,51 @@ pub struct Track {
     pub dit: Option<(f64, usize)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clip: Option<(f64, f64)>,
+}
+
+impl std::convert::From<&crate::track::Track> for Track {
+    fn from(src: &crate::track::Track) -> Self {
+        use crate::track::TrackCurve::*;
+
+        let track_type = match src.curve {
+            Straight => {
+                if src.x0 == 0.0 && src.x1 == 1.0 {
+                    TrackType::Straight(src.face.into())
+                } else if src.x0 == 0.0 && src.x1 == 0.5 {
+                    TrackType::Mid(src.face.into())
+                } else if src.x0 == 0.0 && src.x1 < 1.0 {
+                    TrackType::Frac((src.face.into(), src.x1))
+                } else {
+                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
+                }
+            }
+            GentleL => {
+                if src.x0 == 0.0 && src.x1 == 1.0 {
+                    TrackType::GentleL(src.face.into())
+                } else if src.x0 == 0.0 && src.x1 == 0.5 {
+                    TrackType::GentleLHalf(src.face.into())
+                } else {
+                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
+                }
+            }
+            HardL => TrackType::HardL(src.face.into()),
+            GentleR => {
+                if src.x0 == 0.0 && src.x1 == 1.0 {
+                    TrackType::GentleR(src.face.into())
+                } else if src.x0 == 0.0 && src.x1 == 0.5 {
+                    TrackType::GentleRHalf(src.face.into())
+                } else {
+                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
+                }
+            }
+            HardR => TrackType::HardR(src.face.into()),
+        };
+        Self {
+            track_type: track_type,
+            dit: src.dit,
+            clip: src.clip,
+        }
+    }
 }
 
 impl Default for Track {
@@ -92,7 +178,7 @@ impl Default for Track {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum Location {
     Centre,
     TopLeftCorner,
@@ -109,7 +195,49 @@ pub enum Location {
     UpperLeftFace,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl std::convert::From<&crate::hex::HexPosition> for Location {
+    fn from(src: &crate::hex::HexPosition) -> Self {
+        use crate::hex::HexPosition::*;
+
+        match src {
+            Centre(_delta) => Location::Centre,
+            Face(face, _delta) => face.into(),
+            Corner(corner, _delta) => corner.into(),
+        }
+    }
+}
+
+impl std::convert::From<&crate::hex::HexFace> for Location {
+    fn from(src: &crate::hex::HexFace) -> Self {
+        use crate::hex::HexFace::*;
+
+        match src {
+            Top => Location::TopFace,
+            UpperRight => Location::UpperRightFace,
+            LowerRight => Location::LowerRightFace,
+            Bottom => Location::BottomFace,
+            LowerLeft => Location::LowerLeftFace,
+            UpperLeft => Location::UpperLeftFace,
+        }
+    }
+}
+
+impl std::convert::From<&crate::hex::HexCorner> for Location {
+    fn from(src: &crate::hex::HexCorner) -> Self {
+        use crate::hex::HexCorner::*;
+
+        match src {
+            TopLeft => Location::TopLeftCorner,
+            TopRight => Location::TopRightCorner,
+            Left => Location::LeftCorner,
+            Right => Location::RightCorner,
+            BottomLeft => Location::BottomLeftCorner,
+            BottomRight => Location::BottomRightCorner,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum CornerLocation {
     Centre,
     TopLeftCorner,
@@ -120,12 +248,39 @@ pub enum CornerLocation {
     BottomRightCorner,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl std::convert::From<&crate::hex::HexPosition> for CornerLocation {
+    fn from(src: &crate::hex::HexPosition) -> Self {
+        use crate::hex::HexPosition::*;
+
+        match src {
+            Centre(_delta) => CornerLocation::Centre,
+            Face(_face, _delta) => panic!("Cannot convert Face into Corner"),
+            Corner(corner, _delta) => corner.into(),
+        }
+    }
+}
+
+impl std::convert::From<&crate::hex::HexCorner> for CornerLocation {
+    fn from(src: &crate::hex::HexCorner) -> Self {
+        use crate::hex::HexCorner::*;
+
+        match src {
+            TopLeft => CornerLocation::TopLeftCorner,
+            TopRight => CornerLocation::TopRightCorner,
+            Left => CornerLocation::LeftCorner,
+            Right => CornerLocation::RightCorner,
+            BottomLeft => CornerLocation::BottomLeftCorner,
+            BottomRight => CornerLocation::BottomRightCorner,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum CentreLocation {
     Centre,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum CityType {
     Dit(CentreLocation),
     Single(Location),
@@ -134,7 +289,7 @@ pub enum CityType {
     Quad(CentreLocation),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct City {
     #[serde(flatten)]
     pub city_type: CityType,
@@ -145,6 +300,45 @@ pub struct City {
     pub nudge: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rotate: Option<f64>,
+}
+
+impl std::convert::From<&crate::city::City> for City {
+    fn from(src: &crate::city::City) -> Self {
+        use crate::hex::Delta;
+        use crate::hex::HexPosition::*;
+
+        let num_tokens = src.token_ixs().len();
+        let revenue = src.revenue;
+        let position = &src.position;
+        let city_type = match num_tokens {
+            0 => CityType::Dit(CentreLocation::Centre),
+            1 => CityType::Single(position.into()),
+            2 => CityType::Double(position.into()),
+            3 => CityType::Triple(CentreLocation::Centre),
+            4 => CityType::Quad(CentreLocation::Centre),
+            _ => panic!("Invalid number of tokens for city: {}", num_tokens),
+        };
+        let nudge = match position {
+            Centre(delta) | Face(_, delta) | Corner(_, delta) => {
+                if let Some(Delta::Nudge(angle, frac)) = delta {
+                    Some((*angle, *frac))
+                } else {
+                    None
+                }
+            }
+        };
+        let rotate = if src.angle == 0.0 {
+            None
+        } else {
+            Some(src.angle)
+        };
+        Self {
+            city_type,
+            revenue,
+            nudge,
+            rotate,
+        }
+    }
 }
 
 impl Default for City {
@@ -158,7 +352,7 @@ impl Default for City {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum LabelType {
     City(String),
     Y(()),
@@ -166,7 +360,20 @@ pub enum LabelType {
     Revenue(usize),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl std::convert::From<&crate::label::Label> for LabelType {
+    fn from(src: &crate::label::Label) -> Self {
+        use crate::label::Label as L;
+
+        match src {
+            L::City(ref name) => LabelType::City(name.clone()),
+            L::Y => LabelType::Y(()),
+            L::TileName => LabelType::TileName(()),
+            L::Revenue(revenue) => LabelType::Revenue(*revenue),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct Label {
     #[serde(flatten)]
     pub label_type: LabelType,
@@ -177,6 +384,68 @@ pub struct Label {
     pub nudge: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub to_centre: Option<f64>,
+}
+
+impl std::convert::From<&crate::tile::LabelAndPos> for Label {
+    fn from(src: &crate::tile::LabelAndPos) -> Self {
+        use crate::hex::Delta::*;
+        use crate::hex::HexPosition::*;
+
+        let label = &src.0;
+        let posn = &src.1;
+        let nudge = match posn {
+            Centre(delta) => {
+                if let Some(Nudge(angle, frac)) = delta {
+                    Some((*angle, *frac))
+                } else {
+                    None
+                }
+            }
+            Face(_face, delta) => {
+                if let Some(Nudge(angle, frac)) = delta {
+                    Some((*angle, *frac))
+                } else {
+                    None
+                }
+            }
+            Corner(_corner, delta) => {
+                if let Some(Nudge(angle, frac)) = delta {
+                    Some((*angle, *frac))
+                } else {
+                    None
+                }
+            }
+        };
+        let to_centre = match posn {
+            Centre(delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+            Face(_face, delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+            Corner(_corner, delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+        };
+        Self {
+            label_type: label.into(),
+            location: posn.into(),
+            nudge: nudge,
+            to_centre: to_centre,
+        }
+    }
 }
 
 impl Default for Label {

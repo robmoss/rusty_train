@@ -38,11 +38,11 @@ enum TrackPath {
 /// Track segments along which trains can run routes.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Track {
-    face: HexFace,
-    curve: TrackCurve,
-    x0: f64,
-    x1: f64,
-    clip: Option<(f64, f64)>,
+    pub face: HexFace,
+    pub curve: TrackCurve,
+    pub x0: f64,
+    pub x1: f64,
+    pub clip: Option<(f64, f64)>,
     pub dit: Option<(f64, usize)>,
     // TODO: different gauges, double track, etc?
     // TODO: save track description?

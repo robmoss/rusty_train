@@ -394,11 +394,21 @@ impl State {
 
         let catalogue = tile_catalogue(&hex, ctx);
 
+        // Check the conversion from tile::Tile to de::Tile.
+        for (ix, de_tile) in test_tiles.tiles.iter().enumerate() {
+            let from_cat: rusty_train::de::Tile = (&catalogue[ix]).into();
+            if de_tile != &from_cat {
+                println!("Tile #{} '{}' does not match", ix, de_tile.name);
+            }
+        }
+
         // Compare the new tiles to the original catalogue.
         for (ix, (test, orig)) in
             test.iter().zip(catalogue.iter()).enumerate()
         {
-            println!("tile #{} == '{}' : {}", ix, orig.name, test == orig);
+            if test != orig {
+                println!("tile #{} != tile '{}'", ix, orig.name);
+            }
         }
 
         // let map = ... ?
