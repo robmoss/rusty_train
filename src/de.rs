@@ -1,5 +1,4 @@
 /// Load tile catalogues from disk.
-use crate::catalogue::Catalogue;
 use crate::hex::Hex;
 use crate::prelude::PI;
 
@@ -492,16 +491,7 @@ pub fn write_pretty<P: AsRef<Path>>(
     Ok(())
 }
 
-/// Load a tile catalogue from disk.
-pub fn load<P: AsRef<Path>>(
-    path: P,
-    hex: &Hex,
-    ctx: &Context,
-) -> Result<Catalogue, Box<dyn Error>> {
-    let tiles = read(path)?;
-    Ok(tiles.catalogue(hex, ctx))
-}
-
+/// Reads a single tile from disk.
 pub fn read_tile<P: AsRef<Path>>(
     path: P,
     hex: &Hex,
@@ -513,6 +503,7 @@ pub fn read_tile<P: AsRef<Path>>(
     Ok(tile.build(hex, ctx))
 }
 
+/// Reads multiple tiles from disk.
 pub fn read_tiles<P: AsRef<Path>>(
     path: P,
     hex: &Hex,
@@ -524,6 +515,7 @@ pub fn read_tiles<P: AsRef<Path>>(
     Ok(tiles.iter().map(|t| t.build(hex, ctx)).collect())
 }
 
+/// Writes a single tile to disk.
 pub fn write_tile<P: AsRef<Path>>(
     path: P,
     tile: &crate::tile::Tile,
@@ -539,6 +531,7 @@ pub fn write_tile<P: AsRef<Path>>(
     Ok(())
 }
 
+/// Writes multiple tiles to disk.
 pub fn write_tiles<P: AsRef<Path>>(
     path: P,
     tiles: &[crate::tile::Tile],
@@ -557,7 +550,7 @@ pub fn write_tiles<P: AsRef<Path>>(
 // NOTE: need hex and ctx to construct tiles!
 
 impl Tiles {
-    pub fn catalogue(&self, hex: &Hex, ctx: &Context) -> Catalogue {
+    pub fn build(&self, hex: &Hex, ctx: &Context) -> crate::tile::Tiles {
         self.tiles.iter().map(|t| t.build(hex, ctx)).collect()
     }
 }

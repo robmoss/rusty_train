@@ -386,7 +386,7 @@ impl State {
         let hex = Hex::new(hex_max_d);
 
         let test_tiles = rusty_train::de::test_tiles();
-        let test = test_tiles.catalogue(&hex, ctx);
+        let test = test_tiles.build(&hex, ctx);
         let tiles_file = "tiles.json";
 
         // Serialise the new tiles.
@@ -398,7 +398,7 @@ impl State {
         println!("Reading {} ...", tiles_file);
         let read_tiles = rusty_train::de::read(tiles_file)
             .expect(&format!("Could not read {}", tiles_file));
-        let read = read_tiles.catalogue(&hex, ctx);
+        let read = read_tiles.build(&hex, ctx);
         println!("{} == test_tiles() : {}", tiles_file, test == read);
 
         let catalogue = tile_catalogue(&hex, ctx);
