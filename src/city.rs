@@ -62,13 +62,36 @@ impl City {
         }
     }
 
+    fn rotate_angle(&self) -> f64 {
+        use HexCorner::*;
+
+        let angle = self.angle;
+        if let HexPosition::Corner(corner, _) = self.position {
+            // NOTE: currently only implemented for two-token cities.
+            if self.num_tokens == 2 {
+                let extra = match corner {
+                    TopLeft => -PI / 6.0,
+                    TopRight => PI / 6.0,
+                    Right => 3.0 * PI / 6.0,
+                    BottomRight => 5.0 * PI / 6.0,
+                    BottomLeft => 7.0 * PI / 6.0,
+                    Left => 9.0 * PI / 6.0,
+                };
+                return angle + extra;
+            }
+        }
+        angle
+    }
+
     pub fn translate_begin(&self, hex: &Hex, ctx: &Context) {
         let coord = self.translate_coords(hex);
         ctx.translate(coord.x, coord.y);
+        ctx.rotate(self.rotate_angle());
     }
 
     pub fn translate_end(&self, hex: &Hex, ctx: &Context) {
         let coord = self.translate_coords(hex);
+        ctx.rotate(-self.rotate_angle());
         ctx.translate(-coord.x, -coord.y);
     }
 
@@ -123,21 +146,11 @@ impl City {
     }
 
     pub fn double_at_corner(revenue: usize, corner: &HexCorner) -> City {
-        use HexCorner::*;
-
-        let angle = match *corner {
-            TopLeft => -PI / 6.0,
-            TopRight => PI / 6.0,
-            Right => 3.0 * PI / 6.0,
-            BottomRight => 5.0 * PI / 6.0,
-            BottomLeft => 7.0 * PI / 6.0,
-            Left => 9.0 * PI / 6.0,
-        };
         City {
             num_tokens: 2,
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
-            angle: angle,
+            angle: 0.0,
         }
     }
 
@@ -310,7 +323,6 @@ impl City {
         }
 
         self.translate_begin(hex, ctx);
-        ctx.rotate(self.angle);
         let radius = hex.max_d * 0.125;
         ctx.new_path();
 
@@ -341,7 +353,6 @@ impl City {
             unreachable!()
         }
 
-        ctx.rotate(-self.angle);
         self.translate_end(hex, ctx);
 
         return true;
@@ -351,17 +362,12 @@ impl City {
 impl Draw for City {
     fn define_boundary(&self, hex: &Hex, ctx: &Context) {
         self.translate_begin(hex, ctx);
-        ctx.rotate(self.angle);
-
         self.define_bg_path(hex, ctx);
-
-        ctx.rotate(-self.angle);
         self.translate_end(hex, ctx);
     }
 
     fn draw_bg(&self, hex: &Hex, ctx: &Context) {
         self.translate_begin(hex, ctx);
-        ctx.rotate(self.angle);
 
         self.define_bg_path(hex, ctx);
         if self.num_tokens == 0 {
@@ -374,13 +380,11 @@ impl Draw for City {
             ctx.fill_preserve();
         }
 
-        ctx.rotate(-self.angle);
         self.translate_end(hex, ctx);
     }
 
     fn draw_fg(&self, hex: &Hex, ctx: &Context) {
         self.translate_begin(hex, ctx);
-        ctx.rotate(self.angle);
 
         // TODO: if self.num_tokens == 0
         self.define_bg_path(hex, ctx);
@@ -397,7 +401,6 @@ impl Draw for City {
             ctx.stroke();
         }
 
-        ctx.rotate(-self.angle);
         self.translate_end(hex, ctx);
     }
 }
