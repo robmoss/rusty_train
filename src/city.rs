@@ -1,5 +1,6 @@
+use crate::coord::Coord;
 use crate::draw::Draw;
-use crate::hex::{Hex, HexCorner, HexFace};
+use crate::hex::{Delta, Hex, HexCorner, HexFace, HexPosition};
 use cairo::Context;
 use std::f64::consts::PI;
 
@@ -9,9 +10,8 @@ pub struct City {
     // TODO: replace this with an enum that has a .count() method?
     num_tokens: usize,
     pub revenue: usize,
-    dx: f64,
-    dy: f64,
-    angle: f64,
+    pub position: HexPosition,
+    pub angle: f64,
 }
 
 impl City {
@@ -22,25 +22,66 @@ impl City {
         self
     }
 
-    // fn translate(mut self, dx: f64, dy: f64) -> Self {
-    //     self.dx += dx;
-    //     self.dy += dy;
-    //     self
-    // }
+    fn delta_coords(
+        &self,
+        from: &Coord,
+        delta: Option<Delta>,
+        hex: &Hex,
+    ) -> Coord {
+        let radius = 0.5 * hex.max_d;
+        match delta {
+            Some(Delta::Nudge(angle, frac)) => Coord {
+                x: frac * radius * angle.cos(),
+                y: frac * radius * angle.sin(),
+            },
+            Some(Delta::ToCentre(frac)) => from * -frac,
+            None => (0.0, 0.0).into(),
+        }
+    }
 
-    pub fn nudge(mut self, hex: &Hex, angle: f64, radius: f64) -> Self {
-        self.dx += radius * 0.5 * hex.max_d * angle.cos();
-        self.dy += radius * 0.5 * hex.max_d * angle.sin();
+    fn translate_coords(&self, hex: &Hex) -> Coord {
+        match self.position {
+            HexPosition::Centre(delta) => {
+                let from = (0.0, 0.0).into();
+                let d = self.delta_coords(&from, delta, hex);
+                &from + &d
+            }
+            HexPosition::Face(face, delta) => {
+                let exit = hex.midpoint(&face);
+                let centre = exit.scale_by(0.7);
+                let d = self.delta_coords(&centre, delta, hex);
+                &centre + &d
+            }
+            HexPosition::Corner(corner, delta) => {
+                let c1 = hex.corner_coord(&corner.next());
+                let c2 = hex.corner_coord(&corner.prev());
+                let centre = c1.average(&c2);
+                let d = self.delta_coords(&centre, delta, hex);
+                &centre + &d
+            }
+        }
+    }
+
+    pub fn translate_begin(&self, hex: &Hex, ctx: &Context) {
+        let coord = self.translate_coords(hex);
+        ctx.translate(coord.x, coord.y);
+    }
+
+    pub fn translate_end(&self, hex: &Hex, ctx: &Context) {
+        let coord = self.translate_coords(hex);
+        ctx.translate(-coord.x, -coord.y);
+    }
+
+    pub fn nudge(mut self, angle: f64, frac: f64) -> Self {
+        self.position = self.position.nudge(angle, frac);
         self
     }
 
-    // TODO: if num_tokens is 0, this should be a "central dit".
     pub fn central_dit(revenue: usize) -> City {
         City {
             num_tokens: 0,
             revenue: revenue,
-            dx: 0.0,
-            dy: 0.0,
+            position: HexPosition::Centre(None),
             angle: 0.0,
         }
     }
@@ -49,37 +90,25 @@ impl City {
         City {
             num_tokens: 1,
             revenue: revenue,
-            dx: 0.0,
-            dy: 0.0,
+            position: HexPosition::Centre(None),
             angle: 0.0,
         }
     }
 
-    pub fn single_at_face(revenue: usize, hex: &Hex, face: &HexFace) -> City {
-        let exit = hex.midpoint(face);
-        let centre = exit.scale_by(0.7);
+    pub fn single_at_face(revenue: usize, face: &HexFace) -> City {
         City {
             num_tokens: 1,
             revenue: revenue,
-            dx: centre.x,
-            dy: centre.y,
+            position: HexPosition::Face(*face, None),
             angle: 0.0,
         }
     }
 
-    pub fn single_at_corner(
-        revenue: usize,
-        hex: &Hex,
-        corner: &HexCorner,
-    ) -> City {
-        let c1 = hex.corner_coord(&corner.next());
-        let c2 = hex.corner_coord(&corner.prev());
-        let centre = c1.average(&c2);
+    pub fn single_at_corner(revenue: usize, corner: &HexCorner) -> City {
         City {
             num_tokens: 1,
             revenue: revenue,
-            dx: centre.x,
-            dy: centre.y,
+            position: HexPosition::Corner(*corner, None),
             angle: 0.0,
         }
     }
@@ -88,22 +117,14 @@ impl City {
         City {
             num_tokens: 2,
             revenue: revenue,
-            dx: 0.0,
-            dy: 0.0,
+            position: HexPosition::Centre(None),
             angle: 0.0,
         }
     }
 
-    pub fn double_at_corner(
-        revenue: usize,
-        hex: &Hex,
-        corner: &HexCorner,
-    ) -> City {
+    pub fn double_at_corner(revenue: usize, corner: &HexCorner) -> City {
         use HexCorner::*;
 
-        let c1 = hex.corner_coord(&corner.next());
-        let c2 = hex.corner_coord(&corner.prev());
-        let centre = c1.average(&c2);
         let angle = match *corner {
             TopLeft => -PI / 6.0,
             TopRight => PI / 6.0,
@@ -115,8 +136,7 @@ impl City {
         City {
             num_tokens: 2,
             revenue: revenue,
-            dx: centre.x,
-            dy: centre.y,
+            position: HexPosition::Corner(*corner, None),
             angle: angle,
         }
     }
@@ -126,8 +146,7 @@ impl City {
         City {
             num_tokens: 3,
             revenue: revenue,
-            dx: 0.0,
-            dy: 0.0,
+            position: HexPosition::Centre(None),
             angle: 0.0,
         }
     }
@@ -136,8 +155,7 @@ impl City {
         City {
             num_tokens: 4,
             revenue: revenue,
-            dx: 0.0,
-            dy: 0.0,
+            position: HexPosition::Centre(None),
             angle: 0.0,
         }
     }
@@ -291,7 +309,7 @@ impl City {
             return false;
         }
 
-        ctx.translate(self.dx, self.dy);
+        self.translate_begin(hex, ctx);
         ctx.rotate(self.angle);
         let radius = hex.max_d * 0.125;
         ctx.new_path();
@@ -324,7 +342,7 @@ impl City {
         }
 
         ctx.rotate(-self.angle);
-        ctx.translate(-self.dx, -self.dy);
+        self.translate_end(hex, ctx);
 
         return true;
     }
@@ -332,17 +350,17 @@ impl City {
 
 impl Draw for City {
     fn define_boundary(&self, hex: &Hex, ctx: &Context) {
-        ctx.translate(self.dx, self.dy);
+        self.translate_begin(hex, ctx);
         ctx.rotate(self.angle);
 
         self.define_bg_path(hex, ctx);
 
         ctx.rotate(-self.angle);
-        ctx.translate(-self.dx, -self.dy);
+        self.translate_end(hex, ctx);
     }
 
     fn draw_bg(&self, hex: &Hex, ctx: &Context) {
-        ctx.translate(self.dx, self.dy);
+        self.translate_begin(hex, ctx);
         ctx.rotate(self.angle);
 
         self.define_bg_path(hex, ctx);
@@ -357,11 +375,11 @@ impl Draw for City {
         }
 
         ctx.rotate(-self.angle);
-        ctx.translate(-self.dx, -self.dy);
+        self.translate_end(hex, ctx);
     }
 
     fn draw_fg(&self, hex: &Hex, ctx: &Context) {
-        ctx.translate(self.dx, self.dy);
+        self.translate_begin(hex, ctx);
         ctx.rotate(self.angle);
 
         // TODO: if self.num_tokens == 0
@@ -380,6 +398,6 @@ impl Draw for City {
         }
 
         ctx.rotate(-self.angle);
-        ctx.translate(-self.dx, -self.dy);
+        self.translate_end(hex, ctx);
     }
 }

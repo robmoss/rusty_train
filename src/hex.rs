@@ -63,14 +63,14 @@ pub enum HexFace {
 }
 
 impl HexFace {
-    pub fn to_centre(self, frac: f64, hex: &Hex) -> HexPosition {
+    pub fn to_centre(self, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.to_centre(frac, hex)
+        pos.to_centre(frac)
     }
 
-    pub fn nudge(self, angle: f64, distance: f64) -> HexPosition {
+    pub fn nudge(self, angle: f64, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.nudge(angle, distance)
+        pos.nudge(angle, frac)
     }
 
     pub fn clockwise(&self) -> Self {
@@ -142,14 +142,14 @@ pub enum HexCorner {
 }
 
 impl HexCorner {
-    pub fn to_centre(self, frac: f64, hex: &Hex) -> HexPosition {
+    pub fn to_centre(self, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.to_centre(frac, hex)
+        pos.to_centre(frac)
     }
 
-    pub fn nudge(self, angle: f64, distance: f64) -> HexPosition {
+    pub fn nudge(self, angle: f64, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.nudge(angle, distance)
+        pos.nudge(angle, frac)
     }
 
     pub fn next(&self) -> Self {
@@ -180,10 +180,16 @@ impl HexCorner {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
+pub enum Delta {
+    ToCentre(f64),
+    Nudge(f64, f64),
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum HexPosition {
-    Centre(Option<Coord>),
-    Face(HexFace, Option<Coord>),
-    Corner(HexCorner, Option<Coord>),
+    Centre(Option<Delta>),
+    Face(HexFace, Option<Delta>),
+    Corner(HexCorner, Option<Delta>),
 }
 
 impl std::convert::From<HexFace> for HexPosition {
@@ -205,52 +211,66 @@ impl std::default::Default for HexPosition {
 }
 
 impl HexPosition {
-    fn nudge_coord(nudge: &Option<Coord>) -> Coord {
-        if let Some(ref n) = nudge {
-            *n
-        } else {
-            Coord { x: 0.0, y: 0.0 }
-        }
-    }
-
-    pub fn nudge(self, angle: f64, distance: f64) -> Self {
+    pub fn nudge(self, angle: f64, frac: f64) -> Self {
         use HexPosition::*;
 
-        let nudge = Some(Coord {
-            x: distance * angle.cos(),
-            y: distance * angle.sin(),
-        });
+        let delta = Some(Delta::Nudge(angle, frac));
         match self {
-            Centre(_) => Centre(nudge),
-            Face(face, _) => Face(face, nudge),
-            Corner(corner, _) => Corner(corner, nudge),
+            Centre(_) => Centre(delta),
+            Face(face, _) => Face(face, delta),
+            Corner(corner, _) => Corner(corner, delta),
         }
     }
 
-    // TODO: also .up(frac, hex), .down(), .left(), .right() ???
-
-    pub fn to_centre(self, frac: f64, hex: &Hex) -> Self {
+    pub fn to_centre(self, frac: f64) -> Self {
         use HexPosition::*;
 
         match self {
             Centre(_) => self,
-            Face(face, _) => Face(face, Some(&hex.midpoint(&face) * -frac)),
-            Corner(corner, _) => {
-                Corner(corner, Some(hex.corner_coord(&corner) * -frac))
-            }
+            Face(face, _) => Face(face, Some(Delta::ToCentre(frac))),
+            Corner(corner, _) => Corner(corner, Some(Delta::ToCentre(frac))),
         }
     }
 
     pub fn coord(&self, hex: &Hex) -> Coord {
         use HexPosition::*;
 
+        let radius = 0.5 * hex.max_d;
+
         match self {
-            Centre(nudge) => Self::nudge_coord(nudge),
-            Face(face, nudge) => {
-                &hex.midpoint(&face) + &Self::nudge_coord(nudge)
+            Centre(delta) => {
+                if let Some(Delta::Nudge(angle, frac)) = delta {
+                    Coord {
+                        x: frac * radius * angle.cos(),
+                        y: frac * radius * angle.sin(),
+                    }
+                } else {
+                    (0.0, 0.0).into()
+                }
             }
-            Corner(corner, nudge) => {
-                hex.corner_coord(&corner) + &Self::nudge_coord(nudge)
+            Face(face, delta) => {
+                let coord = &hex.midpoint(&face);
+                let shift = match delta {
+                    Some(Delta::Nudge(angle, frac)) => Coord {
+                        x: frac * radius * angle.cos(),
+                        y: frac * radius * angle.sin(),
+                    },
+                    Some(Delta::ToCentre(frac)) => coord * -frac,
+                    None => (0.0, 0.0).into(),
+                };
+                coord + &shift
+            }
+            Corner(corner, delta) => {
+                let coord = hex.corner_coord(&corner);
+                let shift = match delta {
+                    Some(Delta::Nudge(angle, frac)) => Coord {
+                        x: frac * radius * angle.cos(),
+                        y: frac * radius * angle.sin(),
+                    },
+                    Some(Delta::ToCentre(frac)) => coord * -frac,
+                    None => (0.0, 0.0).into(),
+                };
+                coord + &shift
             }
         }
     }

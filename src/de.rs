@@ -239,12 +239,12 @@ impl Tile {
             (&self.colour).into(),
             self.name.clone(),
             self.track.iter().map(|t| t.into()).collect(),
-            self.cities.iter().map(|c| c.build(hex)).collect(),
+            self.cities.iter().map(|c| c.build()).collect(),
             ctx,
             hex,
         );
         let tile = self.labels.iter().fold(tile, |tile, label| {
-            let posn = label.position(hex);
+            let posn = label.position();
             tile.label((&label.label_type).into(), posn)
         });
         tile
@@ -301,16 +301,16 @@ impl From<&Location> for crate::hex::HexPosition {
 }
 
 impl Label {
-    pub fn position(&self, hex: &Hex) -> crate::hex::HexPosition {
+    pub fn position(&self) -> crate::hex::HexPosition {
         let position: crate::hex::HexPosition = (&self.location).into();
         let position = if let Some((angle, frac)) = self.nudge {
-            // NOTE: convert from fractional to absolute distance.
-            position.nudge(angle, frac * 0.5 * hex.max_d)
+            // NOTE: retain fractional unit of distance.
+            position.nudge(angle, frac)
         } else {
             position
         };
         let position = if let Some(frac) = self.to_centre {
-            position.to_centre(frac, hex)
+            position.to_centre(frac)
         } else {
             position
         };
@@ -388,7 +388,7 @@ impl From<&Track> for crate::track::Track {
 }
 
 impl CityType {
-    pub fn build(&self, revenue: usize, hex: &Hex) -> crate::city::City {
+    pub fn build(&self, revenue: usize) -> crate::city::City {
         use CityType::*;
 
         match self {
@@ -402,34 +402,32 @@ impl CityType {
                 match location {
                     Centre => City::single(revenue),
                     TopLeftCorner => {
-                        City::single_at_corner(revenue, hex, &TopLeft)
+                        City::single_at_corner(revenue, &TopLeft)
                     }
                     TopRightCorner => {
-                        City::single_at_corner(revenue, hex, &TopRight)
+                        City::single_at_corner(revenue, &TopRight)
                     }
-                    LeftCorner => City::single_at_corner(revenue, hex, &Left),
-                    RightCorner => {
-                        City::single_at_corner(revenue, hex, &Right)
-                    }
+                    LeftCorner => City::single_at_corner(revenue, &Left),
+                    RightCorner => City::single_at_corner(revenue, &Right),
                     BottomLeftCorner => {
-                        City::single_at_corner(revenue, hex, &BottomLeft)
+                        City::single_at_corner(revenue, &BottomLeft)
                     }
                     BottomRightCorner => {
-                        City::single_at_corner(revenue, hex, &BottomRight)
+                        City::single_at_corner(revenue, &BottomRight)
                     }
-                    TopFace => City::single_at_face(revenue, hex, &Top),
+                    TopFace => City::single_at_face(revenue, &Top),
                     UpperRightFace => {
-                        City::single_at_face(revenue, hex, &UpperRight)
+                        City::single_at_face(revenue, &UpperRight)
                     }
                     LowerRightFace => {
-                        City::single_at_face(revenue, hex, &LowerRight)
+                        City::single_at_face(revenue, &LowerRight)
                     }
-                    BottomFace => City::single_at_face(revenue, hex, &Bottom),
+                    BottomFace => City::single_at_face(revenue, &Bottom),
                     LowerLeftFace => {
-                        City::single_at_face(revenue, hex, &LowerLeft)
+                        City::single_at_face(revenue, &LowerLeft)
                     }
                     UpperLeftFace => {
-                        City::single_at_face(revenue, hex, &UpperLeft)
+                        City::single_at_face(revenue, &UpperLeft)
                     }
                 }
             }
@@ -441,20 +439,18 @@ impl CityType {
                 match location {
                     Centre => City::double(revenue),
                     TopLeftCorner => {
-                        City::double_at_corner(revenue, hex, &TopLeft)
+                        City::double_at_corner(revenue, &TopLeft)
                     }
                     TopRightCorner => {
-                        City::double_at_corner(revenue, hex, &TopRight)
+                        City::double_at_corner(revenue, &TopRight)
                     }
-                    LeftCorner => City::double_at_corner(revenue, hex, &Left),
-                    RightCorner => {
-                        City::double_at_corner(revenue, hex, &Right)
-                    }
+                    LeftCorner => City::double_at_corner(revenue, &Left),
+                    RightCorner => City::double_at_corner(revenue, &Right),
                     BottomLeftCorner => {
-                        City::double_at_corner(revenue, hex, &BottomLeft)
+                        City::double_at_corner(revenue, &BottomLeft)
                     }
                     BottomRightCorner => {
-                        City::double_at_corner(revenue, hex, &BottomRight)
+                        City::double_at_corner(revenue, &BottomRight)
                     }
                 }
             }
@@ -465,10 +461,10 @@ impl CityType {
 }
 
 impl City {
-    pub fn build(&self, hex: &Hex) -> crate::city::City {
-        let city = self.city_type.build(self.revenue, hex);
+    pub fn build(&self) -> crate::city::City {
+        let city = self.city_type.build(self.revenue);
         let city = if let Some((angle, radius)) = self.nudge {
-            city.nudge(hex, angle, radius)
+            city.nudge(angle, radius)
         } else {
             city
         };

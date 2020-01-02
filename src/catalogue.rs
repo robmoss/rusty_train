@@ -32,7 +32,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             hex,
         )
         // TODO: nudge towards centre
-        .label(Label::Revenue(0), LowerLeft.to_centre(0.3, hex)),
+        .label(Label::Revenue(0), LowerLeft.to_centre(0.3)),
         Tile::new(
             Yellow,
             "5".to_string(),
@@ -42,7 +42,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             hex,
         )
         // TODO: nudge towards centre
-        .label(Label::Revenue(0), TopLeft.to_centre(0.3, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.3)),
         Tile::new(
             Yellow,
             "6".to_string(),
@@ -52,7 +52,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             hex,
         )
         // TODO: nudge towards centre
-        .label(Label::Revenue(0), Top.to_centre(0.3, hex)),
+        .label(Label::Revenue(0), Top.to_centre(0.3)),
         Tile::new(
             Yellow,
             "7".to_string(),
@@ -90,7 +90,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Green,
             "15".to_string(),
@@ -104,7 +104,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Green,
             "16".to_string(),
@@ -354,7 +354,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.4)),
         Tile::new(
             Yellow,
             "58".to_string(),
@@ -363,7 +363,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.7, hex)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.7)),
         Tile::new(
             Brown,
             "63".to_string(),
@@ -379,7 +379,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
         Tile::new(
             Brown,
             "70".to_string(),
@@ -406,7 +406,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), Right.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), Right.to_centre(0.4)),
         Tile::new(
             Green,
             "88".to_string(),
@@ -420,7 +420,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), UpperRight.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), UpperRight.to_centre(0.4)),
         Tile::new(
             Green,
             "120".to_string(),
@@ -429,14 +429,14 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             vec![Track::hard_l(LowerLeft), Track::hard_l(Top)],
             // TODO: Toronto label
             vec![
-                City::single_at_corner(60, hex, &Left),
-                City::single_at_corner(60, hex, &TopRight),
+                City::single_at_corner(60, &Left),
+                City::single_at_corner(60, &TopRight),
             ],
             ctx,
             hex,
         )
-        .label(Label::City("T".to_string()), LowerRight.to_centre(0.3, hex))
-        .label(Label::Revenue(0), Bottom.to_centre(1.0, hex)),
+        .label(Label::City("T".to_string()), LowerRight.to_centre(0.3))
+        .label(Label::Revenue(0), Bottom.to_centre(1.0)),
         Tile::new(
             Brown,
             "122".to_string(),
@@ -445,17 +445,17 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             vec![Track::hard_l(LowerLeft), Track::hard_l(Top)],
             // TODO: Toronto label
             vec![
-                City::double_at_corner(80, hex, &Left),
-                City::double_at_corner(80, hex, &TopRight),
+                City::double_at_corner(80, &Left),
+                City::double_at_corner(80, &TopRight),
             ],
             ctx,
             hex,
         )
         .label(
             Label::City("T".to_string()),
-            BottomRight.nudge(-PI / 2.0, 0.1 * hex.max_d),
+            BottomRight.nudge(-PI / 2.0, 0.2),
         )
-        .label(Label::Revenue(0), Bottom.to_centre(1.0, hex)),
+        .label(Label::Revenue(0), Bottom.to_centre(1.0)),
         Tile::new(
             Grey,
             "124".to_string(),
@@ -483,8 +483,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.3, hex))
-        .label(Label::Y, LowerLeft.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.3))
+        .label(Label::Y, LowerLeft.to_centre(0.4)),
         Tile::new(
             Yellow,
             "202".to_string(),
@@ -494,8 +494,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.3, hex))
-        .label(Label::Y, LowerLeft.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.3))
+        .label(Label::Y, LowerLeft.to_centre(0.4)),
         Tile::new(
             Green,
             "204".to_string(),
@@ -509,7 +509,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), LowerLeft.to_centre(0.5, hex)),
+        .label(Label::Revenue(0), LowerLeft.to_centre(0.5)),
         Tile::new(
             Green,
             "207".to_string(),
@@ -524,8 +524,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.15, hex))
-        .label(Label::Y, TopRight.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.15))
+        .label(Label::Y, TopRight.to_centre(0.1)),
         Tile::new(
             Green,
             "208".to_string(),
@@ -540,8 +540,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), BottomLeft.to_centre(0.15, hex))
-        .label(Label::Y, TopLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), BottomLeft.to_centre(0.15))
+        .label(Label::Y, TopLeft.to_centre(0.1)),
         Tile::new(
             Brown,
             "611".to_string(),
@@ -556,7 +556,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
         Tile::new(
             Green,
             "619".to_string(),
@@ -570,7 +570,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Yellow,
             "621".to_string(),
@@ -580,8 +580,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.3, hex))
-        .label(Label::Y, LowerLeft.to_centre(0.4, hex)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.3))
+        .label(Label::Y, LowerLeft.to_centre(0.4)),
         Tile::new(
             Green,
             "622".to_string(),
@@ -596,8 +596,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex))
-        .label(Label::Y, BottomLeft.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopRight.to_centre(0.15))
+        .label(Label::Y, BottomLeft.to_centre(0.15)),
         Tile::new(
             Brown,
             "623".to_string(),
@@ -614,8 +614,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Y, TopRight.to_centre(0.1, hex))
-        .label(Label::Revenue(0), TopLeft.to_centre(0.15, hex)),
+        .label(Label::Y, TopRight.to_centre(0.1))
+        .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Green,
             "624".to_string(),
@@ -650,15 +650,15 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_corner(50, &hex, &BottomLeft),
-                City::single_at_corner(50, &hex, &TopLeft),
-                City::single_at_corner(50, &hex, &Right),
+                City::single_at_corner(50, &BottomLeft),
+                City::single_at_corner(50, &TopLeft),
+                City::single_at_corner(50, &Right),
             ],
             ctx,
             hex,
         )
-        .label(Label::City("M".to_string()), Left.to_centre(0.1, hex))
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex)),
+        .label(Label::City("M".to_string()), Left.to_centre(0.1))
+        .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Grey,
             "639".to_string(),
@@ -693,8 +693,8 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Y, Right.to_centre(0.1, hex))
-        .label(Label::Revenue(0), TopRight.to_centre(0.15, hex)),
+        .label(Label::Y, Right.to_centre(0.1))
+        .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Brown,
             "911".to_string(),
@@ -709,7 +709,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.5, hex)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
         Tile::new(
             Green,
             "X1".to_string(),
@@ -720,9 +720,9 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(50, &hex, &Top),
-                City::single_at_face(50, &hex, &LowerLeft),
-                City::single_at_face(50, &hex, &LowerRight),
+                City::single_at_face(50, &Top),
+                City::single_at_face(50, &LowerLeft),
+                City::single_at_face(50, &LowerRight),
             ],
             ctx,
             hex,
@@ -730,10 +730,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
         .label(Label::City("M".to_string()), BottomLeft)
         // TODO: nudge isn't doing anything!!!
         // Need to scale by hex.max_d !!!
-        .label(
-            Label::Revenue(0),
-            TopLeft.nudge(1.3 * PI / 2.0, 0.08 * hex.max_d),
-        ),
+        .label(Label::Revenue(0), TopLeft.nudge(1.3 * PI / 2.0, 0.16)),
         Tile::new(
             Green,
             "X2".to_string(),
@@ -744,18 +741,15 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(50, &hex, &Top),
-                City::single_at_face(50, &hex, &UpperLeft),
-                City::single_at_face(50, &hex, &LowerRight),
+                City::single_at_face(50, &Top),
+                City::single_at_face(50, &UpperLeft),
+                City::single_at_face(50, &LowerRight),
             ],
             ctx,
             hex,
         )
         .label(Label::City("M".to_string()), BottomLeft)
-        .label(
-            Label::Revenue(0),
-            Right.nudge(-3.0 * PI / 4.0, 0.06 * hex.max_d),
-        ),
+        .label(Label::Revenue(0), Right.nudge(-3.0 * PI / 4.0, 0.12)),
         Tile::new(
             Green,
             "X3".to_string(),
@@ -766,23 +760,20 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(50, &hex, &Top),
-                City::single_at_face(50, &hex, &Bottom),
-                City::single_at_corner(50, &hex, &Left),
+                City::single_at_face(50, &Top),
+                City::single_at_face(50, &Bottom),
+                City::single_at_corner(50, &Left),
             ],
             ctx,
             hex,
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(-0.75 * PI, 0.05 * hex.max_d),
+            BottomLeft.nudge(-0.75 * PI, 0.1),
         )
         // TODO: nudge isn't doing anything!!!
         // Need to scale by hex.max_d !!!
-        .label(
-            Label::Revenue(0),
-            TopLeft.nudge(1.3 * PI / 2.0, 0.08 * hex.max_d),
-        ),
+        .label(Label::Revenue(0), TopLeft.nudge(1.3 * PI / 2.0, 0.16)),
         Tile::new(
             Green,
             "X4".to_string(),
@@ -793,18 +784,18 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(50, &hex, &Top),
-                City::single_at_corner(50, &hex, &Left),
-                City::single_at_corner(50, &hex, &Right),
+                City::single_at_face(50, &Top),
+                City::single_at_corner(50, &Left),
+                City::single_at_corner(50, &Right),
             ],
             ctx,
             hex,
         )
         .label(
             Label::City("M".to_string()),
-            BottomRight.nudge(-PI / 2.0, 0.1 * hex.max_d),
+            BottomRight.nudge(-PI / 2.0, 0.2),
         )
-        .label(Label::Revenue(0), BottomLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
         Tile::new(
             Brown,
             "X5".to_string(),
@@ -817,14 +808,14 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(70, &hex, &Top),
-                City::double(70).nudge(hex, PI / 2.0, 0.1),
+                City::single_at_face(70, &Top),
+                City::double(70).nudge(PI / 2.0, 0.1),
             ],
             ctx,
             hex,
         )
         .label(Label::City("M".to_string()), BottomLeft)
-        .label(Label::Revenue(0), Left.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), Left.to_centre(0.1)),
         Tile::new(
             Brown,
             "X6".to_string(),
@@ -837,14 +828,14 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_corner(70, &hex, &Left),
-                City::double(70).rotate(PI / 2.0).nudge(hex, 0.0, 0.1),
+                City::single_at_corner(70, &Left),
+                City::double(70).rotate(PI / 2.0).nudge(0.0, 0.1),
             ],
             ctx,
             hex,
         )
         .label(Label::City("M".to_string()), BottomLeft)
-        .label(Label::Revenue(0), TopLeft.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Brown,
             "X7".to_string(),
@@ -857,14 +848,14 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ],
             // TODO: Montreal label
             vec![
-                City::single_at_face(70, &hex, &UpperRight),
-                City::double(70).nudge(hex, PI / 2.0, 0.3),
+                City::single_at_face(70, &UpperRight),
+                City::double(70).nudge(PI / 2.0, 0.3),
             ],
             ctx,
             hex,
         )
         .label(Label::City("M".to_string()), Left)
-        .label(Label::Revenue(0), TopLeft.to_centre(0.15, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Grey,
             "X8".to_string(),
@@ -882,7 +873,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
         )
         // NOTE: add city and revenue labels.
         .label(Label::City("O".to_string()), Left)
-        .label(Label::Revenue(0), BottomLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
         Tile::new(
             Yellow,
             "IN10".to_string(),
@@ -898,7 +889,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
         Tile::new(
             Green,
             "IN11".to_string(),
@@ -909,20 +900,13 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Catalogue {
                 Track::straight(Bottom),
             ],
             vec![
-                City::single_at_face(30, hex, &LowerLeft).nudge(
-                    hex,
-                    -PI / 6.0,
-                    0.2,
-                ),
-                City::single_at_face(30, hex, &UpperRight).nudge(
-                    hex,
-                    5.0 * PI / 6.0,
-                    0.2,
-                ),
+                City::single_at_face(30, &LowerLeft).nudge(-PI / 6.0, 0.2),
+                City::single_at_face(30, &UpperRight)
+                    .nudge(5.0 * PI / 6.0, 0.2),
             ],
             ctx,
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1, hex)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
     ]
 }
