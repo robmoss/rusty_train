@@ -41,7 +41,7 @@ pub type LabelAndPos = (crate::label::Label, crate::hex::HexPosition);
 pub type Tiles = Vec<Tile>;
 
 /// A tile contains some number of track segments and cities.
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct Tile {
     pub colour: HexColour,
     pub name: String,

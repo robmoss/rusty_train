@@ -402,12 +402,18 @@ impl State {
         println!("{} == test_tiles() : {}", tiles_file, test == read);
 
         let catalogue = tile_catalogue(&hex, ctx);
+        println!("Tile counts: {} vs {}", catalogue.len(), test.len());
 
         // Check the conversion from tile::Tile to de::Tile.
         for (ix, de_tile) in test_tiles.tiles.iter().enumerate() {
             let from_cat: rusty_train::de::Tile = (&catalogue[ix]).into();
             if de_tile != &from_cat {
                 println!("Tile #{} '{}' does not match", ix, de_tile.name);
+                println!("");
+                println!("{:?}", de_tile);
+                println!("");
+                println!("{:?}", from_cat);
+                println!("");
             }
         }
 
@@ -417,6 +423,11 @@ impl State {
         {
             if test != orig {
                 println!("tile #{} != tile '{}'", ix, orig.name);
+                println!("");
+                println!("{:?}", test);
+                println!("");
+                println!("{:?}", orig);
+                println!("");
             }
         }
 
