@@ -67,6 +67,9 @@ pub enum TrackType {
     GentleR(HexFace),
     HardL(HexFace),
     HardR(HexFace),
+    Frac((HexFace, f64)),
+    GentleLHalf(HexFace),
+    GentleRHalf(HexFace),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -358,6 +361,16 @@ impl From<&Track> for crate::track::Track {
             }
             TrackType::HardR(ref face) => {
                 crate::track::Track::hard_r(face.into())
+            }
+            TrackType::Frac((ref face, frac)) => {
+                crate::track::Track::straight(face.into())
+                    .with_span(0.0, frac)
+            }
+            TrackType::GentleLHalf(ref face) => {
+                crate::track::Track::gentle_l(face.into()).with_span(0.0, 0.5)
+            }
+            TrackType::GentleRHalf(ref face) => {
+                crate::track::Track::gentle_r(face.into()).with_span(0.0, 0.5)
             }
         };
         let track = if let Some((posn, revenue)) = t.dit {
@@ -2308,25 +2321,21 @@ pub fn test_tiles() -> Tiles {
                         ..Default::default()
                     },
                     Track {
-                        // TODO: span (0.0, 0.5)
-                        track_type: GentleR(HexFace::LowerLeft),
+                        track_type: GentleRHalf(HexFace::LowerLeft),
                         ..Default::default()
                     },
-                    // Track {
-                    //     // TODO: span (0.0, 0.5)
-                    //     track_type: GentleL(HexFace::LowerRight),
-                    //     ..Default::default()
-                    // },
                     Track {
-                        // TODO: span (0.0, 0.6)
-                        track_type: Straight(HexFace::Top),
+                        track_type: GentleLHalf(HexFace::LowerRight),
                         ..Default::default()
                     },
-                    // Track {
-                    //    // TODO: span (0.0, 0.4)
-                    //     track_type: Straight(HexFace::Bottom),
-                    //     ..Default::default()
-                    // },
+                    Track {
+                        track_type: Frac((HexFace::Top, 0.6)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Frac((HexFace::Bottom, 0.4)),
+                        ..Default::default()
+                    },
                 ],
                 cities: vec![
                     City {
