@@ -63,7 +63,7 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
                 cr.translate(x, y);
             }
 
-            let (tile_ix, tile_angle) = if let UiMode::EditTile {
+            let (tile_ix, tile_angle) = if let UiMode::ReplaceTile {
                 ref hex,
                 ref candidates,
                 ref show_original,
@@ -111,7 +111,7 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             let active = if let UiMode::Normal { active_hex } = state.ui_mode
             {
                 active_hex.0 == r && active_hex.1 == c
-            } else if let UiMode::EditTile { hex, .. } = state.ui_mode {
+            } else if let UiMode::ReplaceTile { hex, .. } = state.ui_mode {
                 hex.0 == r && hex.1 == c
             } else if let UiMode::EditTokens { hex, .. } = state.ui_mode {
                 hex.0 == r && hex.1 == c
@@ -144,7 +144,7 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
                 if let UiMode::Normal { .. } = state.ui_mode {
                     // Show the active selection with a red border.
                     cr.set_source_rgb(0.7, 0.0, 0.0);
-                } else if let UiMode::EditTile { .. } = state.ui_mode {
+                } else if let UiMode::ReplaceTile { .. } = state.ui_mode {
                     // Show the edit selection with a blue border.
                     cr.set_source_rgb(0.0, 0.0, 0.7);
                 } else if let UiMode::EditTokens { .. } = state.ui_mode {
@@ -232,7 +232,7 @@ pub enum UiMode {
     Normal {
         active_hex: MapCoord,
     },
-    EditTile {
+    ReplaceTile {
         hex: MapCoord,
         candidates: Vec<TileId>,
         show_original: bool,
@@ -566,7 +566,25 @@ pub fn drawable<F>(
                     da.queue_draw();
                 }
                 gdk::enums::key::e | gdk::enums::key::E => {
-                    // NOTE: switch to edit mode!
+                    // NOTE: switch to replace mode, with *any* tile being an
+                    // acceptable candidate.
+                    let hex = active_hex.clone();
+                    let candidates: Vec<usize> =
+                        (0..(s.map.catalogue.len())).collect();
+                    if candidates.len() > 0 {
+                        s.ui_mode = UiMode::ReplaceTile {
+                            hex,
+                            candidates,
+                            show_original: false,
+                            selected: 0,
+                            angle: 0.0,
+                        };
+                        da.queue_draw();
+                    }
+                }
+                gdk::enums::key::u | gdk::enums::key::U => {
+                    // NOTE: switch to replace mode, with the candidates being
+                    // all acceptable upgrade tiles.
                     // TODO: smart selection of candidates --- next_phase()?
                     // If no candidates, automatically exit.
 
@@ -588,7 +606,7 @@ pub fn drawable<F>(
                         .map(|(ix, _t)| ix)
                         .collect();
                     if candidates.len() > 0 {
-                        s.ui_mode = UiMode::EditTile {
+                        s.ui_mode = UiMode::ReplaceTile {
                             hex,
                             candidates,
                             show_original: false,
@@ -633,7 +651,7 @@ pub fn drawable<F>(
                 }
                 _ => {}
             },
-            UiMode::EditTile {
+            UiMode::ReplaceTile {
                 ref hex,
                 ref candidates,
                 ref mut show_original,
