@@ -202,6 +202,15 @@ fn build_ui(application: &gtk::Application) {
 }
 
 fn main() {
+    let cli_args = args().collect::<Vec<_>>();
+    if cli_args.len() == 2 && cli_args[1] == "-q" {
+        let surface = ImageSurface::create(Format::ARgb32, 600, 600)
+            .expect("Can't create surface");
+        let icx = Context::new(&surface);
+        let _ = State::new(&icx);
+        return;
+    }
+
     let application =
         gtk::Application::new(Some("rusty_train.main"), Default::default())
             .expect("Initialisation failed...");
