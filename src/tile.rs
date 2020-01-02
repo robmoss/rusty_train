@@ -1,6 +1,6 @@
 use crate::city::City;
 use crate::draw::Draw;
-use crate::hex::{Hex, HexColour, HexPosition};
+use crate::hex::{Hex, HexColour};
 use crate::label::Label;
 use crate::track::Track;
 use cairo::Context;
