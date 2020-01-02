@@ -1,6 +1,6 @@
 use crate::coord::Coord;
 use crate::draw::Draw;
-use crate::hex::{Delta, Hex, HexCorner, HexFace, HexPosition};
+use crate::hex::{Delta, Direction, Hex, HexCorner, HexFace, HexPosition};
 use cairo::Context;
 use std::f64::consts::PI;
 
@@ -30,10 +30,13 @@ impl City {
     ) -> Coord {
         let radius = 0.5 * hex.max_d;
         match delta {
-            Some(Delta::Nudge(angle, frac)) => Coord {
-                x: frac * radius * angle.cos(),
-                y: frac * radius * angle.sin(),
-            },
+            Some(Delta::Nudge(angle, frac)) => {
+                let angle = angle.radians();
+                Coord {
+                    x: frac * radius * angle.cos(),
+                    y: frac * radius * angle.sin(),
+                }
+            }
             Some(Delta::ToCentre(frac)) => from * -frac,
             None => (0.0, 0.0).into(),
         }
@@ -95,8 +98,8 @@ impl City {
         ctx.translate(-coord.x, -coord.y);
     }
 
-    pub fn nudge(mut self, angle: f64, frac: f64) -> Self {
-        self.position = self.position.nudge(angle, frac);
+    pub fn nudge(mut self, dir: Direction, frac: f64) -> Self {
+        self.position = self.position.nudge(dir, frac);
         self
     }
 

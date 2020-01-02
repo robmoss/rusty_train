@@ -2,6 +2,8 @@ use cairo::{Context, LineCap, LineJoin, TextExtents};
 
 use crate::coord::Coord;
 use crate::prelude::PI;
+use crate::prelude::{PI_1_4, PI_3_4};
+use crate::prelude::{PI_1_6, PI_2_6, PI_3_6, PI_4_6, PI_5_6};
 
 /// The tile background colours.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -68,9 +70,9 @@ impl HexFace {
         pos.to_centre(frac)
     }
 
-    pub fn nudge(self, angle: f64, frac: f64) -> HexPosition {
+    pub fn nudge(self, dir: Direction, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.nudge(angle, frac)
+        pos.nudge(dir, frac)
     }
 
     pub fn clockwise(&self) -> Self {
@@ -147,9 +149,9 @@ impl HexCorner {
         pos.to_centre(frac)
     }
 
-    pub fn nudge(self, angle: f64, frac: f64) -> HexPosition {
+    pub fn nudge(self, dir: Direction, frac: f64) -> HexPosition {
         let pos: HexPosition = self.into();
-        pos.nudge(angle, frac)
+        pos.nudge(dir, frac)
     }
 
     pub fn next(&self) -> Self {
@@ -179,10 +181,55 @@ impl HexCorner {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Direction {
+    N,
+    NNE,
+    NE,
+    NEE,
+    E,
+    SEE,
+    SE,
+    SSE,
+    S,
+    SSW,
+    SW,
+    SWW,
+    W,
+    NWW,
+    NW,
+    NNW,
+}
+
+impl Direction {
+    pub fn radians(&self) -> f64 {
+        use Direction::*;
+
+        match self {
+            N => -PI_3_6,   // - PI / 2
+            NNE => -PI_2_6, // - 2 PI / 6
+            NE => -PI_1_4,  // - PI / 4
+            NEE => -PI_1_6, // - PI / 6
+            E => 0.0,       //   0 radians
+            SEE => PI_1_6,  //   PI / 6
+            SE => PI_1_4,   //   PI / 4
+            SSE => PI_2_6,  //   2 PI / 6
+            S => PI_3_6,    //   PI / 2
+            SSW => PI_4_6,  //   4 PI / 6
+            SW => PI_3_4,   //   3 PI / 4
+            SWW => PI_5_6,  //   5 PI / 6
+            W => PI,        //   PI
+            NWW => -PI_5_6, // - 5 PI / 6
+            NW => -PI_3_4,  // - 3 PI / 4
+            NNW => -PI_4_6, // - 4 PI / 6
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Delta {
     ToCentre(f64),
-    Nudge(f64, f64),
+    Nudge(Direction, f64),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -211,10 +258,10 @@ impl std::default::Default for HexPosition {
 }
 
 impl HexPosition {
-    pub fn nudge(self, angle: f64, frac: f64) -> Self {
+    pub fn nudge(self, dir: Direction, frac: f64) -> Self {
         use HexPosition::*;
 
-        let delta = Some(Delta::Nudge(angle, frac));
+        let delta = Some(Delta::Nudge(dir, frac));
         match self {
             Centre(_) => Centre(delta),
             Face(face, _) => Face(face, delta),
@@ -240,6 +287,7 @@ impl HexPosition {
         match self {
             Centre(delta) => {
                 if let Some(Delta::Nudge(angle, frac)) = delta {
+                    let angle = angle.radians();
                     Coord {
                         x: frac * radius * angle.cos(),
                         y: frac * radius * angle.sin(),
@@ -251,10 +299,13 @@ impl HexPosition {
             Face(face, delta) => {
                 let coord = &hex.midpoint(&face);
                 let shift = match delta {
-                    Some(Delta::Nudge(angle, frac)) => Coord {
-                        x: frac * radius * angle.cos(),
-                        y: frac * radius * angle.sin(),
-                    },
+                    Some(Delta::Nudge(angle, frac)) => {
+                        let angle = angle.radians();
+                        Coord {
+                            x: frac * radius * angle.cos(),
+                            y: frac * radius * angle.sin(),
+                        }
+                    }
                     Some(Delta::ToCentre(frac)) => coord * -frac,
                     None => (0.0, 0.0).into(),
                 };
@@ -263,10 +314,13 @@ impl HexPosition {
             Corner(corner, delta) => {
                 let coord = hex.corner_coord(&corner);
                 let shift = match delta {
-                    Some(Delta::Nudge(angle, frac)) => Coord {
-                        x: frac * radius * angle.cos(),
-                        y: frac * radius * angle.sin(),
-                    },
+                    Some(Delta::Nudge(angle, frac)) => {
+                        let angle = angle.radians();
+                        Coord {
+                            x: frac * radius * angle.cos(),
+                            y: frac * radius * angle.sin(),
+                        }
+                    }
                     Some(Delta::ToCentre(frac)) => coord * -frac,
                     None => (0.0, 0.0).into(),
                 };

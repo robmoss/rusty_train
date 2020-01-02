@@ -451,7 +451,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
         )
         .label(
             Label::City("T".to_string()),
-            BottomRight.nudge(-PI / 2.0, 0.2),
+            BottomRight.nudge(Direction::N, 0.2),
         )
         .label(Label::Revenue(0), Bottom.to_centre(1.0)),
         Tile::new(
@@ -728,7 +728,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
         .label(Label::City("M".to_string()), BottomLeft)
         // TODO: nudge isn't doing anything!!!
         // Need to scale by hex.max_d !!!
-        .label(Label::Revenue(0), TopLeft.nudge(1.3 * PI / 2.0, 0.16)),
+        .label(Label::Revenue(0), TopLeft.nudge(Direction::SSW, 0.16)),
         Tile::new(
             Green,
             "X2".to_string(),
@@ -747,7 +747,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
             hex,
         )
         .label(Label::City("M".to_string()), BottomLeft)
-        .label(Label::Revenue(0), Right.nudge(-3.0 * PI / 4.0, 0.12)),
+        .label(Label::Revenue(0), Right.nudge(Direction::NW, 0.12)),
         Tile::new(
             Green,
             "X3".to_string(),
@@ -767,11 +767,11 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(-0.75 * PI, 0.1),
+            BottomLeft.nudge(Direction::NW, 0.1),
         )
         // TODO: nudge isn't doing anything!!!
         // Need to scale by hex.max_d !!!
-        .label(Label::Revenue(0), TopLeft.nudge(1.3 * PI / 2.0, 0.16)),
+        .label(Label::Revenue(0), TopLeft.nudge(Direction::SSW, 0.16)),
         Tile::new(
             Green,
             "X4".to_string(),
@@ -791,7 +791,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
         )
         .label(
             Label::City("M".to_string()),
-            BottomRight.nudge(-PI / 2.0, 0.2),
+            BottomRight.nudge(Direction::N, 0.2),
         )
         .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
         Tile::new(
@@ -807,7 +807,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
             // TODO: Montreal label
             vec![
                 City::single_at_face(70, &Top),
-                City::double(70).nudge(PI / 2.0, 0.1),
+                City::double(70).nudge(Direction::S, 0.1),
             ],
             ctx,
             hex,
@@ -827,7 +827,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
             // TODO: Montreal label
             vec![
                 City::single_at_corner(70, &Left),
-                City::double(70).rotate(PI / 2.0).nudge(0.0, 0.1),
+                City::double(70).rotate(PI / 2.0).nudge(Direction::E, 0.1),
             ],
             ctx,
             hex,
@@ -847,7 +847,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
             // TODO: Montreal label
             vec![
                 City::single_at_face(70, &UpperRight),
-                City::double(70).nudge(PI / 2.0, 0.3),
+                City::double(70).nudge(Direction::S, 0.3),
             ],
             ctx,
             hex,
@@ -898,9 +898,10 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
                 Track::straight(Bottom),
             ],
             vec![
-                City::single_at_face(30, &LowerLeft).nudge(-PI / 6.0, 0.2),
+                City::single_at_face(30, &LowerLeft)
+                    .nudge(Direction::NEE, 0.2),
                 City::single_at_face(30, &UpperRight)
-                    .nudge(5.0 * PI / 6.0, 0.2),
+                    .nudge(Direction::SWW, 0.2),
             ],
             ctx,
             hex,

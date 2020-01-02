@@ -304,7 +304,7 @@ pub struct City {
     /// An optional nudge `(angle, frac)` where `frac` is relative to the
     /// maximal radius of the tile (i.e., from the centre to any corner).
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub nudge: Option<(f64, f64)>,
+    pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rotate: Option<f64>,
 }
@@ -328,7 +328,7 @@ impl std::convert::From<&crate::city::City> for City {
         let nudge = match position {
             Centre(delta) | Face(_, delta) | Corner(_, delta) => {
                 if let Some(Delta::Nudge(angle, frac)) = delta {
-                    Some((*angle, *frac))
+                    Some((angle.into(), *frac))
                 } else {
                     None
                 }
@@ -388,7 +388,7 @@ pub struct Label {
     /// An optional nudge `(angle, frac)` where `frac` is relative to the
     /// maximal radius of the tile (i.e., from the centre to any corner).
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub nudge: Option<(f64, f64)>,
+    pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub to_centre: Option<f64>,
 }
@@ -403,21 +403,21 @@ impl std::convert::From<&crate::tile::LabelAndPos> for Label {
         let nudge = match posn {
             Centre(delta) => {
                 if let Some(Nudge(angle, frac)) = delta {
-                    Some((*angle, *frac))
+                    Some((angle.into(), *frac))
                 } else {
                     None
                 }
             }
             Face(_face, delta) => {
                 if let Some(Nudge(angle, frac)) = delta {
-                    Some((*angle, *frac))
+                    Some((angle.into(), *frac))
                 } else {
                     None
                 }
             }
             Corner(_corner, delta) => {
                 if let Some(Nudge(angle, frac)) = delta {
-                    Some((*angle, *frac))
+                    Some((angle.into(), *frac))
                 } else {
                     None
                 }
@@ -462,6 +462,76 @@ impl Default for Label {
             location: Location::BottomRightCorner,
             nudge: None,
             to_centre: None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub enum Direction {
+    N,
+    NNE,
+    NE,
+    NEE,
+    E,
+    SEE,
+    SE,
+    SSE,
+    S,
+    SSW,
+    SW,
+    SWW,
+    W,
+    NWW,
+    NW,
+    NNW,
+}
+
+impl std::convert::From<&crate::hex::Direction> for Direction {
+    fn from(src: &crate::hex::Direction) -> Self {
+        use crate::hex::Direction::*;
+
+        match src {
+            N => Self::N,
+            NNE => Self::NNE,
+            NE => Self::NE,
+            NEE => Self::NEE,
+            E => Self::E,
+            SEE => Self::SEE,
+            SE => Self::SE,
+            SSE => Self::SSE,
+            S => Self::S,
+            SSW => Self::SSW,
+            SW => Self::SW,
+            SWW => Self::SWW,
+            W => Self::W,
+            NWW => Self::NWW,
+            NW => Self::NW,
+            NNW => Self::NNW,
+        }
+    }
+}
+
+impl std::convert::From<&Direction> for crate::hex::Direction {
+    fn from(src: &Direction) -> Self {
+        use crate::hex::Direction::*;
+
+        match src {
+            Direction::N => N,
+            Direction::NNE => NNE,
+            Direction::NE => NE,
+            Direction::NEE => NEE,
+            Direction::E => E,
+            Direction::SEE => SEE,
+            Direction::SE => SE,
+            Direction::SSE => SSE,
+            Direction::S => S,
+            Direction::SSW => SSW,
+            Direction::SW => SW,
+            Direction::SWW => SWW,
+            Direction::W => W,
+            Direction::NWW => NWW,
+            Direction::NW => NW,
+            Direction::NNW => NNW,
         }
     }
 }
@@ -625,9 +695,9 @@ impl From<&Location> for crate::hex::HexPosition {
 impl Label {
     pub fn position(&self) -> crate::hex::HexPosition {
         let position: crate::hex::HexPosition = (&self.location).into();
-        let position = if let Some((angle, frac)) = self.nudge {
+        let position = if let Some((ref angle, frac)) = self.nudge {
             // NOTE: retain fractional unit of distance.
-            position.nudge(angle, frac)
+            position.nudge(angle.into(), frac)
         } else {
             position
         };
@@ -785,8 +855,8 @@ impl CityType {
 impl City {
     pub fn build(&self) -> crate::city::City {
         let city = self.city_type.build(self.revenue);
-        let city = if let Some((angle, radius)) = self.nudge {
-            city.nudge(angle, radius)
+        let city = if let Some((ref angle, radius)) = self.nudge {
+            city.nudge(angle.into(), radius)
         } else {
             city
         };
@@ -1669,7 +1739,7 @@ pub fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("T".to_string()),
                         location: Location::BottomRightCorner,
-                        nudge: Some((-PI / 2.0, 0.2)),
+                        nudge: Some((Direction::N, 0.2)),
                         ..Default::default()
                     },
                     Label {
@@ -2367,7 +2437,7 @@ pub fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        nudge: Some((1.3 * PI / 2.0, 0.16)),
+                        nudge: Some((Direction::SSW, 0.16)),
                         ..Default::default()
                     },
                 ],
@@ -2416,7 +2486,7 @@ pub fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::RightCorner,
-                        nudge: Some((-3.0 * PI / 4.0, 0.12)),
+                        nudge: Some((Direction::NW, 0.12)),
                         ..Default::default()
                     },
                 ],
@@ -2460,13 +2530,13 @@ pub fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
-                        nudge: Some((-3.0 * PI / 4.0, 0.1)),
+                        nudge: Some((Direction::NW, 0.1)),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        nudge: Some((1.3 * PI / 2.0, 0.16)),
+                        nudge: Some((Direction::SSW, 0.16)),
                         ..Default::default()
                     },
                 ],
@@ -2510,7 +2580,7 @@ pub fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomRightCorner,
-                        nudge: Some((-PI / 2.0, 0.2)),
+                        nudge: Some((Direction::N, 0.2)),
                         ..Default::default()
                     },
                     Label {
@@ -2557,7 +2627,7 @@ pub fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Double(CornerLocation::Centre),
                         revenue: 70,
-                        nudge: Some((PI / 2.0, 0.1)),
+                        nudge: Some((Direction::S, 0.1)),
                         ..Default::default()
                     },
                 ],
@@ -2611,7 +2681,7 @@ pub fn test_tiles() -> Tiles {
                         city_type: CityType::Double(CornerLocation::Centre),
                         revenue: 70,
                         rotate: Some(PI / 2.0),
-                        nudge: Some((0.0, 0.1)),
+                        nudge: Some((Direction::E, 0.1)),
                         ..Default::default()
                     },
                 ],
@@ -2664,7 +2734,7 @@ pub fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Double(CornerLocation::Centre),
                         revenue: 70,
-                        nudge: Some((PI / 2.0, 0.3)),
+                        nudge: Some((Direction::S, 0.3)),
                         ..Default::default()
                     },
                 ],
@@ -2789,13 +2859,13 @@ pub fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Single(Location::LowerLeftFace),
                         revenue: 30,
-                        nudge: Some((-PI / 6.0, 0.2)),
+                        nudge: Some((Direction::NEE, 0.2)),
                         ..Default::default()
                     },
                     City {
                         city_type: CityType::Single(Location::UpperRightFace),
                         revenue: 30,
-                        nudge: Some((5.0 * PI / 6.0, 0.2)),
+                        nudge: Some((Direction::SWW, 0.2)),
                         ..Default::default()
                     },
                 ],
