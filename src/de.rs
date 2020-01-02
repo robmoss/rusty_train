@@ -16,6 +16,14 @@ pub struct Tiles {
     pub tiles: Vec<Tile>,
 }
 
+impl std::convert::From<&[crate::tile::Tile]> for Tiles {
+    fn from(src: &[crate::tile::Tile]) -> Self {
+        Self {
+            tiles: src.iter().map(|t| t.into()).collect(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum HexColour {
     Yellow,
@@ -492,6 +500,58 @@ pub fn load<P: AsRef<Path>>(
 ) -> Result<Catalogue, Box<dyn Error>> {
     let tiles = read(path)?;
     Ok(tiles.catalogue(hex, ctx))
+}
+
+pub fn read_tile<P: AsRef<Path>>(
+    path: P,
+    hex: &Hex,
+    ctx: &Context,
+) -> Result<crate::tile::Tile, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let tile: Tile = serde_json::from_reader(reader)?;
+    Ok(tile.build(hex, ctx))
+}
+
+pub fn read_tiles<P: AsRef<Path>>(
+    path: P,
+    hex: &Hex,
+    ctx: &Context,
+) -> Result<Vec<crate::tile::Tile>, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let tiles: Vec<Tile> = serde_json::from_reader(reader)?;
+    Ok(tiles.iter().map(|t| t.build(hex, ctx)).collect())
+}
+
+pub fn write_tile<P: AsRef<Path>>(
+    path: P,
+    tile: &crate::tile::Tile,
+    pretty: bool,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(path)?;
+    let tile: Tile = tile.into();
+    if pretty {
+        serde_json::to_writer_pretty(file, &tile)?;
+    } else {
+        serde_json::to_writer(file, &tile)?;
+    }
+    Ok(())
+}
+
+pub fn write_tiles<P: AsRef<Path>>(
+    path: P,
+    tiles: &[crate::tile::Tile],
+    pretty: bool,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(path)?;
+    let tiles: Tiles = tiles.into();
+    if pretty {
+        serde_json::to_writer_pretty(file, &tiles)?;
+    } else {
+        serde_json::to_writer(file, &tiles)?;
+    }
+    Ok(())
 }
 
 // NOTE: need hex and ctx to construct tiles!
