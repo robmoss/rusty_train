@@ -347,19 +347,18 @@ pub struct City {
 
 impl std::convert::From<&crate::city::City> for City {
     fn from(src: &crate::city::City) -> Self {
+        use crate::city::Tokens;
         use crate::hex::Delta;
         use crate::hex::HexPosition::*;
 
-        let num_tokens = src.token_ixs().len();
         let revenue = src.revenue;
         let position = &src.position;
-        let city_type = match num_tokens {
-            0 => CityType::Dit(CentreLocation::Centre),
-            1 => CityType::Single(position.into()),
-            2 => CityType::Double(position.into()),
-            3 => CityType::Triple(CentreLocation::Centre),
-            4 => CityType::Quad(CentreLocation::Centre),
-            _ => panic!("Invalid number of tokens for city: {}", num_tokens),
+        let city_type = match src.tokens {
+            Tokens::Dit => CityType::Dit(CentreLocation::Centre),
+            Tokens::Single => CityType::Single(position.into()),
+            Tokens::Double => CityType::Double(position.into()),
+            Tokens::Triple => CityType::Triple(CentreLocation::Centre),
+            Tokens::Quadruple => CityType::Quad(CentreLocation::Centre),
         };
         let nudge = match position {
             Centre(delta) | Face(_, delta) | Corner(_, delta) => {

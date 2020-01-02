@@ -5,6 +5,29 @@ use cairo::Context;
 use std::f64::consts::PI;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Tokens {
+    Dit,
+    Single,
+    Double,
+    Triple,
+    Quadruple,
+}
+
+impl Tokens {
+    pub fn count(&self) -> usize {
+        use Tokens::*;
+
+        match self {
+            Dit => 0,
+            Single => 1,
+            Double => 2,
+            Triple => 3,
+            Quadruple => 4,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Rotation {
     Zero,
     Cw90,
@@ -26,8 +49,7 @@ impl Rotation {
 /// Cities that are connected by track.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct City {
-    // TODO: replace this with an enum that has a .count() method?
-    num_tokens: usize,
+    pub tokens: Tokens,
     pub revenue: usize,
     pub position: HexPosition,
     pub angle: Rotation,
@@ -90,7 +112,7 @@ impl City {
         let angle = self.angle.radians();
         if let HexPosition::Corner(corner, _) = self.position {
             // NOTE: currently only implemented for two-token cities.
-            if self.num_tokens == 2 {
+            if self.tokens == Tokens::Double {
                 let extra = match corner {
                     TopLeft => -PI / 6.0,
                     TopRight => PI / 6.0,
@@ -124,7 +146,7 @@ impl City {
 
     pub fn central_dit(revenue: usize) -> City {
         City {
-            num_tokens: 0,
+            tokens: Tokens::Dit,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
@@ -133,7 +155,7 @@ impl City {
 
     pub fn single(revenue: usize) -> City {
         City {
-            num_tokens: 1,
+            tokens: Tokens::Single,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
@@ -142,7 +164,7 @@ impl City {
 
     pub fn single_at_face(revenue: usize, face: &HexFace) -> City {
         City {
-            num_tokens: 1,
+            tokens: Tokens::Single,
             revenue: revenue,
             position: HexPosition::Face(*face, None),
             angle: Rotation::Zero,
@@ -151,7 +173,7 @@ impl City {
 
     pub fn single_at_corner(revenue: usize, corner: &HexCorner) -> City {
         City {
-            num_tokens: 1,
+            tokens: Tokens::Single,
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
@@ -160,7 +182,7 @@ impl City {
 
     pub fn double(revenue: usize) -> City {
         City {
-            num_tokens: 2,
+            tokens: Tokens::Double,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
@@ -169,7 +191,7 @@ impl City {
 
     pub fn double_at_corner(revenue: usize, corner: &HexCorner) -> City {
         City {
-            num_tokens: 2,
+            tokens: Tokens::Double,
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
@@ -179,7 +201,7 @@ impl City {
     // TODO: triple as a triangle or as a row of 3 tokens?
     pub fn triple(revenue: usize) -> City {
         City {
-            num_tokens: 3,
+            tokens: Tokens::Triple,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
@@ -188,7 +210,7 @@ impl City {
 
     pub fn quad(revenue: usize) -> City {
         City {
-            num_tokens: 4,
+            tokens: Tokens::Quadruple,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
@@ -203,34 +225,37 @@ impl City {
         let radius = hex.max_d * 0.125;
         self.define_bg_path(hex, ctx);
 
-        // TODO: if self.num_tokens == 0
-
-        if self.num_tokens == 2 {
-            // Define each token space.
-            for x in vec![radius, -radius] {
-                ctx.new_sub_path();
-                ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
-            }
-        } else if self.num_tokens == 3 {
-            // Each circle is centred at the tip of an equilateral triangle
-            // with side length 2 * radius; it has height radius * sqrt(3).
-            let half_height = radius * (3.0 as f64).sqrt() / 2.0;
-            let centres = vec![
-                (-radius, half_height),
-                (radius, half_height),
-                (0.0, -half_height),
-            ];
-            // Define each token space.
-            for (x, y) in &centres {
-                ctx.new_sub_path();
-                ctx.arc(*x, *y, radius, 0.0, 2.0 * PI);
-            }
-        } else if self.num_tokens == 4 {
-            // Define each token space.
-            for x in vec![radius, -radius] {
-                for y in vec![radius, -radius] {
+        match self.tokens {
+            Tokens::Dit | Tokens::Single => {}
+            Tokens::Double => {
+                // Define each token space.
+                for x in vec![radius, -radius] {
                     ctx.new_sub_path();
-                    ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                    ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
+                }
+            }
+            Tokens::Triple => {
+                // Each circle is centred at the tip of an equilateral triangle
+                // with side length 2 * radius; it has height radius * sqrt(3).
+                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let centres = vec![
+                    (-radius, half_height),
+                    (radius, half_height),
+                    (0.0, -half_height),
+                ];
+                // Define each token space.
+                for (x, y) in &centres {
+                    ctx.new_sub_path();
+                    ctx.arc(*x, *y, radius, 0.0, 2.0 * PI);
+                }
+            }
+            Tokens::Quadruple => {
+                // Define each token space.
+                for x in vec![radius, -radius] {
+                    for y in vec![radius, -radius] {
+                        ctx.new_sub_path();
+                        ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                    }
                 }
             }
         }
@@ -240,98 +265,110 @@ impl City {
         let radius = hex.max_d * 0.125;
         ctx.new_path();
 
-        if self.num_tokens == 0 {
-            let radius = hex.max_d * 0.085;
-            let (x, y) = (0.0, 0.0);
-            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-        } else if self.num_tokens == 1 {
-            let (x, y) = (0.0, 0.0);
-            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-        } else if self.num_tokens == 2 {
-            // Define the containing box.
-            ctx.move_to(-radius, radius);
-            ctx.line_to(radius, radius);
-            ctx.arc_negative(radius, 0.0, radius, PI / 2.0, -PI / 2.0);
-            ctx.line_to(radius, -radius);
-            ctx.line_to(-radius, -radius);
-            ctx.arc_negative(-radius, 0.0, radius, -PI / 2.0, PI / 2.0);
-            ctx.close_path();
-        } else if self.num_tokens == 3 {
-            // Each circle is centred at the tip of an equilateral triangle
-            // with side length 2 * radius; it has height radius * sqrt(3).
-            let half_height = radius * (3.0 as f64).sqrt() / 2.0;
-            let centres = vec![
-                (-radius, half_height),
-                (radius, half_height),
-                (0.0, -half_height),
-            ];
-            // Define the containing box.
-            // Want the middle half of each edge of an equilateral triangle
-            // that is larger than that described by the circle centres.
-            let scale = 2.0 / ((3.0 as f64).sqrt() - 1.0);
-            let translate_y = -0.5 * radius;
-            let pts: Vec<(f64, f64)> = centres
-                .iter()
-                .map(|(x, y)| (scale * x, scale * y + translate_y))
-                .collect();
-            ctx.move_to(
-                pts[0].0 + 1.0 / 3.0 * (pts[1].0 - pts[0].0),
-                pts[0].1 + 1.0 / 3.0 * (pts[1].1 - pts[0].1),
-            );
-            ctx.line_to(
-                pts[0].0 + 2.0 / 3.0 * (pts[1].0 - pts[0].0),
-                pts[0].1 + 2.0 / 3.0 * (pts[1].1 - pts[0].1),
-            );
-            ctx.arc_negative(
-                centres[1].0,
-                centres[1].1,
-                radius,
-                PI / 2.0,
-                -PI / 6.0,
-            );
-            ctx.line_to(
-                pts[1].0 + 2.0 / 3.0 * (pts[2].0 - pts[1].0),
-                pts[1].1 + 2.0 / 3.0 * (pts[2].1 - pts[1].1),
-            );
-            ctx.arc_negative(
-                centres[2].0,
-                centres[2].1,
-                radius,
-                -PI / 6.0,
-                -5.0 * PI / 6.0,
-            );
-            ctx.line_to(
-                pts[2].0 + 2.0 / 3.0 * (pts[0].0 - pts[2].0),
-                pts[2].1 + 2.0 / 3.0 * (pts[0].1 - pts[2].1),
-            );
-            ctx.arc_negative(
-                centres[0].0,
-                centres[0].1,
-                radius,
-                -5.0 * PI / 6.0,
-                PI / 2.0,
-            );
-            ctx.close_path();
-        } else if self.num_tokens == 4 {
-            // Define the containing box.
-            ctx.move_to(-radius, 2.0 * radius);
-            ctx.line_to(radius, 2.0 * radius);
-            ctx.arc_negative(radius, radius, radius, PI / 2.0, 0.0);
-            ctx.line_to(2.0 * radius, radius);
-            ctx.line_to(2.0 * radius, -radius);
-            ctx.arc_negative(radius, -radius, radius, 0.0, -PI / 2.0);
-            ctx.line_to(radius, -2.0 * radius);
-            ctx.line_to(-radius, -2.0 * radius);
-            ctx.arc_negative(-radius, -radius, radius, -PI / 2.0, -PI);
-            ctx.line_to(-2.0 * radius, -radius);
-            ctx.line_to(-2.0 * radius, radius);
-            ctx.arc_negative(-radius, radius, radius, -PI, -3.0 * PI / 2.0);
-            ctx.line_to(-radius, 2.0 * radius);
+        match self.tokens {
+            Tokens::Dit => {
+                let radius = hex.max_d * 0.085;
+                let (x, y) = (0.0, 0.0);
+                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            }
+            Tokens::Single => {
+                let (x, y) = (0.0, 0.0);
+                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            }
+            Tokens::Double => {
+                // Define the containing box.
+                ctx.move_to(-radius, radius);
+                ctx.line_to(radius, radius);
+                ctx.arc_negative(radius, 0.0, radius, PI / 2.0, -PI / 2.0);
+                ctx.line_to(radius, -radius);
+                ctx.line_to(-radius, -radius);
+                ctx.arc_negative(-radius, 0.0, radius, -PI / 2.0, PI / 2.0);
+                ctx.close_path();
+            }
+            Tokens::Triple => {
+                // Each circle is centred at the tip of an equilateral triangle
+                // with side length 2 * radius; it has height radius * sqrt(3).
+                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let centres = vec![
+                    (-radius, half_height),
+                    (radius, half_height),
+                    (0.0, -half_height),
+                ];
+                // Define the containing box.
+                // Want the middle half of each edge of an equilateral triangle
+                // that is larger than that described by the circle centres.
+                let scale = 2.0 / ((3.0 as f64).sqrt() - 1.0);
+                let translate_y = -0.5 * radius;
+                let pts: Vec<(f64, f64)> = centres
+                    .iter()
+                    .map(|(x, y)| (scale * x, scale * y + translate_y))
+                    .collect();
+                ctx.move_to(
+                    pts[0].0 + 1.0 / 3.0 * (pts[1].0 - pts[0].0),
+                    pts[0].1 + 1.0 / 3.0 * (pts[1].1 - pts[0].1),
+                );
+                ctx.line_to(
+                    pts[0].0 + 2.0 / 3.0 * (pts[1].0 - pts[0].0),
+                    pts[0].1 + 2.0 / 3.0 * (pts[1].1 - pts[0].1),
+                );
+                ctx.arc_negative(
+                    centres[1].0,
+                    centres[1].1,
+                    radius,
+                    PI / 2.0,
+                    -PI / 6.0,
+                );
+                ctx.line_to(
+                    pts[1].0 + 2.0 / 3.0 * (pts[2].0 - pts[1].0),
+                    pts[1].1 + 2.0 / 3.0 * (pts[2].1 - pts[1].1),
+                );
+                ctx.arc_negative(
+                    centres[2].0,
+                    centres[2].1,
+                    radius,
+                    -PI / 6.0,
+                    -5.0 * PI / 6.0,
+                );
+                ctx.line_to(
+                    pts[2].0 + 2.0 / 3.0 * (pts[0].0 - pts[2].0),
+                    pts[2].1 + 2.0 / 3.0 * (pts[0].1 - pts[2].1),
+                );
+                ctx.arc_negative(
+                    centres[0].0,
+                    centres[0].1,
+                    radius,
+                    -5.0 * PI / 6.0,
+                    PI / 2.0,
+                );
+                ctx.close_path();
+            }
+            Tokens::Quadruple => {
+                // Define the containing box.
+                ctx.move_to(-radius, 2.0 * radius);
+                ctx.line_to(radius, 2.0 * radius);
+                ctx.arc_negative(radius, radius, radius, PI / 2.0, 0.0);
+                ctx.line_to(2.0 * radius, radius);
+                ctx.line_to(2.0 * radius, -radius);
+                ctx.arc_negative(radius, -radius, radius, 0.0, -PI / 2.0);
+                ctx.line_to(radius, -2.0 * radius);
+                ctx.line_to(-radius, -2.0 * radius);
+                ctx.arc_negative(-radius, -radius, radius, -PI / 2.0, -PI);
+                ctx.line_to(-2.0 * radius, -radius);
+                ctx.line_to(-2.0 * radius, radius);
+                ctx.arc_negative(
+                    -radius,
+                    radius,
+                    radius,
+                    -PI,
+                    -3.0 * PI / 2.0,
+                );
+                ctx.line_to(-radius, 2.0 * radius);
+            }
         }
     }
 
     pub fn token_ixs(&self) -> Vec<usize> {
-        (0..self.num_tokens).collect()
+        (0..self.tokens.count()).collect()
     }
 
     pub fn define_token_path(
@@ -340,7 +377,7 @@ impl City {
         hex: &Hex,
         ctx: &Context,
     ) -> bool {
-        if ix >= self.num_tokens {
+        if ix >= self.tokens.count() {
             return false;
         }
 
@@ -348,31 +385,34 @@ impl City {
         let radius = hex.max_d * 0.125;
         ctx.new_path();
 
-        if self.num_tokens == 1 {
-            let (x, y) = (0.0, 0.0);
-            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-        } else if self.num_tokens == 2 {
-            let x = vec![radius, -radius][ix];
-            ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
-        } else if self.num_tokens == 3 {
-            let half_height = radius * (3.0 as f64).sqrt() / 2.0;
-            let (x, y) = vec![
-                (-radius, half_height),
-                (radius, half_height),
-                (0.0, -half_height),
-            ][ix];
-            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-        } else if self.num_tokens == 4 {
-            let (x, y) = vec![
-                (radius, radius),
-                (radius, -radius),
-                (-radius, radius),
-                (-radius, -radius),
-            ][ix];
-            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-        } else {
-            // NOTE: will have to extend this for 6-token cities.
-            unreachable!()
+        match self.tokens {
+            Tokens::Dit => return false,
+            Tokens::Single => {
+                let (x, y) = (0.0, 0.0);
+                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            }
+            Tokens::Double => {
+                let x = vec![radius, -radius][ix];
+                ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
+            }
+            Tokens::Triple => {
+                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let (x, y) = vec![
+                    (-radius, half_height),
+                    (radius, half_height),
+                    (0.0, -half_height),
+                ][ix];
+                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            }
+            Tokens::Quadruple => {
+                let (x, y) = vec![
+                    (radius, radius),
+                    (radius, -radius),
+                    (-radius, radius),
+                    (-radius, -radius),
+                ][ix];
+                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            }
         }
 
         self.translate_end(hex, ctx);
@@ -392,7 +432,7 @@ impl Draw for City {
         self.translate_begin(hex, ctx);
 
         self.define_bg_path(hex, ctx);
-        if self.num_tokens == 0 {
+        if self.tokens == Tokens::Dit {
             ctx.set_source_rgb(0.0, 0.0, 0.0);
             ctx.fill_preserve();
         } else {
@@ -410,7 +450,7 @@ impl Draw for City {
 
         // TODO: if self.num_tokens == 0
         self.define_bg_path(hex, ctx);
-        if self.num_tokens == 0 {
+        if self.tokens == Tokens::Dit {
             ctx.set_source_rgb(1.0, 1.0, 1.0);
             ctx.set_line_width(hex.max_d * 0.01);
             ctx.stroke_preserve();
