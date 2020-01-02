@@ -4,6 +4,25 @@ use crate::hex::{Delta, Direction, Hex, HexCorner, HexFace, HexPosition};
 use cairo::Context;
 use std::f64::consts::PI;
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Rotation {
+    Zero,
+    Cw90,
+    Acw90,
+    HalfTurn,
+}
+
+impl Rotation {
+    pub fn radians(&self) -> f64 {
+        match self {
+            Rotation::Zero => 0.0,
+            Rotation::Cw90 => PI / 2.0,
+            Rotation::Acw90 => -PI / 2.0,
+            Rotation::HalfTurn => PI,
+        }
+    }
+}
+
 /// Cities that are connected by track.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct City {
@@ -11,14 +30,14 @@ pub struct City {
     num_tokens: usize,
     pub revenue: usize,
     pub position: HexPosition,
-    pub angle: f64,
+    pub angle: Rotation,
 }
 
 impl City {
     // TODO: allow a city to be "terminal" in that routes cannot leave it
     // (i.e., red off-map tiles) ... also need triangular track segments ...
-    pub fn rotate(mut self, angle: f64) -> Self {
-        self.angle += angle;
+    pub fn rotate(mut self, angle: Rotation) -> Self {
+        self.angle = angle;
         self
     }
 
@@ -68,7 +87,7 @@ impl City {
     fn rotate_angle(&self) -> f64 {
         use HexCorner::*;
 
-        let angle = self.angle;
+        let angle = self.angle.radians();
         if let HexPosition::Corner(corner, _) = self.position {
             // NOTE: currently only implemented for two-token cities.
             if self.num_tokens == 2 {
@@ -108,7 +127,7 @@ impl City {
             num_tokens: 0,
             revenue: revenue,
             position: HexPosition::Centre(None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -117,7 +136,7 @@ impl City {
             num_tokens: 1,
             revenue: revenue,
             position: HexPosition::Centre(None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -126,7 +145,7 @@ impl City {
             num_tokens: 1,
             revenue: revenue,
             position: HexPosition::Face(*face, None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -135,7 +154,7 @@ impl City {
             num_tokens: 1,
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -144,7 +163,7 @@ impl City {
             num_tokens: 2,
             revenue: revenue,
             position: HexPosition::Centre(None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -153,7 +172,7 @@ impl City {
             num_tokens: 2,
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -163,7 +182,7 @@ impl City {
             num_tokens: 3,
             revenue: revenue,
             position: HexPosition::Centre(None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 
@@ -172,7 +191,7 @@ impl City {
             num_tokens: 4,
             revenue: revenue,
             position: HexPosition::Centre(None),
-            angle: 0.0,
+            angle: Rotation::Zero,
         }
     }
 

@@ -1,6 +1,5 @@
 /// Load tile catalogues from disk.
 use crate::hex::Hex;
-use crate::prelude::PI;
 
 use cairo::Context;
 use serde::{Deserialize, Serialize};
@@ -296,6 +295,43 @@ pub enum CityType {
     Quad(CentreLocation),
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+pub enum Rotation {
+    Zero,
+    Cw90,
+    Acw90,
+    HalfTurn,
+}
+
+impl std::convert::From<crate::city::Rotation> for Option<Rotation> {
+    fn from(src: crate::city::Rotation) -> Self {
+        use crate::city::Rotation::*;
+
+        match src {
+            Zero => None,
+            Cw90 => Some(Rotation::Cw90),
+            Acw90 => Some(Rotation::Acw90),
+            HalfTurn => Some(Rotation::HalfTurn),
+        }
+    }
+}
+
+impl std::convert::From<Option<&Rotation>> for crate::city::Rotation {
+    fn from(src: Option<&Rotation>) -> Self {
+        use crate::city::Rotation::*;
+
+        match src {
+            None => Zero,
+            Some(ref rot) => match rot {
+                Rotation::Zero => Zero,
+                Rotation::Cw90 => Cw90,
+                Rotation::Acw90 => Acw90,
+                Rotation::HalfTurn => HalfTurn,
+            },
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct City {
     #[serde(flatten)]
@@ -306,7 +342,7 @@ pub struct City {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub rotate: Option<f64>,
+    pub rotate: Option<Rotation>,
 }
 
 impl std::convert::From<&crate::city::City> for City {
@@ -334,11 +370,7 @@ impl std::convert::From<&crate::city::City> for City {
                 }
             }
         };
-        let rotate = if src.angle == 0.0 {
-            None
-        } else {
-            Some(src.angle)
-        };
+        let rotate = src.angle.into();
         Self {
             city_type,
             revenue,
@@ -860,11 +892,7 @@ impl City {
         } else {
             city
         };
-        let city = if let Some(angle) = self.rotate {
-            city.rotate(angle)
-        } else {
-            city
-        };
+        let city = city.rotate(self.rotate.as_ref().into());
         city
     }
 }
@@ -2680,7 +2708,7 @@ pub fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Double(CornerLocation::Centre),
                         revenue: 70,
-                        rotate: Some(PI / 2.0),
+                        rotate: Some(Rotation::Cw90),
                         nudge: Some((Direction::E, 0.1)),
                         ..Default::default()
                     },
@@ -2785,7 +2813,7 @@ pub fn test_tiles() -> Tiles {
                 cities: vec![City {
                     city_type: CityType::Triple(CentreLocation::Centre),
                     revenue: 60,
-                    rotate: Some(PI),
+                    rotate: Some(Rotation::HalfTurn),
                     ..Default::default()
                 }],
                 labels: vec![

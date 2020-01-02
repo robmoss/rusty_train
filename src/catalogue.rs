@@ -827,7 +827,9 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
             // TODO: Montreal label
             vec![
                 City::single_at_corner(70, &Left),
-                City::double(70).rotate(PI / 2.0).nudge(Direction::E, 0.1),
+                City::double(70)
+                    .rotate(Rotation::Cw90)
+                    .nudge(Direction::E, 0.1),
             ],
             ctx,
             hex,
@@ -865,7 +867,7 @@ pub fn tile_catalogue(hex: &Hex, ctx: &Context) -> Tiles {
                 Track::mid(LowerRight),
                 Track::mid(UpperRight),
             ],
-            vec![City::triple(60).rotate(PI)],
+            vec![City::triple(60).rotate(Rotation::HalfTurn)],
             ctx,
             hex,
         )

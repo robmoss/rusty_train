@@ -49,6 +49,9 @@ pub use crate::hex::Direction;
 pub use crate::city::City;
 
 #[doc(inline)]
+pub use crate::city::Rotation;
+
+#[doc(inline)]
 pub use crate::track::Track;
 
 #[doc(inline)]
