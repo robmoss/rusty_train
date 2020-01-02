@@ -3,6 +3,39 @@
 //! A crate for working with 18xx [tiles](http://www.fwtwr.com/18xx/tiles/)
 //! and maps, and searching for train routes with optimal revenue.
 //!
+//! ## Defining tiles
+//!
+//! Use the [`rusty_train::tile::Tile`](tile/struct.Tile.html) data structure.
+//! This uses the [Cairo bindings](https://gtk-rs.org/docs/cairo/) provided by
+//! the [Gtk-rs](https://gtk-rs.org/) project.
+//!
+//! ```rust
+//! use rusty_train::prelude::*;
+//!
+//! // Create a Cairo surface for drawing tiles.
+//! let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
+//!     .expect("Can't create surface");
+//! let ctx = cairo::Context::new(&surface);
+//!
+//! // Define the basic tile geometry.
+//! let hex_max_diameter = 125.0;
+//! let hex = Hex::new(hex_max_diameter);
+//!
+//! // Create a tile that contains one track segment and a dit.
+//! let tile = Tile::new(
+//!     HexColour::Yellow,
+//!     "3".to_string(),
+//!     vec![Track::hard_l(HexFace::Bottom).with_dit(0.5, 10)],
+//!     vec![],
+//!     &ctx,
+//!     &hex,
+//!     );
+//!
+//! // Save this tile to a JSON file.
+//! let pretty_json = true;
+//! write_tile("tile_3.json", &tile, pretty_json);
+//! ```
+//!
 
 /// Cities and token spaces.
 pub mod city;
