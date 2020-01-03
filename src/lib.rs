@@ -3,6 +3,20 @@
 //! A crate for working with 18xx [tiles](http://www.fwtwr.com/18xx/tiles/)
 //! and maps, and searching for train routes with optimal revenue.
 //!
+//! ## Current status
+//!
+//! The following features are implemented:
+//!
+//! - Ability to define **most** 18xx tiles.
+//! - Drawing tiles on-screen and saving images to disk.
+//! - (De)serialising tile descriptions.
+//! - Placing tokens in token spaces.
+//!
+//! The following features are not yet provided:
+//!
+//! - Defining and manipulating 18xx game maps.
+//! - Searching maps for optimal routes.
+//!
 //! ## Defining tiles
 //!
 //! Use the [`rusty_train::tile::Tile`](tile/struct.Tile.html) data structure.
