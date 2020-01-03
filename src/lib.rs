@@ -12,11 +12,6 @@
 //! ```rust
 //! use rusty_train::prelude::*;
 //!
-//! // Create a Cairo surface for drawing tiles.
-//! let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
-//!     .expect("Can't create surface");
-//! let ctx = cairo::Context::new(&surface);
-//!
 //! // Define the basic tile geometry.
 //! let hex_max_diameter = 125.0;
 //! let hex = Hex::new(hex_max_diameter);
@@ -27,7 +22,6 @@
 //!     "3".to_string(),
 //!     vec![Track::hard_l(HexFace::Bottom).with_dit(0.5, 10)],
 //!     vec![],
-//!     &ctx,
 //!     &hex,
 //!     );
 //!
@@ -44,11 +38,6 @@
 //! ```rust,no_run
 //! # use rusty_train::prelude::*;
 //! #
-//! # // Create a Cairo surface for drawing tiles.
-//! # let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
-//! #     .expect("Can't create surface");
-//! # let ctx = cairo::Context::new(&surface);
-//! #
 //! # // Define the basic tile geometry.
 //! # let hex_max_diameter = 125.0;
 //! # let hex = Hex::new(hex_max_diameter);
@@ -63,7 +52,6 @@
 //!         Track::straight(HexFace::Bottom),
 //!     ],
 //!     vec![],
-//!     &ctx,
 //!     &hex,
 //! );
 //! let tile_x5 = Tile::new(
@@ -80,7 +68,6 @@
 //!         City::single_at_face(70, &HexFace::Top),
 //!         City::double(70).nudge(Direction::S, 0.1),
 //!     ],
-//!     &ctx,
 //!     &hex,
 //! )
 //! .label(Label::City("M".to_string()), HexCorner::BottomLeft)

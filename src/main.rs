@@ -187,10 +187,7 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
 }
 
 fn build_ui(application: &gtk::Application) {
-    let surface = ImageSurface::create(Format::ARgb32, 600, 600)
-        .expect("Can't create surface");
-    let icx = Context::new(&surface);
-    let state = Rc::new(RefCell::new(State::new(&icx)));
+    let state = Rc::new(RefCell::new(State::new()));
 
     drawable(application, state.clone(), 1366, 740, move |area, cr| {
         let w = area.get_allocated_width();
@@ -204,10 +201,7 @@ fn build_ui(application: &gtk::Application) {
 fn main() {
     let cli_args = args().collect::<Vec<_>>();
     if cli_args.len() == 2 && cli_args[1] == "-q" {
-        let surface = ImageSurface::create(Format::ARgb32, 600, 600)
-            .expect("Can't create surface");
-        let icx = Context::new(&surface);
-        let _ = State::new(&icx);
+        let _ = State::new();
         return;
     }
 
@@ -381,10 +375,10 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(ctx: &Context) -> Self {
+    pub fn new() -> Self {
         let hex_max_d = 125.0;
         let hex = Hex::new(hex_max_d);
-        let catalogue = tile_catalogue(&hex, ctx);
+        let catalogue = tile_catalogue(&hex);
 
         // let map = ... ?
         let num_rows = 6;

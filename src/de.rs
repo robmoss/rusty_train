@@ -1,7 +1,6 @@
 /// Load tile catalogues from disk.
 use crate::hex::Hex;
 
-use cairo::Context;
 use serde::{Deserialize, Serialize};
 
 use std::error::Error;
@@ -571,24 +570,22 @@ impl std::convert::From<&Direction> for crate::hex::Direction {
 pub fn read_tile<P: AsRef<Path>>(
     path: P,
     hex: &Hex,
-    ctx: &Context,
 ) -> Result<crate::tile::Tile, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let tile: Tile = serde_json::from_reader(reader)?;
-    Ok(tile.build(hex, ctx))
+    Ok(tile.build(hex))
 }
 
 /// Reads multiple tiles from disk.
 pub fn read_tiles<P: AsRef<Path>>(
     path: P,
     hex: &Hex,
-    ctx: &Context,
 ) -> Result<Vec<crate::tile::Tile>, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let tiles: Tiles = serde_json::from_reader(reader)?;
-    Ok(tiles.build(hex, ctx))
+    Ok(tiles.build(hex))
 }
 
 /// Writes a single tile to disk.
@@ -626,19 +623,18 @@ pub fn write_tiles<P: AsRef<Path>>(
 // NOTE: need hex and ctx to construct tiles!
 
 impl Tiles {
-    pub fn build(&self, hex: &Hex, ctx: &Context) -> crate::tile::Tiles {
-        self.tiles.iter().map(|t| t.build(hex, ctx)).collect()
+    pub fn build(&self, hex: &Hex) -> crate::tile::Tiles {
+        self.tiles.iter().map(|t| t.build(hex)).collect()
     }
 }
 
 impl Tile {
-    pub fn build(&self, hex: &Hex, ctx: &Context) -> crate::tile::Tile {
+    pub fn build(&self, hex: &Hex) -> crate::tile::Tile {
         let tile = crate::tile::Tile::new(
             (&self.colour).into(),
             self.name.clone(),
             self.track.iter().map(|t| t.into()).collect(),
             self.cities.iter().map(|c| c.build()).collect(),
-            ctx,
             hex,
         );
         let tile = self.labels.iter().fold(tile, |tile, label| {
@@ -2904,20 +2900,15 @@ mod tests {
         Ok(())
     }
 
-    fn init() -> (Hex, cairo::Context) {
-        let surface =
-            cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
-                .expect("Can't create surface");
-        let ctx = cairo::Context::new(&surface);
+    fn init_hex() -> Hex {
         let hex_max_diameter = 125.0;
-        let hex = Hex::new(hex_max_diameter);
-        (hex, ctx)
+        Hex::new(hex_max_diameter)
     }
 
     #[test]
     fn compare_catalogues() {
-        let (hex, ctx) = init();
-        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let hex = init_hex();
+        let catalogue = crate::catalogue::tile_catalogue(&hex);
         let de_tiles = super::test_tiles().tiles;
         assert_eq!(catalogue.len(), de_tiles.len());
     }
@@ -2936,14 +2927,14 @@ mod tests {
 
     #[test]
     fn json_round_trip_2() {
-        let (hex, ctx) = init();
-        let cat_in = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let hex = init_hex();
+        let cat_in = crate::catalogue::tile_catalogue(&hex);
         let filename = "test-json_round_trip_2.json";
         let pretty = false;
 
         let write_res = super::write_tiles(filename, &cat_in, pretty);
         assert!(write_res.is_ok(), "Could not write {}", filename);
-        let read_res = super::read_tiles(filename, &hex, &ctx);
+        let read_res = super::read_tiles(filename, &hex);
         assert!(read_res.is_ok(), "Could not read {}", filename);
         let cat_out = read_res.unwrap();
         assert_eq!(cat_in, cat_out);
@@ -2951,12 +2942,12 @@ mod tests {
 
     #[test]
     fn compare_to_catalogue_de() {
-        let (hex, ctx) = init();
-        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let hex = init_hex();
+        let catalogue = crate::catalogue::tile_catalogue(&hex);
         let de_tiles = super::test_tiles().tiles;
 
         for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {
-            let de_tile: crate::tile::Tile = de_descr.build(&hex, &ctx);
+            let de_tile: crate::tile::Tile = de_descr.build(&hex);
             assert_eq!(
                 cat_tile, &de_tile,
                 "Tiles differ: '{}' and '{}'",
@@ -2967,8 +2958,8 @@ mod tests {
 
     #[test]
     fn compare_to_catalogue_ser() {
-        let (hex, ctx) = init();
-        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let hex = init_hex();
+        let catalogue = crate::catalogue::tile_catalogue(&hex);
         let de_tiles = super::test_tiles().tiles;
 
         for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {

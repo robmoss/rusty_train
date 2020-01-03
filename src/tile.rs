@@ -63,7 +63,6 @@ impl Tile {
         name: String,
         tracks: Vec<Track>,
         cities: Vec<City>,
-        ctx: &Context,
         hex: &Hex,
     ) -> Self {
         // TODO: check track connectivity and crossing, determine layers
@@ -73,6 +72,7 @@ impl Tile {
         // part of the clipped path) and break them into separate segments
         // (e.g., straight -> mid + mid; gentle_l -> ...)
         // Hmmm ... maybe not
+        let ctx = hex.context();
         let mut tracks_tbl = HashMap::new();
         let mut cities_tbl = HashMap::new();
         let default_layer = DrawLayer::Normal;

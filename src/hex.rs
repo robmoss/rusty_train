@@ -366,6 +366,9 @@ pub struct Hex {
     // alpha: f64,
     // beta: f64,
     corners: Vec<Coord>,
+    #[allow(dead_code)]
+    surface: cairo::ImageSurface,
+    context: cairo::Context,
 }
 
 impl Hex {
@@ -385,13 +388,27 @@ impl Hex {
 
         let corner_coords = corners.iter().map(|c| c.into()).collect();
 
+        let dim = (max_d * 2.0) as i32;
+        let surface =
+            cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
+                .expect("Can't create cairo::ImageSurface");
+        let context = cairo::Context::new(&surface);
+        // Move the origin to the centre of this surface.
+        context.translate(max_d, max_d);
+
         Self {
             max_d: max_d,
             // min_d: min_d,
             // alpha: alpha,
             // beta: beta,
             corners: corner_coords,
+            surface,
+            context,
         }
+    }
+
+    pub fn context(&self) -> &cairo::Context {
+        &self.context
     }
 
     pub fn corner_coord(self: &Self, corner: &HexCorner) -> &Coord {
