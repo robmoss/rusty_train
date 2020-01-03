@@ -36,6 +36,57 @@
 //! write_tile("tile_3.json", &tile, pretty_json);
 //! ```
 //!
+//! More complex tiles, with multiple token spaces and overlapping tracks, can
+//! be defined in the same way. For example, here are definitions of tiles
+//! [45](http://www.fwtwr.com/18xx/tiles/tf/0045_1.gif) and
+//! [X5](http://www.fwtwr.com/18xx/tiles/tf/X5_1.gif):
+//!
+//! ```rust
+//! # use rusty_train::prelude::*;
+//! #
+//! # // Create a Cairo surface for drawing tiles.
+//! # let surface = cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
+//! #     .expect("Can't create surface");
+//! # let ctx = cairo::Context::new(&surface);
+//! #
+//! # // Define the basic tile geometry.
+//! # let hex_max_diameter = 125.0;
+//! # let hex = Hex::new(hex_max_diameter);
+//! #
+//! let tile_45 = Tile::new(
+//!     HexColour::Brown,
+//!     "45".to_string(),
+//!     vec![
+//!         Track::gentle_l(HexFace::UpperLeft),
+//!         Track::hard_r(HexFace::Top),
+//!         Track::gentle_r(HexFace::Bottom),
+//!         Track::straight(HexFace::Bottom),
+//!     ],
+//!     vec![],
+//!     &ctx,
+//!     &hex,
+//! );
+//! let tile_x5 = Tile::new(
+//!     HexColour::Brown,
+//!     "X5".to_string(),
+//!     vec![
+//!         Track::straight(HexFace::Top).with_clip(0.3625, 0.75),
+//!         Track::mid(HexFace::UpperLeft),
+//!         Track::mid(HexFace::LowerLeft),
+//!         Track::mid(HexFace::LowerRight),
+//!         Track::mid(HexFace::UpperRight),
+//!     ],
+//!     vec![
+//!         City::single_at_face(70, &HexFace::Top),
+//!         City::double(70).nudge(Direction::S, 0.1),
+//!     ],
+//!     &ctx,
+//!     &hex,
+//! )
+//! .label(Label::City("M".to_string()), HexCorner::BottomLeft)
+//! .label(Label::Revenue(0), HexCorner::Left.to_centre(0.1));
+//! ```
+//!
 
 /// Cities and token spaces.
 pub mod city;
