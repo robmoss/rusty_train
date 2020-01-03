@@ -384,52 +384,7 @@ impl State {
     pub fn new(ctx: &Context) -> Self {
         let hex_max_d = 125.0;
         let hex = Hex::new(hex_max_d);
-
-        let test_tiles = rusty_train::de::test_tiles();
-        let test = test_tiles.build(&hex, ctx);
-        let tiles_file = "tiles.json";
-
-        // Serialise the new tiles.
-        println!("Writing {} ...", tiles_file);
-        rusty_train::de::write_pretty(tiles_file, &test_tiles)
-            .expect(&format!("Could not write {}", tiles_file));
-
-        // Deserialise the new tiles and check that they are unchanged.
-        println!("Reading {} ...", tiles_file);
-        let read_tiles = rusty_train::de::read(tiles_file)
-            .expect(&format!("Could not read {}", tiles_file));
-        let read = read_tiles.build(&hex, ctx);
-        println!("{} == test_tiles() : {}", tiles_file, test == read);
-
         let catalogue = tile_catalogue(&hex, ctx);
-        println!("Tile counts: {} vs {}", catalogue.len(), test.len());
-
-        // Check the conversion from tile::Tile to de::Tile.
-        for (ix, de_tile) in test_tiles.tiles.iter().enumerate() {
-            let from_cat: rusty_train::de::Tile = (&catalogue[ix]).into();
-            if de_tile != &from_cat {
-                println!("Tile #{} '{}' does not match", ix, de_tile.name);
-                println!("");
-                println!("{:?}", de_tile);
-                println!("");
-                println!("{:?}", from_cat);
-                println!("");
-            }
-        }
-
-        // Compare the new tiles to the original catalogue.
-        for (ix, (test, orig)) in
-            test.iter().zip(catalogue.iter()).enumerate()
-        {
-            if test != orig {
-                println!("tile #{} != tile '{}'", ix, orig.name);
-                println!("");
-                println!("{:?}", test);
-                println!("");
-                println!("{:?}", orig);
-                println!("");
-            }
-        }
 
         // let map = ... ?
         let num_rows = 6;

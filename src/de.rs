@@ -567,31 +567,6 @@ impl std::convert::From<&Direction> for crate::hex::Direction {
     }
 }
 
-pub fn read<P: AsRef<Path>>(path: P) -> Result<Tiles, Box<dyn Error>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let tiles = serde_json::from_reader(reader)?;
-    Ok(tiles)
-}
-
-pub fn write<P: AsRef<Path>>(
-    path: P,
-    tiles: &Tiles,
-) -> Result<(), Box<dyn Error>> {
-    let file = File::create(path)?;
-    serde_json::to_writer(file, tiles)?;
-    Ok(())
-}
-
-pub fn write_pretty<P: AsRef<Path>>(
-    path: P,
-    tiles: &Tiles,
-) -> Result<(), Box<dyn Error>> {
-    let file = File::create(path)?;
-    serde_json::to_writer_pretty(file, tiles)?;
-    Ok(())
-}
-
 /// Reads a single tile from disk.
 pub fn read_tile<P: AsRef<Path>>(
     path: P,
@@ -612,8 +587,8 @@ pub fn read_tiles<P: AsRef<Path>>(
 ) -> Result<Vec<crate::tile::Tile>, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
-    let tiles: Vec<Tile> = serde_json::from_reader(reader)?;
-    Ok(tiles.iter().map(|t| t.build(hex, ctx)).collect())
+    let tiles: Tiles = serde_json::from_reader(reader)?;
+    Ok(tiles.build(hex, ctx))
 }
 
 /// Writes a single tile to disk.
@@ -897,6 +872,7 @@ impl City {
 }
 
 /// Should yield the same tiles as `crate::catalogue::tile_catalogue()`.
+#[allow(dead_code)]
 pub fn test_tiles() -> Tiles {
     use HexColour::*;
     use TrackType::*;
@@ -2905,5 +2881,103 @@ pub fn test_tiles() -> Tiles {
                 ..Default::default()
             },
         ],
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn read<P: AsRef<Path>>(path: P) -> Result<Tiles, Box<dyn Error>> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let tiles = serde_json::from_reader(reader)?;
+        Ok(tiles)
+    }
+
+    fn write<P: AsRef<Path>>(
+        path: P,
+        tiles: &Tiles,
+    ) -> Result<(), Box<dyn Error>> {
+        let file = File::create(path)?;
+        serde_json::to_writer(file, tiles)?;
+        Ok(())
+    }
+
+    fn init() -> (Hex, cairo::Context) {
+        let surface =
+            cairo::ImageSurface::create(cairo::Format::ARgb32, 600, 600)
+                .expect("Can't create surface");
+        let ctx = cairo::Context::new(&surface);
+        let hex_max_diameter = 125.0;
+        let hex = Hex::new(hex_max_diameter);
+        (hex, ctx)
+    }
+
+    #[test]
+    fn compare_catalogues() {
+        let (hex, ctx) = init();
+        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let de_tiles = super::test_tiles().tiles;
+        assert_eq!(catalogue.len(), de_tiles.len());
+    }
+
+    #[test]
+    fn json_round_trip_1() {
+        let filename = "test-json_round_trip_1.json";
+        let de_in = super::test_tiles();
+        let write_res = write(filename, &de_in);
+        assert!(write_res.is_ok(), "Could not write {}", filename);
+        let read_res = read(filename);
+        assert!(read_res.is_ok(), "Could not read {}", filename);
+        let de_out = read_res.unwrap();
+        assert_eq!(de_in.tiles, de_out.tiles);
+    }
+
+    #[test]
+    fn json_round_trip_2() {
+        let (hex, ctx) = init();
+        let cat_in = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let filename = "test-json_round_trip_2.json";
+        let pretty = false;
+
+        let write_res = super::write_tiles(filename, &cat_in, pretty);
+        assert!(write_res.is_ok(), "Could not write {}", filename);
+        let read_res = super::read_tiles(filename, &hex, &ctx);
+        assert!(read_res.is_ok(), "Could not read {}", filename);
+        let cat_out = read_res.unwrap();
+        assert_eq!(cat_in, cat_out);
+    }
+
+    #[test]
+    fn compare_to_catalogue_de() {
+        let (hex, ctx) = init();
+        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let de_tiles = super::test_tiles().tiles;
+
+        for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {
+            let de_tile: crate::tile::Tile = de_descr.build(&hex, &ctx);
+            assert_eq!(
+                cat_tile, &de_tile,
+                "Tiles differ: '{}' and '{}'",
+                cat_tile.name, de_tile.name
+            )
+        }
+    }
+
+    #[test]
+    fn compare_to_catalogue_ser() {
+        let (hex, ctx) = init();
+        let catalogue = crate::catalogue::tile_catalogue(&hex, &ctx);
+        let de_tiles = super::test_tiles().tiles;
+
+        for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {
+            let cat_descr: Tile = cat_tile.into();
+            assert_eq!(
+                &cat_descr, de_descr,
+                "Tiles differ: '{}' and '{}'",
+                cat_descr.name, de_descr.name
+            )
+        }
     }
 }
