@@ -393,6 +393,99 @@ impl Tile {
         // be an additional layer of filtering provided by the map itself.
         return true;
     }
+
+    /// Determines the surface size for this tile, which includes a small
+    /// margin on all four sides.
+    fn surface_width(&self, hex: &Hex) -> f64 {
+        let margin = 0.05;
+        hex.max_d * (1.0 + margin)
+    }
+
+    /// Saves the tile to a PNG file.
+    pub fn save_png<P: AsRef<std::path::Path>>(
+        &self,
+        hex: &Hex,
+        path: P,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let mut file = std::fs::File::create(path)?;
+        self.write_png(hex, &mut file)
+    }
+
+    /// Saves the tile to an SVG file.
+    pub fn save_svg<P: AsRef<std::path::Path>>(
+        &self,
+        hex: &Hex,
+        path: P,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let file = std::fs::File::create(path)?;
+        self.write_svg(hex, file)
+    }
+
+    /// Saves the tile to a PDF file.
+    pub fn save_pdf<P: AsRef<std::path::Path>>(
+        &self,
+        hex: &Hex,
+        path: P,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let file = std::fs::File::create(path)?;
+        self.write_pdf(hex, file)
+    }
+
+    /// Writes the tile as a PNG image to the provided stream.
+    pub fn write_png<W: std::io::Write>(
+        &self,
+        hex: &Hex,
+        stream: &mut W,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let margin = 0.05;
+        let width = hex.max_d * (1.0 + margin);
+        let dim = width as i32;
+        let surface =
+            cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
+                .map_err(|_status| "Can't create surface")?;
+        let ctx = cairo::Context::new(&surface);
+        ctx.translate(width / 2.0, width / 2.0);
+        self.draw(&ctx, hex);
+        surface.write_to_png(stream)?;
+        Ok(())
+    }
+
+    /// Writes the tile as an SVG image to the provided stream.
+    pub fn write_svg<W: std::io::Write + 'static>(
+        &self,
+        hex: &Hex,
+        stream: W,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let margin = 0.05;
+        let width = hex.max_d * (1.0 + margin);
+        let surface = cairo::SvgSurface::for_stream(width, width, stream)
+            .map_err(|_status| "Can't create surface")?;
+        let ctx = cairo::Context::new(&surface);
+        ctx.translate(width / 2.0, width / 2.0);
+        self.draw(&ctx, hex);
+        surface
+            .finish_output_stream()
+            .map(|_stream| ())
+            .map_err(|err| err.error.into())
+    }
+
+    /// Writes the tile as a PDF image to the provided stream.
+    pub fn write_pdf<W: std::io::Write + 'static>(
+        &self,
+        hex: &Hex,
+        stream: W,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let width = self.surface_width(hex);
+        let surface = cairo::PdfSurface::for_stream(width, width, stream)
+            .map_err(|_status| "Can't create surface")?;
+        let ctx = cairo::Context::new(&surface);
+        ctx.translate(width / 2.0, width / 2.0);
+        self.draw(&ctx, hex);
+        surface
+            .finish_output_stream()
+            .map(|_stream| ())
+            .map_err(|err| err.error.into())
+    }
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]

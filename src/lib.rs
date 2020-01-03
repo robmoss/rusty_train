@@ -41,7 +41,7 @@
 //! [45](http://www.fwtwr.com/18xx/tiles/tf/0045_1.gif) and
 //! [X5](http://www.fwtwr.com/18xx/tiles/tf/X5_1.gif):
 //!
-//! ```rust
+//! ```rust,no_run
 //! # use rusty_train::prelude::*;
 //! #
 //! # // Create a Cairo surface for drawing tiles.
@@ -85,6 +85,13 @@
 //! )
 //! .label(Label::City("M".to_string()), HexCorner::BottomLeft)
 //! .label(Label::Revenue(0), HexCorner::Left.to_centre(0.1));
+//!
+//! tile_x5.save_png(&hex, "tile_x5.png")
+//!     .expect("Could not save tile X5 as a PNG");
+//! tile_x5.save_svg(&hex, "tile_x5.svg")
+//!     .expect("Could not save tile X5 as an SVG");
+//! tile_x5.save_pdf(&hex, "tile_x5.pdf")
+//!     .expect("Could not save tile X5 as a PDF");
 //! ```
 //!
 
