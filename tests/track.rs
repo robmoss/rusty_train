@@ -1,6 +1,8 @@
 use cairo::{Context, Format, ImageSurface};
 use rusty_train::prelude::*;
 
+static HEX_DIAMETER: f64 = 150.0;
+
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
     let surface = ImageSurface::create(Format::ARgb32, width, height)
         .expect("Can't create surface");
@@ -12,8 +14,8 @@ fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
 
 #[test]
 fn two_straights_cross() {
-    let (ctx, _) = new_context(800, 800);
-    let hex = Hex::new(150.0);
+    let hex = Hex::new(HEX_DIAMETER);
+    let ctx = hex.context();
     let dt = 0.1;
     let t1 = Track::straight(HexFace::Top);
     let t2 = Track::straight(HexFace::UpperLeft);
@@ -32,8 +34,9 @@ fn no_escape(track: &Track, hex: &Hex, dt: f64, ctx: &Context) -> bool {
 
 #[test]
 fn track_contained_in_hex() {
-    let (ctx, surf) = new_context(800, 800);
-    let hex = Hex::new(150.0);
+    let dim = HEX_DIAMETER * 1.1;
+    let (ctx, surf) = new_context(dim as i32, dim as i32);
+    let hex = Hex::new(HEX_DIAMETER);
     let dt = 0.1;
 
     use HexFace::*;
@@ -97,7 +100,7 @@ fn track_contained_in_hex() {
                     ctx.restore();
 
                     ctx.save();
-                    ctx.translate(200.0, 200.0);
+                    ctx.translate(dim / 2.0, dim / 2.0);
 
                     // Clear the surface.
                     // https://www.cairographics.org/FAQ/#clear_a_surface
@@ -128,7 +131,7 @@ fn track_contained_in_hex() {
                         .expect("Couldn't create output PNG file");
                     surf.write_to_png(&mut file)
                         .expect("Couldn't write to output PNG file");
-                    ctx.translate(-200.0, -200.0);
+                    ctx.translate(-dim / 2.0, -dim / 2.0);
                     ctx.restore();
                     counter += 1;
                 }
@@ -139,8 +142,8 @@ fn track_contained_in_hex() {
 
 #[test]
 fn invalid_span_escapes_hex() {
-    let (ctx, _) = new_context(800, 800);
-    let hex = Hex::new(150.0);
+    let hex = Hex::new(HEX_DIAMETER);
+    let ctx = hex.context();
     let dt = 0.1;
 
     let t = Track::gentle_r(HexFace::LowerLeft).with_span(-0.5, 0.5);
@@ -149,8 +152,8 @@ fn invalid_span_escapes_hex() {
 
 #[test]
 fn coords_contained_in_track() {
-    let (ctx, _) = new_context(800, 800);
-    let hex = Hex::new(150.0);
+    let hex = Hex::new(HEX_DIAMETER);
+    let ctx = hex.context();
     let dt = 0.1;
 
     use HexFace::*;
