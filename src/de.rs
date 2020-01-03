@@ -10,7 +10,7 @@ use std::io::BufReader;
 use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-pub struct Tiles {
+struct Tiles {
     pub tiles: Vec<Tile>,
 }
 
@@ -23,7 +23,7 @@ impl std::convert::From<&[crate::tile::Tile]> for Tiles {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum HexColour {
+enum HexColour {
     Yellow,
     Green,
     Brown,
@@ -46,7 +46,7 @@ impl std::convert::From<crate::hex::HexColour> for HexColour {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum HexFace {
+enum HexFace {
     Top,
     UpperRight,
     LowerRight,
@@ -71,7 +71,7 @@ impl std::convert::From<crate::hex::HexFace> for HexFace {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Tile {
+struct Tile {
     pub name: String,
     pub colour: HexColour,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -107,7 +107,7 @@ impl Default for Tile {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub enum TrackType {
+enum TrackType {
     Mid(HexFace),
     Straight(HexFace),
     GentleL(HexFace),
@@ -120,7 +120,7 @@ pub enum TrackType {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Track {
+struct Track {
     #[serde(flatten)]
     pub track_type: TrackType,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -185,7 +185,7 @@ impl Default for Track {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum Location {
+enum Location {
     Centre,
     TopLeftCorner,
     TopRightCorner,
@@ -244,7 +244,7 @@ impl std::convert::From<&crate::hex::HexCorner> for Location {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum CornerLocation {
+enum CornerLocation {
     Centre,
     TopLeftCorner,
     TopRightCorner,
@@ -282,12 +282,12 @@ impl std::convert::From<&crate::hex::HexCorner> for CornerLocation {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum CentreLocation {
+enum CentreLocation {
     Centre,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum CityType {
+enum CityType {
     Dit(CentreLocation),
     Single(Location),
     Double(CornerLocation),
@@ -296,7 +296,7 @@ pub enum CityType {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum Rotation {
+enum Rotation {
     Zero,
     Cw90,
     Acw90,
@@ -333,7 +333,7 @@ impl std::convert::From<Option<&Rotation>> for crate::city::Rotation {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct City {
+struct City {
     #[serde(flatten)]
     pub city_type: CityType,
     pub revenue: usize,
@@ -391,7 +391,7 @@ impl Default for City {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum LabelType {
+enum LabelType {
     City(String),
     Y(()),
     TileName(()),
@@ -412,7 +412,7 @@ impl std::convert::From<&crate::label::Label> for LabelType {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct Label {
+struct Label {
     #[serde(flatten)]
     pub label_type: LabelType,
     pub location: Location,
@@ -498,7 +498,7 @@ impl Default for Label {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-pub enum Direction {
+enum Direction {
     N,
     NNE,
     NE,
@@ -873,7 +873,7 @@ impl City {
 
 /// Should yield the same tiles as `crate::catalogue::tile_catalogue()`.
 #[allow(dead_code)]
-pub fn test_tiles() -> Tiles {
+fn test_tiles() -> Tiles {
     use HexColour::*;
     use TrackType::*;
 
