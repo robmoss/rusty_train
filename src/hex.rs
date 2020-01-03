@@ -460,24 +460,38 @@ impl Hex {
     {
         let pos: HexPosition = pos.into();
         let exts = ctx.text_extents(text);
-        let coord = pos.coord(self);
+        let mut coord = pos.coord(self);
         // TODO: margins and scaling ...
         // Need to increase the nudge because of the circle
         // ... multiple exts by scale
         // ... hmm ... maybe not ...?
         let nudge = self.text_nudge(&pos, &exts);
+        let ratio = exts.width / exts.height;
+        let mut circ_nudge = nudge.clone();
 
         let scale = 1.5;
         let radius = scale * (0.5 * exts.width).max(0.5 * exts.height);
 
+        let matrix = ctx.get_matrix();
+        if ratio >= 2.0 {
+            ctx.scale(1.0, 1.5 / ratio);
+            coord.y *= ratio / 1.5;
+            circ_nudge.y *= 1.0 + 0.8 * (ratio / 1.5 - 1.0);
+        }
+
         ctx.new_path();
         ctx.arc(
-            coord.x + nudge.x + 0.7 * radius,
-            coord.y + nudge.y - 0.5 * radius,
+            coord.x + circ_nudge.x + 0.7 * radius,
+            coord.y + circ_nudge.y - 0.5 * radius,
             radius,
             0.0,
             2.0 * PI,
         );
+        if ratio >= 2.0 {
+            ctx.set_matrix(matrix);
+            coord.y *= 1.5 / ratio;
+        }
+
         ctx.set_source_rgb(1.0, 1.0, 1.0);
         ctx.fill_preserve();
         ctx.set_line_width(self.max_d * 0.01);
