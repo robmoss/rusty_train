@@ -2,7 +2,7 @@ use cairo::Context;
 use gtk::Inhibit;
 
 use crate::hex::Hex;
-use crate::map::{HexAddress, Map};
+use crate::map::{HexAddress, Map, RotateCW};
 
 /// The actions that may be required when the UI state changes.
 pub enum Action {
@@ -30,7 +30,7 @@ pub trait State {
     fn key_press(
         self: Box<Self>,
         hex: &Hex,
-        map: &Map,
+        map: &mut Map,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action);
 
@@ -38,7 +38,7 @@ pub trait State {
     fn button_press(
         self: Box<Self>,
         hex: &Hex,
-        map: &Map,
+        map: &mut Map,
         event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action);
 }
@@ -49,14 +49,41 @@ pub struct Default {
 }
 
 /// Replacing one tile with another.
-pub struct Edit {
-    active_hex: Option<HexAddress>,
+pub struct ReplaceTile {
+    active_hex: HexAddress,
+    candidates: Vec<usize>,
+    selected: usize,
+    show_original: bool,
+    rotation: RotateCW,
 }
 
 impl Default {
     pub fn new(map: &Map) -> Self {
         Default {
             active_hex: map.default_hex(),
+        }
+    }
+}
+
+impl ReplaceTile {
+    fn with_any(map: &Map, addr: HexAddress) -> Self {
+        let candidates: Vec<usize> = (0..(map.tiles().len())).collect();
+        ReplaceTile {
+            active_hex: addr,
+            candidates,
+            selected: 0,
+            show_original: false,
+            rotation: RotateCW::Zero,
+        }
+    }
+
+    fn with_candidates(addr: HexAddress, candidates: Vec<usize>) -> Self {
+        ReplaceTile {
+            active_hex: addr,
+            candidates,
+            selected: 0,
+            show_original: false,
+            rotation: RotateCW::Zero,
         }
     }
 }
@@ -107,7 +134,7 @@ impl State for Default {
     fn key_press(
         mut self: Box<Self>,
         _hex: &Hex,
-        map: &Map,
+        map: &mut Map,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
@@ -115,13 +142,35 @@ impl State for Default {
             gdk::enums::key::q | gdk::enums::key::Q => {
                 (self, Inhibit(false), Action::Quit)
             }
-            gdk::enums::key::e | gdk::enums::key::E => (
-                Box::new(Edit {
-                    active_hex: self.active_hex,
-                }),
-                Inhibit(false),
-                Action::Redraw,
-            ),
+            gdk::enums::key::e | gdk::enums::key::E => {
+                if let Some(addr) = self.active_hex {
+                    let state = Box::new(ReplaceTile::with_any(map, addr));
+                    (state, Inhibit(false), Action::Redraw)
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
+            gdk::enums::key::u | gdk::enums::key::U => {
+                if let Some(addr) = self.active_hex {
+                    if let Some(tile) = map.tile_at(addr) {
+                        let candidates: Vec<usize> = map
+                            .tiles()
+                            .iter()
+                            .enumerate()
+                            .filter(|(_ix, t)| tile.can_upgrade_to(t))
+                            .map(|(ix, _t)| ix)
+                            .collect();
+                        let state = Box::new(ReplaceTile::with_candidates(
+                            addr, candidates,
+                        ));
+                        (state, Inhibit(false), Action::Redraw)
+                    } else {
+                        (self, Inhibit(false), Action::None)
+                    }
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
             gdk::enums::key::Left => {
                 // TODO: these are boilerplate, define a common function?
                 if let Some(addr) = self.active_hex {
@@ -175,6 +224,22 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
+            gdk::enums::key::less | gdk::enums::key::comma => {
+                if let Some(addr) = self.active_hex {
+                    map.get_mut(addr).map(|hs| hs.rotate_anti_cw());
+                    (self, Inhibit(false), Action::Redraw)
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
+            gdk::enums::key::greater | gdk::enums::key::period => {
+                if let Some(addr) = self.active_hex {
+                    map.get_mut(addr).map(|hs| hs.rotate_cw());
+                    (self, Inhibit(false), Action::Redraw)
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
             _ => (self, Inhibit(false), Action::None),
         }
     }
@@ -182,14 +247,14 @@ impl State for Default {
     fn button_press(
         self: Box<Self>,
         _hex: &Hex,
-        _map: &Map,
+        _map: &mut Map,
         _event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
         (self, Inhibit(false), Action::None)
     }
 }
 
-impl State for Edit {
+impl State for ReplaceTile {
     fn draw(
         &self,
         hex: &Hex,
@@ -198,8 +263,28 @@ impl State for Edit {
         _height: i32,
         ctx: &Context,
     ) {
-        for (_addr, tile_opt) in map.hex_iter(hex, ctx) {
-            if let Some((tile, tokens)) = tile_opt {
+        for (addr, tile_opt) in map.hex_iter(hex, ctx) {
+            if addr == self.active_hex && !self.show_original {
+                // Draw the currently-selected replacement tile.
+                // NOTE: must account for the current tile's rotation.
+                let extra_angle = if let Some(hs) = map.get(addr) {
+                    -hs.radians()
+                } else {
+                    0.0
+                };
+                ctx.rotate(self.rotation.radians() + extra_angle);
+                let tile_ix = self.candidates[self.selected];
+                let tile = &map.tiles()[tile_ix];
+                tile.draw(ctx, hex);
+                if let Some((_tile, tokens)) = tile_opt {
+                    // Draw any tokens that have been placed.
+                    for (tok, map_token) in tokens.iter() {
+                        tile.define_tok_path(&tok, &hex, ctx);
+                        map_token.draw_token(&hex, ctx);
+                    }
+                }
+                ctx.rotate(-self.rotation.radians() - extra_angle);
+            } else if let Some((tile, tokens)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
                 for (tok, map_token) in tokens.iter() {
@@ -217,7 +302,7 @@ impl State for Edit {
         }
 
         for (addr, _tile_opt) in map.hex_iter(hex, ctx) {
-            if self.active_hex == Some(addr) {
+            if self.active_hex == addr {
                 // Draw the active hex with a blue border.
                 ctx.set_source_rgb(0.0, 0.0, 0.7);
                 ctx.set_line_width(hex.max_d * 0.02);
@@ -233,31 +318,89 @@ impl State for Edit {
     }
 
     fn key_press(
-        self: Box<Self>,
+        mut self: Box<Self>,
         _hex: &Hex,
-        _map: &Map,
+        map: &mut Map,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
-        if key == gdk::enums::key::q || key == gdk::enums::key::Q {
-            (self, Inhibit(false), Action::Quit)
-        } else if key == gdk::enums::key::Escape {
-            (
+        match key {
+            gdk::enums::key::q | gdk::enums::key::Q => {
+                (self, Inhibit(false), Action::Quit)
+            }
+            gdk::enums::key::Escape => (
                 Box::new(Default {
-                    active_hex: self.active_hex,
+                    active_hex: Some(self.active_hex),
                 }),
                 Inhibit(false),
                 Action::Redraw,
-            )
-        } else {
-            (self, Inhibit(false), Action::None)
+            ),
+            gdk::enums::key::Return => {
+                if self.show_original {
+                    (self, Inhibit(false), Action::None)
+                } else {
+                    // Replace the original tile with the current selection.
+                    let tile_ix = self.candidates[self.selected];
+                    let tile_name = map.tiles()[tile_ix].name.clone();
+                    map.place_tile(
+                        self.active_hex,
+                        &tile_name,
+                        self.rotation,
+                    );
+                    (
+                        Box::new(Default {
+                            active_hex: Some(self.active_hex),
+                        }),
+                        Inhibit(false),
+                        Action::Redraw,
+                    )
+                }
+            }
+            gdk::enums::key::o | gdk::enums::key::O => {
+                self.show_original = !self.show_original;
+                (self, Inhibit(false), Action::Redraw)
+            }
+            gdk::enums::key::Up => {
+                if self.show_original {
+                    (self, Inhibit(false), Action::None)
+                } else {
+                    if self.selected == 0 {
+                        self.selected = self.candidates.len() - 1
+                    } else {
+                        self.selected -= 1
+                    }
+                    (self, Inhibit(false), Action::Redraw)
+                }
+            }
+            gdk::enums::key::Down => {
+                if self.show_original {
+                    (self, Inhibit(false), Action::None)
+                } else {
+                    self.selected += 1;
+                    if self.selected >= self.candidates.len() {
+                        self.selected = 0;
+                    }
+                    (self, Inhibit(false), Action::Redraw)
+                }
+            }
+            gdk::enums::key::less | gdk::enums::key::comma => {
+                self.rotation = self.rotation.rotate_anti_cw();
+                println!("{:?}", self.rotation);
+                (self, Inhibit(false), Action::Redraw)
+            }
+            gdk::enums::key::greater | gdk::enums::key::period => {
+                self.rotation = self.rotation.rotate_cw();
+                println!("{:?}", self.rotation);
+                (self, Inhibit(false), Action::Redraw)
+            }
+            _ => (self, Inhibit(false), Action::None),
         }
     }
 
     fn button_press(
         self: Box<Self>,
         _hex: &Hex,
-        _map: &Map,
+        _map: &mut Map,
         _event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
         (self, Inhibit(false), Action::None)

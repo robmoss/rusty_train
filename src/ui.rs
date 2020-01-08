@@ -135,7 +135,7 @@ impl UI {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
             let (new_state, inhibit, action) =
-                curr_state.key_press(&self.hex, &self.map, event);
+                curr_state.key_press(&self.hex, &mut self.map, event);
             self.state = Some(new_state);
             match action {
                 state::Action::Redraw => {
@@ -162,7 +162,7 @@ impl UI {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
             let (new_state, inhibit, action) =
-                curr_state.button_press(&self.hex, &self.map, event);
+                curr_state.button_press(&self.hex, &mut self.map, event);
             self.state = Some(new_state);
             match action {
                 state::Action::Redraw => {
