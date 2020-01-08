@@ -126,6 +126,9 @@ pub mod de;
 /// Maps with spaces for tiles.
 pub mod map;
 
+/// A user interface for creating map states and calculating route revenue.
+pub mod ui;
+
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
 
