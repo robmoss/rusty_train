@@ -469,6 +469,26 @@ impl HexState {
     pub fn radians(&self) -> f64 {
         self.rotation.radians()
     }
+
+    pub fn get_token_at(&self, tok: &Tok) -> Option<&Token> {
+        self.tokens.get(tok)
+    }
+
+    pub fn set_token_at(&mut self, tok: &Tok, token: Token) {
+        self.tokens.insert(*tok, token);
+    }
+
+    pub fn remove_token_at(&mut self, tok: &Tok) {
+        self.tokens.remove(tok);
+    }
+
+    pub fn get_tokens(&self) -> &HashMap<Tok, Token> {
+        &self.tokens
+    }
+
+    pub fn set_tokens(&mut self, tokens: HashMap<Tok, Token>) {
+        self.tokens = tokens
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
