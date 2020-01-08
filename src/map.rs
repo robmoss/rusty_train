@@ -39,6 +39,10 @@ impl Map {
         }
     }
 
+    pub fn get_mut(&mut self, addr: HexAddress) -> Option<&mut HexState> {
+        self.state.get_mut(&addr)
+    }
+
     pub fn new(tiles: Vec<Tile>, hexes: Vec<HexAddress>) -> Self {
         if hexes.is_empty() {
             panic!("Can not create map with no hexes")
@@ -447,6 +451,16 @@ pub struct HexState {
     name: String,
     rotation: RotateCW,
     tokens: HashMap<Tok, Token>,
+}
+
+impl HexState {
+    pub fn rotate_anti_cw(&mut self) {
+        self.rotation = self.rotation.rotate_anti_cw()
+    }
+
+    pub fn rotate_cw(&mut self) {
+        self.rotation = self.rotation.rotate_cw()
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
