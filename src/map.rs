@@ -407,11 +407,11 @@ impl RotateCW {
 
         match self {
             Zero => 0.0,
-            One => crate::prelude::PI_1_6,
-            Two => crate::prelude::PI_2_6,
-            Three => crate::prelude::PI_3_6,
-            Four => crate::prelude::PI_4_6,
-            Five => crate::prelude::PI_5_6,
+            One => crate::prelude::PI_2_6,
+            Two => crate::prelude::PI_4_6,
+            Three => crate::prelude::PI,
+            Four => -crate::prelude::PI_4_6,
+            Five => -crate::prelude::PI_2_6,
         }
     }
 
