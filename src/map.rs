@@ -39,6 +39,10 @@ impl Map {
         }
     }
 
+    pub fn get(&self, addr: HexAddress) -> Option<&HexState> {
+        self.state.get(&addr)
+    }
+
     pub fn get_mut(&mut self, addr: HexAddress) -> Option<&mut HexState> {
         self.state.get_mut(&addr)
     }
@@ -460,6 +464,10 @@ impl HexState {
 
     pub fn rotate_cw(&mut self) {
         self.rotation = self.rotation.rotate_cw()
+    }
+
+    pub fn radians(&self) -> f64 {
+        self.rotation.radians()
     }
 }
 
