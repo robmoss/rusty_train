@@ -596,17 +596,55 @@ pub fn drawable<F>(
                 gdk::enums::key::s | gdk::enums::key::S => {
                     // Take a screenshot.
                     // NOTE: may want to reserve 'S' for saving?
+                    // NOTE: FileChooserNative requires gtk 3.20.
+                    // let dialog = gtk::FileChooserNative::new(
+                    //     Some("Save Screenshot"),
+                    //     Some(&w),
+                    //     gtk::FileChooserAction::Save,
+                    //     None,
+                    //     None,
+                    // );
+                    let dialog = gtk::FileChooserDialog::with_buttons(
+                        Some("Save Screenshot"),
+                        Some(&w),
+                        gtk::FileChooserAction::Save,
+                        &[
+                            ("_Cancel", gtk::ResponseType::Cancel),
+                            ("_Save", gtk::ResponseType::Accept),
+                        ],
+                    );
+                    let filter_png = gtk::FileFilter::new();
+                    filter_png.set_name(Some("PNG images"));
+                    filter_png.add_mime_type("image/png");
+                    dialog.add_filter(&filter_png);
+                    let filter_all = gtk::FileFilter::new();
+                    filter_all.set_name(Some("All files"));
+                    filter_all.add_pattern("*");
+                    dialog.add_filter(&filter_all);
+                    // TODO: use Chrono to determine the current timestamp.
+                    let default_dest = "screenshot-YYYYMMDD-HHMMSS.png";
+                    dialog.set_current_name(default_dest);
+                    let response = dialog.run();
+                    let dest_file = if response == gtk::ResponseType::Accept {
+                        dialog.get_filename().expect("Couldn't get filename")
+                    } else {
+                        dialog.close();
+                        dialog.destroy();
+                        return Inhibit(false);
+                    };
+                    let dest_str = dest_file.to_string_lossy().into_owned();
+                    dialog.destroy();
+                    println!("Chose {}", dest_str);
                     let surface =
                         ImageSurface::create(Format::ARgb32, width, height)
                             .expect("Can't create surface");
                     let icx = Context::new(&surface);
-                    let dest_file = "screenshot.png";
                     draw_hexes(&s, width, height, &icx);
                     let mut file = std::fs::File::create(dest_file)
-                        .expect("Couldn't create 'hexes.png'");
+                        .expect(&format!("Couldn't create '{}'", dest_str));
                     match surface.write_to_png(&mut file) {
-                        Ok(_) => println!("Saved to {}", dest_file),
-                        Err(_) => println!("Error saving {}", dest_file),
+                        Ok(_) => println!("Saved to {}", dest_str),
+                        Err(_) => println!("Error saving {}", dest_str),
                     }
                 }
                 _ => {}
