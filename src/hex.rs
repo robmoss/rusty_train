@@ -362,7 +362,7 @@ impl HexPosition {
 /// The geometry of hexagonal tiles.
 pub struct Hex {
     pub max_d: f64,
-    // min_d: f64,
+    pub min_d: f64,
     // alpha: f64,
     // beta: f64,
     corners: Vec<Coord>,
@@ -373,8 +373,7 @@ pub struct Hex {
 
 impl Hex {
     pub fn new(max_d: f64) -> Self {
-        // let min_d = (3.0 as f64).sqrt() * max_d / 2.0;
-
+        let min_d = (3.0 as f64).sqrt() * max_d / 2.0;
         let alpha = max_d / 4.0;
         let beta = alpha * (3.0 as f64).sqrt();
         let corners = vec![
@@ -398,7 +397,7 @@ impl Hex {
 
         Self {
             max_d: max_d,
-            // min_d: min_d,
+            min_d: min_d,
             // alpha: alpha,
             // beta: beta,
             corners: corner_coords,
