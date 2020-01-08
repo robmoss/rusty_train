@@ -505,12 +505,10 @@ impl State for ReplaceTile {
             }
             gdk::enums::key::less | gdk::enums::key::comma => {
                 self.rotation = self.rotation.rotate_anti_cw();
-                println!("{:?}", self.rotation);
                 (self, Inhibit(false), Action::Redraw)
             }
             gdk::enums::key::greater | gdk::enums::key::period => {
                 self.rotation = self.rotation.rotate_cw();
-                println!("{:?}", self.rotation);
                 (self, Inhibit(false), Action::Redraw)
             }
             _ => (self, Inhibit(false), Action::None),
