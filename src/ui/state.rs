@@ -1,5 +1,5 @@
-use cairo::Context;
-use gtk::Inhibit;
+use cairo::{Context, Format, ImageSurface};
+use gtk::{DialogExt, FileChooserExt, GtkWindowExt, Inhibit, WidgetExt};
 
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, RotateCW};
@@ -31,6 +31,8 @@ pub trait State {
         self: Box<Self>,
         hex: &Hex,
         map: &mut Map,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action);
 
@@ -39,6 +41,8 @@ pub trait State {
         self: Box<Self>,
         hex: &Hex,
         map: &mut Map,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
         event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action);
 }
@@ -133,8 +137,10 @@ impl State for Default {
 
     fn key_press(
         mut self: Box<Self>,
-        _hex: &Hex,
+        hex: &Hex,
         map: &mut Map,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
@@ -170,6 +176,68 @@ impl State for Default {
                 } else {
                     (self, Inhibit(false), Action::None)
                 }
+            }
+            gdk::enums::key::s | gdk::enums::key::S => {
+                // NOTE: FileChooserNative requires gtk 3.20.
+                // let dialog = gtk::FileChooserNative::new(
+                //     Some("Save Screenshot"),
+                //     Some(window),
+                //     gtk::FileChooserAction::Save,
+                //     None,
+                //     None,
+                // );
+                let dialog = gtk::FileChooserDialog::with_buttons(
+                    Some("Save Screenshot"),
+                    Some(window),
+                    gtk::FileChooserAction::Save,
+                    &[
+                        ("_Cancel", gtk::ResponseType::Cancel),
+                        ("_Save", gtk::ResponseType::Accept),
+                    ],
+                );
+                let filter_png = gtk::FileFilter::new();
+                filter_png.set_name(Some("PNG images"));
+                filter_png.add_mime_type("image/png");
+                dialog.add_filter(&filter_png);
+                let filter_all = gtk::FileFilter::new();
+                filter_all.set_name(Some("All files"));
+                filter_all.add_pattern("*");
+                dialog.add_filter(&filter_all);
+                // Suggest a filename that contains the current date and time.
+                let now = chrono::Local::now();
+                let default_dest =
+                    now.format("screenshot-%Y-%m-%d-%H%M%S.png").to_string();
+                dialog.set_current_name(default_dest);
+                let response = dialog.run();
+                let dest_file = if response == gtk::ResponseType::Accept {
+                    dialog.get_filename().expect("Couldn't get filename")
+                } else {
+                    dialog.close();
+                    dialog.destroy();
+                    return (self, Inhibit(false), Action::None);
+                };
+                let dest_str = dest_file.to_string_lossy().into_owned();
+                dialog.destroy();
+                println!("Chose {}", dest_str);
+                // Use the same dimensions as the current drawing area.
+                let width = area.get_allocated_width();
+                let height = area.get_allocated_height();
+                let surface =
+                    ImageSurface::create(Format::ARgb32, width, height)
+                        .expect("Can't create surface");
+                let icx = Context::new(&surface);
+                // Fill the image with a white background.
+                icx.set_source_rgb(1.0, 1.0, 1.0);
+                icx.paint();
+                // Then draw the current map content.
+                self.draw(hex, map, width, height, &icx);
+                let mut file = std::fs::File::create(dest_file)
+                    .expect(&format!("Couldn't create '{}'", dest_str));
+                match surface.write_to_png(&mut file) {
+                    Ok(_) => println!("Saved to {}", dest_str),
+                    Err(_) => println!("Error saving {}", dest_str),
+                }
+                (self, Inhibit(false), Action::None)
             }
             gdk::enums::key::Left => {
                 // TODO: these are boilerplate, define a common function?
@@ -248,6 +316,8 @@ impl State for Default {
         self: Box<Self>,
         _hex: &Hex,
         _map: &mut Map,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
         (self, Inhibit(false), Action::None)
@@ -321,6 +391,8 @@ impl State for ReplaceTile {
         mut self: Box<Self>,
         _hex: &Hex,
         map: &mut Map,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
@@ -401,6 +473,8 @@ impl State for ReplaceTile {
         self: Box<Self>,
         _hex: &Hex,
         _map: &mut Map,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
         (self, Inhibit(false), Action::None)
