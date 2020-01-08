@@ -83,3 +83,12 @@ pub use crate::de::read_tiles;
 
 #[doc(inline)]
 pub use crate::de::write_tiles;
+
+#[doc(inline)]
+pub use crate::map::Map;
+
+#[doc(inline)]
+pub use crate::map::HexAddress;
+
+#[doc(inline)]
+pub use crate::map::RotateCW;

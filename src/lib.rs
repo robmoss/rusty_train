@@ -123,6 +123,9 @@ pub mod catalogue;
 /// Support for tile (de)serialisation.
 pub mod de;
 
+/// Maps with spaces for tiles.
+pub mod map;
+
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
 
