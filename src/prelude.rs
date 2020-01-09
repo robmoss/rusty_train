@@ -58,9 +58,6 @@ pub use crate::track::Track;
 pub use crate::track::TrackCurve;
 
 #[doc(inline)]
-pub use crate::draw::Draw;
-
-#[doc(inline)]
 pub use crate::label::Label;
 
 #[doc(inline)]
