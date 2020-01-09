@@ -15,6 +15,8 @@ pub struct Map {
     state: HashMap<HexAddress, HexState>,
     /// All hexes on which a tile might be placed.
     hexes: Vec<HexAddress>,
+    /// All hexes, stored by key to simplify lookup.
+    hexes_tbl: HashMap<HexAddress, ()>,
     min_row: usize,
     max_row: usize,
     min_col: usize,
@@ -58,6 +60,7 @@ impl Map {
             .map(|(ix, t)| (t.name.clone(), ix))
             .collect();
         let state = HashMap::new();
+        let hexes_tbl = hexes.iter().map(|addr| (*addr, ())).collect();
         let min_col = hexes.iter().map(|hc| hc.col).min().unwrap();
         let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
         let min_row = hexes.iter().map(|hc| hc.row).min().unwrap();
@@ -69,6 +72,7 @@ impl Map {
             catalogue,
             state,
             hexes,
+            hexes_tbl,
             min_col,
             max_col,
             min_row,
@@ -108,6 +112,10 @@ impl Map {
             );
         }
         true
+    }
+
+    pub fn remove_tile(&mut self, addr: HexAddress) {
+        self.state.remove(&addr);
     }
 
     fn hex_centre(
@@ -338,7 +346,7 @@ impl Map {
 
     pub fn next_col(&self, mut addr: HexAddress) -> HexAddress {
         addr.col += 1;
-        if !self.state.contains_key(&addr) {
+        if !self.hexes_tbl.contains_key(&addr) {
             addr.col -= 1;
         }
         addr
@@ -349,7 +357,7 @@ impl Map {
             return addr;
         }
         addr.col -= 1;
-        if !self.state.contains_key(&addr) {
+        if !self.hexes_tbl.contains_key(&addr) {
             addr.col += 1;
         }
         addr
@@ -357,7 +365,7 @@ impl Map {
 
     pub fn next_row(&self, mut addr: HexAddress) -> HexAddress {
         addr.row += 1;
-        if !self.state.contains_key(&addr) {
+        if !self.hexes_tbl.contains_key(&addr) {
             addr.row -= 1;
         }
         addr
@@ -368,7 +376,7 @@ impl Map {
             return addr;
         }
         addr.row -= 1;
-        if !self.state.contains_key(&addr) {
+        if !self.hexes_tbl.contains_key(&addr) {
             addr.row += 1;
         }
         addr
