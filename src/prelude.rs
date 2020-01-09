@@ -89,3 +89,9 @@ pub use crate::map::HexAddress;
 
 #[doc(inline)]
 pub use crate::map::RotateCW;
+
+#[doc(inline)]
+pub use crate::map::Token;
+
+#[doc(inline)]
+pub use crate::map::TokensTable;
