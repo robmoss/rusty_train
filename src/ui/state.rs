@@ -140,6 +140,16 @@ impl State for Default {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
+        for _ in &mut hex_iter {
+            // Draw a thick black border on all hexes.
+            // This will give map edges a clear border.
+            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            hex.define_boundary(ctx);
+            ctx.set_line_width(hex.max_d * 0.05);
+            ctx.stroke();
+        }
+
+        hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, tokens)) = tile_opt {
                 // Draw the tile and any tokens.
@@ -397,6 +407,16 @@ impl State for ReplaceTile {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
+        for _ in &mut hex_iter {
+            // Draw a thick black border on all hexes.
+            // This will give map edges a clear border.
+            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            hex.define_boundary(ctx);
+            ctx.set_line_width(hex.max_d * 0.05);
+            ctx.stroke();
+        }
+
+        hex_iter.restart();
         for (addr, tile_opt) in &mut hex_iter {
             if addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
@@ -555,6 +575,16 @@ impl State for EditTokens {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
+        for _ in &mut hex_iter {
+            // Draw a thick black border on all hexes.
+            // This will give map edges a clear border.
+            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            hex.define_boundary(ctx);
+            ctx.set_line_width(hex.max_d * 0.05);
+            ctx.stroke();
+        }
+
+        hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, tokens)) = tile_opt {
                 // Draw the tile and any tokens.
