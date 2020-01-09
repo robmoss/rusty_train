@@ -233,12 +233,107 @@ impl Map {
         }
     }
 
+    /// Iterates over all map hexes.
+    ///
+    /// At each iteration, the transformation matrix will be updated to
+    /// account for the current hex's location and orientation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use rusty_train::prelude::*;
+    /// # let hex = Hex::new(125.0);
+    /// # let tiles = tile_catalogue(&hex);
+    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
+    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// #     .flatten()
+    /// #     .map(|coords| coords.into())
+    /// #     .collect();
+    /// # let ctx = hex.context();
+    /// # let map = Map::new(tiles, hexes);
+    /// // Draw a thick black border around each hex.
+    /// ctx.set_source_rgb(0.0, 0.0, 0.0);
+    /// ctx.set_line_width(hex.max_d * 0.05);
+    /// for (_addr, _tile_opt) in map.hex_iter(&hex, ctx) {
+    ///     hex.define_boundary(ctx);
+    ///     ctx.stroke();
+    /// }
+    /// ```
     pub fn hex_iter<'a>(
         &'a self,
         hex: &'a Hex,
         ctx: &'a Context,
     ) -> HexIter<'a> {
         HexIter::new(hex, ctx, self)
+    }
+
+    /// Iterates over all map hexes that do not contain a tile.
+    ///
+    /// At each iteration, the transformation matrix will be updated to
+    /// account for the current hex's location and orientation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use rusty_train::prelude::*;
+    /// # let hex = Hex::new(125.0);
+    /// # let tiles = tile_catalogue(&hex);
+    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
+    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// #     .flatten()
+    /// #     .map(|coords| coords.into())
+    /// #     .collect();
+    /// # let ctx = hex.context();
+    /// # let map = Map::new(tiles, hexes);
+    /// // Fill each empty tile with a dark grey.
+    /// ctx.set_source_rgb(0.4, 0.4, 0.4);
+    /// for _addr in map.empty_hex_iter(&hex, ctx) {
+    ///     hex.define_boundary(ctx);
+    ///     ctx.fill();
+    /// }
+    /// ```
+    pub fn empty_hex_iter<'a>(
+        &'a self,
+        hex: &'a Hex,
+        ctx: &'a Context,
+    ) -> EmptyHexIter<'a> {
+        HexIter::new(hex, ctx, self).into()
+    }
+
+    /// Iterates over all map hexes that contain a tile.
+    ///
+    /// At each iteration, the transformation matrix will be updated to
+    /// account for the current hex's location and orientation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use rusty_train::prelude::*;
+    /// # let hex = Hex::new(125.0);
+    /// # let tiles = tile_catalogue(&hex);
+    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
+    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// #     .flatten()
+    /// #     .map(|coords| coords.into())
+    /// #     .collect();
+    /// # let ctx = hex.context();
+    /// # let map = Map::new(tiles, hexes);
+    /// // Draw a red border around each token space.
+    /// ctx.set_source_rgb(0.8, 0.2, 0.2);
+    /// ctx.set_line_width(hex.max_d * 0.015);
+    /// for (_addr, (tile, _tokens)) in map.tile_hex_iter(&hex, ctx) {
+    ///     for token_space in tile.toks() {
+    ///         tile.define_tok_path(&token_space, &hex, ctx);
+    ///         ctx.stroke();
+    ///     }
+    /// }
+    /// ```
+    pub fn tile_hex_iter<'a>(
+        &'a self,
+        hex: &'a Hex,
+        ctx: &'a Context,
+    ) -> TileHexIter<'a> {
+        HexIter::new(hex, ctx, self).into()
     }
 
     pub fn next_col(&self, mut addr: HexAddress) -> HexAddress {
@@ -396,6 +491,76 @@ impl<'a> Iterator for HexIter<'a> {
         } else {
             Some((addr, None))
         }
+    }
+}
+
+pub struct EmptyHexIter<'a> {
+    iter: HexIter<'a>,
+}
+
+impl<'a> EmptyHexIter<'a> {
+    fn new(iter: HexIter<'a>) -> Self {
+        EmptyHexIter { iter }
+    }
+
+    pub fn reset_matrix(&self) {
+        self.iter.reset_matrix()
+    }
+}
+
+impl<'a> Iterator for EmptyHexIter<'a> {
+    type Item = HexAddress;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut item = self.iter.next();
+        while let Some((addr, tile)) = item {
+            if tile == None {
+                return Some(addr);
+            }
+            item = self.iter.next();
+        }
+        None
+    }
+}
+
+impl<'a> From<HexIter<'a>> for EmptyHexIter<'a> {
+    fn from(src: HexIter<'a>) -> Self {
+        Self::new(src)
+    }
+}
+
+pub struct TileHexIter<'a> {
+    iter: HexIter<'a>,
+}
+
+impl<'a> TileHexIter<'a> {
+    fn new(iter: HexIter<'a>) -> Self {
+        TileHexIter { iter }
+    }
+
+    pub fn reset_matrix(&self) {
+        self.iter.reset_matrix()
+    }
+}
+
+impl<'a> Iterator for TileHexIter<'a> {
+    type Item = (HexAddress, (&'a Tile, &'a HashMap<Tok, Token>));
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut item = self.iter.next();
+        while let Some((addr, tile_opt)) = item {
+            if let Some(tile) = tile_opt {
+                return Some((addr, tile));
+            }
+            item = self.iter.next();
+        }
+        None
+    }
+}
+
+impl<'a> From<HexIter<'a>> for TileHexIter<'a> {
+    fn from(src: HexIter<'a>) -> Self {
+        Self::new(src)
     }
 }
 
