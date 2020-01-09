@@ -5,6 +5,7 @@ use crate::hex::Hex;
 use crate::prelude::PI;
 use crate::tile::{Tile, Tok};
 
+/// A grid of hexes, each of which may contain a `Tile`.
 #[derive(Debug, PartialEq)]
 pub struct Map {
     /// All tiles that might be placed on the map.
@@ -390,6 +391,7 @@ impl Map {
     // TODO: define_hex_boundary(), define_tok_path()
 }
 
+/// An iterator over each hex in a `Map`.
 pub struct HexIter<'a> {
     hex: &'a Hex,
     ctx: &'a Context,
@@ -507,6 +509,7 @@ impl<'a> Iterator for HexIter<'a> {
     }
 }
 
+/// An iterator over each hex in a `Map` that does not contain a `Tile`.
 pub struct EmptyHexIter<'a> {
     iter: HexIter<'a>,
 }
@@ -546,6 +549,7 @@ impl<'a> From<HexIter<'a>> for EmptyHexIter<'a> {
     }
 }
 
+/// An iterator over each hex in a `Map` that contains a `Tile`.
 pub struct TileHexIter<'a> {
     iter: HexIter<'a>,
 }
@@ -585,6 +589,7 @@ impl<'a> From<HexIter<'a>> for TileHexIter<'a> {
     }
 }
 
+/// The rotation of a `Tile`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum RotateCW {
     Zero,
@@ -636,6 +641,7 @@ impl RotateCW {
     }
 }
 
+/// The state of a hex in a `Map`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HexState {
     name: String,
@@ -677,6 +683,7 @@ impl HexState {
     }
 }
 
+/// A token that may occupy a token space on a `Tile`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Token {
     LP,
@@ -778,6 +785,7 @@ impl Token {
     }
 }
 
+/// A hex location on a `Map`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct HexAddress {
     row: usize,
