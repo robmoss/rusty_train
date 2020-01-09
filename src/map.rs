@@ -398,6 +398,11 @@ impl<'a> HexIter<'a> {
         self.ctx.set_matrix(self.m)
     }
 
+    pub fn restart(&mut self) {
+        self.ctx.set_matrix(self.m);
+        self.ix = 0;
+    }
+
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {
         let angle = if map.flat_top { 0.0 } else { PI / 6.0 };
         let x0 = if map.flat_top {
@@ -506,6 +511,10 @@ impl<'a> EmptyHexIter<'a> {
     pub fn reset_matrix(&self) {
         self.iter.reset_matrix()
     }
+
+    pub fn restart(&mut self) {
+        self.iter.restart()
+    }
 }
 
 impl<'a> Iterator for EmptyHexIter<'a> {
@@ -540,6 +549,10 @@ impl<'a> TileHexIter<'a> {
 
     pub fn reset_matrix(&self) {
         self.iter.reset_matrix()
+    }
+
+    pub fn restart(&mut self) {
+        self.iter.restart()
     }
 }
 

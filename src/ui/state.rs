@@ -138,7 +138,9 @@ impl State for Default {
         _height: i32,
         ctx: &Context,
     ) {
-        for (_addr, tile_opt) in map.hex_iter(hex, ctx) {
+        let mut hex_iter = map.hex_iter(hex, ctx);
+
+        for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, tokens)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
@@ -156,7 +158,8 @@ impl State for Default {
             }
         }
 
-        for (addr, _tile_opt) in map.hex_iter(hex, ctx) {
+        hex_iter.restart();
+        for (addr, _tile_opt) in &mut hex_iter {
             if self.active_hex == Some(addr) {
                 // Draw the active hex with a red border.
                 ctx.set_source_rgb(0.7, 0.0, 0.0);
@@ -381,7 +384,9 @@ impl State for ReplaceTile {
         _height: i32,
         ctx: &Context,
     ) {
-        for (addr, tile_opt) in map.hex_iter(hex, ctx) {
+        let mut hex_iter = map.hex_iter(hex, ctx);
+
+        for (addr, tile_opt) in &mut hex_iter {
             if addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
                 // NOTE: must account for the current tile's rotation.
@@ -419,7 +424,8 @@ impl State for ReplaceTile {
             }
         }
 
-        for (addr, _tile_opt) in map.hex_iter(hex, ctx) {
+        hex_iter.restart();
+        for (addr, _tile_opt) in &mut hex_iter {
             if self.active_hex == addr {
                 // Draw the active hex with a blue border.
                 ctx.set_source_rgb(0.0, 0.0, 0.7);
@@ -536,7 +542,9 @@ impl State for EditTokens {
         _height: i32,
         ctx: &Context,
     ) {
-        for (_addr, tile_opt) in map.hex_iter(hex, ctx) {
+        let mut hex_iter = map.hex_iter(hex, ctx);
+
+        for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, tokens)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
@@ -554,7 +562,8 @@ impl State for EditTokens {
             }
         }
 
-        for (addr, tile_opt) in map.hex_iter(hex, ctx) {
+        hex_iter.restart();
+        for (addr, tile_opt) in &mut hex_iter {
             if self.active_hex == addr {
                 // Draw the active hex with a grey border.
                 ctx.set_source_rgb(0.3, 0.3, 0.3);
