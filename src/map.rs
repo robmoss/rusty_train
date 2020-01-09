@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::hex::Hex;
 use crate::prelude::PI;
-use crate::tile::{Tile, Tok};
+use crate::tile::{Tile, TokenSpace};
 
 /// A grid of hexes, each of which may contain a `Tile`.
 #[derive(Debug, PartialEq)]
@@ -227,8 +227,8 @@ impl Map {
                         .expect("Invalid tile name");
                     tile.draw(ctx, &hex);
                     // Draw any tokens.
-                    for (tok, map_token) in hex_state.tokens.iter() {
-                        tile.define_tok_path(&tok, &hex, ctx);
+                    for (token_space, map_token) in hex_state.tokens.iter() {
+                        tile.define_token_space(&token_space, &hex, ctx);
                         map_token.draw_token(&hex, ctx);
                     }
                 } else {
@@ -331,8 +331,8 @@ impl Map {
     /// ctx.set_source_rgb(0.8, 0.2, 0.2);
     /// ctx.set_line_width(hex.max_d * 0.015);
     /// for (_addr, (tile, _tokens)) in map.tile_hex_iter(&hex, ctx) {
-    ///     for token_space in tile.toks() {
-    ///         tile.define_tok_path(&token_space, &hex, ctx);
+    ///     for token_space in tile.token_spaces() {
+    ///         tile.define_token_space(&token_space, &hex, ctx);
     ///         ctx.stroke();
     ///     }
     /// }
@@ -388,8 +388,13 @@ impl Map {
     // TODO: upgrade_candidates()
     // TODO: get_tokens(), set_tokens(), get_token(), set_token()
     // TODO: translate_to_hex()
-    // TODO: define_hex_boundary(), define_tok_path()
 }
+
+/// The state of each token space on a tile.
+pub type TokensTable = HashMap<TokenSpace, Token>;
+
+/// The state of a tile on the map.
+pub type TileState<'a> = (&'a Tile, &'a TokensTable);
 
 /// An iterator over each hex in a `Map`.
 pub struct HexIter<'a> {
@@ -473,7 +478,7 @@ impl<'a> HexIter<'a> {
 }
 
 impl<'a> Iterator for HexIter<'a> {
-    type Item = (HexAddress, Option<(&'a Tile, &'a HashMap<Tok, Token>)>);
+    type Item = (HexAddress, Option<TileState<'a>>);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.ix >= self.map.hexes.len() {
@@ -569,7 +574,7 @@ impl<'a> TileHexIter<'a> {
 }
 
 impl<'a> Iterator for TileHexIter<'a> {
-    type Item = (HexAddress, (&'a Tile, &'a HashMap<Tok, Token>));
+    type Item = (HexAddress, TileState<'a>);
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
@@ -646,7 +651,7 @@ impl RotateCW {
 pub struct HexState {
     name: String,
     rotation: RotateCW,
-    tokens: HashMap<Tok, Token>,
+    tokens: TokensTable,
 }
 
 impl HexState {
@@ -662,23 +667,23 @@ impl HexState {
         self.rotation.radians()
     }
 
-    pub fn get_token_at(&self, tok: &Tok) -> Option<&Token> {
-        self.tokens.get(tok)
+    pub fn get_token_at(&self, space: &TokenSpace) -> Option<&Token> {
+        self.tokens.get(space)
     }
 
-    pub fn set_token_at(&mut self, tok: &Tok, token: Token) {
-        self.tokens.insert(*tok, token);
+    pub fn set_token_at(&mut self, space: &TokenSpace, token: Token) {
+        self.tokens.insert(*space, token);
     }
 
-    pub fn remove_token_at(&mut self, tok: &Tok) {
-        self.tokens.remove(tok);
+    pub fn remove_token_at(&mut self, space: &TokenSpace) {
+        self.tokens.remove(space);
     }
 
-    pub fn get_tokens(&self) -> &HashMap<Tok, Token> {
+    pub fn get_tokens(&self) -> &TokensTable {
         &self.tokens
     }
 
-    pub fn set_tokens(&mut self, tokens: HashMap<Tok, Token>) {
+    pub fn set_tokens(&mut self, tokens: TokensTable) {
         self.tokens = tokens
     }
 }

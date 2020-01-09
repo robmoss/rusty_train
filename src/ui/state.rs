@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
 use cairo::{Context, Format, ImageSurface};
 use gtk::{DialogExt, FileChooserExt, GtkWindowExt, Inhibit, WidgetExt};
 
 use crate::hex::Hex;
-use crate::map::{HexAddress, Map, RotateCW, Token};
-use crate::tile::Tok;
+use crate::map::{HexAddress, Map, RotateCW, Token, TokensTable};
+use crate::tile::TokenSpace;
 
 /// The actions that may be required when the UI state changes.
 pub enum Action {
@@ -67,9 +65,9 @@ pub struct ReplaceTile {
 /// Placing or removing tokens from a tile.
 pub struct EditTokens {
     active_hex: HexAddress,
-    token_spaces: Vec<Tok>,
+    token_spaces: Vec<TokenSpace>,
     selected: usize,
-    original_tokens: HashMap<Tok, Token>,
+    original_tokens: TokensTable,
 }
 
 impl Default {
@@ -115,7 +113,7 @@ impl EditTokens {
         } else {
             return None;
         };
-        let token_spaces = tile.toks();
+        let token_spaces = tile.token_spaces();
         if token_spaces.is_empty() {
             return None;
         }
@@ -151,11 +149,11 @@ impl State for Default {
 
         hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
-            if let Some((tile, tokens)) = tile_opt {
+            if let Some((tile, token_spaces)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
-                for (tok, map_token) in tokens.iter() {
-                    tile.define_tok_path(&tok, &hex, ctx);
+                for (token_space, map_token) in token_spaces.iter() {
+                    tile.define_token_space(&token_space, &hex, ctx);
                     map_token.draw_token(&hex, ctx);
                 }
             } else {
@@ -430,19 +428,19 @@ impl State for ReplaceTile {
                 let tile_ix = self.candidates[self.selected];
                 let tile = &map.tiles()[tile_ix];
                 tile.draw(ctx, hex);
-                if let Some((_tile, tokens)) = tile_opt {
+                if let Some((_tile, token_spaces)) = tile_opt {
                     // Draw any tokens that have been placed.
-                    for (tok, map_token) in tokens.iter() {
-                        tile.define_tok_path(&tok, &hex, ctx);
+                    for (token_space, map_token) in token_spaces.iter() {
+                        tile.define_token_space(&token_space, &hex, ctx);
                         map_token.draw_token(&hex, ctx);
                     }
                 }
                 ctx.rotate(-self.rotation.radians() - extra_angle);
-            } else if let Some((tile, tokens)) = tile_opt {
+            } else if let Some((tile, token_spaces)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
-                for (tok, map_token) in tokens.iter() {
-                    tile.define_tok_path(&tok, &hex, ctx);
+                for (token_space, map_token) in token_spaces.iter() {
+                    tile.define_token_space(&token_space, &hex, ctx);
                     map_token.draw_token(&hex, ctx);
                 }
             } else {
@@ -586,11 +584,11 @@ impl State for EditTokens {
 
         hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
-            if let Some((tile, tokens)) = tile_opt {
+            if let Some((tile, token_spaces)) = tile_opt {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
-                for (tok, map_token) in tokens.iter() {
-                    tile.define_tok_path(&tok, &hex, ctx);
+                for (token_space, map_token) in token_spaces.iter() {
+                    tile.define_token_space(&token_space, &hex, ctx);
                     map_token.draw_token(&hex, ctx);
                 }
             } else {
@@ -615,7 +613,7 @@ impl State for EditTokens {
                 // Highlight the active token space.
                 if let Some((tile, _tokens)) = tile_opt {
                     let token_space = &self.token_spaces[self.selected];
-                    tile.define_tok_path(token_space, hex, ctx);
+                    tile.define_token_space(token_space, hex, ctx);
                     ctx.set_source_rgb(0.8, 0.2, 0.2);
                     ctx.set_line_width(hex.max_d * 0.025);
                     ctx.stroke_preserve();

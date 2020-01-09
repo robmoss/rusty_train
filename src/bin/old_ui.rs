@@ -88,9 +88,9 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
             t.draw(cr, &hex);
 
             let mt = state.map.tiles.get(&(r, c)).unwrap();
-            for (token, map_token) in &mt.tokens {
+            for (token_space, map_token) in &mt.tokens {
                 // Draw a token-specific background.
-                t.define_tok_path(&token, hex, cr);
+                t.define_token_space(&token_space, hex, cr);
                 map_token.draw_token(hex, cr);
             }
 
@@ -169,7 +169,7 @@ fn draw_hexes(state: &State, w: i32, h: i32, cr: &Context) {
 
                     // Highlight the active token space.
                     let tok = &tokens[selected];
-                    t.define_tok_path(tok, hex, cr);
+                    t.define_token_space(tok, hex, cr);
                     cr.set_source_rgb(0.8, 0.2, 0.2);
                     cr.set_line_width(hex.max_d * 0.025);
                     cr.stroke_preserve();
@@ -235,9 +235,9 @@ pub enum UiMode {
     },
     EditTokens {
         hex: MapCoord,
-        tokens: Vec<rusty_train::tile::Tok>,
+        tokens: Vec<rusty_train::tile::TokenSpace>,
         selected: usize,
-        old_tokens: HashMap<rusty_train::tile::Tok, MapToken>,
+        old_tokens: HashMap<rusty_train::tile::TokenSpace, MapToken>,
     },
 }
 
@@ -350,7 +350,7 @@ pub struct MapTile {
     tile_ix: usize,
     // TODO: better representation of angle!
     angle: f64,
-    tokens: HashMap<rusty_train::tile::Tok, MapToken>,
+    tokens: HashMap<rusty_train::tile::TokenSpace, MapToken>,
 }
 
 impl MapTile {
@@ -582,7 +582,7 @@ pub fn drawable<F>(
                     let mt = s.map.tiles.get(&hex).unwrap();
                     let ix = mt.tile_ix;
                     let tile = &s.map.catalogue[ix];
-                    let tokens = tile.toks();
+                    let tokens = tile.token_spaces();
                     if tokens.len() > 0 {
                         s.ui_mode = UiMode::EditTokens {
                             hex,

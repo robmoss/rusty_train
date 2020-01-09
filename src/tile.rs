@@ -298,21 +298,21 @@ impl Tile {
         }
     }
 
-    pub fn toks(&self) -> Vec<Tok> {
+    pub fn token_spaces(&self) -> Vec<TokenSpace> {
         self.cities
             .iter()
             .enumerate()
             .flat_map(|(city_ix, city)| {
                 city.token_ixs()
                     .into_iter()
-                    .map(|token_ix| Tok { city_ix, token_ix })
+                    .map(|token_ix| TokenSpace { city_ix, token_ix })
                     .collect::<Vec<_>>()
             })
             .collect()
     }
 
-    fn num_toks(&self) -> usize {
-        self.toks().len()
+    fn token_space_count(&self) -> usize {
+        self.token_spaces().len()
     }
 
     fn has_dits(&self) -> bool {
@@ -325,9 +325,14 @@ impl Tile {
         return false;
     }
 
-    pub fn define_tok_path(&self, tok: &Tok, hex: &Hex, ctx: &Context) {
-        let city = self.cities[tok.city_ix];
-        city.define_token_path(tok.token_ix, hex, ctx);
+    pub fn define_token_space(
+        &self,
+        space: &TokenSpace,
+        hex: &Hex,
+        ctx: &Context,
+    ) {
+        let city = self.cities[space.city_ix];
+        city.define_token_path(space.token_ix, hex, ctx);
     }
 
     /// Check whether a tile can be upgraded to another tile.
@@ -342,14 +347,14 @@ impl Tile {
         if self.has_dits() != other.has_dits() {
             return false;
         }
-        let self_toks = self.num_toks();
-        let other_toks = other.num_toks();
+        let self_tok_spaces = self.token_space_count();
+        let other_tok_spaces = other.token_space_count();
         // City tiles can only be upgraded to from existing city tiles.
-        if self_toks == 0 && other_toks > 0 {
+        if self_tok_spaces == 0 && other_tok_spaces > 0 {
             return false;
         }
         // Check whether the new tile has at least as many token spaces.
-        if self_toks > other_toks {
+        if self_tok_spaces > other_tok_spaces {
             return false;
         }
         // Check Y label compatibility.
@@ -489,7 +494,7 @@ impl Tile {
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub struct Tok {
+pub struct TokenSpace {
     city_ix: usize,
     token_ix: usize,
 }
