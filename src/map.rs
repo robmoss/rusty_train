@@ -98,6 +98,10 @@ impl Map {
             return false;
         }
         if let Some(hex_state) = self.state.get_mut(&hex) {
+            if !hex_state.replaceable {
+                // This tile cannot be replaced.
+                return false;
+            }
             // NOTE: leave the tokens as-is!
             // TODO: presumably this is correct behaviour?
             hex_state.name = tile.clone();
@@ -109,6 +113,7 @@ impl Map {
                     name: tile.clone(),
                     rotation: rot,
                     tokens: HashMap::new(),
+                    replaceable: false,
                 },
             );
         }
@@ -652,6 +657,9 @@ pub struct HexState {
     name: String,
     rotation: RotateCW,
     tokens: TokensTable,
+    /// Whether this tile can be replaced by another tile; set to false for
+    /// hexes such as the red off-board areas.
+    replaceable: bool,
 }
 
 impl HexState {
