@@ -42,11 +42,11 @@ impl Map {
         }
     }
 
-    pub fn get(&self, addr: HexAddress) -> Option<&HexState> {
+    pub fn get_hex(&self, addr: HexAddress) -> Option<&HexState> {
         self.state.get(&addr)
     }
 
-    pub fn get_mut(&mut self, addr: HexAddress) -> Option<&mut HexState> {
+    pub fn get_hex_mut(&mut self, addr: HexAddress) -> Option<&mut HexState> {
         self.state.get_mut(&addr)
     }
 

@@ -103,7 +103,7 @@ impl ReplaceTile {
 
 impl EditTokens {
     fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
-        let hex_state = if let Some(hex_state) = map.get(addr) {
+        let hex_state = if let Some(hex_state) = map.get_hex(addr) {
             hex_state
         } else {
             return None;
@@ -353,7 +353,7 @@ impl State for Default {
             }
             gdk::enums::key::less | gdk::enums::key::comma => {
                 if let Some(addr) = self.active_hex {
-                    map.get_mut(addr).map(|hs| hs.rotate_anti_cw());
+                    map.get_hex_mut(addr).map(|hs| hs.rotate_anti_cw());
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -361,7 +361,7 @@ impl State for Default {
             }
             gdk::enums::key::greater | gdk::enums::key::period => {
                 if let Some(addr) = self.active_hex {
-                    map.get_mut(addr).map(|hs| hs.rotate_cw());
+                    map.get_hex_mut(addr).map(|hs| hs.rotate_cw());
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -419,7 +419,7 @@ impl State for ReplaceTile {
             if addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
                 // NOTE: must account for the current tile's rotation.
-                let extra_angle = if let Some(hs) = map.get(addr) {
+                let extra_angle = if let Some(hs) = map.get_hex(addr) {
                     -hs.radians()
                 } else {
                     0.0
@@ -643,7 +643,7 @@ impl State for EditTokens {
             gdk::enums::key::Escape => {
                 // NOTE: revert any edits before existing this mode.
                 let restore = self.original_tokens.drain().collect();
-                map.get_mut(self.active_hex)
+                map.get_hex_mut(self.active_hex)
                     .map(|hex_state| hex_state.set_tokens(restore));
                 (
                     Box::new(Default {
@@ -678,7 +678,7 @@ impl State for EditTokens {
             }
             gdk::enums::key::Up => {
                 let token_space = &self.token_spaces[self.selected];
-                map.get_mut(self.active_hex).map(|hex_state| {
+                map.get_hex_mut(self.active_hex).map(|hex_state| {
                     let next = hex_state
                         .get_token_at(token_space)
                         .map(|t| t.next())
@@ -689,7 +689,7 @@ impl State for EditTokens {
             }
             gdk::enums::key::Down => {
                 let token_space = &self.token_spaces[self.selected];
-                map.get_mut(self.active_hex).map(|hex_state| {
+                map.get_hex_mut(self.active_hex).map(|hex_state| {
                     let next = hex_state
                         .get_token_at(token_space)
                         .map(|t| t.prev())
@@ -703,7 +703,7 @@ impl State for EditTokens {
             | gdk::enums::key::BackSpace
             | gdk::enums::key::Delete => {
                 let token_space = &self.token_spaces[self.selected];
-                map.get_mut(self.active_hex)
+                map.get_hex_mut(self.active_hex)
                     .map(|hex_state| hex_state.remove_token_at(token_space));
                 (self, Inhibit(false), Action::Redraw)
             }
