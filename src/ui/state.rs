@@ -127,6 +127,121 @@ impl EditTokens {
     }
 }
 
+/// Prompt the user to select a file to which data will be saved.
+fn save_file_dialog(
+    window: &gtk::ApplicationWindow,
+    title: &str,
+    filters: &[&gtk::FileFilter],
+    default_path: Option<&str>,
+) -> Option<std::path::PathBuf> {
+    let dialog = gtk::FileChooserDialog::with_buttons(
+        Some(title),
+        Some(window),
+        gtk::FileChooserAction::Save,
+        &[
+            ("_Cancel", gtk::ResponseType::Cancel),
+            ("_Save", gtk::ResponseType::Accept),
+        ],
+    );
+    for filter in filters {
+        dialog.add_filter(filter)
+    }
+    if let Some(path) = default_path {
+        dialog.set_current_name(path);
+    }
+    let response = dialog.run();
+    if response == gtk::ResponseType::Accept {
+        let dest = dialog.get_filename().expect("Couldn't get filename");
+        dialog.destroy();
+        Some(dest)
+    } else {
+        dialog.close();
+        dialog.destroy();
+        None
+    }
+}
+
+/// Prompt the user to select a file from which data will be read.
+fn open_file_dialog(
+    window: &gtk::ApplicationWindow,
+    title: &str,
+    filters: &[&gtk::FileFilter],
+    default_path: Option<&str>,
+) -> Option<std::path::PathBuf> {
+    let dialog = gtk::FileChooserDialog::with_buttons(
+        Some(title),
+        Some(window),
+        gtk::FileChooserAction::Open,
+        &[
+            ("_Cancel", gtk::ResponseType::Cancel),
+            ("_Open", gtk::ResponseType::Accept),
+        ],
+    );
+    for filter in filters {
+        dialog.add_filter(filter)
+    }
+    if let Some(path) = default_path {
+        dialog.set_current_name(path);
+    }
+    let response = dialog.run();
+    if response == gtk::ResponseType::Accept {
+        let dest = dialog.get_filename().expect("Couldn't get filename");
+        dialog.destroy();
+        Some(dest)
+    } else {
+        dialog.close();
+        dialog.destroy();
+        None
+    }
+}
+
+/// Prompt the user to save a screenshot.
+fn save_screenshot<S: State>(
+    state: &Box<S>,
+    window: &gtk::ApplicationWindow,
+    area: &gtk::DrawingArea,
+    hex: &Hex,
+    map: &mut Map,
+) -> Result<Action, Box<dyn std::error::Error>> {
+    let filter_png = gtk::FileFilter::new();
+    filter_png.set_name(Some("PNG images"));
+    filter_png.add_mime_type("image/png");
+    let filter_all = gtk::FileFilter::new();
+    filter_all.set_name(Some("All files"));
+    filter_all.add_pattern("*");
+    let filters = vec![&filter_png, &filter_all];
+    // Suggest a filename that contains the current date and time.
+    let now = chrono::Local::now();
+    let default_dest =
+        now.format("screenshot-%Y-%m-%d-%H%M%S.png").to_string();
+    let dest_file = save_file_dialog(
+        window,
+        "Save screenshot",
+        &filters,
+        Some(&default_dest),
+    );
+    let dest_file = if let Some(dest) = dest_file {
+        dest
+    } else {
+        return Ok(Action::None);
+    };
+    let dest_str = dest_file.to_string_lossy().into_owned();
+    // Use the same dimensions as the current drawing area.
+    let width = area.get_allocated_width();
+    let height = area.get_allocated_height();
+    let surface = ImageSurface::create(Format::ARgb32, width, height)
+        .expect("Can't create surface");
+    let icx = Context::new(&surface);
+    // Fill the image with a white background.
+    icx.set_source_rgb(1.0, 1.0, 1.0);
+    icx.paint();
+    // Then draw the current map content.
+    state.draw(hex, map, width, height, &icx);
+    let mut file = std::fs::File::create(dest_file)
+        .expect(&format!("Couldn't create '{}'", dest_str));
+    surface.write_to_png(&mut file)?;
+    Ok(Action::Redraw)
+}
 impl State for Default {
     fn draw(
         &self,
@@ -245,58 +360,13 @@ impl State for Default {
                 //     None,
                 //     None,
                 // );
-                let dialog = gtk::FileChooserDialog::with_buttons(
-                    Some("Save Screenshot"),
-                    Some(window),
-                    gtk::FileChooserAction::Save,
-                    &[
-                        ("_Cancel", gtk::ResponseType::Cancel),
-                        ("_Save", gtk::ResponseType::Accept),
-                    ],
-                );
-                let filter_png = gtk::FileFilter::new();
-                filter_png.set_name(Some("PNG images"));
-                filter_png.add_mime_type("image/png");
-                dialog.add_filter(&filter_png);
-                let filter_all = gtk::FileFilter::new();
-                filter_all.set_name(Some("All files"));
-                filter_all.add_pattern("*");
-                dialog.add_filter(&filter_all);
-                // Suggest a filename that contains the current date and time.
-                let now = chrono::Local::now();
-                let default_dest =
-                    now.format("screenshot-%Y-%m-%d-%H%M%S.png").to_string();
-                dialog.set_current_name(default_dest);
-                let response = dialog.run();
-                let dest_file = if response == gtk::ResponseType::Accept {
-                    dialog.get_filename().expect("Couldn't get filename")
-                } else {
-                    dialog.close();
-                    dialog.destroy();
-                    return (self, Inhibit(false), Action::None);
-                };
-                let dest_str = dest_file.to_string_lossy().into_owned();
-                dialog.destroy();
-                println!("Chose {}", dest_str);
-                // Use the same dimensions as the current drawing area.
-                let width = area.get_allocated_width();
-                let height = area.get_allocated_height();
-                let surface =
-                    ImageSurface::create(Format::ARgb32, width, height)
-                        .expect("Can't create surface");
-                let icx = Context::new(&surface);
-                // Fill the image with a white background.
-                icx.set_source_rgb(1.0, 1.0, 1.0);
-                icx.paint();
-                // Then draw the current map content.
-                self.draw(hex, map, width, height, &icx);
-                let mut file = std::fs::File::create(dest_file)
-                    .expect(&format!("Couldn't create '{}'", dest_str));
-                match surface.write_to_png(&mut file) {
-                    Ok(_) => println!("Saved to {}", dest_str),
-                    Err(_) => println!("Error saving {}", dest_str),
+                match save_screenshot(&self, window, area, hex, map) {
+                    Ok(action) => (self, Inhibit(false), action),
+                    Err(error) => {
+                        eprintln!("Error: {}", error);
+                        (self, Inhibit(false), Action::None)
+                    }
                 }
-                (self, Inhibit(false), Action::None)
             }
             gdk::enums::key::Left => {
                 // TODO: these are boilerplate, define a common function?
