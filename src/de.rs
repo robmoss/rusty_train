@@ -113,9 +113,34 @@ enum TrackType {
     GentleR(HexFace),
     HardL(HexFace),
     HardR(HexFace),
-    Frac((HexFace, f64)),
-    GentleLHalf(HexFace),
-    GentleRHalf(HexFace),
+}
+
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
+enum TrackEnd {
+    Start,
+    End,
+}
+
+impl std::convert::From<crate::track::TrackEnd> for TrackEnd {
+    fn from(src: crate::track::TrackEnd) -> Self {
+        use crate::track::TrackEnd::*;
+
+        match src {
+            Start => TrackEnd::Start,
+            End => TrackEnd::End,
+        }
+    }
+}
+
+impl std::convert::From<TrackEnd> for crate::track::TrackEnd {
+    fn from(src: TrackEnd) -> Self {
+        use crate::track::TrackEnd::*;
+
+        match src {
+            TrackEnd::Start => Start,
+            TrackEnd::End => End,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -123,52 +148,43 @@ struct Track {
     #[serde(flatten)]
     pub track_type: TrackType,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dit: Option<(f64, usize)>,
+    pub dit: Option<(TrackEnd, usize)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clip: Option<(f64, f64)>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub span: Option<(f64, f64)>,
 }
 
 impl std::convert::From<&crate::track::Track> for Track {
     fn from(src: &crate::track::Track) -> Self {
         use crate::track::TrackCurve::*;
 
-        let track_type = match src.curve {
+        let span = if src.x0 == 0.0 && src.x1 == 1.0 {
+            None
+        } else if src.x0 >= 0.0 && src.x1 <= 1.0 {
+            Some((src.x0, src.x1))
+        } else {
+            panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
+        };
+
+        let (track_type, span) = match src.curve {
             Straight => {
-                if src.x0 == 0.0 && src.x1 == 1.0 {
-                    TrackType::Straight(src.face.into())
-                } else if src.x0 == 0.0 && src.x1 == 0.5 {
-                    TrackType::Mid(src.face.into())
-                } else if src.x0 == 0.0 && src.x1 < 1.0 {
-                    TrackType::Frac((src.face.into(), src.x1))
+                if src.x0 == 0.0 && src.x1 == 0.5 {
+                    (TrackType::Mid(src.face.into()), None)
                 } else {
-                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
+                    (TrackType::Straight(src.face.into()), span)
                 }
             }
-            GentleL => {
-                if src.x0 == 0.0 && src.x1 == 1.0 {
-                    TrackType::GentleL(src.face.into())
-                } else if src.x0 == 0.0 && src.x1 == 0.5 {
-                    TrackType::GentleLHalf(src.face.into())
-                } else {
-                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
-                }
-            }
-            HardL => TrackType::HardL(src.face.into()),
-            GentleR => {
-                if src.x0 == 0.0 && src.x1 == 1.0 {
-                    TrackType::GentleR(src.face.into())
-                } else if src.x0 == 0.0 && src.x1 == 0.5 {
-                    TrackType::GentleRHalf(src.face.into())
-                } else {
-                    panic!("Invalid track span: [{}, {}]", src.x0, src.x1)
-                }
-            }
-            HardR => TrackType::HardR(src.face.into()),
+            GentleL => (TrackType::GentleL(src.face.into()), span),
+            HardL => (TrackType::HardL(src.face.into()), span),
+            GentleR => (TrackType::GentleR(src.face.into()), span),
+            HardR => (TrackType::HardR(src.face.into()), span),
         };
         Self {
             track_type: track_type,
-            dit: src.dit,
+            dit: src.dit.map(|(end, revenue)| (end.into(), revenue)),
             clip: src.clip,
+            span: span,
         }
     }
 }
@@ -179,6 +195,7 @@ impl Default for Track {
             track_type: TrackType::Straight(HexFace::Bottom),
             dit: None,
             clip: None,
+            span: None,
         }
     }
 }
@@ -756,24 +773,19 @@ impl From<&Track> for crate::track::Track {
             TrackType::HardR(ref face) => {
                 crate::track::Track::hard_r(face.into())
             }
-            TrackType::Frac((ref face, frac)) => {
-                crate::track::Track::straight(face.into())
-                    .with_span(0.0, frac)
-            }
-            TrackType::GentleLHalf(ref face) => {
-                crate::track::Track::gentle_l(face.into()).with_span(0.0, 0.5)
-            }
-            TrackType::GentleRHalf(ref face) => {
-                crate::track::Track::gentle_r(face.into()).with_span(0.0, 0.5)
-            }
         };
         let track = if let Some((posn, revenue)) = t.dit {
-            track.with_dit(posn, revenue)
+            track.with_dit(posn.into(), revenue)
         } else {
             track
         };
         let track = if let Some((lower, upper)) = t.clip {
             track.with_clip(lower, upper)
+        } else {
+            track
+        };
+        let track = if let Some((x0, x1)) = t.span {
+            track.with_span(x0, x1)
         } else {
             track
         };
@@ -871,6 +883,7 @@ impl City {
 #[allow(dead_code)]
 fn test_tiles() -> Tiles {
     use HexColour::*;
+    use TrackEnd::*;
     use TrackType::*;
 
     // TODO: define all of the tiles in crate::catalogue::tile_catalogue().
@@ -880,11 +893,19 @@ fn test_tiles() -> Tiles {
             Tile {
                 name: "3".to_string(),
                 colour: Yellow,
-                track: vec![Track {
-                    track_type: HardL(HexFace::Bottom),
-                    dit: Some((0.5, 10)),
-                    ..Default::default()
-                }],
+                track: vec![
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        dit: Some((End, 10)),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        span: Some((0.5, 1.0)),
+                        ..Default::default()
+                    },
+                ],
                 cities: vec![],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
@@ -895,11 +916,19 @@ fn test_tiles() -> Tiles {
             Tile {
                 name: "4".to_string(),
                 colour: Yellow,
-                track: vec![Track {
-                    track_type: Straight(HexFace::Bottom),
-                    dit: Some((0.25, 10)),
-                    ..Default::default()
-                }],
+                track: vec![
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        dit: Some((End, 10)),
+                        span: Some((0.0, 0.25)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        span: Some((0.25, 1.0)),
+                        ..Default::default()
+                    },
+                ],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::LowerLeftFace,
@@ -1515,11 +1544,19 @@ fn test_tiles() -> Tiles {
             Tile {
                 name: "58".to_string(),
                 colour: Yellow,
-                track: vec![Track {
-                    track_type: GentleR(HexFace::Bottom),
-                    dit: Some((0.5, 10)),
-                    ..Default::default()
-                }],
+                track: vec![
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        dit: Some((End, 10)),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        span: Some((0.5, 1.0)),
+                        ..Default::default()
+                    },
+                ],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperLeftFace,
@@ -1670,10 +1707,22 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::Top),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -1711,10 +1760,22 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::Top),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Top),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2051,10 +2112,17 @@ fn test_tiles() -> Tiles {
             Tile {
                 name: "621".to_string(),
                 colour: Yellow,
-                track: vec![Track {
-                    track_type: Straight(HexFace::Bottom),
-                    ..Default::default()
-                }],
+                track: vec![
+                    Track {
+                        track_type: Mid(HexFace::Bottom),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        span: Some((0.5, 1.0)),
+                        ..Default::default()
+                    },
+                ],
                 cities: vec![City {
                     city_type: CityType::Single(Location::Centre),
                     revenue: 30,
@@ -2219,14 +2287,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: HardL(HexFace::Bottom),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::Bottom),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::UpperLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::UpperLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::UpperRight),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::UpperRight),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2399,14 +2485,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Straight(HexFace::Bottom),
+                        span: Some((0.0, 0.9)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        span: Some((0.9, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: Straight(HexFace::LowerLeft),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::LowerLeft),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: Straight(HexFace::LowerRight),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::LowerRight),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2448,14 +2552,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleR(HexFace::LowerLeft),
+                        span: Some((0.0, 0.9)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::LowerLeft),
+                        span: Some((0.9, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: GentleL(HexFace::UpperLeft),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::UpperLeft),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: Straight(HexFace::Bottom),
+                        span: Some((0.0, 0.9)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        span: Some((0.9, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2497,14 +2619,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleL(HexFace::Top),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Top),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: GentleR(HexFace::Bottom),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2547,14 +2687,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Straight(HexFace::Top),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Top),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: HardR(HexFace::LowerRight),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardR(HexFace::LowerRight),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                 ],
@@ -2597,7 +2755,13 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Straight(HexFace::Top),
+                        span: Some((0.0, 0.1)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Top),
                         clip: Some((0.3625, 0.75)),
+                        span: Some((0.1, 1.0)),
                         ..Default::default()
                     },
                     Track {
@@ -2651,6 +2815,12 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: HardL(HexFace::LowerLeft),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
@@ -2705,22 +2875,32 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleL(HexFace::UpperLeft),
+                        span: Some((0.0, 0.9)),
                         ..Default::default()
                     },
                     Track {
-                        track_type: GentleRHalf(HexFace::LowerLeft),
+                        track_type: GentleL(HexFace::UpperLeft),
+                        span: Some((0.9, 1.0)),
                         ..Default::default()
                     },
                     Track {
-                        track_type: GentleLHalf(HexFace::LowerRight),
+                        track_type: GentleR(HexFace::LowerLeft),
+                        span: Some((0.0, 0.5)),
                         ..Default::default()
                     },
                     Track {
-                        track_type: Frac((HexFace::Top, 0.6)),
+                        track_type: GentleL(HexFace::LowerRight),
+                        span: Some((0.0, 0.5)),
                         ..Default::default()
                     },
                     Track {
-                        track_type: Frac((HexFace::Bottom, 0.4)),
+                        track_type: Straight(HexFace::Top),
+                        span: Some((0.0, 0.65)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: Straight(HexFace::Bottom),
+                        span: Some((0.0, 0.35)),
                         ..Default::default()
                     },
                 ],
@@ -2808,16 +2988,29 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleL(HexFace::Bottom),
-                        dit: Some((0.85, 30)),
+                        dit: Some((End, 30)),
+                        span: Some((0.0, 0.85)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        span: Some((0.85, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: GentleR(HexFace::Bottom),
-                        dit: Some((0.85, 30)),
+                        dit: Some((End, 30)),
+                        span: Some((0.0, 0.85)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::Bottom),
+                        span: Some((0.85, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: Straight(HexFace::UpperLeft),
+                        span: Some((0.125, 1.0)),
                         ..Default::default()
                     },
                     Track {
@@ -2843,10 +3036,22 @@ fn test_tiles() -> Tiles {
                     },
                     Track {
                         track_type: GentleR(HexFace::LowerRight),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleR(HexFace::LowerRight),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {
                         track_type: GentleL(HexFace::Bottom),
+                        span: Some((0.0, 0.5)),
+                        ..Default::default()
+                    },
+                    Track {
+                        track_type: GentleL(HexFace::Bottom),
+                        span: Some((0.5, 1.0)),
                         ..Default::default()
                     },
                     Track {

@@ -30,11 +30,16 @@
 //! let hex_max_diameter = 125.0;
 //! let hex = Hex::new(hex_max_diameter);
 //!
-//! // Create a tile that contains one track segment and a dit.
+//! // Create a tile that contains two track segments and a dit.
 //! let tile = Tile::new(
 //!     HexColour::Yellow,
 //!     "3".to_string(),
-//!     vec![Track::hard_l(HexFace::Bottom).with_dit(0.5, 10)],
+//!     vec![
+//!         Track::hard_l(HexFace::Bottom)
+//!             .with_span(0.0, 0.5)
+//!             .with_dit(TrackEnd::End, 10),
+//!         Track::hard_l(HexFace::Bottom).with_span(0.5, 1.0),
+//!     ],
 //!     vec![],
 //!     &hex,
 //!     );

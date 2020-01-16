@@ -6,6 +6,7 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
     use HexCorner::*;
     use HexFace::*;
     use HexPosition::*;
+    use TrackEnd::*;
 
     // TODO: City/Y labels, revenue ...
 
@@ -13,7 +14,10 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Yellow,
             "3".to_string(),
-            vec![Track::hard_l(Bottom).with_dit(0.5, 10)],
+            vec![
+                Track::hard_l(Bottom).with_span(0.0, 0.5).with_dit(End, 10),
+                Track::hard_l(Bottom).with_span(0.5, 1.0),
+            ],
             vec![],
             hex,
         )
@@ -22,7 +26,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Yellow,
             "4".to_string(),
-            vec![Track::straight(Bottom).with_dit(0.25, 10)],
+            vec![
+                Track::straight(Bottom)
+                    .with_span(0.0, 0.25)
+                    .with_dit(End, 10),
+                Track::straight(Bottom).with_span(0.25, 1.0),
+            ],
             vec![],
             hex,
         )
@@ -320,7 +329,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Yellow,
             "58".to_string(),
-            vec![Track::gentle_r(Bottom).with_dit(0.5, 10)],
+            vec![
+                Track::gentle_r(Bottom)
+                    .with_span(0.0, 0.5)
+                    .with_dit(End, 10),
+                Track::gentle_r(Bottom).with_span(0.5, 1.0),
+            ],
             vec![],
             hex,
         )
@@ -381,9 +395,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Green,
             "120".to_string(),
-            // NOTE: here we have a single track segment that *PASSES THROUGH*
-            // a city/token space ...
-            vec![Track::hard_l(LowerLeft), Track::hard_l(Top)],
+            vec![
+                Track::hard_l(LowerLeft).with_span(0.0, 0.5),
+                Track::hard_l(LowerLeft).with_span(0.5, 1.0),
+                Track::hard_l(Top).with_span(0.0, 0.5),
+                Track::hard_l(Top).with_span(0.5, 1.0),
+            ],
             // TODO: Toronto label
             vec![
                 City::single_at_corner(60, &Left),
@@ -396,9 +413,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Brown,
             "122".to_string(),
-            // NOTE: here we have a single track segment that *PASSES THROUGH*
-            // a city/token space ...
-            vec![Track::hard_l(LowerLeft), Track::hard_l(Top)],
+            vec![
+                Track::hard_l(LowerLeft).with_span(0.0, 0.5),
+                Track::hard_l(LowerLeft).with_span(0.5, 1.0),
+                Track::hard_l(Top).with_span(0.0, 0.5),
+                Track::hard_l(Top).with_span(0.5, 1.0),
+            ],
             // TODO: Toronto label
             vec![
                 City::double_at_corner(80, &Left),
@@ -521,7 +541,10 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
         Tile::new(
             Yellow,
             "621".to_string(),
-            vec![Track::straight(Bottom)],
+            vec![
+                Track::straight(Bottom).with_span(0.0, 0.5),
+                Track::straight(Bottom).with_span(0.5, 1.0),
+            ],
             // TODO: Y label
             vec![City::single(30)],
             hex,
@@ -585,9 +608,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "637".to_string(),
             vec![
-                Track::hard_l(Bottom),
-                Track::hard_l(UpperLeft),
-                Track::hard_l(UpperRight),
+                Track::hard_l(Bottom).with_span(0.0, 0.5),
+                Track::hard_l(Bottom).with_span(0.5, 1.0),
+                Track::hard_l(UpperLeft).with_span(0.0, 0.5),
+                Track::hard_l(UpperLeft).with_span(0.5, 1.0),
+                Track::hard_l(UpperRight).with_span(0.0, 0.5),
+                Track::hard_l(UpperRight).with_span(0.5, 1.0),
             ],
             // TODO: Montreal label
             vec![
@@ -651,9 +677,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "X1".to_string(),
             vec![
-                Track::straight(Bottom),
-                Track::straight(LowerLeft),
-                Track::straight(LowerRight),
+                Track::straight(Bottom).with_span(0.0, 0.9),
+                Track::straight(Bottom).with_span(0.9, 1.0),
+                Track::straight(LowerLeft).with_span(0.0, 0.1),
+                Track::straight(LowerLeft).with_span(0.1, 1.0),
+                Track::straight(LowerRight).with_span(0.0, 0.1),
+                Track::straight(LowerRight).with_span(0.1, 1.0),
             ],
             // TODO: Montreal label
             vec![
@@ -671,9 +700,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "X2".to_string(),
             vec![
-                Track::gentle_r(LowerLeft),
-                Track::gentle_l(UpperLeft),
-                Track::straight(Bottom),
+                Track::gentle_r(LowerLeft).with_span(0.0, 0.9),
+                Track::gentle_r(LowerLeft).with_span(0.9, 1.0),
+                Track::gentle_l(UpperLeft).with_span(0.0, 0.1),
+                Track::gentle_l(UpperLeft).with_span(0.1, 1.0),
+                Track::straight(Bottom).with_span(0.0, 0.9),
+                Track::straight(Bottom).with_span(0.9, 1.0),
             ],
             // TODO: Montreal label
             vec![
@@ -689,9 +721,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "X3".to_string(),
             vec![
-                Track::gentle_l(Top),
-                Track::gentle_r(Bottom),
-                Track::hard_l(LowerLeft),
+                Track::gentle_l(Top).with_span(0.0, 0.1),
+                Track::gentle_l(Top).with_span(0.1, 1.0),
+                Track::gentle_r(Bottom).with_span(0.0, 0.1),
+                Track::gentle_r(Bottom).with_span(0.1, 1.0),
+                Track::hard_l(LowerLeft).with_span(0.0, 0.5),
+                Track::hard_l(LowerLeft).with_span(0.5, 1.0),
             ],
             // TODO: Montreal label
             vec![
@@ -712,9 +747,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "X4".to_string(),
             vec![
-                Track::straight(Top),
-                Track::hard_l(LowerLeft),
-                Track::hard_r(LowerRight),
+                Track::straight(Top).with_span(0.0, 0.1),
+                Track::straight(Top).with_span(0.1, 1.0),
+                Track::hard_l(LowerLeft).with_span(0.0, 0.5),
+                Track::hard_l(LowerLeft).with_span(0.5, 1.0),
+                Track::hard_r(LowerRight).with_span(0.0, 0.5),
+                Track::hard_r(LowerRight).with_span(0.5, 1.0),
             ],
             // TODO: Montreal label
             vec![
@@ -733,7 +771,10 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Brown,
             "X5".to_string(),
             vec![
-                Track::straight(Top).with_clip(0.3625, 0.75),
+                Track::straight(Top).with_span(0.0, 0.1),
+                Track::straight(Top)
+                    .with_span(0.1, 1.0)
+                    .with_clip(0.3625, 0.75),
                 Track::mid(UpperLeft),
                 Track::mid(LowerLeft),
                 Track::mid(LowerRight),
@@ -752,7 +793,8 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Brown,
             "X6".to_string(),
             vec![
-                Track::hard_l(LowerLeft),
+                Track::hard_l(LowerLeft).with_span(0.0, 0.5),
+                Track::hard_l(LowerLeft).with_span(0.5, 1.0),
                 Track::mid(Top),
                 Track::mid(Bottom),
                 Track::mid(LowerRight),
@@ -773,11 +815,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Brown,
             "X7".to_string(),
             vec![
-                Track::gentle_l(UpperLeft),
+                Track::gentle_l(UpperLeft).with_span(0.0, 0.9),
+                Track::gentle_l(UpperLeft).with_span(0.9, 1.0),
                 Track::gentle_r(LowerLeft).with_span(0.0, 0.5),
                 Track::gentle_l(LowerRight).with_span(0.0, 0.5),
-                Track::straight(Top).with_span(0.0, 0.6),
-                Track::straight(Bottom).with_span(0.0, 0.4),
+                Track::straight(Top).with_span(0.0, 0.65),
+                Track::straight(Bottom).with_span(0.0, 0.35),
             ],
             // TODO: Montreal label
             vec![
@@ -811,9 +854,15 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             vec![
                 // TODO! dit is at the wrong location for gentle_l !!!
                 // FIXED! But how to test?!?
-                Track::gentle_l(Bottom).with_dit(0.85, 30),
-                Track::gentle_r(Bottom).with_dit(0.85, 30),
-                Track::straight(UpperLeft),
+                Track::gentle_l(Bottom)
+                    .with_span(0.0, 0.85)
+                    .with_dit(End, 30),
+                Track::gentle_l(Bottom).with_span(0.85, 1.0),
+                Track::gentle_r(Bottom)
+                    .with_span(0.0, 0.85)
+                    .with_dit(End, 30),
+                Track::gentle_r(Bottom).with_span(0.85, 1.0),
+                Track::straight(UpperLeft).with_span(0.125, 1.0),
                 Track::gentle_l(Top),
             ],
             vec![],
@@ -825,8 +874,10 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             "IN11".to_string(),
             vec![
                 Track::straight(LowerRight),
-                Track::gentle_r(LowerRight),
-                Track::gentle_l(Bottom),
+                Track::gentle_r(LowerRight).with_span(0.0, 0.5),
+                Track::gentle_r(LowerRight).with_span(0.5, 1.0),
+                Track::gentle_l(Bottom).with_span(0.0, 0.5),
+                Track::gentle_l(Bottom).with_span(0.5, 1.0),
                 Track::straight(Bottom),
             ],
             vec![

@@ -35,6 +35,24 @@ enum TrackPath {
     },
 }
 
+/// Each track segment has two ends.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum TrackEnd {
+    Start,
+    End,
+}
+
+impl TrackEnd {
+    /// Returns the other end of the track segment.
+    pub fn other_end(&self) -> Self {
+        use TrackEnd::*;
+        match self {
+            Start => End,
+            End => Start,
+        }
+    }
+}
+
 /// Track segments along which trains can run routes.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Track {
@@ -43,7 +61,7 @@ pub struct Track {
     pub x0: f64,
     pub x1: f64,
     pub clip: Option<(f64, f64)>,
-    pub dit: Option<(f64, usize)>,
+    pub dit: Option<(TrackEnd, usize)>,
     // TODO: different gauges, double track, etc?
     // TODO: save track description?
 }
@@ -68,7 +86,7 @@ impl Track {
         x0: f64,
         x1: f64,
         clip: Option<(f64, f64)>,
-        dit: Option<(f64, usize)>,
+        dit: Option<(TrackEnd, usize)>,
     ) -> Self {
         // TODO: check x0, x1, clip, dit location.
         Self {
@@ -149,9 +167,9 @@ impl Track {
         }
     }
 
-    pub fn with_dit(mut self, locn: f64, revenue: usize) -> Self {
+    pub fn with_dit(mut self, end: TrackEnd, revenue: usize) -> Self {
         // TODO: check location.
-        self.dit = Some((locn, revenue));
+        self.dit = Some((end, revenue));
         self
     }
 
@@ -323,16 +341,15 @@ impl Track {
         }
     }
 
-    // TODO: pub fn dit_locn(&self, hex) -> Option<Coord>
-
     pub fn draw_dit_ends(&self, line_width: f64, hex: &Hex, ctx: &Context) {
         use TrackPath::*;
 
         // let dit_width = hex.max_d * 0.10;
         let dit_width = hex.max_d * line_width;
 
-        if let Some((locn, _revenue)) = self.dit {
+        if let Some((dit_end, _revenue)) = self.dit {
             ctx.new_path();
+            let dit_locn = self.end_coord(dit_end, hex);
 
             // let line_cap = ctx.get_line_cap();
             // // NOTE: Square doesn't work, Cairo can't figure out orientation.
@@ -345,11 +362,8 @@ impl Track {
                 Linear { start, end } => {
                     // TODO: lots of generic code here
                     // how much can we share with define_path()?
-                    let c0 = start.interpolate(&end, self.x0);
-                    let c1 = start.interpolate(&end, self.x1);
 
                     // NOTE: line needs to be perpendicular
-                    let dit_locn = c0.interpolate(&c1, locn);
                     let dit_dirn = Coord::unit_normal(&start, &end);
                     let dit_dirn = &dit_dirn * dit_width;
                     let dit_start = &dit_locn - &dit_dirn;
@@ -377,12 +391,9 @@ impl Track {
                     let a0 = angle_0 + x0 * (angle_1 - angle_0);
                     let a1 = angle_0 + x1 * (angle_1 - angle_0);
 
-                    let angle = if clockwise {
-                        a0 + locn * (a1 - a0)
-                    } else {
-                        // TODO --- seems the commented-out line is wrong.
-                        // a0 + (1.0 - locn) * (a1 - a0)
-                        a0 + locn * (a1 - a0)
+                    let angle = match dit_end {
+                        TrackEnd::Start => a0,
+                        TrackEnd::End => a1,
                     };
                     let dit_dx = radius * angle.cos();
                     let dit_dy = radius * angle.sin();
@@ -435,9 +446,9 @@ impl Track {
                     ctx.move_to(c0.x, c0.y);
                     ctx.line_to(c1.x, c1.y);
                 }
-                if let Some((locn, _revenue)) = self.dit {
+                if let Some((dit_end, _revenue)) = self.dit {
                     // NOTE: line needs to be perpendicular
-                    let dit_locn = c0.interpolate(&c1, locn);
+                    let dit_locn = self.end_coord(dit_end, hex);
                     let dit_width = hex.max_d * 0.10;
                     let dit_dirn = Coord::unit_normal(&start, &end);
                     let dit_dirn = &dit_dirn * dit_width;
@@ -484,15 +495,12 @@ impl Track {
                         ctx.arc_negative(centre.x, centre.y, radius, a0, a1);
                     }
                 }
-                if let Some((locn, _revenue)) = self.dit {
+                if let Some((dit_end, _revenue)) = self.dit {
                     // NOTE: line needs to be perpendicular
                     // Find the location along the arc, relative to centre.
-                    let angle = if clockwise {
-                        a0 + locn * (a1 - a0)
-                    } else {
-                        // TODO --- seems the commented-out line is wrong.
-                        // a0 + (1.0 - locn) * (a1 - a0)
-                        a0 + locn * (a1 - a0)
+                    let angle = match dit_end {
+                        TrackEnd::Start => a0,
+                        TrackEnd::End => a1,
                     };
                     let dit_dx = radius * angle.cos();
                     let dit_dy = radius * angle.sin();
@@ -523,7 +531,7 @@ impl Track {
     }
 
     pub fn dit_coord(&self, hex: &Hex) -> Option<Coord> {
-        self.dit.and_then(|(x, _revenue)| self.get_coord(hex, x))
+        self.dit.map(|(end, _revenue)| self.end_coord(end, hex))
     }
 
     pub fn get_coord(&self, hex: &Hex, x: f64) -> Option<Coord> {
@@ -597,6 +605,13 @@ impl Track {
                 let y = centre.y + radius * angle.sin();
                 Coord { x, y }
             }
+        }
+    }
+
+    pub fn end_coord(&self, end: TrackEnd, hex: &Hex) -> Coord {
+        match end {
+            TrackEnd::Start => self.start(hex),
+            TrackEnd::End => self.end(hex),
         }
     }
 
