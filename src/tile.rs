@@ -498,3 +498,112 @@ pub struct TokenSpace {
     city_ix: usize,
     token_ix: usize,
 }
+
+#[cfg(test)]
+/// Tests that check whether `Tile` appropriately layers the tile elements and
+/// correctly detects their connectivity.
+mod tests {
+    use crate::prelude::*;
+
+    use super::DrawLayer::*;
+    use HexColour::*;
+    use HexFace::*;
+    use TrackEnd::*;
+
+    static HEX_DIAMETER: f64 = 150.0;
+
+    #[test]
+    /// Constructs a tile with two track segments that do not cross each
+    /// other, and checks that both track segments are drawn in the `Normal`
+    /// layer.
+    fn no_overlaps_one_layer() {
+        let hex = Hex::new(HEX_DIAMETER);
+        let tile = Tile::new(
+            Yellow,
+            "Test".to_string(),
+            vec![
+                Track::hard_l(Bottom).with_span(0.0, 0.5).with_dit(End, 10),
+                Track::hard_l(Bottom).with_span(0.5, 1.0),
+            ],
+            vec![],
+            &hex,
+        );
+        let items_opt = tile.tracks_tbl.get(&Normal);
+        assert!(items_opt.is_some(), "No items in Normal draw layer");
+        let items = items_opt.unwrap();
+        assert_eq!(
+            items.len(),
+            2,
+            "Expected two tracks in Normal draw layer"
+        );
+        assert_eq!(
+            tile.tracks_tbl.len(),
+            1,
+            "Expected only one drawing layer"
+        );
+    }
+
+    #[test]
+    /// Constructs a tile with two track segments that cross each other, and
+    /// checks that the track segments are drawn in different layers.
+    fn one_overlap_two_layers() {
+        let hex = Hex::new(HEX_DIAMETER);
+        let tile = Tile::new(
+            Yellow,
+            "Test".to_string(),
+            vec![Track::straight(Bottom), Track::straight(UpperLeft)],
+            vec![],
+            &hex,
+        );
+        for layer in &[Under, Over] {
+            let items_opt = tile.tracks_tbl.get(layer);
+            assert!(
+                items_opt.is_some(),
+                "No items in {:?} draw layer",
+                layer
+            );
+            let items = items_opt.unwrap();
+            assert_eq!(
+                items.len(),
+                1,
+                "Expected one track in {:?} draw layer",
+                layer
+            );
+        }
+        assert_eq!(tile.tracks_tbl.len(), 2, "Expected two drawing layers");
+    }
+
+    #[test]
+    /// Constructs a tile with three track segments that cross each other, and
+    /// checks that the track segments are drawn in different layers.
+    fn two_overlaps_three_layers() {
+        let hex = Hex::new(HEX_DIAMETER);
+        let tile = Tile::new(
+            Yellow,
+            "Test".to_string(),
+            vec![
+                Track::straight(Bottom),
+                Track::straight(UpperLeft),
+                Track::straight(UpperRight),
+            ],
+            vec![],
+            &hex,
+        );
+        for layer in &[Under, Over, Topmost] {
+            let items_opt = tile.tracks_tbl.get(layer);
+            assert!(
+                items_opt.is_some(),
+                "No items in {:?} draw layer",
+                layer
+            );
+            let items = items_opt.unwrap();
+            assert_eq!(
+                items.len(),
+                1,
+                "Expected one track in {:?} draw layer",
+                layer
+            );
+        }
+        assert_eq!(tile.tracks_tbl.len(), 3, "Expected three drawing layers");
+    }
+}
