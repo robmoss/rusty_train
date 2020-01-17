@@ -106,9 +106,7 @@ impl Tile {
                     track_layers.insert(j, other_layer);
                 } else {
                     if track.connected(&other, hex, ctx) {
-                        if verbose {
-                            println!("    Tracks {} and {} connect", i, j);
-                        }
+                        println!("WARNING: tracks {} and {} connect", i, j);
                     }
                     track_layers.entry(i).or_insert(default_layer);
                 }
@@ -132,7 +130,15 @@ impl Tile {
         for (cx, city) in cities.iter().enumerate() {
             let mut layer = DrawLayer::Under;
             for (i, track) in tracks.iter().enumerate() {
-                if track.intersects_fill(city, hex, dt, ctx) {
+                // Tracks must start or end at a city, rather than passing
+                // through a city. This allows routes to identify a track
+                // by tile and the track index, rather than needing to worry
+                // about subsets of a track.
+                if track.connected_to_fill(city, hex, ctx) {
+                    let track_layer = track_layers.get(&i).unwrap_or(&layer);
+                    layer = std::cmp::max(layer, *track_layer);
+                } else if track.intersects_fill(city, hex, dt, ctx) {
+                    println!("WARNING: track crosses city, tile {}", name);
                     let track_layer = track_layers.get(&i).unwrap_or(&layer);
                     layer = std::cmp::max(layer, *track_layer);
                 }

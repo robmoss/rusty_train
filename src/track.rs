@@ -626,6 +626,18 @@ impl Track {
         self.coords(hex, dt).any(|c| ctx.in_fill(c.x, c.y))
     }
 
+    pub fn connected_to_fill<D: Draw>(
+        &self,
+        obj: &D,
+        hex: &Hex,
+        ctx: &Context,
+    ) -> bool {
+        obj.define_boundary(hex, ctx);
+        let start = self.start(hex);
+        let end = self.end(hex);
+        ctx.in_fill(start.x, start.y) || ctx.in_fill(end.x, end.y)
+    }
+
     pub fn connected(&self, other: &Self, hex: &Hex, ctx: &Context) -> bool {
         // NOTE: in_stroke() isn't sufficient here, we need to check whether
         // the track *ends* meet.
