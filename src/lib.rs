@@ -122,6 +122,9 @@ pub mod tile;
 /// Track segments.
 pub mod track;
 
+/// Connections between track segments, cities, and tile edges.
+pub mod connection;
+
 /// Game-specific tile catalogues.
 pub mod catalogue;
 

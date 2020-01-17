@@ -656,6 +656,99 @@ impl Track {
         self_in && other_in
     }
 
+    pub fn connected_to_faces(&self) -> Vec<(TrackEnd, HexFace)> {
+        use TrackCurve::*;
+
+        let mut faces = vec![];
+        if self.x0 == 0.0 {
+            faces.push((TrackEnd::Start, self.face))
+        }
+        if self.x1 == 1.0 {
+            let end_face = match self.curve {
+                Straight => self.face.opposite(),
+                HardL => self.face.clockwise(),
+                HardR => self.face.anti_clockwise(),
+                GentleL => self.face.clockwise().clockwise(),
+                GentleR => self.face.anti_clockwise().anti_clockwise(),
+            };
+            faces.push((TrackEnd::End, end_face))
+        }
+        faces
+    }
+
+    pub fn connected_to_fill_at<D: Draw>(
+        &self,
+        obj: &D,
+        hex: &Hex,
+        ctx: &Context,
+    ) -> Option<TrackEnd> {
+        obj.define_boundary(hex, ctx);
+        let start = self.start(hex);
+        let end = self.end(hex);
+        let conn_start = ctx.in_fill(start.x, start.y);
+        let conn_end = ctx.in_fill(end.x, end.y);
+        if conn_start && conn_end {
+            panic!("Track connects at both ends")
+        } else if conn_start {
+            Some(TrackEnd::Start)
+        } else if conn_end {
+            Some(TrackEnd::End)
+        } else {
+            None
+        }
+    }
+
+    pub fn connected_at(
+        &self,
+        other: &Self,
+        hex: &Hex,
+        ctx: &Context,
+    ) -> Option<(TrackEnd, TrackEnd)> {
+        use TrackEnd::*;
+
+        other.define_boundary(hex, ctx);
+        let c0 = self.start(hex);
+        let c1 = self.end(hex);
+        let self_c0 = ctx.in_stroke(c0.x, c0.y);
+        let self_c1 = ctx.in_stroke(c1.x, c1.y);
+
+        let self_conn = if self_c0 && self_c1 {
+            panic!("Tracks connected at both ends")
+        } else if self_c0 {
+            Some(Start)
+        } else if self_c1 {
+            Some(End)
+        } else {
+            None
+        };
+
+        self.define_boundary(hex, ctx);
+        let c0 = other.start(hex);
+        let c1 = other.end(hex);
+        let other_c0 = ctx.in_stroke(c0.x, c0.y);
+        let other_c1 = ctx.in_stroke(c1.x, c1.y);
+
+        let other_conn = if other_c0 && other_c1 {
+            panic!("Tracks connected at both ends")
+        } else if other_c0 {
+            Some(Start)
+        } else if other_c1 {
+            Some(End)
+        } else {
+            None
+        };
+
+        match (self_conn, other_conn) {
+            (None, None) => None,
+            (Some(end_1), Some(end_2)) => Some((end_1, end_2)),
+            _ => {
+                // println!("{:?} and {:?}", self_conn, other_conn);
+                // panic!("Inconsistent track connections")
+                None
+            }
+        }
+    }
+
     pub fn crosses(
         &self,
         other: &Self,

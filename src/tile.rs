@@ -1,8 +1,9 @@
 use crate::city::City;
+use crate::connection::{Connection, Connections, Dit};
 use crate::draw::Draw;
-use crate::hex::{Hex, HexColour, HexFace, HexPosition};
+use crate::hex::{Hex, HexColour, HexPosition};
 use crate::label::Label;
-use crate::track::{Track, TrackEnd};
+use crate::track::Track;
 use cairo::Context;
 use std::collections::HashMap;
 
@@ -55,6 +56,8 @@ pub struct Tile {
     revenues: Vec<usize>,
     // Tile labels: tile name, revenue, city name, etc.
     labels: Vec<LabelAndPos>,
+    // Connections between tracks, dits, cities, and hex faces.
+    conns: Connections,
 }
 
 impl Tile {
@@ -152,6 +155,7 @@ impl Tile {
             let layer = track_layers.get(&i).unwrap();
             tracks_tbl.entry(*layer).or_insert(vec![]).push(i)
         }
+        let conns = Connections::new(&tracks, &cities, hex);
         Self {
             colour,
             name,
@@ -161,7 +165,12 @@ impl Tile {
             cities_tbl,
             revenues,
             labels: vec![],
+            conns,
         }
+    }
+
+    pub fn connections(&self, from: &Connection) -> &[Connection] {
+        self.conns.from(from)
     }
 
     // TODO: verify labels (e.g., one revenue label for each revenue ix)
@@ -176,6 +185,10 @@ impl Tile {
 
     pub fn tracks(&self) -> &[Track] {
         self.tracks.as_slice()
+    }
+
+    pub fn dits(&self) -> &[Dit] {
+        self.conns.dits()
     }
 
     pub fn cities(&self) -> &[City] {

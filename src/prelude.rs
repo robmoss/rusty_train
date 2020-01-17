@@ -70,6 +70,9 @@ pub use crate::tile::Tile;
 pub use crate::tile::Tiles;
 
 #[doc(inline)]
+pub use crate::connection::Connection;
+
+#[doc(inline)]
 pub use crate::catalogue::tile_catalogue;
 
 #[doc(inline)]
