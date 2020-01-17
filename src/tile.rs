@@ -1,8 +1,8 @@
 use crate::city::City;
 use crate::draw::Draw;
-use crate::hex::{Hex, HexColour};
+use crate::hex::{Hex, HexColour, HexFace, HexPosition};
 use crate::label::Label;
-use crate::track::Track;
+use crate::track::{Track, TrackEnd};
 use cairo::Context;
 use std::collections::HashMap;
 
@@ -36,7 +36,7 @@ impl DrawLayer {
     }
 }
 
-pub type LabelAndPos = (crate::label::Label, crate::hex::HexPosition);
+pub type LabelAndPos = (Label, HexPosition);
 
 pub type Tiles = Vec<Tile>;
 
@@ -162,7 +162,7 @@ impl Tile {
 
     pub fn label<P>(mut self, label: Label, pos: P) -> Self
     where
-        P: Into<crate::hex::HexPosition>,
+        P: Into<HexPosition>,
     {
         self.labels.push((label, pos.into()));
         self
@@ -358,27 +358,23 @@ impl Tile {
             return false;
         }
         // Check Y label compatibility.
-        let self_y = self
-            .labels
-            .iter()
-            .any(|(label, _posn)| label == &crate::label::Label::Y);
-        let other_y = other
-            .labels
-            .iter()
-            .any(|(label, _posn)| label == &crate::label::Label::Y);
+        let self_y =
+            self.labels.iter().any(|(label, _posn)| label == &Label::Y);
+        let other_y =
+            other.labels.iter().any(|(label, _posn)| label == &Label::Y);
         if self_y && !other_y {
             return false;
         }
         // Check city-name compatibility.
         let self_city = self.labels.iter().find_map(|(label, _posn)| {
-            if let crate::label::Label::City(ref name) = label {
+            if let Label::City(ref name) = label {
                 Some(name)
             } else {
                 None
             }
         });
         let other_city = other.labels.iter().find_map(|(label, _posn)| {
-            if let crate::label::Label::City(ref name) = label {
+            if let Label::City(ref name) = label {
                 Some(name)
             } else {
                 None
