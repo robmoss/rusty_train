@@ -50,6 +50,33 @@ impl Map {
         self.state.get_mut(&addr)
     }
 
+    /// Returns the map locations where a matching token has been placed.
+    pub fn find_placed_tokens(
+        &self,
+        t: &Token,
+    ) -> Vec<(&HexAddress, &HexState, &Tile, &TokenSpace)> {
+        self.state
+            .iter()
+            .filter_map(|(addr, state)| {
+                // Retrieve the tile at this location, if any.
+                let tile_opt = self
+                    .catalogue
+                    .get(&state.name)
+                    .map(|ix| &self.tiles[*ix]);
+                // Check whether this hex contains a matching token.
+                tile_opt.and_then(|tile| {
+                    state.tokens.iter().find_map(|(token_space, token)| {
+                        if t == token {
+                            Some((addr, state, tile, token_space))
+                        } else {
+                            None
+                        }
+                    })
+                })
+            })
+            .collect()
+    }
+
     pub fn new(tiles: Vec<Tile>, hexes: Vec<HexAddress>) -> Self {
         if hexes.is_empty() {
             panic!("Can not create map with no hexes")
