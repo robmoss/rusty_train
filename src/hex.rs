@@ -54,7 +54,7 @@ impl HexColour {
 }
 
 /// The hexagon faces (edges).
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum HexFace {
     Top,
     UpperRight,

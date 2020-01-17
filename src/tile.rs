@@ -61,9 +61,9 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new(
+    pub fn new<S: Into<String>>(
         colour: HexColour,
-        name: String,
+        name: S,
         tracks: Vec<Track>,
         cities: Vec<City>,
         hex: &Hex,
@@ -81,6 +81,7 @@ impl Tile {
         let default_layer = DrawLayer::Normal;
         let dt = 0.10;
         let mut track_layers = HashMap::new();
+        let name = name.into();
         // TODO: can we divide this up into smaller functions and check
         // some invariant conditions and write test cases?
         let verbose = false;

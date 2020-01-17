@@ -33,7 +33,7 @@
 //! // Create a tile that contains two track segments and a dit.
 //! let tile = Tile::new(
 //!     HexColour::Yellow,
-//!     "3".to_string(),
+//!     "3",
 //!     vec![
 //!         Track::hard_l(HexFace::Bottom)
 //!             .with_span(0.0, 0.5)
@@ -63,7 +63,7 @@
 //! #
 //! let tile_45 = Tile::new(
 //!     HexColour::Brown,
-//!     "45".to_string(),
+//!     "45",
 //!     vec![
 //!         Track::gentle_l(HexFace::UpperLeft),
 //!         Track::hard_r(HexFace::Top),
@@ -75,7 +75,7 @@
 //! );
 //! let tile_x5 = Tile::new(
 //!     HexColour::Brown,
-//!     "X5".to_string(),
+//!     "X5",
 //!     vec![
 //!         Track::straight(HexFace::Top).with_clip(0.3625, 0.75),
 //!         Track::mid(HexFace::UpperLeft),
