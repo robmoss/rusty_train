@@ -68,7 +68,12 @@ pub fn drawable<F>(
     F: Fn(&DrawingArea, &Context) -> Inhibit + 'static,
 {
     let window = gtk::ApplicationWindow::new(application);
+    let adj: Option<&gtk::Adjustment> = None;
+    let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
+
+    // Set the minimum size of the drawing area to the required canvas size.
+    drawing_area.set_size_request(width, height);
 
     // Let the UI draw on the window.
     drawing_area.connect_draw(draw_fn);
@@ -82,6 +87,7 @@ pub fn drawable<F>(
         ui.button_press(&w, &da, event)
     });
     window.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
+    scrolled_win.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
     drawing_area.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
 
     // Let the UI handle keyboard events.
@@ -96,6 +102,7 @@ pub fn drawable<F>(
 
     // Display the window.
     window.set_default_size(width, height);
-    window.add(&drawing_area);
+    scrolled_win.add(&drawing_area);
+    window.add(&scrolled_win);
     window.show_all();
 }
