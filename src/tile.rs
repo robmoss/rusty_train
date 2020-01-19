@@ -200,6 +200,11 @@ impl Tile {
         self.labels.as_slice()
     }
 
+    /// Returns the city that corresponds to the provided token location.
+    pub fn city(&self, space: &TokenSpace) -> Option<&City> {
+        self.cities.get(space.city_ix)
+    }
+
     fn layer_bg(&self, layer: &DrawLayer, ctx: &Context, hex: &Hex) {
         let empty = vec![];
         for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
