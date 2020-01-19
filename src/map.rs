@@ -1,7 +1,7 @@
 use cairo::{Context, FontSlant, FontWeight};
 use std::collections::HashMap;
 
-use crate::hex::Hex;
+use crate::hex::{Hex, HexFace};
 use crate::prelude::PI;
 use crate::tile::{Tile, TokenSpace};
 
@@ -75,6 +75,147 @@ impl Map {
                 })
             })
             .collect()
+    }
+
+    /// Returns the hex face **relative to the map** that corresponds to the
+    /// the specified hex face **relative to the tile's orientation**.
+    fn map_face_from_tile_face(
+        &self,
+        addr: HexAddress,
+        tile_face: HexFace,
+    ) -> Option<HexFace> {
+        self.state
+            .get(&addr)
+            .map(|hs| hs.rotation.count_turns())
+            .map(|turns| {
+                let mut hex_face = tile_face;
+                for _ in 0..turns {
+                    // NOTE: turn clockwise
+                    hex_face = hex_face.clockwise()
+                }
+                hex_face
+            })
+    }
+
+    /// Returns the hex face **relative to the tile's orientation** that
+    /// corresponds to the specified hex face **relative to the map**.
+    fn tile_face_from_map_face(
+        &self,
+        addr: HexAddress,
+        tile_face: HexFace,
+    ) -> Option<HexFace> {
+        self.state
+            .get(&addr)
+            .map(|hs| hs.rotation.count_turns())
+            .map(|turns| {
+                let mut hex_face = tile_face;
+                for _ in 0..turns {
+                    // NOTE: turn anti-clockwise
+                    hex_face = hex_face.anti_clockwise()
+                }
+                hex_face
+            })
+    }
+
+    /// Returns the address of the hex that is adjacent to the specified face
+    /// (in terms of map orientation, not tile orientation) of the given tile.
+    fn adjacent_address(
+        &self,
+        addr: HexAddress,
+        map_face: HexFace,
+    ) -> Option<HexAddress> {
+        // NOTE: if the column is even, its upper-left and upper-right sides
+        // are adjacent to the row above; if the column is odd then its
+        // upper-left and upper-right sides are adjacent to its own row.
+        // Similar conditions apply for the lower-right and lower-right sides.
+        let is_upper = addr.col % 2 == 0;
+
+        match map_face {
+            HexFace::Top => {
+                if addr.row > 0 {
+                    Some((addr.row - 1, addr.col).into())
+                } else {
+                    None
+                }
+            }
+            HexFace::UpperRight => {
+                if is_upper {
+                    if addr.row > 0 {
+                        Some((addr.row - 1, addr.col + 1).into())
+                    } else {
+                        None
+                    }
+                } else {
+                    Some((addr.row, addr.col + 1).into())
+                }
+            }
+            HexFace::LowerRight => {
+                if is_upper {
+                    Some((addr.row, addr.col + 1).into())
+                } else {
+                    Some((addr.row + 1, addr.col + 1).into())
+                }
+            }
+            HexFace::Bottom => Some((addr.row + 1, addr.col).into()),
+            HexFace::LowerLeft => {
+                if addr.col > 0 {
+                    if is_upper {
+                        Some((addr.row, addr.col - 1).into())
+                    } else {
+                        Some((addr.row + 1, addr.col - 1).into())
+                    }
+                } else {
+                    None
+                }
+            }
+            HexFace::UpperLeft => {
+                if addr.col > 0 {
+                    if is_upper {
+                        if addr.row > 0 {
+                            Some((addr.row - 1, addr.col - 1).into())
+                        } else {
+                            None
+                        }
+                    } else {
+                        Some((addr.row, addr.col - 1).into())
+                    }
+                } else {
+                    None
+                }
+            }
+        }
+    }
+
+    /// Returns details of the tile that is adjacent to the specified face:
+    ///
+    /// - The address of the adjacent tile;
+    /// - The face **relative to this tile's orientation** that is adjacent;
+    ///   and
+    /// - The tile itself.
+    pub fn adjacent_face(
+        &self,
+        addr: HexAddress,
+        tile_face: HexFace,
+    ) -> Option<(HexAddress, HexFace, &Tile)> {
+        // Determine the actual face (i.e., accounting for tile rotation).
+        let map_face = self.map_face_from_tile_face(addr, tile_face);
+
+        if let Some(map_face) = map_face {
+            // Determine the address of the adjacent hex.
+            let adj_addr = self.adjacent_address(addr, map_face);
+            // This will be adjacent to the opposite face on the adjacent hex.
+            let adj_tile_face = adj_addr.and_then(|addr| {
+                self.tile_face_from_map_face(addr, map_face.opposite())
+            });
+            let adj_tile = adj_addr.and_then(|addr| self.tile_at(addr));
+            // Combine the three option values into a single option tuple.
+            adj_addr.and_then(|addr| {
+                adj_tile_face
+                    .and_then(|face| adj_tile.map(|tile| (addr, face, tile)))
+            })
+        } else {
+            None
+        }
     }
 
     pub fn new(tiles: Vec<Tile>, hexes: Vec<HexAddress>) -> Self {
@@ -648,6 +789,21 @@ impl RotateCW {
             Three => crate::prelude::PI,
             Four => -crate::prelude::PI_4_6,
             Five => -crate::prelude::PI_2_6,
+        }
+    }
+
+    /// Returns the number of single clock-wise rotations that are equivalent
+    /// to this rotation value.
+    pub fn count_turns(&self) -> usize {
+        use RotateCW::*;
+
+        match self {
+            Zero => 0,
+            One => 1,
+            Two => 2,
+            Three => 3,
+            Four => 4,
+            Five => 5,
         }
     }
 
