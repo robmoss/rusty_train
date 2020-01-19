@@ -1,4 +1,5 @@
 use cairo::{Context, Format, ImageSurface};
+use rusty_train::draw::Draw;
 use rusty_train::prelude::*;
 
 static HEX_DIAMETER: f64 = 150.0;
