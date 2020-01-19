@@ -166,7 +166,7 @@ impl Connections {
         &self.dits
     }
 
-    pub fn from(&self, from: &Connection) -> &[Connection] {
+    pub fn from(&self, from: &Connection) -> Option<&[Connection]> {
         use Connection::*;
 
         let conns_opt = match from {
@@ -179,6 +179,6 @@ impl Connections {
             Face { face } => self.face.get(face),
         };
 
-        conns_opt.unwrap_or(&self.none)
+        conns_opt.map(|cs| cs.as_slice())
     }
 }

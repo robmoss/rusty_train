@@ -170,7 +170,7 @@ impl Tile {
         }
     }
 
-    pub fn connections(&self, from: &Connection) -> &[Connection] {
+    pub fn connections(&self, from: &Connection) -> Option<&[Connection]> {
         self.conns.from(from)
     }
 
