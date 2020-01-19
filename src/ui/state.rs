@@ -784,7 +784,7 @@ impl State for EditTokens {
                 (self, Inhibit(false), Action::Quit)
             }
             gdk::enums::key::Escape => {
-                // NOTE: revert any edits before existing this mode.
+                // NOTE: revert any edits before exiting this mode.
                 let restore = self.original_tokens.drain().collect();
                 map.get_hex_mut(self.active_hex)
                     .map(|hex_state| hex_state.set_tokens(restore));
