@@ -5,6 +5,8 @@ use crate::hex::{Hex, HexFace};
 use crate::prelude::PI;
 use crate::tile::{Tile, TokenSpace};
 
+pub mod descr;
+
 /// A grid of hexes, each of which may contain a `Tile`.
 #[derive(Debug, PartialEq)]
 pub struct Map {
