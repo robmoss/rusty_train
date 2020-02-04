@@ -29,6 +29,20 @@ impl Connection {
             _ => false,
         }
     }
+
+    /// Returns the connection at the other end of a track segment, or `None`
+    /// if the provided connection is not a track segment.
+    pub fn other_end(&self) -> Option<Self> {
+        use Connection::*;
+
+        match self {
+            Track { ix, end } => Some(Track {
+                ix: *ix,
+                end: end.other_end(),
+            }),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
