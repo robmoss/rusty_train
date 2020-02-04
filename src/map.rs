@@ -858,6 +858,10 @@ impl HexState {
         self.rotation.radians()
     }
 
+    pub fn rotation(&self) -> &RotateCW {
+        &self.rotation
+    }
+
     pub fn get_token_at(&self, space: &TokenSpace) -> Option<&Token> {
         self.tokens.get(space)
     }
