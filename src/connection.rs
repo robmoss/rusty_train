@@ -196,3 +196,66 @@ impl Connections {
         conns_opt.map(|cs| cs.as_slice())
     }
 }
+
+#[cfg(test)]
+/// Tests that check whether connections are defined appropriately.
+mod tests {
+    use crate::connection::Connection;
+    use crate::hex::{Hex, HexFace};
+
+    static HEX_DIAMETER: f64 = 150.0;
+
+    #[test]
+    /// Tile 5 contains a city with a single token space, and track segments
+    /// that run from this city to the bottom and lower-right hex faces.
+    fn test_single_tile_5() {
+        let tile_name = "5";
+        let hex = Hex::new(HEX_DIAMETER);
+        let tiles = crate::catalogue::tile_catalogue(&hex);
+        let tile = tiles.iter().find(|t| t.name == tile_name);
+        assert!(tile.is_some());
+        let tile = tile.unwrap();
+        let city_ix = 0;
+
+        // Find connections from this tile's only city.
+        let from = Connection::City { ix: city_ix };
+        let conns = tile.connections(&from);
+        assert!(conns.is_some());
+        let conns = conns.unwrap();
+        assert_eq!(conns.len(), 2);
+
+        // Ensure that each connection is a Track segment.
+        for conn in conns {
+            match conn {
+                Connection::Track { ix, end: _ } => {
+                    assert!(*ix == 0 || *ix == 1);
+
+                    // Ensure the other end of the track connects to a face.
+                    let other_end = conn.other_end();
+                    assert!(other_end.is_some());
+                    let conn = other_end.unwrap();
+                    let track_conns = tile.connections(&conn);
+                    assert!(track_conns.is_some());
+                    let track_conns = track_conns.unwrap();
+                    assert_eq!(track_conns.len(), 1);
+                    let track_conn = track_conns[0];
+                    if let Connection::Face { face } = track_conn {
+                        if face != HexFace::Bottom
+                            && face != HexFace::LowerRight
+                        {
+                            panic!(
+                                "Unexpected 2nd connection {:?}",
+                                track_conn
+                            );
+                        }
+                    } else {
+                        panic!("Unexpected 2nd connection {:?}", track_conn);
+                    }
+                }
+                _ => {
+                    panic!("Unexpected connection: {:?} is not a track", conn)
+                }
+            }
+        }
+    }
+}
