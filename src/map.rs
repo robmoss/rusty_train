@@ -259,7 +259,7 @@ impl Map {
     pub fn place_tile(
         &mut self,
         hex: HexAddress,
-        tile: &String,
+        tile: &str,
         rot: RotateCW,
     ) -> bool {
         if !self.catalogue.contains_key(tile) {
@@ -272,13 +272,13 @@ impl Map {
             }
             // NOTE: leave the tokens as-is!
             // TODO: presumably this is correct behaviour?
-            hex_state.name = tile.clone();
+            hex_state.name = tile.into();
             hex_state.rotation = rot;
         } else {
             self.state.insert(
                 hex,
                 HexState {
-                    name: tile.clone(),
+                    name: tile.into(),
                     rotation: rot,
                     tokens: HashMap::new(),
                     replaceable: false,
