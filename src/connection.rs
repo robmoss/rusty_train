@@ -47,7 +47,7 @@ impl Connection {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Dit {
-    track_ix: usize,
+    pub track_ix: usize,
     end: TrackEnd,
     revenue: usize,
 }
