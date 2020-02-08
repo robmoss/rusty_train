@@ -15,7 +15,7 @@ pub struct Map {
     /// All tiles, indexed by name.
     catalogue: HashMap<String, usize>,
     /// The map state: which tiles are placed on which hexes.
-    state: HashMap<HexAddress, HexState>,
+    state: HashMap<HexAddress, MapHex>,
     /// All hexes on which a tile might be placed.
     hexes: Vec<HexAddress>,
     /// All hexes, stored by key to simplify lookup.
@@ -44,11 +44,11 @@ impl Map {
         }
     }
 
-    pub fn get_hex(&self, addr: HexAddress) -> Option<&HexState> {
+    pub fn get_hex(&self, addr: HexAddress) -> Option<&MapHex> {
         self.state.get(&addr)
     }
 
-    pub fn get_hex_mut(&mut self, addr: HexAddress) -> Option<&mut HexState> {
+    pub fn get_hex_mut(&mut self, addr: HexAddress) -> Option<&mut MapHex> {
         self.state.get_mut(&addr)
     }
 
@@ -56,7 +56,7 @@ impl Map {
     pub fn find_placed_tokens(
         &self,
         t: &Token,
-    ) -> Vec<(&HexAddress, &HexState, &Tile, &TokenSpace)> {
+    ) -> Vec<(&HexAddress, &MapHex, &Tile, &TokenSpace)> {
         self.state
             .iter()
             .filter_map(|(addr, state)| {
@@ -273,7 +273,7 @@ impl Map {
         } else {
             self.state.insert(
                 hex,
-                HexState {
+                MapHex {
                     tile_ix: tile_ix,
                     rotation: rot,
                     tokens: HashMap::new(),
@@ -825,7 +825,7 @@ impl RotateCW {
 
 /// The state of a hex in a `Map`.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct HexState {
+pub struct MapHex {
     tile_ix: usize,
     rotation: RotateCW,
     tokens: TokensTable,
@@ -834,7 +834,7 @@ pub struct HexState {
     replaceable: bool,
 }
 
-impl HexState {
+impl MapHex {
     pub fn rotate_anti_cw(&mut self) {
         self.rotation = self.rotation.rotate_anti_cw()
     }
