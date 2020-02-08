@@ -61,19 +61,13 @@ impl Map {
             .iter()
             .filter_map(|(addr, state)| {
                 // Retrieve the tile at this location, if any.
-                let tile_opt = self
-                    .catalogue
-                    .get(&state.name)
-                    .map(|ix| &self.tiles[*ix]);
-                // Check whether this hex contains a matching token.
-                tile_opt.and_then(|tile| {
-                    state.tokens.iter().find_map(|(token_space, token)| {
-                        if t == token {
-                            Some((addr, state, tile, token_space))
-                        } else {
-                            None
-                        }
-                    })
+                let tile = &self.tiles[state.tile_ix];
+                state.tokens.iter().find_map(|(token_space, token)| {
+                    if t == token {
+                        Some((addr, state, tile, token_space))
+                    } else {
+                        None
+                    }
                 })
             })
             .collect()
@@ -253,9 +247,7 @@ impl Map {
     }
 
     pub fn tile_at(&self, hex: HexAddress) -> Option<&Tile> {
-        self.state.get(&hex).map(|hs| &hs.name).and_then(|name| {
-            self.catalogue.get(name).map(|ix| &self.tiles[*ix])
-        })
+        self.state.get(&hex).map(|hs| &self.tiles[hs.tile_ix])
     }
 
     pub fn place_tile(
@@ -264,9 +256,11 @@ impl Map {
         tile: &str,
         rot: RotateCW,
     ) -> bool {
-        if !self.catalogue.contains_key(tile) {
+        let tile_ix = if let Some(ix) = self.catalogue.get(tile) {
+            *ix
+        } else {
             return false;
-        }
+        };
         if let Some(hex_state) = self.state.get_mut(&hex) {
             if !hex_state.replaceable {
                 // This tile cannot be replaced.
@@ -274,13 +268,13 @@ impl Map {
             }
             // NOTE: leave the tokens as-is!
             // TODO: presumably this is correct behaviour?
-            hex_state.name = tile.into();
+            hex_state.tile_ix = tile_ix;
             hex_state.rotation = rot;
         } else {
             self.state.insert(
                 hex,
                 HexState {
-                    name: tile.into(),
+                    tile_ix: tile_ix,
                     rotation: rot,
                     tokens: HashMap::new(),
                     replaceable: false,
@@ -395,11 +389,7 @@ impl Map {
                 if let Some(hex_state) = self.state.get(&hex_locn) {
                     // Draw this tile.
                     ctx.rotate(angle + hex_state.rotation.radians());
-                    let tile = self
-                        .catalogue
-                        .get(&hex_state.name)
-                        .map(|ix| &self.tiles[*ix])
-                        .expect("Invalid tile name");
+                    let tile = &self.tiles[hex_state.tile_ix];
                     tile.draw(ctx, &hex);
                     // Draw any tokens.
                     for (token_space, map_token) in hex_state.tokens.iter() {
@@ -677,11 +667,8 @@ impl<'a> Iterator for HexIter<'a> {
 
         if let Some(hex_state) = self.map.state.get(&addr) {
             self.ctx.rotate(self.angle + hex_state.rotation.radians());
-            let tile = self
-                .map
-                .catalogue
-                .get(&hex_state.name)
-                .map(|ix| (&self.map.tiles[*ix], &hex_state.tokens));
+            let tile =
+                Some((&self.map.tiles[hex_state.tile_ix], &hex_state.tokens));
             Some((addr, tile))
         } else {
             Some((addr, None))
@@ -839,7 +826,7 @@ impl RotateCW {
 /// The state of a hex in a `Map`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HexState {
-    name: String,
+    tile_ix: usize,
     rotation: RotateCW,
     tokens: TokensTable,
     /// Whether this tile can be replaced by another tile; set to false for
