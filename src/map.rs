@@ -1016,3 +1016,99 @@ impl From<&(usize, usize)> for HexAddress {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::HexAddress;
+    use crate::connection::Connection;
+    use crate::hex::Hex;
+    use crate::track::TrackEnd;
+
+    static HEX_DIAMETER: f64 = 150.0;
+
+    #[test]
+    fn test_simple_two_by_two() {
+        let hex = Hex::new(HEX_DIAMETER);
+        let map = super::descr::tests::map_2x2_tiles_5_6_58_63(&hex);
+
+        // NOTE: iterate over starting connection and, for each, check that it
+        // has the expected connections, and only the expected connections.
+        let starts = vec![
+            (HexAddress::new(0, 0), Connection::City { ix: 0 }),
+            (HexAddress::new(0, 1), Connection::City { ix: 0 }),
+            (HexAddress::new(1, 1), Connection::City { ix: 0 }),
+        ];
+
+        for (ix, (addr, conn)) in starts.iter().enumerate() {
+            let tile = map.tile_at(*addr).expect("No tile found");
+            let conns = tile.connections(conn);
+            assert!(conns.is_some());
+            let conns = conns.unwrap();
+
+            // Check that each city has the expected number of connections.
+            if ix == 0 {
+                assert_eq!(conns.len(), 2);
+            } else if ix == 1 {
+                assert_eq!(conns.len(), 2);
+            } else if ix == 2 {
+                assert_eq!(conns.len(), 6);
+            }
+
+            // Check that each city is connected to the end of a different
+            // track segment.
+            for j in 0..conns.len() {
+                assert!(conns
+                    .iter()
+                    .find(|&&c| c
+                        == Connection::Track {
+                            ix: j,
+                            end: TrackEnd::End
+                        })
+                    .is_some());
+            }
+
+            // Check that the other end of each track segment is connected to
+            // a hex face, and to nothing else.
+            // Also check that each tile has two track segments that are
+            // connected to track segments on other tiles.
+            let mut track_to_track = 0;
+            for track_conn in conns {
+                let other_end = track_conn.other_end().expect("No other end");
+                let end_conns = tile.connections(&other_end);
+                assert!(end_conns.is_some());
+                let end_conns = end_conns.unwrap();
+                assert_eq!(end_conns.len(), 1);
+                match end_conns[0] {
+                    Connection::Face { face } => {
+                        // Check if this segment is connected to another tile.
+                        // If so, it should be connected to a track segment.
+                        let adj = map.adjacent_face(*addr, face);
+                        if let Some((addr, face, tile)) = adj {
+                            let from = Connection::Face { face };
+                            let conns = tile.connections(&from);
+                            assert!(conns.is_some());
+                            let conns = conns.unwrap();
+                            assert_eq!(conns.len(), 1);
+                            let conn = conns[0];
+                            if let Connection::Track { ix: _, end: _ } = conn
+                            {
+                                track_to_track += 1;
+                            } else {
+                                panic!(
+                                    "Invalid adjacent connection {:?}",
+                                    conn
+                                )
+                            }
+                        }
+                    }
+                    _ => {
+                        panic!("Invalid track connection: {:?}", end_conns[0])
+                    }
+                }
+            }
+            // Verify that each tile has two track segments that are connected
+            // to track segments on other tiles.
+            assert_eq!(track_to_track, 2);
+        }
+    }
+}
