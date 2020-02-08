@@ -49,7 +49,7 @@ impl Connection {
 pub struct Dit {
     pub track_ix: usize,
     end: TrackEnd,
-    revenue: usize,
+    pub revenue: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

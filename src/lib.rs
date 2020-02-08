@@ -134,6 +134,9 @@ pub mod de;
 /// Maps with spaces for tiles.
 pub mod map;
 
+/// Find train routes with the greatest revenue.
+pub mod route;
+
 /// A user interface for creating map states and calculating route revenue.
 pub mod ui;
 

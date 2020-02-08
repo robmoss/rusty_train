@@ -336,6 +336,14 @@ impl Tile {
             .collect()
     }
 
+    pub fn city_token_spaces(&self, city_ix: usize) -> Vec<TokenSpace> {
+        self.cities[city_ix]
+            .token_ixs()
+            .into_iter()
+            .map(|token_ix| TokenSpace { city_ix, token_ix })
+            .collect()
+    }
+
     fn token_space_count(&self) -> usize {
         self.token_spaces().len()
     }
