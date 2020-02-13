@@ -277,7 +277,7 @@ impl Map {
                     tile_ix: tile_ix,
                     rotation: rot,
                     tokens: HashMap::new(),
-                    replaceable: false,
+                    replaceable: true,
                 },
             );
         }
