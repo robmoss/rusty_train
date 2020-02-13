@@ -835,6 +835,10 @@ pub struct MapHex {
 }
 
 impl MapHex {
+    pub fn tile<'a>(&self, map: &'a Map) -> &'a Tile {
+        &map.tiles[self.tile_ix]
+    }
+
     pub fn rotate_anti_cw(&mut self) {
         self.rotation = self.rotation.rotate_anti_cw()
     }
@@ -977,8 +981,8 @@ impl Token {
 /// A hex location on a `Map`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct HexAddress {
-    row: usize,
-    col: usize,
+    pub(crate) row: usize,
+    pub(crate) col: usize,
 }
 
 impl HexAddress {

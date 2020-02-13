@@ -3,6 +3,7 @@ use crate::hex::Hex;
 
 use serde::{Deserialize, Serialize};
 
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -3083,6 +3084,201 @@ fn test_tiles() -> Tiles {
             },
         ],
     }
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum RotateCW {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum Token {
+    LP,
+    PO,
+    MK,
+    N,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TileDescr {
+    pub row: usize,
+    pub col: usize,
+    pub tile: String,
+    pub rotation: RotateCW,
+    pub tokens: Vec<(usize, Token)>,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct HexAddress {
+    row: usize,
+    col: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Descr {
+    tiles: HashMap<HexAddress, Option<TileDescr>>,
+}
+
+impl std::convert::From<&crate::map::RotateCW> for RotateCW {
+    fn from(src: &crate::map::RotateCW) -> Self {
+        use crate::map::RotateCW::*;
+
+        match src {
+            Zero => RotateCW::Zero,
+            One => RotateCW::One,
+            Two => RotateCW::Two,
+            Three => RotateCW::Three,
+            Four => RotateCW::Four,
+            Five => RotateCW::Five,
+        }
+    }
+}
+
+impl std::convert::From<&RotateCW> for crate::map::RotateCW {
+    fn from(src: &RotateCW) -> Self {
+        use self::RotateCW::*;
+        use crate::map::RotateCW;
+
+        match src {
+            Zero => RotateCW::Zero,
+            One => RotateCW::One,
+            Two => RotateCW::Two,
+            Three => RotateCW::Three,
+            Four => RotateCW::Four,
+            Five => RotateCW::Five,
+        }
+    }
+}
+
+impl std::convert::From<&crate::map::Token> for Token {
+    fn from(src: &crate::map::Token) -> Self {
+        use crate::map::Token::*;
+
+        match src {
+            LP => Token::LP,
+            PO => Token::PO,
+            MK => Token::MK,
+            N => Token::N,
+        }
+    }
+}
+
+impl std::convert::From<&Token> for crate::map::Token {
+    fn from(src: &Token) -> Self {
+        use self::Token::*;
+        use crate::map::Token;
+
+        match src {
+            LP => Token::LP,
+            PO => Token::PO,
+            MK => Token::MK,
+            N => Token::N,
+        }
+    }
+}
+
+impl std::convert::From<&crate::map::HexAddress> for HexAddress {
+    fn from(src: &crate::map::HexAddress) -> Self {
+        HexAddress {
+            row: src.row,
+            col: src.col,
+        }
+    }
+}
+
+impl std::convert::From<&HexAddress> for crate::map::HexAddress {
+    fn from(src: &HexAddress) -> Self {
+        crate::map::HexAddress {
+            row: src.row,
+            col: src.col,
+        }
+    }
+}
+
+impl std::convert::From<&crate::map::descr::TileDescr> for TileDescr {
+    fn from(src: &crate::map::descr::TileDescr) -> Self {
+        TileDescr {
+            row: src.row,
+            col: src.col,
+            tile: src.tile.clone(),
+            rotation: (&src.rotation).into(),
+            tokens: src
+                .tokens
+                .iter()
+                .map(|(ix, tok)| (*ix, tok.into()))
+                .collect(),
+        }
+    }
+}
+
+impl std::convert::From<&TileDescr> for crate::map::descr::TileDescr {
+    fn from(src: &TileDescr) -> Self {
+        crate::map::descr::TileDescr {
+            row: src.row,
+            col: src.col,
+            tile: src.tile.clone(),
+            rotation: (&src.rotation).into(),
+            tokens: src
+                .tokens
+                .iter()
+                .map(|(ix, tok)| (*ix, tok.into()))
+                .collect(),
+        }
+    }
+}
+
+impl std::convert::From<&crate::map::descr::Descr> for Descr {
+    fn from(src: &crate::map::descr::Descr) -> Self {
+        Descr {
+            tiles: src
+                .tiles
+                .iter()
+                .map(|(k, v)| (k.into(), v.as_ref().map(|td| td.into())))
+                .collect(),
+        }
+    }
+}
+
+impl std::convert::From<&Descr> for crate::map::descr::Descr {
+    fn from(src: &Descr) -> Self {
+        crate::map::descr::Descr {
+            tiles: src
+                .tiles
+                .iter()
+                .map(|(k, v)| (k.into(), v.as_ref().map(|td| td.into())))
+                .collect(),
+        }
+    }
+}
+
+/// Reads a map configuration from disk.
+pub fn read_map_descr<P: AsRef<Path>>(
+    path: P,
+) -> Result<crate::map::descr::Descr, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let descr: Descr = serde_json::from_reader(reader)?;
+    Ok((&descr).into())
+}
+
+pub fn write_map_descr<P: AsRef<Path>>(
+    path: P,
+    descr: &crate::map::descr::Descr,
+    pretty: bool,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(path)?;
+    let descr: Descr = descr.into();
+    if pretty {
+        serde_json::to_writer_pretty(file, &descr)?;
+    } else {
+        serde_json::to_writer(file, &descr)?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
