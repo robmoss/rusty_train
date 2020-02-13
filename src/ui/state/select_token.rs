@@ -63,7 +63,7 @@ fn best_path(
     let now = std::time::Instant::now();
     let paths = crate::route::search::paths_from(map, &query);
     println!(
-        "Enumerate {} routes in {}",
+        "Enumerated {} routes in {}",
         paths.len(),
         now.elapsed().as_secs_f64()
     );
