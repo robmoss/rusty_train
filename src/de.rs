@@ -3,7 +3,6 @@ use crate::hex::Hex;
 
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -3121,7 +3120,7 @@ pub struct HexAddress {
 
 #[derive(Serialize, Deserialize)]
 pub struct Descr {
-    tiles: HashMap<HexAddress, Option<TileDescr>>,
+    tiles: Vec<(HexAddress, Option<TileDescr>)>,
 }
 
 impl std::convert::From<&crate::map::RotateCW> for RotateCW {
