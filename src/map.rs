@@ -1074,7 +1074,7 @@ mod tests {
                         // Check if this segment is connected to another tile.
                         // If so, it should be connected to a track segment.
                         let adj = map.adjacent_face(*addr, face);
-                        if let Some((addr, face, tile)) = adj {
+                        if let Some((_addr, face, tile)) = adj {
                             let from = Connection::Face { face };
                             let conns = tile.connections(&from);
                             assert!(conns.is_some());
