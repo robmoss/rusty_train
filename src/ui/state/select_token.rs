@@ -4,6 +4,7 @@ use cairo::Context;
 use gtk::Inhibit;
 use std::collections::HashMap;
 
+use crate::draw::Draw;
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, Token};
 use crate::tile::TokenSpace;
@@ -14,6 +15,7 @@ pub struct SelectToken {
     token_spaces: Vec<TokenSpace>,
     selected: usize,
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
+    best_path: Option<crate::route::Path>,
 }
 
 fn token_matches(
@@ -38,6 +40,44 @@ fn token_matches(
     matches
 }
 
+fn best_path(
+    map: &Map,
+    addr: HexAddress,
+    city_ix: usize,
+    token_opt: &Option<&Token>,
+) -> Option<crate::route::Path> {
+    let token = if let Some(t) = token_opt {
+        t
+    } else {
+        return None;
+    };
+    let query = crate::route::search::Query {
+        addr: addr,
+        from: crate::connection::Connection::City { ix: city_ix },
+        token: **token,
+        max_visits: Some(3),
+        skip_cities: false,
+        skip_dits: true,
+        conflict_rule: crate::route::conflict::ConflictRule::TrackOrCityHex,
+    };
+    let now = std::time::Instant::now();
+    let paths = crate::route::search::paths_from(map, &query);
+    println!(
+        "Enumerate {} routes in {}",
+        paths.len(),
+        now.elapsed().as_secs_f64()
+    );
+    if paths.len() == 0 {
+        None
+    } else {
+        // If there was at least one path, find one with the greatest revenue.
+        let max_revenue =
+            paths.iter().map(|path| path.revenue).max().unwrap();
+        println!("Maximum revenue is: {}", max_revenue);
+        paths.into_iter().find(|path| path.revenue == max_revenue)
+    }
+}
+
 impl SelectToken {
     pub(super) fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
         let hex_state = if let Some(hex_state) = map.get_hex(addr) {
@@ -56,14 +96,16 @@ impl SelectToken {
         }
         let selected = 0;
         let space = token_spaces[selected];
+        let city_ix = space.city_ix();
         let token_opt = hex_state.get_token_at(&space);
         let matches = token_matches(map, token_opt);
-        // TODO: calculate the paths for the current token here!
         Some(SelectToken {
             active_hex: addr,
             token_spaces: token_spaces,
             selected: selected,
             matches: matches,
+            // NOTE: calculate the best path from this token.
+            best_path: best_path(map, addr, city_ix, &token_opt),
         })
     }
 }
@@ -104,6 +146,58 @@ impl State for SelectToken {
                 hex.define_boundary(ctx);
                 ctx.set_line_width(hex.max_d * 0.01);
                 ctx.stroke();
+            }
+        }
+
+        // NOTE: draw the best path from the current token.
+        if let Some(best_path) = &self.best_path {
+            // Draw this path in dark red.
+            ctx.set_source_rgb(0.7, 0.1, 0.1);
+            ctx.set_line_width(hex.max_d * 0.025);
+            let source = ctx.get_source();
+            let line_width = ctx.get_line_width();
+
+            // Draw track segments first.
+            for step in &best_path.steps {
+                let m = map.prepare_to_draw(step.addr, hex, ctx);
+                let tile = map.tile_at(step.addr).expect("Invalid step hex");
+
+                use crate::connection::Connection::*;
+                if let Track { ix, end: _ } = step.conn {
+                    let track = tile.tracks()[ix];
+                    track.define_path(hex, ctx);
+                    // NOTE: hack to replace the black part of the track.
+                    ctx.set_line_width(hex.max_d * 0.08);
+                    ctx.stroke();
+                }
+                ctx.set_matrix(m);
+            }
+
+            // Then draw visited cities.
+            for step in &best_path.steps {
+                let m = map.prepare_to_draw(step.addr, hex, ctx);
+                let tile = map.tile_at(step.addr).expect("Invalid step hex");
+
+                use crate::connection::Connection::*;
+                if let City { ix } = step.conn {
+                    let city = tile.cities()[ix];
+                    city.draw_fg(hex, ctx);
+                    ctx.set_source(&source);
+                    ctx.set_line_width(line_width);
+                    city.define_boundary(hex, ctx);
+                    if city.tokens == crate::city::Tokens::Dit {
+                        ctx.fill_preserve();
+                    }
+                    ctx.stroke();
+                    if let Some(hex_state) = map.get_hex(step.addr) {
+                        let tokens_table = hex_state.get_tokens();
+                        for (token_space, map_token) in tokens_table.iter() {
+                            tile.define_token_space(&token_space, &hex, ctx);
+                            map_token.draw_token(&hex, ctx);
+                        }
+                    }
+                }
+                ctx.set_matrix(m);
             }
         }
 
@@ -152,8 +246,6 @@ impl State for SelectToken {
                 ctx.fill();
             }
         }
-
-        // TODO: draw the best path from the current token?
     }
 
     fn key_press(
@@ -190,7 +282,13 @@ impl State for SelectToken {
                     let space = self.token_spaces[self.selected];
                     let token_opt = hex_state.get_token_at(&space);
                     self.matches = token_matches(map, token_opt);
-                    // TODO: calculate the best path from this token?
+                    // NOTE: calculate the best path from this token.
+                    self.best_path = best_path(
+                        map,
+                        self.active_hex,
+                        space.city_ix(),
+                        &token_opt,
+                    );
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -206,7 +304,13 @@ impl State for SelectToken {
                     let space = self.token_spaces[self.selected];
                     let token_opt = hex_state.get_token_at(&space);
                     self.matches = token_matches(map, token_opt);
-                    // TODO: calculate the best path from this token?
+                    // NOTE: calculate the best path from this token.
+                    self.best_path = best_path(
+                        map,
+                        self.active_hex,
+                        space.city_ix(),
+                        &token_opt,
+                    );
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
