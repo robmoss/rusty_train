@@ -111,6 +111,9 @@ impl Descr {
                 for (space_ix, token) in &tile_descr.tokens {
                     hex_state.set_token_at(&spaces[*space_ix], *token);
                 }
+            } else {
+                // Ensure that no tiles occupy empty hexes.
+                map.remove_tile(*addr);
             }
         }
     }
