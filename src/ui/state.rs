@@ -303,6 +303,55 @@ fn save_screenshot<S: State>(
     surface.write_to_png(&mut file)?;
     Ok(Action::Redraw)
 }
+
+/// Prompt the user to save the current map state.
+fn save_map(
+    window: &gtk::ApplicationWindow,
+    map: &mut Map,
+) -> Result<Action, Box<dyn std::error::Error>> {
+    let filter_map = gtk::FileFilter::new();
+    filter_map.set_name(Some("Map files"));
+    filter_map.add_pattern("*.map");
+    let filter_all = gtk::FileFilter::new();
+    filter_all.set_name(Some("All files"));
+    filter_all.add_pattern("*");
+    let filters = vec![&filter_map, &filter_all];
+    let dest_file =
+        save_file_dialog(window, "Save map state", &filters, None);
+    let dest_file = if let Some(dest) = dest_file {
+        dest
+    } else {
+        return Ok(Action::None);
+    };
+    let descr: crate::map::descr::Descr = (&*map).into();
+    crate::de::write_map_descr(dest_file, &descr, true)?;
+    Ok(Action::None)
+}
+
+/// Prompt the user to load a previously-saved map state.
+fn load_map(
+    window: &gtk::ApplicationWindow,
+    map: &mut Map,
+) -> Result<Action, Box<dyn std::error::Error>> {
+    let filter_map = gtk::FileFilter::new();
+    filter_map.set_name(Some("Map files"));
+    filter_map.add_pattern("*.map");
+    let filter_all = gtk::FileFilter::new();
+    filter_all.set_name(Some("All files"));
+    filter_all.add_pattern("*");
+    let filters = vec![&filter_map, &filter_all];
+    let dest_file =
+        open_file_dialog(window, "Load map state", &filters, None);
+    let dest_file = if let Some(dest) = dest_file {
+        dest
+    } else {
+        return Ok(Action::None);
+    };
+    let descr = crate::de::read_map_descr(dest_file)?;
+    descr.update_map(map);
+    Ok(Action::Redraw)
+}
+
 impl State for Default {
     fn draw(
         &self,
@@ -448,7 +497,22 @@ impl State for Default {
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
+        let modifiers = event.get_state();
+        let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
         match key {
+            gdk::enums::key::o | gdk::enums::key::O => {
+                if ctrl {
+                    match load_map(window, map) {
+                        Ok(action) => (self, Inhibit(false), action),
+                        Err(error) => {
+                            eprintln!("Error loading map: {}", error);
+                            (self, Inhibit(false), Action::None)
+                        }
+                    }
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
             gdk::enums::key::q | gdk::enums::key::Q => {
                 (self, Inhibit(false), Action::Quit)
             }
@@ -514,11 +578,21 @@ impl State for Default {
                 //     None,
                 //     None,
                 // );
-                match save_screenshot(&self, window, area, hex, map) {
-                    Ok(action) => (self, Inhibit(false), action),
-                    Err(error) => {
-                        eprintln!("Error: {}", error);
-                        (self, Inhibit(false), Action::None)
+                if ctrl {
+                    match save_map(window, map) {
+                        Ok(action) => (self, Inhibit(false), action),
+                        Err(error) => {
+                            eprintln!("Error saving map: {}", error);
+                            (self, Inhibit(false), Action::None)
+                        }
+                    }
+                } else {
+                    match save_screenshot(&self, window, area, hex, map) {
+                        Ok(action) => (self, Inhibit(false), action),
+                        Err(error) => {
+                            eprintln!("Error saving screenshot: {}", error);
+                            (self, Inhibit(false), Action::None)
+                        }
                     }
                 }
             }
