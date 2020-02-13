@@ -99,18 +99,32 @@ use crate::map::Map;
 
 /// The different states of the user interface.
 pub mod state;
+/// Various utility UI functions.
+pub mod util;
+
+use state::State;
 
 /// Defines the current state of the user interface.
 pub struct UI {
     hex: Hex,
     map: Map,
-    state: Option<Box<dyn state::State>>,
+    state: Option<Box<dyn State>>,
+}
+
+/// The actions that may be required when the UI state changes.
+pub enum Action {
+    /// No action required.
+    None,
+    /// Quit the application.
+    Quit,
+    /// Redraw the surface.
+    Redraw,
 }
 
 impl UI {
     /// Creates the initial user interface state.
     pub fn new(hex: Hex, map: Map) -> Self {
-        let b: Box<dyn state::State> = Box::new(state::Default::new(&map));
+        let b: Box<dyn State> = Box::new(state::default::Default::new(&map));
         let state = Some(b);
         UI { hex, map, state }
     }
@@ -143,13 +157,13 @@ impl UI {
             );
             self.state = Some(new_state);
             match action {
-                state::Action::Redraw => {
+                Action::Redraw => {
                     area.queue_draw();
                 }
-                state::Action::Quit => {
+                Action::Quit => {
                     window.destroy();
                 }
-                state::Action::None => {}
+                Action::None => {}
             }
             inhibit
         } else {
@@ -175,13 +189,13 @@ impl UI {
             );
             self.state = Some(new_state);
             match action {
-                state::Action::Redraw => {
+                Action::Redraw => {
                     area.queue_draw();
                 }
-                state::Action::Quit => {
+                Action::Quit => {
                     window.destroy();
                 }
-                state::Action::None => {}
+                Action::None => {}
             }
             inhibit
         } else {
