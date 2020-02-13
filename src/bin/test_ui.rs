@@ -7,6 +7,7 @@ use gtk::prelude::*;
 use gtk::DrawingArea;
 
 use cairo::Context;
+use cairo::{Format, ImageSurface};
 
 use rusty_train::prelude::*;
 use rusty_train::ui::UI;
@@ -34,11 +35,29 @@ pub fn build_ui(application: &gtk::Application) {
 
     let state = Rc::new(RefCell::new(UI::new(hex, map)));
 
+    let surface = ImageSurface::create(Format::ARgb32, 1366, 740)
+        .expect("Can't create surface");
+    let icx = Context::new(&surface);
+
     drawable(application, state.clone(), 1366, 740, move |area, cr| {
         let w = area.get_allocated_width();
         let h = area.get_allocated_height();
-        let ui = state.borrow();
-        ui.draw(w, h, cr);
+        if let Ok(ui) = state.try_borrow() {
+            ui.draw(w, h, cr);
+            // Copy what the UI has just drawn to the image surface.
+            icx.set_source_surface(&cr.get_target(), 0.0, 0.0);
+            icx.rectangle(0.0, 0.0, w.into(), h.into());
+            icx.set_operator(cairo::Operator::Source);
+            icx.fill();
+        } else {
+            // NOTE: this occurs when modal dialog windows are being displayed
+            // (e.g., for saving or loading files).
+            // Copy what the UI most recently drew from the image surface.
+            cr.save();
+            cr.set_source_surface(&surface, 0.0, 0.0);
+            cr.paint();
+            cr.restore();
+        }
 
         Inhibit(false)
     });
