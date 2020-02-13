@@ -67,15 +67,14 @@ fn best_path(
         paths.len(),
         now.elapsed().as_secs_f64()
     );
-    if paths.len() == 0 {
-        None
-    } else {
-        // If there was at least one path, find one with the greatest revenue.
-        let max_revenue =
-            paths.iter().map(|path| path.revenue).max().unwrap();
-        println!("Maximum revenue is: {}", max_revenue);
-        paths.into_iter().find(|path| path.revenue == max_revenue)
-    }
+    paths
+        .iter()
+        .map(|path| path.revenue)
+        .max()
+        .and_then(|max_revenue| {
+            println!("Maximum revenue is: {}", max_revenue);
+            paths.into_iter().find(|path| path.revenue == max_revenue)
+        })
 }
 
 impl SelectToken {
