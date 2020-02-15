@@ -528,6 +528,12 @@ pub struct TokenSpace {
     token_ix: usize,
 }
 
+impl TokenSpace {
+    pub fn city_ix(&self) -> usize {
+        self.city_ix
+    }
+}
+
 #[cfg(test)]
 /// Tests that check whether `Tile` appropriately layers the tile elements and
 /// correctly detects their connectivity.
