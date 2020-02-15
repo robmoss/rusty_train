@@ -284,13 +284,28 @@ impl State for Default {
     }
 
     fn button_press(
-        self: Box<Self>,
-        _hex: &Hex,
-        _map: &mut Map,
+        mut self: Box<Self>,
+        hex: &Hex,
+        map: &mut Map,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
+        event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+        // Allow the user to select hexes with a single click of any button.
+        let (x, y) = event.get_position();
+        let hexes = map.hexes();
+        let ctx = hex.context();
+        let addr = hexes.iter().find(|addr| {
+            let m = map.prepare_to_draw(**addr, hex, ctx);
+            hex.define_boundary(ctx);
+            ctx.set_matrix(m);
+            ctx.in_fill(x, y)
+        });
+        if let Some(a) = addr {
+            self.active_hex = Some(*a);
+            return (self, Inhibit(false), Action::Redraw);
+        } else {
+            return (self, Inhibit(false), Action::None);
+        }
     }
 }
