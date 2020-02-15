@@ -1,6 +1,7 @@
 use super::{Action, State};
 
 use cairo::Context;
+use gtk::GtkWindowExt;
 use gtk::Inhibit;
 use std::collections::HashMap;
 
@@ -15,7 +16,12 @@ pub struct SelectToken {
     token_spaces: Vec<TokenSpace>,
     selected: usize,
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
+    max_visits: Option<usize>,
+    skip_cities: bool,
+    skip_dits: bool,
+    double_revenue: bool,
     best_path: Option<crate::route::Path>,
+    original_window_title: Option<String>,
 }
 
 fn token_matches(
@@ -40,45 +46,12 @@ fn token_matches(
     matches
 }
 
-fn best_path(
-    map: &Map,
-    addr: HexAddress,
-    city_ix: usize,
-    token_opt: &Option<&Token>,
-) -> Option<crate::route::Path> {
-    let token = if let Some(t) = token_opt {
-        t
-    } else {
-        return None;
-    };
-    let query = crate::route::search::Query {
-        addr: addr,
-        from: crate::connection::Connection::City { ix: city_ix },
-        token: **token,
-        max_visits: Some(3),
-        skip_cities: false,
-        skip_dits: true,
-        conflict_rule: crate::route::conflict::ConflictRule::TrackOrCityHex,
-    };
-    let now = std::time::Instant::now();
-    let paths = crate::route::search::paths_from(map, &query);
-    println!(
-        "Enumerated {} routes in {}",
-        paths.len(),
-        now.elapsed().as_secs_f64()
-    );
-    paths
-        .iter()
-        .map(|path| path.revenue)
-        .max()
-        .and_then(|max_revenue| {
-            println!("Maximum revenue is: {}", max_revenue);
-            paths.into_iter().find(|path| path.revenue == max_revenue)
-        })
-}
-
 impl SelectToken {
-    pub(super) fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
+    pub(super) fn try_new(
+        map: &Map,
+        addr: HexAddress,
+        window: &gtk::ApplicationWindow,
+    ) -> Option<Self> {
         let hex_state = if let Some(hex_state) = map.get_hex(addr) {
             hex_state
         } else {
@@ -98,14 +71,132 @@ impl SelectToken {
         let city_ix = space.city_ix();
         let token_opt = hex_state.get_token_at(&space);
         let matches = token_matches(map, token_opt);
-        Some(SelectToken {
+        let window_title = window.get_title().map(|s| s.as_str().to_string());
+        let mut state = SelectToken {
             active_hex: addr,
             token_spaces: token_spaces,
             selected: selected,
             matches: matches,
+            // NOTE: set the default search parameters.
+            max_visits: Some(2),
+            skip_cities: false,
+            skip_dits: true,
+            double_revenue: false,
+            // NOTE: need to calculate the best path from this token.
+            best_path: None,
+            original_window_title: window_title,
+        };
+        state.best_path = state.best_path(map, addr, city_ix, &token_opt);
+        state.update_title(window);
+        Some(state)
+    }
+
+    /// Returns a description of the train route criteria.
+    fn describe_query(&self) -> String {
+        let visits = self
+            .max_visits
+            .map(|n| n.to_string())
+            .unwrap_or("D".to_string());
+        let suffix = if self.skip_cities { "E" } else { "" };
+        if self.double_revenue {
+            format!("{}+{}{}", visits, visits, suffix)
+        } else {
+            format!("{}{}", visits, suffix)
+        }
+    }
+
+    /// Updates the window title so that it shows the train route criteria and
+    /// the revenue earned from the best path (if any).
+    fn update_title(&self, window: &gtk::ApplicationWindow) {
+        let descr = self.describe_query();
+        let revenue = self
+            .best_path
+            .as_ref()
+            .map(|path| {
+                if self.double_revenue {
+                    2 * path.revenue
+                } else {
+                    path.revenue
+                }
+            })
+            .unwrap_or(0);
+        let title = format!("{} train: ${}", descr, revenue);
+        window.set_title(&title);
+    }
+
+    /// Searches for the best path that matches the current criteria, updates
+    /// the window title, and returns the UI action that should be taken as a
+    /// result of this search.
+    fn update_search(
+        &mut self,
+        map: &Map,
+        window: &gtk::ApplicationWindow,
+    ) -> Action {
+        let action = if let Some(hex_state) = map.get_hex(self.active_hex) {
+            // Update the matching tokens across the map.
+            let space = self.token_spaces[self.selected];
+            let token_opt = hex_state.get_token_at(&space);
+            self.matches = token_matches(map, token_opt);
             // NOTE: calculate the best path from this token.
-            best_path: best_path(map, addr, city_ix, &token_opt),
-        })
+            self.best_path = self.best_path(
+                map,
+                self.active_hex,
+                space.city_ix(),
+                &token_opt,
+            );
+            Action::Redraw
+        } else {
+            Action::None
+        };
+        self.update_title(window);
+        action
+    }
+
+    /// Finds a path from the currently-selected token that yields the maximum
+    /// revenue.
+    fn best_path(
+        &self,
+        map: &Map,
+        addr: HexAddress,
+        city_ix: usize,
+        token_opt: &Option<&Token>,
+    ) -> Option<crate::route::Path> {
+        let token = if let Some(t) = token_opt {
+            t
+        } else {
+            return None;
+        };
+
+        let query = crate::route::search::Query {
+            addr: addr,
+            from: crate::connection::Connection::City { ix: city_ix },
+            token: **token,
+            max_visits: self.max_visits, //Some(3),
+            skip_cities: self.skip_cities,
+            skip_dits: self.skip_dits,
+            conflict_rule:
+                crate::route::conflict::ConflictRule::TrackOrCityHex,
+        };
+        let now = std::time::Instant::now();
+        let paths = crate::route::search::paths_from(map, &query);
+        println!(
+            "Enumerated {} routes in {}",
+            paths.len(),
+            now.elapsed().as_secs_f64()
+        );
+        paths
+            .iter()
+            .map(|path| path.revenue)
+            .max()
+            .and_then(|max_revenue| {
+                println!("Maximum revenue is: {}", max_revenue);
+                let num_max = paths
+                    .iter()
+                    .filter(|path| path.revenue == max_revenue)
+                    .count();
+                println!("{} paths return maximum revenue", num_max);
+                paths.into_iter().find(|path| path.revenue == max_revenue)
+            })
     }
 }
 
@@ -251,7 +342,7 @@ impl State for SelectToken {
         mut self: Box<Self>,
         _hex: &Hex,
         map: &mut Map,
-        _window: &gtk::ApplicationWindow,
+        window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
@@ -265,6 +356,11 @@ impl State for SelectToken {
                 // Once the token is selected, switch to EnterTrains state;
                 // Once the trains have been entered, calculate the optimal
                 // routes and revenue.
+                if let Some(title) = &self.original_window_title {
+                    window.set_title(&title);
+                } else {
+                    window.set_title("");
+                }
                 let state = Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
                 )));
@@ -276,44 +372,76 @@ impl State for SelectToken {
                 } else {
                     self.selected -= 1
                 }
-                if let Some(hex_state) = map.get_hex(self.active_hex) {
-                    // Update the matching tokens across the map.
-                    let space = self.token_spaces[self.selected];
-                    let token_opt = hex_state.get_token_at(&space);
-                    self.matches = token_matches(map, token_opt);
-                    // NOTE: calculate the best path from this token.
-                    self.best_path = best_path(
-                        map,
-                        self.active_hex,
-                        space.city_ix(),
-                        &token_opt,
-                    );
-                    (self, Inhibit(false), Action::Redraw)
-                } else {
-                    (self, Inhibit(false), Action::None)
-                }
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
             }
             gdk::enums::key::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                if let Some(hex_state) = map.get_hex(self.active_hex) {
-                    // Update the matching tokens across the map.
-                    let space = self.token_spaces[self.selected];
-                    let token_opt = hex_state.get_token_at(&space);
-                    self.matches = token_matches(map, token_opt);
-                    // NOTE: calculate the best path from this token.
-                    self.best_path = best_path(
-                        map,
-                        self.active_hex,
-                        space.city_ix(),
-                        &token_opt,
-                    );
-                    (self, Inhibit(false), Action::Redraw)
-                } else {
-                    (self, Inhibit(false), Action::None)
-                }
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::D | gdk::enums::key::d => {
+                self.skip_dits = !self.skip_dits;
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::E | gdk::enums::key::e => {
+                self.skip_cities = !self.skip_cities;
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::plus => {
+                self.double_revenue = !self.double_revenue;
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_2 => {
+                self.max_visits = Some(2);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_3 => {
+                self.max_visits = Some(3);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_4 => {
+                self.max_visits = Some(4);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_5 => {
+                self.max_visits = Some(5);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_6 => {
+                self.max_visits = Some(6);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_7 => {
+                self.max_visits = Some(7);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_8 => {
+                self.max_visits = Some(8);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_9 => {
+                self.max_visits = Some(9);
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
+            }
+            gdk::enums::key::_0 => {
+                self.max_visits = None;
+                let action = self.update_search(map, window);
+                (self, Inhibit(false), action)
             }
             _ => (self, Inhibit(false), Action::None),
         }

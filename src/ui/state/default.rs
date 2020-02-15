@@ -158,7 +158,9 @@ impl State for Default {
                 // tokens on the map.
                 if let Some(addr) = self.active_hex {
                     if let Some(state) =
-                        super::select_token::SelectToken::try_new(map, addr)
+                        super::select_token::SelectToken::try_new(
+                            map, addr, window,
+                        )
                     {
                         (Box::new(state), Inhibit(false), Action::Redraw)
                     } else {
