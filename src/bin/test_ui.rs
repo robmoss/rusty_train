@@ -87,9 +87,15 @@ pub fn drawable<F>(
     F: Fn(&DrawingArea, &Context) -> Inhibit + 'static,
 {
     let window = gtk::ApplicationWindow::new(application);
+    let bar = gtk::HeaderBar::new();
     let adj: Option<&gtk::Adjustment> = None;
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
+
+    bar.set_title(Some("Rusty Train"));
+    bar.set_decoration_layout(Some("menu:close"));
+    bar.set_show_close_button(true);
+    window.set_titlebar(Some(&bar));
 
     // Set the minimum size of the drawing area to the required canvas size.
     drawing_area.set_size_request(width, height);
