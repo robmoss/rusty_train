@@ -32,9 +32,7 @@ fn token_matches(
         .map(|token| {
             map.find_placed_tokens(token)
                 .iter()
-                .map(|(addr, _state, _tile, token_space)| {
-                    (**addr, **token_space)
-                })
+                .map(|(addr, token_space)| (**addr, **token_space))
                 .collect()
         })
         .unwrap_or(vec![]);

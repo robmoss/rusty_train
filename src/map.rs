@@ -56,15 +56,13 @@ impl Map {
     pub fn find_placed_tokens(
         &self,
         t: &Token,
-    ) -> Vec<(&HexAddress, &MapHex, &Tile, &TokenSpace)> {
+    ) -> Vec<(&HexAddress, &TokenSpace)> {
         self.state
             .iter()
             .filter_map(|(addr, state)| {
-                // Retrieve the tile at this location, if any.
-                let tile = &self.tiles[state.tile_ix];
                 state.tokens.iter().find_map(|(token_space, token)| {
                     if t == token {
-                        Some((addr, state, tile, token_space))
+                        Some((addr, token_space))
                     } else {
                         None
                     }
