@@ -3,6 +3,10 @@ name = "rusty_train"
 version = "0.1.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
 edition = "2018"
+# Require Rust 1.38 for the 'duration_float' feature.
+# See this tracking issue for specifying the minimum Rust version:
+# https://github.com/rust-lang/rust/issues/65262
+# rust = "1.38"
 default-run = "test_ui"
 
 [dependencies]
