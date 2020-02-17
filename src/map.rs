@@ -979,7 +979,7 @@ impl Token {
 }
 
 /// A hex location on a `Map`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct HexAddress {
     pub(crate) row: usize,
     pub(crate) col: usize,
