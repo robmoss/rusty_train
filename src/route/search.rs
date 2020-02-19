@@ -111,12 +111,15 @@ pub fn paths_for_token(map: &Map, mut query: Query) -> Vec<Path> {
             ix: token_space.city_ix(),
         };
         let mut paths = paths_from(map, &query);
+        let mut extra_paths = path_combinations(&query, &paths);
+        all_paths.append(&mut extra_paths);
         all_paths.append(&mut paths);
     }
     all_paths
 }
 
-/// Returns all valid paths that match the provided criteria.
+/// Returns all valid paths that match the provided criteria, starting from
+/// the specified token.
 pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
     let mut context = Context::new(map, query);
     let mut paths: Vec<Path> = vec![];
@@ -133,7 +136,12 @@ pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
             start_tile,
         )
     }
+    paths
+}
 
+/// Returns all valid combination of path pairs, which must all start from the
+/// same location.
+fn path_combinations(query: &Query, paths: &Vec<Path>) -> Vec<Path> {
     // NOTE: all of the paths start from the same token space.
     // If more than 2 stops are allowed, and/or if cities can be skipped
     // (including the token space itself), then we also need to consider
@@ -183,8 +191,8 @@ pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
             }
         }
     }
-    paths.append(&mut new_paths);
-    paths
+
+    new_paths
 }
 
 fn dfs_over(
