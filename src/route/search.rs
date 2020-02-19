@@ -92,6 +92,8 @@ impl Context {
                 .filter(|s| s.revenue.is_some())
                 .count(),
             revenue: self.stops.iter().filter_map(|stop| stop.revenue).sum(),
+            skipped_city: self.skipped_cities > 0,
+            skipped_dit: self.skipped_dits > 0,
         }
     }
 }

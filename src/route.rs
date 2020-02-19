@@ -46,6 +46,8 @@ pub struct Path {
     pub stops: Vec<Stop>,
     pub num_visits: usize,
     pub revenue: usize,
+    pub skipped_city: bool,
+    pub skipped_dit: bool,
 }
 
 impl Path {
@@ -69,6 +71,8 @@ impl Path {
             num_visits: num_visits,
             conflicts: conflicts,
             revenue: self.revenue + other.revenue - start_revenue,
+            skipped_city: self.skipped_city || other.skipped_city,
+            skipped_dit: self.skipped_dit || other.skipped_dit,
         }
     }
 
@@ -94,6 +98,8 @@ impl Path {
             num_visits: num_visits,
             conflicts: conflicts,
             revenue: self.revenue + other.revenue - 2 * start_revenue,
+            skipped_city: true,
+            skipped_dit: self.skipped_dit || other.skipped_dit,
         }
     }
 }
