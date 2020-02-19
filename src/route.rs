@@ -44,5 +44,56 @@ pub struct Path {
     pub steps: Vec<Step>,
     pub conflicts: HashSet<Conflict>,
     pub stops: Vec<Stop>,
+    pub num_visits: usize,
     pub revenue: usize,
+}
+
+impl Path {
+    /// Join two paths, which should both start from the same location.
+    fn append(&self, other: &Path) -> Path {
+        let mut steps = self.steps.clone();
+        let mut other_steps: Vec<_> =
+            other.steps[1..].iter().map(|s| *s).collect();
+        steps.append(&mut other_steps);
+        let mut stops = self.stops.clone();
+        let mut other_stops: Vec<_> =
+            other.stops[1..].iter().map(|s| *s).collect();
+        stops.append(&mut other_stops);
+        let conflicts: HashSet<_> =
+            self.conflicts.union(&other.conflicts).map(|c| *c).collect();
+        let start_revenue = self.stops[0].revenue.unwrap();
+        let num_visits = stops.iter().filter(|s| s.revenue.is_some()).count();
+        Path {
+            steps: steps,
+            stops: stops,
+            num_visits: num_visits,
+            conflicts: conflicts,
+            revenue: self.revenue + other.revenue - start_revenue,
+        }
+    }
+
+    /// Join two paths, which should both start from the same location, and
+    /// skip over the starting location.
+    fn append_with_skip(&self, other: &Path) -> Path {
+        let mut steps = self.steps.clone();
+        let mut other_steps: Vec<_> =
+            other.steps[1..].iter().map(|s| *s).collect();
+        steps.append(&mut other_steps);
+        let mut stops = self.stops.clone();
+        stops[0].revenue = None;
+        let mut other_stops: Vec<_> =
+            other.stops[1..].iter().map(|s| *s).collect();
+        stops.append(&mut other_stops);
+        let num_visits = stops.iter().filter(|s| s.revenue.is_some()).count();
+        let conflicts: HashSet<_> =
+            self.conflicts.union(&other.conflicts).map(|c| *c).collect();
+        let start_revenue = self.stops[0].revenue.unwrap();
+        Path {
+            steps: steps,
+            stops: stops,
+            num_visits: num_visits,
+            conflicts: conflicts,
+            revenue: self.revenue + other.revenue - 2 * start_revenue,
+        }
+    }
 }

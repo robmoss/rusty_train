@@ -6,7 +6,7 @@ use super::conflict::{Conflict, ConflictRule};
 use super::{Path, Step, Stop, StopLocation};
 use crate::connection::Connection;
 use crate::map::{HexAddress, Map, Token};
-use crate::tile::Tile;
+use crate::tile::{Tile, TokenSpace};
 
 /// The search criteria for identifying valid paths.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -86,9 +86,34 @@ impl Context {
             steps: self.path.clone(),
             conflicts: self.conflicts.clone(),
             stops: self.stops.clone(),
+            num_visits: self
+                .stops
+                .iter()
+                .filter(|s| s.revenue.is_some())
+                .count(),
             revenue: self.stops.iter().filter_map(|stop| stop.revenue).sum(),
         }
     }
+}
+
+/// Returns all valid paths that match the provided criteria and which pass
+/// through any matching token on the map.
+pub fn paths_for_token(map: &Map, mut query: Query) -> Vec<Path> {
+    let locations: Vec<(HexAddress, TokenSpace)> = map
+        .find_placed_tokens(&query.token)
+        .iter()
+        .map(|(addr, token_space)| (**addr, **token_space))
+        .collect();
+    let mut all_paths: Vec<Path> = vec![];
+    for (addr, token_space) in &locations {
+        query.addr = *addr;
+        query.from = Connection::City {
+            ix: token_space.city_ix(),
+        };
+        let mut paths = paths_from(map, &query);
+        all_paths.append(&mut paths);
+    }
+    all_paths
 }
 
 /// Returns all valid paths that match the provided criteria.
@@ -108,6 +133,57 @@ pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
             start_tile,
         )
     }
+
+    // NOTE: all of the paths start from the same token space.
+    // If more than 2 stops are allowed, and/or if cities can be skipped
+    // (including the token space itself), then we also need to consider
+    // joining pairs of paths together.
+    let num_paths = paths.len();
+    let mut new_paths: Vec<Path> = vec![];
+
+    // Loop over each pair of paths.
+    for i in 0..num_paths {
+        let path_i = &paths[i];
+        for j in (i + 1)..num_paths {
+            let path_j = &paths[j];
+
+            // First, check that these paths don't conflict with each other.
+            let conflicts: HashSet<_> =
+                path_i.conflicts.intersection(&path_j.conflicts).collect();
+            if conflicts.len() != 1 {
+                continue;
+            }
+
+            if let Some(max_visits) = query.max_visits {
+                // The number of visits that would be made if we join these
+                // two paths.
+                let num_visits = path_i.num_visits + path_j.num_visits - 1;
+
+                // Check if the joined path is short enough.
+                if num_visits <= max_visits {
+                    let new_path = path_i.append(&path_j);
+                    new_paths.push(new_path);
+                }
+
+                // Check if we can skip the token space and, if so, whether
+                // the joined path is short enough.
+                if query.skip_cities && (num_visits - 1) <= max_visits {
+                    let new_path = path_i.append_with_skip(&path_j);
+                    new_paths.push(new_path);
+                }
+            } else {
+                // With no restriction on the number of visits, we can join
+                // any two paths that don't conflict with each other.
+                let new_path = path_i.append(&path_j);
+                new_paths.push(new_path);
+                if query.skip_cities {
+                    let new_path = path_i.append_with_skip(&path_j);
+                    new_paths.push(new_path);
+                }
+            }
+        }
+    }
+    paths.append(&mut new_paths);
     paths
 }
 
@@ -195,6 +271,30 @@ fn depth_first_search(
         ctx.conflicts.insert(conflict);
     }
 
+    // If we're at a city that contains a matching token, this means that the
+    // starting location and this location can be reached in either direction.
+    // To avoid exploring this connection multiple times, we can use the Ord
+    // implementation for (HexAddress, usize) to ensure that we only explore
+    // it in a single (and arbitrary, but consistent) direction.
+    if let Connection::City { ix: city_ix } = conn {
+        let token_tbl = map.get_hex(addr).unwrap().get_tokens();
+        let has_token = token_tbl.iter().any(|(&space, &tok)| {
+            space.city_ix() == city_ix && tok == query.token
+        });
+        if has_token {
+            let start_ix = if let Connection::City { ix } = query.from {
+                ix
+            } else {
+                panic!("Path starts at a dit?")
+            };
+            let start = (query.addr, start_ix);
+            let here = (addr, city_ix);
+            if start > here {
+                return;
+            }
+        }
+    }
+
     // Record this step and any conflict that it adds.
     let step = Step {
         addr: addr,
@@ -225,10 +325,19 @@ fn depth_first_search(
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this city, then do so.
             let token_spaces = tile.city_token_spaces(city_ix);
-            let token_tbl = map.get_hex(addr).unwrap().get_tokens();
+            // NOTE: we must only check tokens associated with this city.
+            let city_tokens: Vec<_> = map
+                .get_hex(addr)
+                .unwrap()
+                .get_tokens()
+                .iter()
+                .filter(|(&space, &_tok)| space.city_ix() == city_ix)
+                .collect();
             let can_continue = token_spaces.len() == 0
-                || (token_tbl.len() < token_spaces.len())
-                || token_tbl.values().any(|&tok| tok == query.token);
+                || (city_tokens.len() < token_spaces.len())
+                || city_tokens
+                    .iter()
+                    .any(|(&_space, &tok)| tok == query.token);
             let more_visits_allowed = query
                 .max_visits
                 .map(|max| max > ctx.num_visits)

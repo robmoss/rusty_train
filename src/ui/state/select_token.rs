@@ -169,14 +169,14 @@ impl SelectToken {
             addr: addr,
             from: crate::connection::Connection::City { ix: city_ix },
             token: **token,
-            max_visits: self.max_visits, //Some(3),
+            max_visits: self.max_visits,
             skip_cities: self.skip_cities,
             skip_dits: self.skip_dits,
             conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOrCityHex,
         };
         let now = std::time::Instant::now();
-        let paths = crate::route::search::paths_from(map, &query);
+        let paths = crate::route::search::paths_for_token(map, query);
         println!(
             "Enumerated {} routes in {}",
             paths.len(),
