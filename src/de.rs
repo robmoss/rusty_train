@@ -312,37 +312,37 @@ enum CityType {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-enum Rotation {
+enum CityRotation {
     Zero,
     Cw90,
     Acw90,
     HalfTurn,
 }
 
-impl std::convert::From<crate::city::Rotation> for Option<Rotation> {
+impl std::convert::From<crate::city::Rotation> for Option<CityRotation> {
     fn from(src: crate::city::Rotation) -> Self {
         use crate::city::Rotation::*;
 
         match src {
             Zero => None,
-            Cw90 => Some(Rotation::Cw90),
-            Acw90 => Some(Rotation::Acw90),
-            HalfTurn => Some(Rotation::HalfTurn),
+            Cw90 => Some(CityRotation::Cw90),
+            Acw90 => Some(CityRotation::Acw90),
+            HalfTurn => Some(CityRotation::HalfTurn),
         }
     }
 }
 
-impl std::convert::From<Option<&Rotation>> for crate::city::Rotation {
-    fn from(src: Option<&Rotation>) -> Self {
+impl std::convert::From<Option<&CityRotation>> for crate::city::Rotation {
+    fn from(src: Option<&CityRotation>) -> Self {
         use crate::city::Rotation::*;
 
         match src {
             None => Zero,
             Some(ref rot) => match rot {
-                Rotation::Zero => Zero,
-                Rotation::Cw90 => Cw90,
-                Rotation::Acw90 => Acw90,
-                Rotation::HalfTurn => HalfTurn,
+                CityRotation::Zero => Zero,
+                CityRotation::Cw90 => Cw90,
+                CityRotation::Acw90 => Acw90,
+                CityRotation::HalfTurn => HalfTurn,
             },
         }
     }
@@ -358,7 +358,7 @@ struct City {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub rotate: Option<Rotation>,
+    pub rotate: Option<CityRotation>,
 }
 
 impl std::convert::From<&crate::city::City> for City {
@@ -2849,7 +2849,7 @@ fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Double(CornerLocation::Centre),
                         revenue: 70,
-                        rotate: Some(Rotation::Cw90),
+                        rotate: Some(CityRotation::Cw90),
                         nudge: Some((Direction::E, 0.1)),
                         ..Default::default()
                     },
@@ -2964,7 +2964,7 @@ fn test_tiles() -> Tiles {
                 cities: vec![City {
                     city_type: CityType::Triple(CentreLocation::Centre),
                     revenue: 60,
-                    rotate: Some(Rotation::HalfTurn),
+                    rotate: Some(CityRotation::HalfTurn),
                     ..Default::default()
                 }],
                 labels: vec![
@@ -3085,18 +3085,30 @@ fn test_tiles() -> Tiles {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub enum RotateCW {
+#[derive(Serialize, Deserialize, PartialEq, Eq)]
+enum TileRotation {
     Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
+    Cw1,
+    Cw2,
+    Half,
+    Acw2,
+    Acw1,
+}
+
+impl TileRotation {
+    fn is_default(&self) -> bool {
+        self == &Self::default()
+    }
+}
+
+impl Default for TileRotation {
+    fn default() -> Self {
+        TileRotation::Zero
+    }
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum Token {
+enum Token {
     LP,
     PO,
     MK,
@@ -3104,52 +3116,61 @@ pub enum Token {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct TileDescr {
-    pub row: usize,
-    pub col: usize,
+struct TileDescr {
     pub tile: String,
-    pub rotation: RotateCW,
+    #[serde(default, skip_serializing_if = "TileRotation::is_default")]
+    pub rotation: TileRotation,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tokens: Vec<(usize, Token)>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub struct HexAddress {
+#[derive(Serialize, Deserialize)]
+struct HexAddress {
     row: usize,
     col: usize,
+    #[serde(flatten)]
+    tile: Option<TileDescr>,
+}
+
+impl HexAddress {
+    fn with_tile(mut self, tile: Option<TileDescr>) -> Self {
+        self.tile = tile;
+        self
+    }
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Descr {
-    tiles: Vec<(HexAddress, Option<TileDescr>)>,
+struct Descr {
+    tiles: Vec<HexAddress>,
 }
 
-impl std::convert::From<&crate::map::RotateCW> for RotateCW {
+impl std::convert::From<&crate::map::RotateCW> for TileRotation {
     fn from(src: &crate::map::RotateCW) -> Self {
         use crate::map::RotateCW::*;
 
         match src {
-            Zero => RotateCW::Zero,
-            One => RotateCW::One,
-            Two => RotateCW::Two,
-            Three => RotateCW::Three,
-            Four => RotateCW::Four,
-            Five => RotateCW::Five,
+            Zero => TileRotation::Zero,
+            One => TileRotation::Cw1,
+            Two => TileRotation::Cw2,
+            Three => TileRotation::Half,
+            Four => TileRotation::Acw2,
+            Five => TileRotation::Acw1,
         }
     }
 }
 
-impl std::convert::From<&RotateCW> for crate::map::RotateCW {
-    fn from(src: &RotateCW) -> Self {
-        use self::RotateCW::*;
+impl std::convert::From<&TileRotation> for crate::map::RotateCW {
+    fn from(src: &TileRotation) -> Self {
+        use self::TileRotation::*;
         use crate::map::RotateCW;
 
         match src {
             Zero => RotateCW::Zero,
-            One => RotateCW::One,
-            Two => RotateCW::Two,
-            Three => RotateCW::Three,
-            Four => RotateCW::Four,
-            Five => RotateCW::Five,
+            Cw1 => RotateCW::One,
+            Cw2 => RotateCW::Two,
+            Half => RotateCW::Three,
+            Acw2 => RotateCW::Four,
+            Acw1 => RotateCW::Five,
         }
     }
 }
@@ -3186,6 +3207,7 @@ impl std::convert::From<&crate::map::HexAddress> for HexAddress {
         HexAddress {
             row: src.row,
             col: src.col,
+            tile: None,
         }
     }
 }
@@ -3202,8 +3224,6 @@ impl std::convert::From<&HexAddress> for crate::map::HexAddress {
 impl std::convert::From<&crate::map::descr::TileDescr> for TileDescr {
     fn from(src: &crate::map::descr::TileDescr) -> Self {
         TileDescr {
-            row: src.row,
-            col: src.col,
             tile: src.tile.clone(),
             rotation: (&src.rotation).into(),
             tokens: src
@@ -3215,14 +3235,17 @@ impl std::convert::From<&crate::map::descr::TileDescr> for TileDescr {
     }
 }
 
-impl std::convert::From<&TileDescr> for crate::map::descr::TileDescr {
-    fn from(src: &TileDescr) -> Self {
+impl std::convert::From<(&HexAddress, &TileDescr)>
+    for crate::map::descr::TileDescr
+{
+    fn from(src: (&HexAddress, &TileDescr)) -> Self {
         crate::map::descr::TileDescr {
-            row: src.row,
-            col: src.col,
-            tile: src.tile.clone(),
-            rotation: (&src.rotation).into(),
+            row: src.0.row,
+            col: src.0.col,
+            tile: src.1.tile.clone(),
+            rotation: (&src.1.rotation).into(),
             tokens: src
+                .1
                 .tokens
                 .iter()
                 .map(|(ix, tok)| (*ix, tok.into()))
@@ -3237,7 +3260,10 @@ impl std::convert::From<&crate::map::descr::Descr> for Descr {
             tiles: src
                 .tiles
                 .iter()
-                .map(|(k, v)| (k.into(), v.as_ref().map(|td| td.into())))
+                .map(|(k, v)| {
+                    ((HexAddress::from(k))
+                        .with_tile(v.as_ref().map(|td| td.into())))
+                })
                 .collect(),
         }
     }
@@ -3249,7 +3275,12 @@ impl std::convert::From<&Descr> for crate::map::descr::Descr {
             tiles: src
                 .tiles
                 .iter()
-                .map(|(k, v)| (k.into(), v.as_ref().map(|td| td.into())))
+                .map(|addr| {
+                    (
+                        addr.into(),
+                        addr.tile.as_ref().map(|td| (addr, td).into()),
+                    )
+                })
                 .collect(),
         }
     }
@@ -3265,6 +3296,7 @@ pub fn read_map_descr<P: AsRef<Path>>(
     Ok((&descr).into())
 }
 
+/// Writes a map configuration to disk.
 pub fn write_map_descr<P: AsRef<Path>>(
     path: P,
     descr: &crate::map::descr::Descr,
