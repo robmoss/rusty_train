@@ -263,6 +263,14 @@ pub mod tests {
             .expect("Couldn't create output PNG file");
         surf.write_to_png(&mut file)
             .expect("Couldn't write to output PNG file");
+
+        let pretty = false;
+        crate::de::write_map_descr(
+            "test-map-descr-simple-2x2.json",
+            &descr,
+            pretty,
+        )
+        .expect("Couldn't serialise map description");
     }
 
     #[test]
@@ -307,5 +315,13 @@ pub mod tests {
             .expect("Couldn't create output PNG file");
         surf.write_to_png(&mut file)
             .expect("Couldn't write to output PNG file");
+
+        let pretty = false;
+        crate::de::write_map_descr(
+            "test-map-descr-simple-2x2_with_empty_hexes.json",
+            &descr,
+            pretty,
+        )
+        .expect("Couldn't serialise map description");
     }
 }
