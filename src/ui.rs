@@ -148,13 +148,34 @@ impl UI {
     ) -> Inhibit {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
-            let (new_state, inhibit, action) = curr_state.key_press(
+            let action = global_keymap(
+                &curr_state,
                 &self.hex,
                 &mut self.map,
                 window,
                 area,
                 event,
             );
+            let (new_state, inhibit, action) =
+                if let Some((reset_state, inhibit, action)) = action {
+                    match reset_state {
+                        ResetState::No => (curr_state, inhibit, action),
+                        ResetState::Yes => {
+                            let b: Box<dyn State> = Box::new(
+                                state::default::Default::new(&self.map),
+                            );
+                            (b, inhibit, action)
+                        }
+                    }
+                } else {
+                    curr_state.key_press(
+                        &self.hex,
+                        &mut self.map,
+                        window,
+                        area,
+                        event,
+                    )
+                };
             self.state = Some(new_state);
             match action {
                 Action::Redraw => {
@@ -201,5 +222,81 @@ impl UI {
         } else {
             Inhibit(false)
         }
+    }
+}
+
+/// Indicates whether the UI should reset to its default state.
+///
+/// For example, this is required when the global keymap results in a new map
+/// being loaded from disk, since the current UI state may not be valid.
+pub enum ResetState {
+    /// Retain the current UI state.
+    No,
+    /// Reset the UI state to the default state.
+    Yes,
+}
+
+/// The global keymap defines key bindings that apply regardless of the
+/// current UI state.
+///
+/// - `q`, `Q`: quit;
+/// - `s`, `S`: save a screenshot of the current map;
+/// - `Ctrl+o`, `Ctrl+O`: load a map from disk.
+/// - `Ctrl+s`, `Ctrl+S`: save the current map to disk.
+pub fn global_keymap<S: State + ?Sized>(
+    state: &Box<S>,
+    hex: &Hex,
+    map: &mut Map,
+    window: &gtk::ApplicationWindow,
+    area: &gtk::DrawingArea,
+    event: &gdk::EventKey,
+) -> Option<(ResetState, Inhibit, Action)> {
+    let key = event.get_keyval();
+    let modifiers = event.get_state();
+    let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
+    match (key, ctrl) {
+        (gdk::enums::key::q, false) | (gdk::enums::key::Q, false) => {
+            Some((ResetState::No, Inhibit(false), Action::Quit))
+        }
+        (gdk::enums::key::o, true) | (gdk::enums::key::O, true) => {
+            match util::load_map(window, map) {
+                Ok(action) => {
+                    let reset = match action {
+                        Action::None => ResetState::No,
+                        _ => ResetState::Yes,
+                    };
+                    Some((reset, Inhibit(false), action))
+                }
+                Err(error) => {
+                    eprintln!("Error loading map: {}", error);
+                    Some((ResetState::No, Inhibit(false), Action::None))
+                }
+            }
+        }
+        (gdk::enums::key::s, true) | (gdk::enums::key::S, true) => {
+            match util::save_map(window, map) {
+                Ok(action) => {
+                    let reset = match action {
+                        Action::None => ResetState::No,
+                        _ => ResetState::Yes,
+                    };
+                    Some((reset, Inhibit(false), action))
+                }
+                Err(error) => {
+                    eprintln!("Error saving map: {}", error);
+                    Some((ResetState::No, Inhibit(false), Action::None))
+                }
+            }
+        }
+        (gdk::enums::key::s, false) | (gdk::enums::key::S, false) => {
+            match util::save_screenshot(state, window, area, hex, map) {
+                Ok(action) => Some((ResetState::No, Inhibit(false), action)),
+                Err(error) => {
+                    eprintln!("Error saving screenshot: {}", error);
+                    Some((ResetState::No, Inhibit(false), Action::None))
+                }
+            }
+        }
+        _ => None,
     }
 }

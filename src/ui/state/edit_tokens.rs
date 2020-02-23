@@ -116,9 +116,6 @@ impl State for EditTokens {
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::q | gdk::enums::key::Q => {
-                (self, Inhibit(false), Action::Quit)
-            }
             gdk::enums::key::Escape => {
                 // NOTE: revert any edits before exiting this mode.
                 let restore = self.original_tokens.drain().collect();

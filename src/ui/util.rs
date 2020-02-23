@@ -76,7 +76,7 @@ pub fn open_file_dialog(
 }
 
 /// Prompt the user to save a screenshot.
-pub fn save_screenshot<S: State>(
+pub fn save_screenshot<S: State + ?Sized>(
     state: &Box<S>,
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,

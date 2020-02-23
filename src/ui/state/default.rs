@@ -4,7 +4,6 @@ use gtk::Inhibit;
 use super::{Action, State};
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map};
-use crate::ui::util;
 
 /// The default state: selecting a tile.
 pub struct Default {
@@ -81,32 +80,14 @@ impl State for Default {
 
     fn key_press(
         mut self: Box<Self>,
-        hex: &Hex,
+        _hex: &Hex,
         map: &mut Map,
         window: &gtk::ApplicationWindow,
-        area: &gtk::DrawingArea,
+        _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
-        let modifiers = event.get_state();
-        let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
         match key {
-            gdk::enums::key::o | gdk::enums::key::O => {
-                if ctrl {
-                    match util::load_map(window, map) {
-                        Ok(action) => (self, Inhibit(false), action),
-                        Err(error) => {
-                            eprintln!("Error loading map: {}", error);
-                            (self, Inhibit(false), Action::None)
-                        }
-                    }
-                } else {
-                    (self, Inhibit(false), Action::None)
-                }
-            }
-            gdk::enums::key::q | gdk::enums::key::Q => {
-                (self, Inhibit(false), Action::Quit)
-            }
             gdk::enums::key::e | gdk::enums::key::E => {
                 if let Some(addr) = self.active_hex {
                     let state = Box::new(
@@ -168,34 +149,6 @@ impl State for Default {
                     }
                 } else {
                     (self, Inhibit(false), Action::None)
-                }
-            }
-            gdk::enums::key::s | gdk::enums::key::S => {
-                // NOTE: FileChooserNative requires gtk 3.20.
-                // let dialog = gtk::FileChooserNative::new(
-                //     Some("Save Screenshot"),
-                //     Some(window),
-                //     gtk::FileChooserAction::Save,
-                //     None,
-                //     None,
-                // );
-                if ctrl {
-                    match util::save_map(window, map) {
-                        Ok(action) => (self, Inhibit(false), action),
-                        Err(error) => {
-                            eprintln!("Error saving map: {}", error);
-                            (self, Inhibit(false), Action::None)
-                        }
-                    }
-                } else {
-                    match util::save_screenshot(&self, window, area, hex, map)
-                    {
-                        Ok(action) => (self, Inhibit(false), action),
-                        Err(error) => {
-                            eprintln!("Error saving screenshot: {}", error);
-                            (self, Inhibit(false), Action::None)
-                        }
-                    }
                 }
             }
             gdk::enums::key::Left => {

@@ -346,9 +346,6 @@ impl State for SelectToken {
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::q | gdk::enums::key::Q => {
-                (self, Inhibit(false), Action::Quit)
-            }
             gdk::enums::key::Escape | gdk::enums::key::Return => {
                 // Exit this mode.
                 // Once the token is selected, switch to EnterTrains state;

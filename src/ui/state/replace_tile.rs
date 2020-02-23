@@ -127,9 +127,6 @@ impl State for ReplaceTile {
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::q | gdk::enums::key::Q => {
-                (self, Inhibit(false), Action::Quit)
-            }
             gdk::enums::key::Escape => (
                 Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
