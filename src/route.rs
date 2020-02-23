@@ -2,6 +2,8 @@
 //!
 //! This module solves the problem of finding the set of routes that can be
 //! run by a company to yield the highest possible revenue.
+//!
+//! See the [route-finding documentation](doc/index.html) for details.
 
 use std::collections::HashSet;
 
@@ -11,6 +13,7 @@ use crate::map::HexAddress;
 use conflict::Conflict;
 
 pub mod conflict;
+pub mod doc;
 pub mod search;
 
 /// A single step in a path.
@@ -38,68 +41,79 @@ pub struct Stop {
     pub stop_at: StopLocation,
 }
 
+/// A location on a path that, if the train stops here, may earn revenue.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct Visit {
+    /// The tile on which this stop occurs.
+    pub addr: HexAddress,
+    /// The base revenue for this location.
+    pub revenue: usize,
+    /// The city or dit associated with this visit.
+    pub visits: StopLocation,
+}
+
 /// A path that a train may travel along.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Path {
     pub steps: Vec<Step>,
     pub conflicts: HashSet<Conflict>,
-    pub stops: Vec<Stop>,
+    pub visits: Vec<Visit>,
     pub num_visits: usize,
+    pub num_cities: usize,
+    pub num_dits: usize,
+    pub num_hexes: usize,
     pub revenue: usize,
-    pub skipped_city: bool,
-    pub skipped_dit: bool,
 }
 
 impl Path {
-    /// Join two paths, which should both start from the same location.
-    fn append(&self, other: &Path) -> Path {
-        let mut steps = self.steps.clone();
-        let mut other_steps: Vec<_> =
-            other.steps[1..].iter().map(|s| *s).collect();
-        steps.append(&mut other_steps);
-        let mut stops = self.stops.clone();
-        let mut other_stops: Vec<_> =
-            other.stops[1..].iter().map(|s| *s).collect();
-        stops.append(&mut other_stops);
-        let conflicts: HashSet<_> =
-            self.conflicts.union(&other.conflicts).map(|c| *c).collect();
-        let start_revenue = self.stops[0].revenue.unwrap();
-        let num_visits = stops.iter().filter(|s| s.revenue.is_some()).count();
-        Path {
-            steps: steps,
-            stops: stops,
-            num_visits: num_visits,
-            conflicts: conflicts,
-            revenue: self.revenue + other.revenue - start_revenue,
-            skipped_city: self.skipped_city || other.skipped_city,
-            skipped_dit: self.skipped_dit || other.skipped_dit,
-        }
+    /// Returns the location at which this path starts.
+    pub fn start(&self) -> &Visit {
+        self.visits.first().unwrap()
     }
 
-    /// Join two paths, which should both start from the same location, and
-    /// skip over the starting location.
-    fn append_with_skip(&self, other: &Path) -> Path {
+    /// Returns the location at which this path ends.
+    pub fn end(&self) -> &Visit {
+        self.visits.last().unwrap()
+    }
+
+    /// Joins two paths, which must start from the same location.
+    fn append(&self, other: &Path) -> Path {
+        // NOTE: ensure that the first step of both paths is the same.
+        if self.steps[0] != other.steps[0] {
+            panic!(
+                "Paths don't start from the same location: {:?} and {:?}",
+                self.steps[0], other.steps[0]
+            );
+        }
         let mut steps = self.steps.clone();
         let mut other_steps: Vec<_> =
             other.steps[1..].iter().map(|s| *s).collect();
         steps.append(&mut other_steps);
-        let mut stops = self.stops.clone();
-        stops[0].revenue = None;
-        let mut other_stops: Vec<_> =
-            other.stops[1..].iter().map(|s| *s).collect();
-        stops.append(&mut other_stops);
-        let num_visits = stops.iter().filter(|s| s.revenue.is_some()).count();
+        let mut visits = self.visits.clone();
+        let mut other_visits: Vec<_> =
+            other.visits[1..].iter().map(|s| *s).collect();
+        // NOTE: ensure the visits are in order, so start from the end of
+        // self's path and travel to the self's start, which is also other's
+        // start, and continue on to other's end.
+        visits.reverse();
+        visits.append(&mut other_visits);
         let conflicts: HashSet<_> =
             self.conflicts.union(&other.conflicts).map(|c| *c).collect();
-        let start_revenue = self.stops[0].revenue.unwrap();
+        let start_revenue = self.visits[0].revenue;
+        let revenue = self.revenue + other.revenue - start_revenue;
+        let num_visits = visits.len();
+        let num_cities = self.num_cities + other.num_cities - 1;
+        let num_dits = self.num_dits + other.num_dits;
+        let num_hexes = self.num_hexes + other.num_hexes - 1;
         Path {
             steps: steps,
-            stops: stops,
-            num_visits: num_visits,
             conflicts: conflicts,
-            revenue: self.revenue + other.revenue - 2 * start_revenue,
-            skipped_city: true,
-            skipped_dit: self.skipped_dit || other.skipped_dit,
+            visits: visits,
+            num_visits: num_visits,
+            num_cities: num_cities,
+            num_dits: num_dits,
+            num_hexes: num_hexes,
+            revenue: revenue,
         }
     }
 }

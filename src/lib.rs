@@ -17,6 +17,11 @@
 //! - Defining and manipulating 18xx game maps.
 //! - Searching maps for optimal routes.
 //!
+//! Note: there **is** support for finding a single route that yields the
+//! highest possible revenue (ignoring bonuses for, e.g., visiting specific
+//! locations).
+//! See the [route-finding documentation](route/doc/index.html) for details.
+//!
 //! ## Defining tiles
 //!
 //! Use the [`rusty_train::tile::Tile`](tile/struct.Tile.html) data structure.

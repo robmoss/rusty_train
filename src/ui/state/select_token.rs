@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use crate::draw::Draw;
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, Token};
+use crate::route::search::{paths_for_token, PathLimit, Query};
+use crate::route::Path;
 use crate::tile::TokenSpace;
 
 /// Selecting a company's tokens for route-finding.
@@ -16,11 +18,10 @@ pub struct SelectToken {
     token_spaces: Vec<TokenSpace>,
     selected: usize,
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
-    max_visits: Option<usize>,
-    skip_cities: bool,
-    skip_dits: bool,
+    path_limit: Option<PathLimit>,
+    express: bool,
     double_revenue: bool,
-    best_path: Option<crate::route::Path>,
+    best_path: Option<Path>,
     original_window_title: Option<String>,
 }
 
@@ -76,9 +77,8 @@ impl SelectToken {
             selected: selected,
             matches: matches,
             // NOTE: set the default search parameters.
-            max_visits: Some(2),
-            skip_cities: false,
-            skip_dits: true,
+            path_limit: Some(PathLimit::Cities { count: 2 }),
+            express: false,
             double_revenue: false,
             // NOTE: need to calculate the best path from this token.
             best_path: None,
@@ -92,10 +92,14 @@ impl SelectToken {
     /// Returns a description of the train route criteria.
     fn describe_query(&self) -> String {
         let visits = self
-            .max_visits
-            .map(|n| n.to_string())
+            .path_limit
+            .map(|n| match n {
+                PathLimit::Cities { count } => count.to_string(),
+                PathLimit::CitiesAndTowns { count } => count.to_string(),
+                PathLimit::Hexes { count } => format!("H{}", count),
+            })
             .unwrap_or("D".to_string());
-        let suffix = if self.skip_cities { "E" } else { "" };
+        let suffix = if self.express { "E" } else { "" };
         if self.double_revenue {
             format!("{}+{}{}", visits, visits, suffix)
         } else {
@@ -165,18 +169,17 @@ impl SelectToken {
             return None;
         };
 
-        let query = crate::route::search::Query {
+        let path_limit = if self.express { None } else { self.path_limit };
+        let query = Query {
             addr: addr,
             from: crate::connection::Connection::City { ix: city_ix },
             token: **token,
-            max_visits: self.max_visits,
-            skip_cities: self.skip_cities,
-            skip_dits: self.skip_dits,
+            path_limit: path_limit,
             conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOrCityHex,
         };
         let now = std::time::Instant::now();
-        let paths = crate::route::search::paths_for_token(map, query);
+        let paths = paths_for_token(map, query);
         println!(
             "Enumerated {} routes in {}",
             paths.len(),
@@ -378,13 +381,8 @@ impl State for SelectToken {
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
-            gdk::enums::key::D | gdk::enums::key::d => {
-                self.skip_dits = !self.skip_dits;
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
             gdk::enums::key::E | gdk::enums::key::e => {
-                self.skip_cities = !self.skip_cities;
+                self.express = !self.express;
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
@@ -394,47 +392,47 @@ impl State for SelectToken {
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_2 => {
-                self.max_visits = Some(2);
+                self.path_limit = Some(PathLimit::Cities { count: 2 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_3 => {
-                self.max_visits = Some(3);
+                self.path_limit = Some(PathLimit::Cities { count: 3 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_4 => {
-                self.max_visits = Some(4);
+                self.path_limit = Some(PathLimit::Cities { count: 4 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_5 => {
-                self.max_visits = Some(5);
+                self.path_limit = Some(PathLimit::Cities { count: 5 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_6 => {
-                self.max_visits = Some(6);
+                self.path_limit = Some(PathLimit::Cities { count: 6 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_7 => {
-                self.max_visits = Some(7);
+                self.path_limit = Some(PathLimit::Cities { count: 7 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_8 => {
-                self.max_visits = Some(8);
+                self.path_limit = Some(PathLimit::Cities { count: 8 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_9 => {
-                self.max_visits = Some(9);
+                self.path_limit = Some(PathLimit::Cities { count: 9 });
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::_0 => {
-                self.max_visits = None;
+                self.path_limit = None;
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }

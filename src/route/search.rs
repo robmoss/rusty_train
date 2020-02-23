@@ -3,10 +3,17 @@
 use std::collections::HashSet;
 
 use super::conflict::{Conflict, ConflictRule};
-use super::{Path, Step, Stop, StopLocation};
+use super::{Path, Step, StopLocation, Visit};
 use crate::connection::Connection;
 use crate::map::{HexAddress, Map, Token};
 use crate::tile::{Tile, TokenSpace};
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum PathLimit {
+    Cities { count: usize },
+    CitiesAndTowns { count: usize },
+    Hexes { count: usize },
+}
 
 /// The search criteria for identifying valid paths.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -14,9 +21,7 @@ pub struct Query {
     pub addr: HexAddress,
     pub from: Connection,
     pub token: Token,
-    pub max_visits: Option<usize>,
-    pub skip_cities: bool,
-    pub skip_dits: bool,
+    pub path_limit: Option<PathLimit>,
     pub conflict_rule: ConflictRule,
 }
 
@@ -26,14 +31,16 @@ struct Context {
     path: Vec<Step>,
     /// The existing path elements that may not be re-used.
     conflicts: HashSet<Conflict>,
-    /// The number of cities that have already been skipped.
-    skipped_cities: usize,
-    /// The number of dits that have already been skipped.
-    skipped_dits: usize,
     /// The cities and dits that have been visited, possibly for revenue.
-    stops: Vec<Stop>,
-    /// The number cities and dits that have been visited for revenue.
+    visits: Vec<Visit>,
+    /// The number cities and dits that have been visited.
     num_visits: usize,
+    /// The number of cities that have been visited.
+    num_cities: usize,
+    /// The number of dits that have been visited.
+    num_dits: usize,
+    /// The number of hexes that have been visited.
+    num_hexes: usize,
 }
 
 impl Context {
@@ -51,22 +58,30 @@ impl Context {
 
         // NOTE: record the starting city/dit and its revenue.
         let tile = map.tile_at(query.addr).unwrap();
-        let first_stop = match query.from {
+        let (first_stop, num_cities, num_dits) = match query.from {
             Connection::City { ix: city_ix } => {
                 let city = tile.cities()[city_ix];
-                Stop {
-                    addr: query.addr,
-                    revenue: Some(city.revenue),
-                    stop_at: StopLocation::City { ix: city_ix },
-                }
+                (
+                    Visit {
+                        addr: query.addr,
+                        revenue: city.revenue,
+                        visits: StopLocation::City { ix: city_ix },
+                    },
+                    1,
+                    0,
+                )
             }
             Connection::Dit { ix: dit_ix } => {
                 let dit = tile.dits()[dit_ix];
-                Stop {
-                    addr: query.addr,
-                    revenue: Some(dit.revenue),
-                    stop_at: StopLocation::Dit { ix: dit_ix },
-                }
+                (
+                    Visit {
+                        addr: query.addr,
+                        revenue: dit.revenue,
+                        visits: StopLocation::Dit { ix: dit_ix },
+                    },
+                    0,
+                    1,
+                )
             }
             _ => panic!("Invalid starting connection"),
         };
@@ -74,10 +89,11 @@ impl Context {
         Context {
             path,
             conflicts,
-            stops: vec![first_stop],
-            skipped_cities: 0,
-            skipped_dits: 0,
+            visits: vec![first_stop],
             num_visits: 1,
+            num_cities,
+            num_dits,
+            num_hexes: 1,
         }
     }
 
@@ -85,15 +101,26 @@ impl Context {
         Path {
             steps: self.path.clone(),
             conflicts: self.conflicts.clone(),
-            stops: self.stops.clone(),
-            num_visits: self
-                .stops
-                .iter()
-                .filter(|s| s.revenue.is_some())
-                .count(),
-            revenue: self.stops.iter().filter_map(|stop| stop.revenue).sum(),
-            skipped_city: self.skipped_cities > 0,
-            skipped_dit: self.skipped_dits > 0,
+            visits: self.visits.clone(),
+            num_visits: self.visits.len(),
+            num_cities: self.num_cities,
+            num_dits: self.num_dits,
+            num_hexes: self.num_hexes,
+            revenue: self.visits.iter().map(|visit| visit.revenue).sum(),
+        }
+    }
+
+    fn can_continue(&self, path_limit: &Option<PathLimit>) -> bool {
+        if let Some(limit) = path_limit {
+            match limit {
+                PathLimit::Cities { count } => self.num_cities < *count,
+                PathLimit::CitiesAndTowns { count } => {
+                    self.num_visits < *count
+                }
+                PathLimit::Hexes { count } => self.num_hexes < *count,
+            }
+        } else {
+            true
         }
     }
 }
@@ -164,32 +191,30 @@ fn path_combinations(query: &Query, paths: &Vec<Path>) -> Vec<Path> {
                 continue;
             }
 
-            if let Some(max_visits) = query.max_visits {
-                // The number of visits that would be made if we join these
-                // two paths.
-                let num_visits = path_i.num_visits + path_j.num_visits - 1;
-
-                // Check if the joined path is short enough.
-                if num_visits <= max_visits {
-                    let new_path = path_i.append(&path_j);
-                    new_paths.push(new_path);
-                }
-
-                // Check if we can skip the token space and, if so, whether
-                // the joined path is short enough.
-                if query.skip_cities && (num_visits - 1) <= max_visits {
-                    let new_path = path_i.append_with_skip(&path_j);
-                    new_paths.push(new_path);
+            // Ensure that the combination of these two paths doesn't exceed
+            // the path limit (if any).
+            let can_append = if let Some(limit) = query.path_limit {
+                match limit {
+                    PathLimit::Cities { count } => {
+                        let n = path_i.num_cities + path_j.num_cities - 1;
+                        n <= count
+                    }
+                    PathLimit::CitiesAndTowns { count } => {
+                        let n = path_i.num_visits + path_j.num_visits - 1;
+                        n <= count
+                    }
+                    PathLimit::Hexes { count } => {
+                        let n = path_i.num_hexes + path_j.num_hexes - 1;
+                        n <= count
+                    }
                 }
             } else {
-                // With no restriction on the number of visits, we can join
-                // any two paths that don't conflict with each other.
+                true
+            };
+
+            if can_append {
                 let new_path = path_i.append(&path_j);
                 new_paths.push(new_path);
-                if query.skip_cities {
-                    let new_path = path_i.append_with_skip(&path_j);
-                    new_paths.push(new_path);
-                }
             }
         }
     }
@@ -227,6 +252,7 @@ fn dfs_over(
                         };
                         ctx.path.push(first_face);
                         ctx.path.push(second_face);
+                        ctx.num_hexes += 1;
 
                         let new_conn = Connection::Face { face: new_face };
                         let new_conns_opt = new_tile.connections(&new_conn);
@@ -240,6 +266,7 @@ fn dfs_over(
                             }
                         }
                         // Pop the two face connections.
+                        ctx.num_hexes -= 1;
                         ctx.path.pop();
                         ctx.path.pop();
                     }
@@ -325,13 +352,14 @@ fn depth_first_search(
         Connection::City { ix: city_ix } => {
             // Visit this city and save the current path.
             let city = tile.cities()[city_ix];
-            let stop = Stop {
+            let visit = Visit {
                 addr,
-                revenue: Some(city.revenue),
-                stop_at: StopLocation::City { ix: city_ix },
+                revenue: city.revenue,
+                visits: StopLocation::City { ix: city_ix },
             };
             ctx.num_visits += 1;
-            ctx.stops.push(stop);
+            ctx.num_cities += 1;
+            ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this city, then do so.
             let token_spaces = tile.city_token_spaces(city_ix);
@@ -348,79 +376,34 @@ fn depth_first_search(
                 || city_tokens
                     .iter()
                     .any(|(&_space, &tok)| tok == query.token);
-            let more_visits_allowed = query
-                .max_visits
-                .map(|max| max > ctx.num_visits)
-                .unwrap_or(true);
+            let more_visits_allowed = ctx.can_continue(&query.path_limit);
             if can_continue && more_visits_allowed {
                 dfs_over(map, query, ctx, paths, addr, conns, tile);
             }
-            ctx.stops.pop();
+            ctx.visits.pop();
+            ctx.num_cities -= 1;
             ctx.num_visits -= 1;
-
-            // NOTE: also record paths that skip over this city, if allowed.
-            // NOTE: a city may be a central dit.
-            let can_skip = if token_spaces.len() == 0 {
-                query.skip_dits
-            } else {
-                query.skip_cities
-            };
-            if can_skip && can_continue {
-                let stop = Stop {
-                    addr,
-                    revenue: None,
-                    stop_at: StopLocation::City { ix: city_ix },
-                };
-                ctx.stops.push(stop);
-                if token_spaces.len() == 0 {
-                    ctx.skipped_dits += 1;
-                } else {
-                    ctx.skipped_cities += 1;
-                }
-                dfs_over(map, query, ctx, paths, addr, conns, tile);
-                if token_spaces.len() == 0 {
-                    ctx.skipped_dits -= 1;
-                } else {
-                    ctx.skipped_cities -= 1;
-                }
-                ctx.stops.pop();
-            }
         }
         Connection::Dit { ix: dit_ix } => {
             // Visit this dit and save the current path.
             let dit = tile.dits()[dit_ix];
-            let stop = Stop {
+            let visit = Visit {
                 addr,
-                revenue: Some(dit.revenue),
-                stop_at: StopLocation::Dit { ix: dit_ix },
+                revenue: dit.revenue,
+                visits: StopLocation::Dit { ix: dit_ix },
             };
             ctx.num_visits += 1;
-            ctx.stops.push(stop);
+            ctx.num_dits += 1;
+            ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this dit, then do so.
-            let more_visits_allowed = query
-                .max_visits
-                .map(|max| max > ctx.num_visits)
-                .unwrap_or(true);
+            let more_visits_allowed = ctx.can_continue(&query.path_limit);
             if more_visits_allowed {
                 dfs_over(map, query, ctx, paths, addr, conns, tile);
             }
-            ctx.stops.pop();
+            ctx.visits.pop();
+            ctx.num_dits -= 1;
             ctx.num_visits -= 1;
-
-            // NOTE: also record paths that skip over this dit, if allowed.
-            if query.skip_dits {
-                let stop = Stop {
-                    addr,
-                    revenue: None,
-                    stop_at: StopLocation::Dit { ix: dit_ix },
-                };
-                ctx.stops.push(stop);
-                ctx.skipped_dits += 1;
-                dfs_over(map, query, ctx, paths, addr, conns, tile);
-                ctx.skipped_dits -= 1;
-                ctx.stops.pop();
-            }
         }
         _ => {
             // NOTE: no path to save, just visit subsequent connections.
