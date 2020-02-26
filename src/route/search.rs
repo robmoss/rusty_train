@@ -151,12 +151,19 @@ pub fn paths_for_token(map: &Map, criteria: &Criteria) -> Vec<Path> {
             },
             criteria: *criteria,
         };
-        let mut paths = paths_from(map, &query);
-        let mut extra_paths = path_combinations(&query, &paths);
-        all_paths.append(&mut extra_paths);
+        let mut paths = paths_through(map, &query);
         all_paths.append(&mut paths);
     }
     all_paths
+}
+
+/// Returns all valid paths that match the provided criteria, passing through
+/// the specified token.
+pub fn paths_through(map: &Map, query: &Query) -> Vec<Path> {
+    let mut paths = paths_from(&map, &query);
+    let mut extra_paths = path_combinations(&query, &paths);
+    paths.append(&mut extra_paths);
+    paths
 }
 
 /// Returns all valid paths that match the provided criteria, starting from
