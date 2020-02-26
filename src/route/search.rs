@@ -438,3 +438,99 @@ fn depth_first_search(
         ctx.conflicts.remove(&conflict);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Criteria, PathLimit, Query};
+    use crate::connection::Connection;
+    use crate::hex::Hex;
+    use crate::map::descr::tests as descr_tests;
+    use crate::map::{HexAddress, Token};
+    use crate::route::conflict::ConflictRule;
+
+    static HEX_DIAMETER: f64 = 150.0;
+
+    /// Test that the maximum revenue obtained by paths of different lengths
+    /// and either starting from, or passing through, a specific city are as
+    /// expected.
+    ///
+    /// This uses a 2x2 map defined in `crate::map::descr::tests`, which
+    /// contains the following tiles:
+    ///
+    /// - Tile 5 at (0, 0);
+    /// - Tile 6 at (0, 1) (rotated clockwise twice);
+    /// - Tile 58 at (1, 0) (rotated anti-clockwise once);
+    /// - Tile 63 at (1, 1);
+    ///
+    /// "LP" tokens are placed on tiles 5 and 63; and "PO" tokens are placed
+    /// on tiles 6 and 63.
+    #[test]
+    fn test_2x2_paths() {
+        let hex = Hex::new(HEX_DIAMETER);
+        let map = descr_tests::map_2x2_tiles_5_6_58_63(&hex);
+
+        let query = Query {
+            addr: HexAddress::new(0, 0),
+            from: Connection::City { ix: 0 },
+            criteria: Criteria {
+                token: Token::LP,
+                path_limit: Some(PathLimit::CitiesAndTowns { count: 2 }),
+                conflict_rule: ConflictRule::TrackOrCityHex,
+            },
+        };
+        let from_len2 = super::paths_from(&map, &query);
+        let via_len2 = super::paths_through(&map, &query);
+        let rev_from_len2 = from_len2.iter().map(|path| path.revenue).max();
+        let rev_via_len2 = via_len2.iter().map(|path| path.revenue).max();
+        assert_eq!(rev_from_len2, Some(40));
+        assert_eq!(rev_via_len2, Some(40));
+
+        let query = Query {
+            addr: HexAddress::new(0, 0),
+            from: Connection::City { ix: 0 },
+            criteria: Criteria {
+                token: Token::LP,
+                path_limit: Some(PathLimit::CitiesAndTowns { count: 3 }),
+                conflict_rule: ConflictRule::TrackOrCityHex,
+            },
+        };
+        let from_len3 = super::paths_from(&map, &query);
+        let via_len3 = super::paths_through(&map, &query);
+        let rev_from_len3 = from_len3.iter().map(|path| path.revenue).max();
+        let rev_via_len3 = via_len3.iter().map(|path| path.revenue).max();
+        assert_eq!(rev_from_len3, Some(70));
+        assert_eq!(rev_via_len3, Some(70));
+
+        let query = Query {
+            addr: HexAddress::new(0, 0),
+            from: Connection::City { ix: 0 },
+            criteria: Criteria {
+                token: Token::LP,
+                path_limit: Some(PathLimit::CitiesAndTowns { count: 4 }),
+                conflict_rule: ConflictRule::TrackOrCityHex,
+            },
+        };
+        let from_len4 = super::paths_from(&map, &query);
+        let via_len4 = super::paths_through(&map, &query);
+        let rev_from_len4 = from_len4.iter().map(|path| path.revenue).max();
+        let rev_via_len4 = via_len4.iter().map(|path| path.revenue).max();
+        assert_eq!(rev_from_len4, Some(90));
+        assert_eq!(rev_via_len4, Some(90));
+
+        let query = Query {
+            addr: HexAddress::new(0, 0),
+            from: Connection::City { ix: 0 },
+            criteria: Criteria {
+                token: Token::LP,
+                path_limit: None,
+                conflict_rule: ConflictRule::TrackOrCityHex,
+            },
+        };
+        let from_any = super::paths_from(&map, &query);
+        let via_any = super::paths_through(&map, &query);
+        let rev_from_any = from_any.iter().map(|path| path.revenue).max();
+        let rev_via_any = via_any.iter().map(|path| path.revenue).max();
+        assert_eq!(rev_from_any, Some(90));
+        assert_eq!(rev_via_any, Some(90));
+    }
+}
