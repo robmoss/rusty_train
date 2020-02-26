@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use crate::draw::Draw;
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, Token};
-use crate::route::search::{paths_for_token, PathLimit, Query};
+use crate::route::search::{paths_for_token, Criteria, PathLimit};
 use crate::route::Path;
 use crate::tile::TokenSpace;
 
@@ -67,7 +67,6 @@ impl SelectToken {
         }
         let selected = 0;
         let space = token_spaces[selected];
-        let city_ix = space.city_ix();
         let token_opt = hex_state.get_token_at(&space);
         let matches = token_matches(map, token_opt);
         let window_title = window.get_title().map(|s| s.as_str().to_string());
@@ -84,7 +83,7 @@ impl SelectToken {
             best_path: None,
             original_window_title: window_title,
         };
-        state.best_path = state.best_path(map, addr, city_ix, &token_opt);
+        state.best_path = state.best_path(map, &token_opt);
         state.update_title(window);
         Some(state)
     }
@@ -140,12 +139,7 @@ impl SelectToken {
             let token_opt = hex_state.get_token_at(&space);
             self.matches = token_matches(map, token_opt);
             // NOTE: calculate the best path from this token.
-            self.best_path = self.best_path(
-                map,
-                self.active_hex,
-                space.city_ix(),
-                &token_opt,
-            );
+            self.best_path = self.best_path(map, &token_opt);
             Action::Redraw
         } else {
             Action::None
@@ -159,8 +153,6 @@ impl SelectToken {
     fn best_path(
         &self,
         map: &Map,
-        addr: HexAddress,
-        city_ix: usize,
         token_opt: &Option<&Token>,
     ) -> Option<crate::route::Path> {
         let token = if let Some(t) = token_opt {
@@ -170,16 +162,14 @@ impl SelectToken {
         };
 
         let path_limit = if self.express { None } else { self.path_limit };
-        let query = Query {
-            addr: addr,
-            from: crate::connection::Connection::City { ix: city_ix },
+        let criteria = Criteria {
             token: **token,
             path_limit: path_limit,
             conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOrCityHex,
         };
         let now = std::time::Instant::now();
-        let paths = paths_for_token(map, query);
+        let paths = paths_for_token(map, &criteria);
         println!(
             "Enumerated {} routes in {}",
             paths.len(),

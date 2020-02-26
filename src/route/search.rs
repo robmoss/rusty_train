@@ -15,11 +15,18 @@ pub enum PathLimit {
     Hexes { count: usize },
 }
 
-/// The search criteria for identifying valid paths.
+/// The search criteria for identifying valid paths that start from a specific
+/// location.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Query {
     pub addr: HexAddress,
     pub from: Connection,
+    pub criteria: Criteria,
+}
+
+/// The search criteria for identifying valid paths.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Criteria {
     pub token: Token,
     pub path_limit: Option<PathLimit>,
     pub conflict_rule: ConflictRule,
@@ -50,8 +57,10 @@ impl Context {
             conn: query.from,
         }];
         let mut conflicts = HashSet::new();
-        if let Some(conflict) =
-            query.conflict_rule.maybe_conflict(&query.addr, &query.from)
+        if let Some(conflict) = query
+            .criteria
+            .conflict_rule
+            .maybe_conflict(&query.addr, &query.from)
         {
             conflicts.insert(conflict);
         }
@@ -127,17 +136,20 @@ impl Context {
 
 /// Returns all valid paths that match the provided criteria and which pass
 /// through any matching token on the map.
-pub fn paths_for_token(map: &Map, mut query: Query) -> Vec<Path> {
+pub fn paths_for_token(map: &Map, criteria: &Criteria) -> Vec<Path> {
     let locations: Vec<(HexAddress, TokenSpace)> = map
-        .find_placed_tokens(&query.token)
+        .find_placed_tokens(&criteria.token)
         .iter()
         .map(|(addr, token_space)| (**addr, **token_space))
         .collect();
     let mut all_paths: Vec<Path> = vec![];
     for (addr, token_space) in &locations {
-        query.addr = *addr;
-        query.from = Connection::City {
-            ix: token_space.city_ix(),
+        let query = Query {
+            addr: *addr,
+            from: Connection::City {
+                ix: token_space.city_ix(),
+            },
+            criteria: *criteria,
         };
         let mut paths = paths_from(map, &query);
         let mut extra_paths = path_combinations(&query, &paths);
@@ -193,7 +205,7 @@ fn path_combinations(query: &Query, paths: &Vec<Path>) -> Vec<Path> {
 
             // Ensure that the combination of these two paths doesn't exceed
             // the path limit (if any).
-            let can_append = if let Some(limit) = query.path_limit {
+            let can_append = if let Some(limit) = query.criteria.path_limit {
                 match limit {
                     PathLimit::Cities { count } => {
                         let n = path_i.num_cities + path_j.num_cities - 1;
@@ -300,7 +312,7 @@ fn depth_first_search(
     }
 
     // Check if this connection conflicts with an earlier connection.
-    let conflict = query.conflict_rule.maybe_conflict(&addr, &conn);
+    let conflict = query.criteria.conflict_rule.maybe_conflict(&addr, &conn);
     if let Some(conflict) = conflict {
         if ctx.conflicts.contains(&conflict) {
             return;
@@ -316,7 +328,7 @@ fn depth_first_search(
     if let Connection::City { ix: city_ix } = conn {
         let token_tbl = map.get_hex(addr).unwrap().get_tokens();
         let has_token = token_tbl.iter().any(|(&space, &tok)| {
-            space.city_ix() == city_ix && tok == query.token
+            space.city_ix() == city_ix && tok == query.criteria.token
         });
         if has_token {
             let start_ix = if let Connection::City { ix } = query.from {
@@ -375,8 +387,9 @@ fn depth_first_search(
                 || (city_tokens.len() < token_spaces.len())
                 || city_tokens
                     .iter()
-                    .any(|(&_space, &tok)| tok == query.token);
-            let more_visits_allowed = ctx.can_continue(&query.path_limit);
+                    .any(|(&_space, &tok)| tok == query.criteria.token);
+            let more_visits_allowed =
+                ctx.can_continue(&query.criteria.path_limit);
             if can_continue && more_visits_allowed {
                 dfs_over(map, query, ctx, paths, addr, conns, tile);
             }
@@ -397,7 +410,8 @@ fn depth_first_search(
             ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this dit, then do so.
-            let more_visits_allowed = ctx.can_continue(&query.path_limit);
+            let more_visits_allowed =
+                ctx.can_continue(&query.criteria.path_limit);
             if more_visits_allowed {
                 dfs_over(map, query, ctx, paths, addr, conns, tile);
             }
