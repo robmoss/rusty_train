@@ -57,6 +57,7 @@ pub struct Visit {
 pub struct Path {
     pub steps: Vec<Step>,
     pub conflicts: HashSet<Conflict>,
+    pub route_conflicts: HashSet<Conflict>,
     pub visits: Vec<Visit>,
     pub num_visits: usize,
     pub num_cities: usize,
@@ -99,6 +100,11 @@ impl Path {
         visits.append(&mut other_visits);
         let conflicts: HashSet<_> =
             self.conflicts.union(&other.conflicts).map(|c| *c).collect();
+        let route_conflicts: HashSet<_> = self
+            .route_conflicts
+            .union(&other.route_conflicts)
+            .map(|c| *c)
+            .collect();
         let start_revenue = self.visits[0].revenue;
         let revenue = self.revenue + other.revenue - start_revenue;
         let num_visits = visits.len();
@@ -108,6 +114,7 @@ impl Path {
         Path {
             steps: steps,
             conflicts: conflicts,
+            route_conflicts: route_conflicts,
             visits: visits,
             num_visits: num_visits,
             num_cities: num_cities,

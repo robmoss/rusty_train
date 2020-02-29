@@ -167,6 +167,8 @@ impl SelectToken {
             path_limit: path_limit,
             conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOrCityHex,
+            route_conflict_rule:
+                crate::route::conflict::ConflictRule::TrackOnly,
         };
         let now = std::time::Instant::now();
         let paths = paths_for_token(map, &criteria);
@@ -175,6 +177,25 @@ impl SelectToken {
             paths.len(),
             now.elapsed().as_secs_f64()
         );
+        // NOTE: count how many pairs of paths don't conflict with each other.
+        let now = std::time::Instant::now();
+        let mut num_pairs = 0;
+        for i in 0..paths.len() {
+            let path_i = &paths[i];
+            for j in i..paths.len() {
+                let path_j = &paths[j];
+                if path_i.route_conflicts.is_disjoint(&path_j.route_conflicts)
+                {
+                    num_pairs += 1;
+                }
+            }
+        }
+        println!(
+            "{} valid pairs out of {} possible pairs",
+            num_pairs,
+            (paths.len() * (paths.len() - 1)) / 2
+        );
+        println!("Enumerated pairs in {}", now.elapsed().as_secs_f64());
         paths
             .iter()
             .map(|path| path.revenue)

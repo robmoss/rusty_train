@@ -30,6 +30,7 @@ pub struct Criteria {
     pub token: Token,
     pub path_limit: Option<PathLimit>,
     pub conflict_rule: ConflictRule,
+    pub route_conflict_rule: ConflictRule,
 }
 
 /// The current state of the path-exploration algorithm.
@@ -38,6 +39,8 @@ struct Context {
     path: Vec<Step>,
     /// The existing path elements that may not be re-used.
     conflicts: HashSet<Conflict>,
+    /// The existing path elements that may not be re-used by other routes.
+    route_conflicts: HashSet<Conflict>,
     /// The cities and dits that have been visited, possibly for revenue.
     visits: Vec<Visit>,
     /// The number cities and dits that have been visited.
@@ -63,6 +66,14 @@ impl Context {
             .maybe_conflict(&query.addr, &query.from)
         {
             conflicts.insert(conflict);
+        }
+        let mut route_conflicts = HashSet::new();
+        if let Some(conflict) = query
+            .criteria
+            .route_conflict_rule
+            .maybe_conflict(&query.addr, &query.from)
+        {
+            route_conflicts.insert(conflict);
         }
 
         // NOTE: record the starting city/dit and its revenue.
@@ -98,6 +109,7 @@ impl Context {
         Context {
             path,
             conflicts,
+            route_conflicts,
             visits: vec![first_stop],
             num_visits: 1,
             num_cities,
@@ -110,6 +122,7 @@ impl Context {
         Path {
             steps: self.path.clone(),
             conflicts: self.conflicts.clone(),
+            route_conflicts: self.route_conflicts.clone(),
             visits: self.visits.clone(),
             num_visits: self.visits.len(),
             num_cities: self.num_cities,
@@ -327,6 +340,14 @@ fn depth_first_search(
         ctx.conflicts.insert(conflict);
     }
 
+    let route_conflict = query
+        .criteria
+        .route_conflict_rule
+        .maybe_conflict(&addr, &conn);
+    if let Some(conflict) = route_conflict {
+        ctx.route_conflicts.insert(conflict);
+    }
+
     // If we're at a city that contains a matching token, this means that the
     // starting location and this location can be reached in either direction.
     // To avoid exploring this connection multiple times, we can use the Ord
@@ -437,6 +458,9 @@ fn depth_first_search(
     if let Some(conflict) = conflict {
         ctx.conflicts.remove(&conflict);
     }
+    if let Some(conflict) = route_conflict {
+        ctx.route_conflicts.remove(&conflict);
+    }
 }
 
 #[cfg(test)]
@@ -476,6 +500,7 @@ mod tests {
                 token: Token::LP,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 2 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
+                route_conflict_rule: ConflictRule::TrackOnly,
             },
         };
         let from_len2 = super::paths_from(&map, &query);
@@ -492,6 +517,7 @@ mod tests {
                 token: Token::LP,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 3 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
+                route_conflict_rule: ConflictRule::TrackOnly,
             },
         };
         let from_len3 = super::paths_from(&map, &query);
@@ -508,6 +534,7 @@ mod tests {
                 token: Token::LP,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 4 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
+                route_conflict_rule: ConflictRule::TrackOnly,
             },
         };
         let from_len4 = super::paths_from(&map, &query);
@@ -524,6 +551,7 @@ mod tests {
                 token: Token::LP,
                 path_limit: None,
                 conflict_rule: ConflictRule::TrackOrCityHex,
+                route_conflict_rule: ConflictRule::TrackOnly,
             },
         };
         let from_any = super::paths_from(&map, &query);
