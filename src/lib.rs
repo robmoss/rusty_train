@@ -54,6 +54,8 @@
 //! // Save this tile to a JSON file.
 //! let pretty_json = true;
 //! write_tile("tile_3.json", &tile, pretty_json);
+//! tile.save_png(&hex, "tile_3.png")
+//!     .expect("Could not save tile as a PNG");
 //! ```
 //!
 //! More complex tiles, with multiple token spaces and overlapping tracks, can
