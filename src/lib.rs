@@ -11,15 +11,17 @@
 //! - Drawing tiles on-screen and saving images to disk.
 //! - (De)serialising tile descriptions.
 //! - Placing tokens in token spaces.
+//! - Searching maps for optimal pairings of trains to routes.
 //!
 //! The following features are not yet provided:
 //!
 //! - Defining and manipulating 18xx game maps.
-//! - Searching maps for optimal routes.
+//! - Allowing for route bonuses.
+//! - Selecting trains to operate routes for a company.
 //!
 //! Note: there **is** support for finding a single route that yields the
 //! highest possible revenue (ignoring bonuses for, e.g., visiting specific
-//! locations).
+//! locations), and for finding the optimal pairing of trains to routes.
 //! See the [route-finding documentation](route/doc/index.html) for details.
 //!
 //! ## Defining tiles

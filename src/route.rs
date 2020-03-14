@@ -15,6 +15,7 @@ use conflict::Conflict;
 pub mod conflict;
 pub mod doc;
 pub mod search;
+pub mod train;
 
 /// A single step in a path.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -28,6 +29,24 @@ pub struct Step {
 pub enum StopLocation {
     City { ix: usize },
     Dit { ix: usize },
+}
+
+impl StopLocation {
+    pub fn is_city(&self) -> bool {
+        if let StopLocation::City { ix: _ } = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn is_dit(&self) -> bool {
+        if let StopLocation::Dit { ix: _ } = self {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 /// A location at which a train may stop and, optionally, earn revenue.

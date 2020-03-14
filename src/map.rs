@@ -989,6 +989,14 @@ impl HexAddress {
     }
 }
 
+impl std::fmt::Display for HexAddress {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
+        let row_letter = alphabet[self.row];
+        write!(f, "{}{}", row_letter, self.col)
+    }
+}
+
 impl From<(usize, usize)> for HexAddress {
     fn from(src: (usize, usize)) -> Self {
         let (row, col) = src;

@@ -5,11 +5,13 @@ use gtk::GtkWindowExt;
 use gtk::Inhibit;
 use std::collections::HashMap;
 
+use log::info;
+
 use crate::draw::Draw;
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, Token};
 use crate::route::search::{paths_for_token, Criteria, PathLimit};
-use crate::route::Path;
+use crate::route::train::{Pairing, Train, Trains};
 use crate::tile::TokenSpace;
 
 /// Selecting a company's tokens for route-finding.
@@ -19,9 +21,7 @@ pub struct SelectToken {
     selected: usize,
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
     path_limit: Option<PathLimit>,
-    express: bool,
-    double_revenue: bool,
-    best_path: Option<Path>,
+    best_routes: Option<(Token, Pairing)>,
     original_window_title: Option<String>,
 }
 
@@ -75,15 +75,11 @@ impl SelectToken {
             token_spaces: token_spaces,
             selected: selected,
             matches: matches,
-            // NOTE: set the default search parameters.
-            path_limit: Some(PathLimit::Cities { count: 2 }),
-            express: false,
-            double_revenue: false,
-            // NOTE: need to calculate the best path from this token.
-            best_path: None,
+            path_limit: None,
+            best_routes: None,
             original_window_title: window_title,
         };
-        state.best_path = state.best_path(map, &token_opt);
+        state.best_routes = state.get_best_routes(map, &token_opt);
         state.update_title(window);
         Some(state)
     }
@@ -98,12 +94,7 @@ impl SelectToken {
                 PathLimit::Hexes { count } => format!("H{}", count),
             })
             .unwrap_or("D".to_string());
-        let suffix = if self.express { "E" } else { "" };
-        if self.double_revenue {
-            format!("{}+{}{}", visits, visits, suffix)
-        } else {
-            format!("{}{}", visits, suffix)
-        }
+        visits
     }
 
     /// Updates the window title so that it shows the train route criteria and
@@ -111,15 +102,9 @@ impl SelectToken {
     fn update_title(&self, window: &gtk::ApplicationWindow) {
         let descr = self.describe_query();
         let revenue = self
-            .best_path
+            .best_routes
             .as_ref()
-            .map(|path| {
-                if self.double_revenue {
-                    2 * path.revenue
-                } else {
-                    path.revenue
-                }
-            })
+            .map(|(_token, pairing)| pairing.net_revenue)
             .unwrap_or(0);
         let title = format!("{} train: ${}", descr, revenue);
         window.set_title(&title);
@@ -138,8 +123,7 @@ impl SelectToken {
             let space = self.token_spaces[self.selected];
             let token_opt = hex_state.get_token_at(&space);
             self.matches = token_matches(map, token_opt);
-            // NOTE: calculate the best path from this token.
-            self.best_path = self.best_path(map, &token_opt);
+            self.best_routes = self.get_best_routes(map, &token_opt);
             Action::Redraw
         } else {
             Action::None
@@ -150,18 +134,35 @@ impl SelectToken {
 
     /// Finds a path from the currently-selected token that yields the maximum
     /// revenue.
-    fn best_path(
-        &self,
+    fn get_best_routes(
+        &mut self,
         map: &Map,
         token_opt: &Option<&Token>,
-    ) -> Option<crate::route::Path> {
+    ) -> Option<(Token, Pairing)> {
         let token = if let Some(t) = token_opt {
             t
         } else {
             return None;
         };
 
-        let path_limit = if self.express { None } else { self.path_limit };
+        let start = std::time::Instant::now();
+        info!("");
+        info!("Searching for the best routes ...");
+
+        // let trains = vec![
+        //     Train::new_2_train(),
+        //     Train::new_2_train(),
+        //     Train::new_3_train(),
+        // ];
+        let trains = vec![
+            Train::new_8_train(),
+            Train::new_8_train(),
+            Train::new_5p5e_train(),
+        ];
+        let mut trains = Trains::new(trains);
+
+        let path_limit = trains.path_limit();
+        self.path_limit = path_limit;
         let criteria = Criteria {
             token: **token,
             path_limit: path_limit,
@@ -170,45 +171,42 @@ impl SelectToken {
             route_conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOnly,
         };
+
         let now = std::time::Instant::now();
         let paths = paths_for_token(map, &criteria);
-        println!(
+        info!(
             "Enumerated {} routes in {}",
             paths.len(),
             now.elapsed().as_secs_f64()
         );
-        // NOTE: count how many pairs of paths don't conflict with each other.
         let now = std::time::Instant::now();
-        let mut num_pairs = 0;
-        for i in 0..paths.len() {
-            let path_i = &paths[i];
-            for j in i..paths.len() {
-                let path_j = &paths[j];
-                if path_i.route_conflicts.is_disjoint(&path_j.route_conflicts)
-                {
-                    num_pairs += 1;
-                }
+        let best_routes = trains.select_routes(paths);
+        info!(
+            "Calculated (train, path) revenues in {}",
+            now.elapsed().as_secs_f64()
+        );
+        if let Some(pairing) = &best_routes {
+            info!(
+                "BEST NET REVENUE FOR {:?} IS ${}",
+                token, pairing.net_revenue
+            );
+            for pair in &pairing.pairs {
+                info!(
+                    "{}: ${} for {} to {}",
+                    pair.train.describe(),
+                    pair.revenue,
+                    pair.path.visits.first().unwrap().addr,
+                    pair.path.visits.last().unwrap().addr
+                );
             }
         }
-        println!(
-            "{} valid pairs out of {} possible pairs",
-            num_pairs,
-            (paths.len() * (paths.len() - 1)) / 2
+
+        info!(
+            "Searching for the best routes took {}",
+            start.elapsed().as_secs_f64()
         );
-        println!("Enumerated pairs in {}", now.elapsed().as_secs_f64());
-        paths
-            .iter()
-            .map(|path| path.revenue)
-            .max()
-            .and_then(|max_revenue| {
-                println!("Maximum revenue is: {}", max_revenue);
-                let num_max = paths
-                    .iter()
-                    .filter(|path| path.revenue == max_revenue)
-                    .count();
-                println!("{} paths return maximum revenue", num_max);
-                paths.into_iter().find(|path| path.revenue == max_revenue)
-            })
+
+        best_routes.map(|pairing| (**token, pairing))
     }
 }
 
@@ -251,55 +249,71 @@ impl State for SelectToken {
             }
         }
 
-        // NOTE: draw the best path from the current token.
-        if let Some(best_path) = &self.best_path {
-            // Draw this path in dark red.
-            ctx.set_source_rgb(0.7, 0.1, 0.1);
-            ctx.set_line_width(hex.max_d * 0.025);
-            let source = ctx.get_source();
-            let line_width = ctx.get_line_width();
-
-            // Draw track segments first.
-            for step in &best_path.steps {
-                let m = map.prepare_to_draw(step.addr, hex, ctx);
-                let tile = map.tile_at(step.addr).expect("Invalid step hex");
-
-                use crate::connection::Connection::*;
-                if let Track { ix, end: _ } = step.conn {
-                    let track = tile.tracks()[ix];
-                    track.define_path(hex, ctx);
-                    // NOTE: hack to replace the black part of the track.
-                    ctx.set_line_width(hex.max_d * 0.08);
-                    ctx.stroke();
+        // Draw each of the best routes.
+        if let Some((_token, pairing)) = &self.best_routes {
+            for (ix, pair) in pairing.pairs.iter().enumerate() {
+                // NOTE: cycle through colours for each path.
+                if ix % 3 == 0 {
+                    ctx.set_source_rgb(0.7, 0.1, 0.1);
+                } else if ix % 3 == 1 {
+                    ctx.set_source_rgb(0.1, 0.7, 0.1);
+                } else {
+                    ctx.set_source_rgb(0.1, 0.1, 0.7);
                 }
-                ctx.set_matrix(m);
-            }
+                ctx.set_line_width(hex.max_d * 0.025);
+                let source = ctx.get_source();
+                let line_width = ctx.get_line_width();
 
-            // Then draw visited cities.
-            for step in &best_path.steps {
-                let m = map.prepare_to_draw(step.addr, hex, ctx);
-                let tile = map.tile_at(step.addr).expect("Invalid step hex");
+                // Draw track segments first.
+                for step in &pair.path.steps {
+                    let m = map.prepare_to_draw(step.addr, hex, ctx);
+                    let tile =
+                        map.tile_at(step.addr).expect("Invalid step hex");
 
-                use crate::connection::Connection::*;
-                if let City { ix } = step.conn {
-                    let city = tile.cities()[ix];
-                    city.draw_fg(hex, ctx);
-                    ctx.set_source(&source);
-                    ctx.set_line_width(line_width);
-                    city.define_boundary(hex, ctx);
-                    if city.tokens == crate::city::Tokens::Dit {
-                        ctx.fill_preserve();
+                    use crate::connection::Connection::*;
+                    if let Track { ix, end: _ } = step.conn {
+                        let track = tile.tracks()[ix];
+                        track.define_path(hex, ctx);
+                        // NOTE: hack to replace the black part of the track.
+                        ctx.set_line_width(hex.max_d * 0.08);
+                        ctx.stroke();
                     }
-                    ctx.stroke();
-                    if let Some(hex_state) = map.get_hex(step.addr) {
-                        let tokens_table = hex_state.get_tokens();
-                        for (token_space, map_token) in tokens_table.iter() {
-                            tile.define_token_space(&token_space, &hex, ctx);
-                            map_token.draw_token(&hex, ctx);
+                    ctx.set_matrix(m);
+                }
+
+                // Then draw visited cities.
+                for step in &pair.path.steps {
+                    let m = map.prepare_to_draw(step.addr, hex, ctx);
+                    let tile =
+                        map.tile_at(step.addr).expect("Invalid step hex");
+
+                    use crate::connection::Connection::*;
+                    if let City { ix } = step.conn {
+                        let city = tile.cities()[ix];
+                        city.draw_fg(hex, ctx);
+                        ctx.set_source(&source);
+                        ctx.set_line_width(line_width);
+                        city.define_boundary(hex, ctx);
+                        if city.tokens == crate::city::Tokens::Dit {
+                            ctx.fill_preserve();
+                        }
+                        ctx.stroke();
+                        if let Some(hex_state) = map.get_hex(step.addr) {
+                            let tokens_table = hex_state.get_tokens();
+                            for (token_space, map_token) in
+                                tokens_table.iter()
+                            {
+                                tile.define_token_space(
+                                    &token_space,
+                                    &hex,
+                                    ctx,
+                                );
+                                map_token.draw_token(&hex, ctx);
+                            }
                         }
                     }
+                    ctx.set_matrix(m);
                 }
-                ctx.set_matrix(m);
             }
         }
 
@@ -389,61 +403,6 @@ impl State for SelectToken {
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::E | gdk::enums::key::e => {
-                self.express = !self.express;
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::plus => {
-                self.double_revenue = !self.double_revenue;
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_2 => {
-                self.path_limit = Some(PathLimit::Cities { count: 2 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_3 => {
-                self.path_limit = Some(PathLimit::Cities { count: 3 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_4 => {
-                self.path_limit = Some(PathLimit::Cities { count: 4 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_5 => {
-                self.path_limit = Some(PathLimit::Cities { count: 5 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_6 => {
-                self.path_limit = Some(PathLimit::Cities { count: 6 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_7 => {
-                self.path_limit = Some(PathLimit::Cities { count: 7 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_8 => {
-                self.path_limit = Some(PathLimit::Cities { count: 8 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_9 => {
-                self.path_limit = Some(PathLimit::Cities { count: 9 });
-                let action = self.update_search(map, window);
-                (self, Inhibit(false), action)
-            }
-            gdk::enums::key::_0 => {
-                self.path_limit = None;
                 let action = self.update_search(map, window);
                 (self, Inhibit(false), action)
             }

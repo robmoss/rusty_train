@@ -49,7 +49,10 @@ This is implemented by
 
 # How route combinations are evaluated
 
-**NOTE:** this is not yet implemented.
+**NOTE:** support for route bonuses is not yet implemented.
+Optimal pairings of trains to routes **without** considering route bonuses is
+implemented by
+[``Trains::select_routes``](../train/struct.Trains.html#method.select_routes).
 
 Once we have collected all of the possible paths for a company, we need to
 find the allocation of trains to routes that yields the greatest revenue.
