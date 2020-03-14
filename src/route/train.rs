@@ -4,9 +4,6 @@
 //!
 //! ```rust
 //! # use rusty_train::prelude::*;
-//! # use rusty_train::route::conflict::ConflictRule;
-//! # use rusty_train::route::search::{Criteria, paths_for_token};
-//! # use rusty_train::route::train::{Train, Trains};
 //! // Create a map; this one has 6 rows and 14 columns.
 //! let hex = Hex::new(125.0);
 //! let tiles = tile_catalogue(&hex);

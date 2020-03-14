@@ -101,3 +101,24 @@ pub use crate::map::Token;
 
 #[doc(inline)]
 pub use crate::map::TokensTable;
+
+#[doc(inline)]
+pub use crate::route::Path;
+
+#[doc(inline)]
+pub use crate::route::conflict::ConflictRule;
+
+#[doc(inline)]
+pub use crate::route::search::Criteria;
+
+#[doc(inline)]
+pub use crate::route::search::paths_for_token;
+
+#[doc(inline)]
+pub use crate::route::train::Train;
+
+#[doc(inline)]
+pub use crate::route::train::Trains;
+
+#[doc(inline)]
+pub use crate::route::train::Pairing;
