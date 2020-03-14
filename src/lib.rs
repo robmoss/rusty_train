@@ -63,7 +63,7 @@
 //! [45](http://www.fwtwr.com/18xx/tiles/tf/0045_1.gif) and
 //! [X5](http://www.fwtwr.com/18xx/tiles/tf/X5_1.gif):
 //!
-//! ```rust,no_run
+//! ```rust
 //! # use rusty_train::prelude::*;
 //! #
 //! # // Define the basic tile geometry.
