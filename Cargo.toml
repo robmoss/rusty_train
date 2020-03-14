@@ -1,6 +1,7 @@
 [package]
 name = "rusty_train"
 version = "0.1.0"
+license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
 edition = "2018"
 # Require Rust 1.38 for the 'duration_float' feature.
