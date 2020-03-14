@@ -9,6 +9,8 @@ use gtk::DrawingArea;
 use cairo::Context;
 use cairo::{Format, ImageSurface};
 
+use std::io::Write;
+
 use rusty_train::prelude::*;
 use rusty_train::ui::UI;
 
@@ -64,6 +66,22 @@ pub fn build_ui(application: &gtk::Application) {
 }
 
 pub fn main() {
+    // Default to logging all messages up to ``log::Level::Info``, using a
+    // custom message format.
+    env_logger::Builder::from_env(
+        env_logger::Env::default().default_filter_or("info"),
+    )
+    .format(|buf, record| {
+        writeln!(
+            buf,
+            "{} [{}] {}",
+            chrono::Local::now().format("%Y-%m-%dT%H:%M:%S"),
+            record.level(),
+            record.args()
+        )
+    })
+    .init();
+
     let application = gtk::Application::new(
         Some("rusty_train.test_ui"),
         Default::default(),

@@ -1,5 +1,7 @@
 //! Search a map for paths from a starting location.
 
+use log::info;
+
 use std::collections::HashSet;
 
 use super::conflict::{Conflict, ConflictRule};
@@ -165,6 +167,12 @@ pub fn paths_for_token(map: &Map, criteria: &Criteria) -> Vec<Path> {
             criteria: *criteria,
         };
         let mut paths = paths_through(map, &query);
+        info!(
+            "Found {} paths that pass through {} ({:?})",
+            paths.len(),
+            addr,
+            criteria.token
+        );
         all_paths.append(&mut paths);
     }
     all_paths
