@@ -3261,8 +3261,8 @@ impl std::convert::From<&crate::map::descr::Descr> for Descr {
                 .tiles
                 .iter()
                 .map(|(k, v)| {
-                    ((HexAddress::from(k))
-                        .with_tile(v.as_ref().map(|td| td.into())))
+                    (HexAddress::from(k))
+                        .with_tile(v.as_ref().map(|td| td.into()))
                 })
                 .collect(),
         }
