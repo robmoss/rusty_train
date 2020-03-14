@@ -1,4 +1,54 @@
 //! Train types and revenue earned for operating routes.
+//!
+//! # Example
+//!
+//! ```rust
+//! # use rusty_train::prelude::*;
+//! # use rusty_train::route::conflict::ConflictRule;
+//! # use rusty_train::route::search::{Criteria, paths_for_token};
+//! # use rusty_train::route::train::{Train, Trains};
+//! // Create a map; this one has 6 rows and 14 columns.
+//! let hex = Hex::new(125.0);
+//! let tiles = tile_catalogue(&hex);
+//! let num_rows: usize = 6;
+//! let num_cols: usize = 14;
+//! let addrs: Vec<(usize, usize)> = (0..num_rows)
+//!     .map(|r| (0..num_cols).map(move |c| (r, c)))
+//!     .flatten()
+//!     .collect();
+//! let hexes: Vec<HexAddress> =
+//!     addrs.iter().map(|coords| coords.into()).collect();
+//! let mut game_map = Map::new(tiles, hexes);
+//! // NOTE: place tiles and tokens, or load an existing map configuration.
+//!
+//! // Define the collection of trains owned by a company.
+//! let trains = vec![
+//!     Train::new_8_train(),
+//!     Train::new_8_train(),
+//!     Train::new_5p5e_train(),
+//! ];
+//! let mut trains = Trains::new(trains);
+//!
+//! // Determine the search criteria for this collection of trains.
+//! let path_limit = trains.path_limit();
+//! let criteria = Criteria {
+//!     token: Token::LP,
+//!     path_limit: path_limit,
+//!     conflict_rule: ConflictRule::TrackOrCityHex,
+//!     route_conflict_rule: ConflictRule::TrackOnly,
+//! };
+//!
+//! // Find all paths for which at least one of the company's trains can run.
+//! let paths = paths_for_token(&game_map, &criteria);
+//!
+//! // Find the pairing of trains to paths that earns the most revenue.
+//! let best_routes = trains.select_routes(paths);
+//! if let Some(pairing) = &best_routes {
+//!     println!("Net revenue is ${}", pairing.net_revenue);
+//! }
+//! # // NOTE: the map is empty, so there will be no paths.
+//! # assert!(best_routes.is_none());
+//! ```
 
 use super::search::PathLimit;
 use super::Path;
