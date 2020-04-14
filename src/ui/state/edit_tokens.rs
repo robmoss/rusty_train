@@ -3,7 +3,7 @@ use super::{Action, State};
 use cairo::Context;
 use gtk::Inhibit;
 
-use crate::hex::Hex;
+use crate::hex::{Hex, HexColour};
 use crate::map::{HexAddress, Map, Token, TokensTable};
 use crate::tile::TokenSpace;
 use crate::ui::util;
@@ -28,6 +28,9 @@ impl EditTokens {
         } else {
             return None;
         };
+        if tile.colour == HexColour::Red {
+            return None;
+        }
         let token_spaces = tile.token_spaces();
         if token_spaces.is_empty() {
             return None;
