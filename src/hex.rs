@@ -13,6 +13,7 @@ pub enum HexColour {
     Brown,
     Grey,
     Red,
+    Empty,
 }
 
 impl HexColour {
@@ -28,13 +29,16 @@ impl HexColour {
             HexColour::Brown => ctx.set_source_rgb(0.675, 0.420, 0.243),
             // #BCBCBC
             HexColour::Grey => ctx.set_source_rgb(0.741, 0.737, 0.737),
-            // #BD5E64
-            HexColour::Red => ctx.set_source_rgb(0.741, 0.369, 0.392),
+            // #BD5E64 -- Too similar to brown
+            // HexColour::Red => ctx.set_source_rgb(0.741, 0.369, 0.392),
+            HexColour::Red => ctx.set_source_rgb(0.86, 0.243, 0.243),
+            HexColour::Empty => ctx.set_source_rgb(0.741, 0.86, 0.741),
         }
     }
 
     pub fn next_phase(self: &Self) -> Option<Self> {
         match self {
+            HexColour::Empty => Some(HexColour::Yellow),
             HexColour::Yellow => Some(HexColour::Green),
             HexColour::Green => Some(HexColour::Brown),
             HexColour::Brown => Some(HexColour::Grey),
@@ -48,7 +52,8 @@ impl HexColour {
             HexColour::Green => HexColour::Brown,
             HexColour::Brown => HexColour::Grey,
             HexColour::Grey => HexColour::Red,
-            HexColour::Red => HexColour::Yellow,
+            HexColour::Red => HexColour::Empty,
+            HexColour::Empty => HexColour::Yellow,
         }
     }
 }

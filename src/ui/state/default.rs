@@ -122,7 +122,26 @@ impl State for Default {
                             (self, Inhibit(false), Action::None)
                         }
                     } else {
-                        (self, Inhibit(false), Action::None)
+                        // NOTE: attempting to place a tile on an empty hex.
+                        let candidates: Vec<usize> = map
+                            .tiles()
+                            .iter()
+                            .enumerate()
+                            .filter(|(_ix, t)| {
+                                map.can_place_on_empty(addr, t)
+                            })
+                            .map(|(ix, _t)| ix)
+                            .collect();
+                        if candidates.len() > 0 {
+                            let state = Box::new(
+                                super::replace_tile::ReplaceTile::with_candidates(
+                                    addr, candidates,
+                                ),
+                            );
+                            (state, Inhibit(false), Action::Redraw)
+                        } else {
+                            (self, Inhibit(false), Action::None)
+                        }
                     }
                 } else {
                     (self, Inhibit(false), Action::None)

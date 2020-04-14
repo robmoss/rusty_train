@@ -1,7 +1,7 @@
 use cairo::{Context, FontSlant, FontWeight};
 use std::collections::HashMap;
 
-use crate::hex::{Hex, HexFace};
+use crate::hex::{Hex, HexColour, HexFace};
 use crate::label::Label;
 use crate::prelude::PI;
 use crate::tile::{Tile, TokenSpace};
@@ -299,6 +299,25 @@ impl Map {
         self.labels_tbl.get(&addr)
     }
 
+    /// Check whether a tile can be placed on an empty hex.
+    pub fn can_place_on_empty(&self, addr: HexAddress, tile: &Tile) -> bool {
+        // Only first-phase tiles can be placed on an empty hex.
+        if Some(tile.colour) != HexColour::Empty.next_phase() {
+            return false;
+        }
+        // An empty hex contains no dits.
+        if tile.dit_count() > 0 {
+            return false;
+        }
+        // An empty hex contains no cities or token spaces.
+        if tile.token_space_count() > 0 {
+            return false;
+        }
+        // Check that the tile labels are consistent with those of the hex.
+        self.can_upgrade_to(addr, tile)
+    }
+
+    /// Check whether a tile can be upgraded to another tile.
     pub fn can_upgrade_to(&self, addr: HexAddress, tile: &Tile) -> bool {
         if let Some(hex_labels) = self.labels_tbl.get(&addr) {
             // Check that the tile has one label in common with this hex.

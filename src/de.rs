@@ -28,6 +28,7 @@ enum HexColour {
     Brown,
     Grey,
     Red,
+    Empty,
 }
 
 impl std::convert::From<crate::hex::HexColour> for HexColour {
@@ -40,6 +41,7 @@ impl std::convert::From<crate::hex::HexColour> for HexColour {
             Brown => HexColour::Brown,
             Grey => HexColour::Grey,
             Red => HexColour::Red,
+            Empty => HexColour::Empty,
         }
     }
 }
@@ -765,6 +767,7 @@ impl From<&HexColour> for crate::hex::HexColour {
             HexColour::Brown => crate::hex::HexColour::Brown,
             HexColour::Grey => crate::hex::HexColour::Grey,
             HexColour::Red => crate::hex::HexColour::Red,
+            HexColour::Empty => crate::hex::HexColour::Empty,
         }
     }
 }

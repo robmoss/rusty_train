@@ -344,11 +344,11 @@ impl Tile {
             .collect()
     }
 
-    fn token_space_count(&self) -> usize {
+    pub fn token_space_count(&self) -> usize {
         self.token_spaces().len()
     }
 
-    fn count_dits(&self) -> usize {
+    pub fn dit_count(&self) -> usize {
         self.tracks
             .iter()
             .filter(|track| track.dit.is_some())
@@ -374,7 +374,7 @@ impl Tile {
             }
         }
         // Tiles must have the same number of dits.
-        if self.count_dits() != other.count_dits() {
+        if self.dit_count() != other.dit_count() {
             return false;
         }
         let self_tok_spaces = self.token_space_count();
