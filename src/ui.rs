@@ -119,6 +119,10 @@ pub enum Action {
     Quit,
     /// Redraw the surface.
     Redraw,
+    /// Increase the hex size.
+    ZoomIn,
+    /// Decrease the hex size.
+    ZoomOut,
 }
 
 impl UI {
@@ -178,6 +182,32 @@ impl UI {
                 };
             self.state = Some(new_state);
             match action {
+                Action::ZoomIn => {
+                    if self.hex.max_d < 154.0 {
+                        self.hex = Hex::new(self.hex.max_d + 10.0);
+                        let surf_w = ((self.map.max_col as f64)
+                            * self.hex.min_d)
+                            as i32;
+                        let surf_h = ((self.map.max_row as f64)
+                            * self.hex.max_d)
+                            as i32;
+                        area.set_size_request(surf_w, surf_h);
+                        area.queue_draw();
+                    }
+                }
+                Action::ZoomOut => {
+                    if self.hex.max_d > 66.0 {
+                        self.hex = Hex::new(self.hex.max_d - 10.0);
+                        let surf_w = ((self.map.max_col as f64)
+                            * self.hex.min_d)
+                            as i32;
+                        let surf_h = ((self.map.max_row as f64)
+                            * self.hex.max_d)
+                            as i32;
+                        area.set_size_request(surf_w, surf_h);
+                        area.queue_draw();
+                    }
+                }
                 Action::Redraw => {
                     area.queue_draw();
                 }
@@ -210,6 +240,32 @@ impl UI {
             );
             self.state = Some(new_state);
             match action {
+                Action::ZoomIn => {
+                    if self.hex.max_d < 154.0 {
+                        self.hex = Hex::new(self.hex.max_d + 10.0);
+                        let surf_w = ((self.map.max_col as f64)
+                            * self.hex.min_d)
+                            as i32;
+                        let surf_h = ((self.map.max_row as f64)
+                            * self.hex.max_d)
+                            as i32;
+                        area.set_size_request(surf_w, surf_h);
+                        area.queue_draw();
+                    }
+                }
+                Action::ZoomOut => {
+                    if self.hex.max_d > 66.0 {
+                        self.hex = Hex::new(self.hex.max_d - 10.0);
+                        let surf_w = ((self.map.max_col as f64)
+                            * self.hex.min_d)
+                            as i32;
+                        let surf_h = ((self.map.max_row as f64)
+                            * self.hex.max_d)
+                            as i32;
+                        area.set_size_request(surf_w, surf_h);
+                        area.queue_draw();
+                    }
+                }
                 Action::Redraw => {
                     area.queue_draw();
                 }
@@ -296,6 +352,13 @@ pub fn global_keymap<S: State + ?Sized>(
                     Some((ResetState::No, Inhibit(false), Action::None))
                 }
             }
+        }
+        (gdk::enums::key::plus, false) | (gdk::enums::key::equal, false) => {
+            Some((ResetState::No, Inhibit(false), Action::ZoomIn))
+        }
+        (gdk::enums::key::minus, false)
+        | (gdk::enums::key::underscore, false) => {
+            Some((ResetState::No, Inhibit(false), Action::ZoomOut))
         }
         _ => None,
     }
