@@ -123,6 +123,7 @@ impl SelectToken {
             self.matches = token_matches(map, token_opt);
             if token_opt == None {
                 self.update_title(window);
+                self.best_routes = None;
                 return Action::Redraw;
             }
             let token = token_opt.unwrap();
