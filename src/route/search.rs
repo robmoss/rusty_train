@@ -7,6 +7,7 @@ use std::collections::HashSet;
 use super::conflict::{Conflict, ConflictRule};
 use super::{Path, Step, StopLocation, Visit};
 use crate::connection::Connection;
+use crate::hex::HexColour;
 use crate::map::{HexAddress, Map, Token};
 use crate::tile::{Tile, TokenSpace};
 
@@ -410,24 +411,27 @@ fn depth_first_search(
             ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this city, then do so.
-            let token_spaces = tile.city_token_spaces(city_ix);
-            // NOTE: we must only check tokens associated with this city.
-            let city_tokens: Vec<_> = map
-                .get_hex(addr)
-                .unwrap()
-                .get_tokens()
-                .iter()
-                .filter(|(&space, &_tok)| space.city_ix() == city_ix)
-                .collect();
-            let can_continue = token_spaces.len() == 0
-                || (city_tokens.len() < token_spaces.len())
-                || city_tokens
+            // NOTE: trains cannot exit a red off-board tile.
+            if tile.colour != HexColour::Red {
+                let token_spaces = tile.city_token_spaces(city_ix);
+                // NOTE: we must only check tokens associated with this city.
+                let city_tokens: Vec<_> = map
+                    .get_hex(addr)
+                    .unwrap()
+                    .get_tokens()
                     .iter()
-                    .any(|(&_space, &tok)| tok == query.criteria.token);
-            let more_visits_allowed =
-                ctx.can_continue(&query.criteria.path_limit);
-            if can_continue && more_visits_allowed {
-                dfs_over(map, query, ctx, paths, addr, conns, tile);
+                    .filter(|(&space, &_tok)| space.city_ix() == city_ix)
+                    .collect();
+                let can_continue = token_spaces.len() == 0
+                    || (city_tokens.len() < token_spaces.len())
+                    || city_tokens
+                        .iter()
+                        .any(|(&_space, &tok)| tok == query.criteria.token);
+                let more_visits_allowed =
+                    ctx.can_continue(&query.criteria.path_limit);
+                if can_continue && more_visits_allowed {
+                    dfs_over(map, query, ctx, paths, addr, conns, tile);
+                }
             }
             ctx.visits.pop();
             ctx.num_cities -= 1;
