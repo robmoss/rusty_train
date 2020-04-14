@@ -8,10 +8,10 @@ use std::collections::HashMap;
 use log::info;
 
 use crate::draw::Draw;
-use crate::hex::Hex;
+use crate::hex::{Hex, HexColour};
 use crate::map::{HexAddress, Map, Token};
 use crate::route::search::{paths_for_token, Criteria, PathLimit};
-use crate::route::train::{Pairing, Train, Trains};
+use crate::route::train::{Pairing, Trains};
 use crate::tile::TokenSpace;
 
 /// Selecting a company's tokens for route-finding.
@@ -20,6 +20,7 @@ pub struct SelectToken {
     token_spaces: Vec<TokenSpace>,
     selected: usize,
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
+    token_trains: HashMap<Token, Trains>,
     path_limit: Option<PathLimit>,
     best_routes: Option<(Token, Pairing)>,
     original_window_title: Option<String>,
@@ -51,36 +52,32 @@ impl SelectToken {
         addr: HexAddress,
         window: &gtk::ApplicationWindow,
     ) -> Option<Self> {
-        let hex_state = if let Some(hex_state) = map.get_hex(addr) {
-            hex_state
-        } else {
-            return None;
-        };
         let tile = if let Some(tile) = map.tile_at(addr) {
             tile
         } else {
             return None;
         };
+        if tile.colour == HexColour::Red {
+            return None;
+        }
         let token_spaces = tile.token_spaces();
         if token_spaces.is_empty() {
             return None;
         }
         let selected = 0;
-        let space = token_spaces[selected];
-        let token_opt = hex_state.get_token_at(&space);
-        let matches = token_matches(map, token_opt);
         let window_title = window.get_title().map(|s| s.as_str().to_string());
         let mut state = SelectToken {
             active_hex: addr,
             token_spaces: token_spaces,
             selected: selected,
-            matches: matches,
+            matches: HashMap::new(),
+            token_trains: HashMap::new(),
             path_limit: None,
             best_routes: None,
             original_window_title: window_title,
         };
-        state.best_routes = state.get_best_routes(map, &token_opt);
-        state.update_title(window);
+        // Prompt the user to select trains for the active token.
+        state.update_search(map, window);
         Some(state)
     }
 
@@ -123,8 +120,29 @@ impl SelectToken {
             let space = self.token_spaces[self.selected];
             let token_opt = hex_state.get_token_at(&space);
             self.matches = token_matches(map, token_opt);
-            self.best_routes = self.get_best_routes(map, &token_opt);
-            Action::Redraw
+            if token_opt == None {
+                self.update_title(window);
+                return Action::Redraw;
+            }
+            let token = token_opt.unwrap();
+            if self.token_trains.contains_key(&token) {
+                self.best_routes = self.best_routes_for(map, token);
+                self.update_title(window);
+                return Action::Redraw;
+            }
+            // TODO: store train types, bonuses, etc, in the state.
+            let train_types = crate::games::_1867::train_types();
+            let tok_name = token.text();
+            let trains_opt =
+                crate::ui::dialog::select(window, &train_types, tok_name);
+            if let Some(trains) = trains_opt {
+                self.token_trains.insert(*token, trains);
+                self.best_routes = self.best_routes_for(map, token);
+                Action::Redraw
+            } else {
+                self.best_routes = None;
+                Action::Redraw
+            }
         } else {
             Action::None
         };
@@ -134,37 +152,24 @@ impl SelectToken {
 
     /// Finds a path from the currently-selected token that yields the maximum
     /// revenue.
-    fn get_best_routes(
+    fn best_routes_for(
         &mut self,
         map: &Map,
-        token_opt: &Option<&Token>,
+        token: &Token,
     ) -> Option<(Token, Pairing)> {
-        let token = if let Some(t) = token_opt {
-            t
-        } else {
-            return None;
+        let trains = match self.token_trains.get(token) {
+            Some(trains) => trains,
+            None => return None,
         };
 
         let start = std::time::Instant::now();
         info!("");
         info!("Searching for the best routes ...");
 
-        // let trains = vec![
-        //     Train::new_2_train(),
-        //     Train::new_2_train(),
-        //     Train::new_3_train(),
-        // ];
-        let trains = vec![
-            Train::new_8_train(),
-            Train::new_8_train(),
-            Train::new_5p5e_train(),
-        ];
-        let mut trains = Trains::new(trains);
-
         let path_limit = trains.path_limit();
         self.path_limit = path_limit;
         let criteria = Criteria {
-            token: **token,
+            token: *token,
             path_limit: path_limit,
             conflict_rule:
                 crate::route::conflict::ConflictRule::TrackOrCityHex,
@@ -206,7 +211,7 @@ impl SelectToken {
             start.elapsed().as_secs_f64()
         );
 
-        best_routes.map(|pairing| (**token, pairing))
+        best_routes.map(|pairing| (*token, pairing))
     }
 }
 

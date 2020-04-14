@@ -97,6 +97,8 @@ use gtk::{Inhibit, WidgetExt};
 use crate::hex::Hex;
 use crate::map::Map;
 
+/// Create custom dialog windows.
+pub mod dialog;
 /// The different states of the user interface.
 pub mod state;
 /// Various utility UI functions.

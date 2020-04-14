@@ -941,7 +941,7 @@ pub enum Token {
 }
 
 impl Token {
-    fn text(&self) -> &str {
+    pub fn text(&self) -> &str {
         use Token::*;
 
         match self {
