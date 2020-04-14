@@ -152,6 +152,9 @@ pub mod ui;
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
 
+/// Defines maps and tile sets for specific 18xx games.
+pub mod games;
+
 // TODO:
 //   grid module for tile arrangement
 //   map module for building on top of grid and having off-grid content?

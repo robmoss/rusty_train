@@ -3357,7 +3357,9 @@ mod tests {
         let hex = init_hex();
         let catalogue = crate::catalogue::tile_catalogue(&hex);
         let de_tiles = super::test_tiles().tiles;
-        assert_eq!(catalogue.len(), de_tiles.len());
+        // NOTE: have added new tiles to the catalogue for 1867 map.
+        // assert_eq!(catalogue.len(), de_tiles.len());
+        assert!(catalogue.len() >= de_tiles.len());
     }
 
     #[test]
