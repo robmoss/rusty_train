@@ -2,6 +2,7 @@ use cairo::{Context, FontSlant, FontWeight};
 use std::collections::HashMap;
 
 use crate::hex::{Hex, HexFace};
+use crate::label::Label;
 use crate::prelude::PI;
 use crate::tile::{Tile, TokenSpace};
 
@@ -20,6 +21,8 @@ pub struct Map {
     hexes: Vec<HexAddress>,
     /// All hexes, stored by key to simplify lookup.
     hexes_tbl: HashMap<HexAddress, ()>,
+    /// City labels that apply to map hexes.
+    labels_tbl: HashMap<HexAddress, Vec<Label>>,
     min_row: usize,
     max_row: usize,
     min_col: usize,
@@ -224,6 +227,7 @@ impl Map {
             .collect();
         let state = HashMap::new();
         let hexes_tbl = hexes.iter().map(|addr| (*addr, ())).collect();
+        let labels_tbl = HashMap::new();
         let min_col = hexes.iter().map(|hc| hc.col).min().unwrap();
         let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
         let min_row = hexes.iter().map(|hc| hc.row).min().unwrap();
@@ -236,6 +240,7 @@ impl Map {
             state,
             hexes,
             hexes_tbl,
+            labels_tbl,
             min_col,
             max_col,
             min_row,
@@ -284,6 +289,39 @@ impl Map {
 
     pub fn remove_tile(&mut self, addr: HexAddress) {
         self.state.remove(&addr);
+    }
+
+    pub fn add_label_at(&mut self, addr: HexAddress, label: Label) {
+        self.labels_tbl.entry(addr).or_insert(vec![]).push(label)
+    }
+
+    pub fn labels_at(&self, addr: HexAddress) -> Option<&Vec<Label>> {
+        self.labels_tbl.get(&addr)
+    }
+
+    pub fn can_upgrade_to(&self, addr: HexAddress, tile: &Tile) -> bool {
+        if let Some(hex_labels) = self.labels_tbl.get(&addr) {
+            // Check that the tile has one label in common with this hex.
+            tile.labels()
+                .iter()
+                .filter(|(label, _posn)| match label {
+                    Label::City(_) => true,
+                    Label::Y => true,
+                    _ => false,
+                })
+                .any(|(label, _posn)| hex_labels.contains(label))
+        } else {
+            // Check that this tile has no City or Y labels.
+            tile.labels()
+                .iter()
+                .filter(|(label, _posn)| match label {
+                    Label::City(_) => true,
+                    Label::Y => true,
+                    _ => false,
+                })
+                .count()
+                == 0
+        }
     }
 
     fn hex_centre(

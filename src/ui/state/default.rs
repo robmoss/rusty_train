@@ -105,15 +105,22 @@ impl State for Default {
                             .tiles()
                             .iter()
                             .enumerate()
-                            .filter(|(_ix, t)| tile.can_upgrade_to(t))
+                            .filter(|(_ix, t)| {
+                                map.can_upgrade_to(addr, t)
+                                    && tile.can_upgrade_to(t)
+                            })
                             .map(|(ix, _t)| ix)
                             .collect();
-                        let state = Box::new(
-                            super::replace_tile::ReplaceTile::with_candidates(
-                                addr, candidates,
-                            ),
-                        );
-                        (state, Inhibit(false), Action::Redraw)
+                        if candidates.len() > 0 {
+                            let state = Box::new(
+                                super::replace_tile::ReplaceTile::with_candidates(
+                                    addr, candidates,
+                                ),
+                            );
+                            (state, Inhibit(false), Action::Redraw)
+                        } else {
+                            (self, Inhibit(false), Action::None)
+                        }
                     } else {
                         (self, Inhibit(false), Action::None)
                     }

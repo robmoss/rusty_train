@@ -387,38 +387,6 @@ impl Tile {
         if self_tok_spaces > other_tok_spaces {
             return false;
         }
-        // Check Y label compatibility.
-        let self_y =
-            self.labels.iter().any(|(label, _posn)| label == &Label::Y);
-        let other_y =
-            other.labels.iter().any(|(label, _posn)| label == &Label::Y);
-        if self_y && !other_y {
-            return false;
-        }
-        // Check city-name compatibility.
-        let self_city = self.labels.iter().find_map(|(label, _posn)| {
-            if let Label::City(ref name) = label {
-                Some(name)
-            } else {
-                None
-            }
-        });
-        let other_city = other.labels.iter().find_map(|(label, _posn)| {
-            if let Label::City(ref name) = label {
-                Some(name)
-            } else {
-                None
-            }
-        });
-        // NOTE: Ottawa, for example, can be covered with tile 623 (Y label)
-        // and then upgraded to tile X8 (City("O")).
-        // So we should only check that the city names match when the current
-        // tile has a city name.
-        if self_city.is_some() {
-            if self_city != other_city {
-                return false;
-            }
-        }
         // TODO: other checks, such as preserving track connectivity?
         // That would require having access to the map, so this would have to
         // be an additional layer of filtering provided by the map itself.
