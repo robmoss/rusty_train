@@ -307,13 +307,18 @@ impl Tile {
         self.layer_bg(&Topmost, ctx, hex);
         self.layer_fg(&Topmost, ctx, hex);
         // Draw the tile name.
-        Label::TileName.select_font(ctx);
-        hex.draw_tile_name(&self.name, ctx);
+        if self.colour != HexColour::Red
+            && self.colour != HexColour::Grey
+            && self.colour != HexColour::Empty
+        {
+            Label::TileName.select_font(ctx, hex);
+            hex.draw_tile_name(&self.name, ctx);
+        }
         // Draw other tile labels.
         for (label, pos) in &self.labels {
             // TODO: can we avoid needing to pass ix for revenue labels?
             if let Some(text) = self.label_text(label) {
-                label.select_font(ctx);
+                label.select_font(ctx, hex);
                 if let &Label::Revenue(_ix) = label {
                     hex.circ_text(text.as_ref(), *pos, ctx)
                 } else {
