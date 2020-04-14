@@ -993,7 +993,9 @@ impl Token {
 
         // Draw the token label.
         ctx.select_font_face("Serif", FontSlant::Normal, FontWeight::Bold);
-        ctx.set_font_size(10.0);
+        // NOTE: scale font size relative to hex diameter.
+        let scale = hex.max_d / 125.0;
+        ctx.set_font_size(10.0 * scale);
         let exts = ctx.text_extents(text);
         let x = x - 0.5 * exts.width;
         let y = y + 0.5 * exts.height;
