@@ -267,6 +267,11 @@ impl Tile {
             track.draw_fg(hex, ctx);
         }
 
+        for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
+            let track = self.tracks[*ix];
+            track.draw_circle_dit(hex, ctx);
+        }
+
         // NOTE: draw coordinates along track in red.
         // self.coords_in_red(layer, ctx, hex);
 
