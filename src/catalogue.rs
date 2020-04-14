@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 /// Tiles as per the [18xx Tile Database](http://www.fwtwr.com/18xx/tiles/).
 pub fn tile_catalogue(hex: &Hex) -> Tiles {
+    use crate::track::DitShape::*;
     use HexColour::*;
     use HexCorner::*;
     use HexFace::*;
@@ -15,7 +16,9 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Yellow,
             "3",
             vec![
-                Track::hard_l(Bottom).with_span(0.0, 0.5).with_dit(End, 10),
+                Track::hard_l(Bottom)
+                    .with_span(0.0, 0.5)
+                    .with_dit(End, 10, Bar),
                 Track::hard_l(Bottom).with_span(0.5, 1.0),
             ],
             vec![],
@@ -29,7 +32,7 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             vec![
                 Track::straight(Bottom)
                     .with_span(0.0, 0.25)
-                    .with_dit(End, 10),
+                    .with_dit(End, 10, Bar),
                 Track::straight(Bottom).with_span(0.25, 1.0),
             ],
             vec![],
@@ -314,7 +317,7 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             vec![
                 Track::gentle_r(Bottom)
                     .with_span(0.0, 0.5)
-                    .with_dit(End, 10),
+                    .with_dit(End, 10, Bar),
                 Track::gentle_r(Bottom).with_span(0.5, 1.0),
             ],
             vec![],
@@ -352,12 +355,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "87",
             vec![
-                Track::mid(Bottom),
+                Track::mid(Bottom).with_dit(End, 10, Circle),
                 Track::mid(LowerLeft),
                 Track::mid(UpperLeft),
                 Track::mid(Top),
             ],
-            vec![City::central_dit(10)],
+            vec![],
             hex,
         )
         .label(Label::Revenue(0), Right.to_centre(0.4)),
@@ -365,12 +368,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "88",
             vec![
-                Track::mid(Bottom),
+                Track::mid(Bottom).with_dit(End, 10, Circle),
                 Track::mid(LowerRight),
                 Track::mid(UpperLeft),
                 Track::mid(Top),
             ],
-            vec![City::central_dit(10)],
+            vec![],
             hex,
         )
         .label(Label::Revenue(0), UpperRight.to_centre(0.4)),
@@ -454,12 +457,12 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Green,
             "204",
             vec![
-                Track::mid(Bottom),
+                Track::mid(Bottom).with_dit(End, 10, Circle),
                 Track::mid(UpperLeft),
                 Track::mid(Top),
                 Track::mid(UpperRight),
             ],
-            vec![City::central_dit(10)],
+            vec![],
             hex,
         )
         .label(Label::Revenue(0), LowerLeft.to_centre(0.5)),
@@ -645,13 +648,13 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
             Brown,
             "911",
             vec![
-                Track::mid(Bottom),
+                Track::mid(Bottom).with_dit(End, 10, Circle),
                 Track::mid(LowerLeft),
                 Track::mid(Top),
                 Track::mid(UpperRight),
                 Track::mid(LowerRight),
             ],
-            vec![City::central_dit(10)],
+            vec![],
             hex,
         )
         .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
@@ -838,11 +841,11 @@ pub fn tile_catalogue(hex: &Hex) -> Tiles {
                 // FIXED! But how to test?!?
                 Track::gentle_l(Bottom)
                     .with_span(0.0, 0.85)
-                    .with_dit(End, 30),
+                    .with_dit(End, 30, Bar),
                 Track::gentle_l(Bottom).with_span(0.85, 1.0),
                 Track::gentle_r(Bottom)
                     .with_span(0.0, 0.85)
-                    .with_dit(End, 30),
+                    .with_dit(End, 30, Bar),
                 Track::gentle_r(Bottom).with_span(0.85, 1.0),
                 Track::straight(UpperLeft).with_span(0.125, 1.0),
                 Track::gentle_l(Top),

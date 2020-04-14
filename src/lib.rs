@@ -44,7 +44,7 @@
 //!     vec![
 //!         Track::hard_l(HexFace::Bottom)
 //!             .with_span(0.0, 0.5)
-//!             .with_dit(TrackEnd::End, 10),
+//!             .with_dit(TrackEnd::End, 10, DitShape::Bar),
 //!         Track::hard_l(HexFace::Bottom).with_span(0.5, 1.0),
 //!     ],
 //!     vec![],

@@ -6,7 +6,6 @@ use std::f64::consts::PI;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Tokens {
-    Dit,
     Single,
     Double,
     Triple,
@@ -18,7 +17,6 @@ impl Tokens {
         use Tokens::*;
 
         match self {
-            Dit => 0,
             Single => 1,
             Double => 2,
             Triple => 3,
@@ -144,15 +142,6 @@ impl City {
         self
     }
 
-    pub fn central_dit(revenue: usize) -> City {
-        City {
-            tokens: Tokens::Dit,
-            revenue: revenue,
-            position: HexPosition::Centre(None),
-            angle: Rotation::Zero,
-        }
-    }
-
     pub fn single(revenue: usize) -> City {
         City {
             tokens: Tokens::Single,
@@ -226,7 +215,7 @@ impl City {
         self.define_bg_path(hex, ctx);
 
         match self.tokens {
-            Tokens::Dit | Tokens::Single => {}
+            Tokens::Single => {}
             Tokens::Double => {
                 // Define each token space.
                 for x in vec![radius, -radius] {
@@ -266,11 +255,6 @@ impl City {
         ctx.new_path();
 
         match self.tokens {
-            Tokens::Dit => {
-                let radius = hex.max_d * 0.085;
-                let (x, y) = (0.0, 0.0);
-                ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-            }
             Tokens::Single => {
                 let (x, y) = (0.0, 0.0);
                 ctx.arc(x, y, radius, 0.0, 2.0 * PI);
@@ -386,7 +370,6 @@ impl City {
         ctx.new_path();
 
         match self.tokens {
-            Tokens::Dit => return false,
             Tokens::Single => {
                 let (x, y) = (0.0, 0.0);
                 ctx.arc(x, y, radius, 0.0, 2.0 * PI);
@@ -432,15 +415,10 @@ impl Draw for City {
         self.translate_begin(hex, ctx);
 
         self.define_bg_path(hex, ctx);
-        if self.tokens == Tokens::Dit {
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
-            ctx.fill_preserve();
-        } else {
-            ctx.set_source_rgb(1.0, 1.0, 1.0);
-            ctx.set_line_width(hex.max_d * 0.03);
-            ctx.stroke_preserve();
-            ctx.fill_preserve();
-        }
+        ctx.set_source_rgb(1.0, 1.0, 1.0);
+        ctx.set_line_width(hex.max_d * 0.03);
+        ctx.stroke_preserve();
+        ctx.fill_preserve();
 
         self.translate_end(hex, ctx);
     }
@@ -448,20 +426,13 @@ impl Draw for City {
     fn draw_fg(&self, hex: &Hex, ctx: &Context) {
         self.translate_begin(hex, ctx);
 
-        // TODO: if self.num_tokens == 0
         self.define_bg_path(hex, ctx);
-        if self.tokens == Tokens::Dit {
-            ctx.set_source_rgb(1.0, 1.0, 1.0);
-            ctx.set_line_width(hex.max_d * 0.01);
-            ctx.stroke_preserve();
-        } else {
-            ctx.set_source_rgb(1.0, 1.0, 1.0);
-            ctx.fill_preserve();
-            self.define_fg_path(hex, ctx);
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
-            ctx.set_line_width(hex.max_d * 0.01);
-            ctx.stroke();
-        }
+        ctx.set_source_rgb(1.0, 1.0, 1.0);
+        ctx.fill_preserve();
+        self.define_fg_path(hex, ctx);
+        ctx.set_source_rgb(0.0, 0.0, 0.0);
+        ctx.set_line_width(hex.max_d * 0.01);
+        ctx.stroke();
 
         self.translate_end(hex, ctx);
     }

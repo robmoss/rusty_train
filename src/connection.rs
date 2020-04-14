@@ -104,7 +104,7 @@ impl Connections {
                     .push(Connection::Face { face });
             }
 
-            if let Some((dit_end, revenue)) = track.dit {
+            if let Some((dit_end, revenue, _shape)) = track.dit {
                 // Record the connection between this track and the dit at one
                 // of its end.
                 let dit_ix = dits.len();

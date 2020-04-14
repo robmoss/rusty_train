@@ -126,7 +126,7 @@ impl Tile {
         // NOTE: there can be zero, one, or multiple revenues for a tile.
         let mut revenues: Vec<usize> = tracks
             .iter()
-            .filter_map(|t| t.dit.map(|(_, revenue)| revenue))
+            .filter_map(|t| t.dit.map(|(_, revenue, _)| revenue))
             .chain(cities.iter().map(|c| c.revenue))
             .collect();
         revenues.sort();
@@ -348,14 +348,11 @@ impl Tile {
         self.token_spaces().len()
     }
 
-    fn has_dits(&self) -> bool {
-        if self.tracks.iter().any(|track| track.dit.is_some()) {
-            return true;
-        }
-        if self.cities.iter().any(|city| city.token_ixs().is_empty()) {
-            return true;
-        }
-        return false;
+    fn count_dits(&self) -> usize {
+        self.tracks
+            .iter()
+            .filter(|track| track.dit.is_some())
+            .count()
     }
 
     pub fn define_token_space(
@@ -376,8 +373,8 @@ impl Tile {
                 return false;
             }
         }
-        // Dit tiles can only be upgraded to from other dit tiles.
-        if self.has_dits() != other.has_dits() {
+        // Tiles must have the same number of dits.
+        if self.count_dits() != other.count_dits() {
             return false;
         }
         let self_tok_spaces = self.token_space_count();
@@ -539,6 +536,7 @@ impl TokenSpace {
 /// correctly detects their connectivity.
 mod tests {
     use crate::prelude::*;
+    use crate::track::DitShape;
 
     use super::DrawLayer::*;
     use HexColour::*;
@@ -557,7 +555,11 @@ mod tests {
             Yellow,
             "Test".to_string(),
             vec![
-                Track::hard_l(Bottom).with_span(0.0, 0.5).with_dit(End, 10),
+                Track::hard_l(Bottom).with_span(0.0, 0.5).with_dit(
+                    End,
+                    10,
+                    DitShape::Bar,
+                ),
                 Track::hard_l(Bottom).with_span(0.5, 1.0),
             ],
             vec![],

@@ -61,6 +61,9 @@ pub use crate::track::TrackCurve;
 pub use crate::track::TrackEnd;
 
 #[doc(inline)]
+pub use crate::track::DitShape;
+
+#[doc(inline)]
 pub use crate::label::Label;
 
 #[doc(inline)]

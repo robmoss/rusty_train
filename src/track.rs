@@ -53,6 +53,13 @@ impl TrackEnd {
     }
 }
 
+/// A dit may have one of several shapes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum DitShape {
+    Bar,
+    Circle,
+}
+
 /// Track segments along which trains can run routes.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Track {
@@ -61,9 +68,7 @@ pub struct Track {
     pub x0: f64,
     pub x1: f64,
     pub clip: Option<(f64, f64)>,
-    pub dit: Option<(TrackEnd, usize)>,
-    // TODO: different gauges, double track, etc?
-    // TODO: save track description?
+    pub dit: Option<(TrackEnd, usize, DitShape)>,
 }
 
 impl Default for Track {
@@ -86,7 +91,7 @@ impl Track {
         x0: f64,
         x1: f64,
         clip: Option<(f64, f64)>,
-        dit: Option<(TrackEnd, usize)>,
+        dit: Option<(TrackEnd, usize, DitShape)>,
     ) -> Self {
         // TODO: check x0, x1, clip, dit location.
         Self {
@@ -167,9 +172,14 @@ impl Track {
         }
     }
 
-    pub fn with_dit(mut self, end: TrackEnd, revenue: usize) -> Self {
+    pub fn with_dit(
+        mut self,
+        end: TrackEnd,
+        revenue: usize,
+        shape: DitShape,
+    ) -> Self {
         // TODO: check location.
-        self.dit = Some((end, revenue));
+        self.dit = Some((end, revenue, shape));
         self
     }
 
@@ -341,13 +351,44 @@ impl Track {
         }
     }
 
+    pub fn draw_circle_dit(&self, hex: &Hex, ctx: &Context) -> bool {
+        if let Some((dit_end, _revenue, DitShape::Circle)) = self.dit {
+            let dit_locn = self.end_coord(dit_end, hex);
+            let radius = hex.max_d * 0.085;
+            ctx.new_path();
+            ctx.set_line_width(hex.max_d * 0.01);
+            let (x, y) = (dit_locn.x, dit_locn.y);
+            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            ctx.fill_preserve();
+            ctx.set_source_rgb(1.0, 1.0, 1.0);
+            ctx.stroke_preserve();
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn define_circle_dit(&self, hex: &Hex, ctx: &Context) -> bool {
+        if let Some((dit_end, _revenue, DitShape::Circle)) = self.dit {
+            let dit_locn = self.end_coord(dit_end, hex);
+            let radius = hex.max_d * 0.085;
+            ctx.new_path();
+            let (x, y) = (dit_locn.x, dit_locn.y);
+            ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn draw_dit_ends(&self, line_width: f64, hex: &Hex, ctx: &Context) {
         use TrackPath::*;
 
         // let dit_width = hex.max_d * 0.10;
         let dit_width = hex.max_d * line_width;
 
-        if let Some((dit_end, _revenue)) = self.dit {
+        if let Some((dit_end, _revenue, shape)) = self.dit {
             ctx.new_path();
             let dit_locn = self.end_coord(dit_end, hex);
 
@@ -363,16 +404,23 @@ impl Track {
                     // TODO: lots of generic code here
                     // how much can we share with define_path()?
 
-                    // NOTE: line needs to be perpendicular
-                    let dit_dirn = Coord::unit_normal(&start, &end);
-                    let dit_dirn = &dit_dirn * dit_width;
-                    let dit_start = &dit_locn - &dit_dirn;
-                    let dit_end = &dit_locn + &dit_dirn;
-
-                    ctx.move_to(dit_start.x, dit_start.y);
-                    // ctx.line_to(dit_start.x, dit_start.y);
-                    // ctx.move_to(dit_end.x, dit_end.y);
-                    ctx.line_to(dit_end.x, dit_end.y);
+                    if shape == DitShape::Circle {
+                        ctx.set_line_width(hex.max_d * 0.01);
+                        let radius = hex.max_d * 0.085;
+                        let (x, y) = (dit_locn.x, dit_locn.y);
+                        ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                        ctx.set_source_rgb(0.0, 0.0, 0.0);
+                        ctx.fill_preserve();
+                        ctx.set_source_rgb(1.0, 1.0, 1.0);
+                    } else {
+                        // NOTE: line needs to be perpendicular
+                        let dit_dirn = Coord::unit_normal(&start, &end);
+                        let dit_dirn = &dit_dirn * dit_width;
+                        let dit_start = &dit_locn - &dit_dirn;
+                        let dit_end = &dit_locn + &dit_dirn;
+                        ctx.move_to(dit_start.x, dit_start.y);
+                        ctx.line_to(dit_end.x, dit_end.y);
+                    }
                 }
                 Curve {
                     centre,
@@ -407,12 +455,21 @@ impl Track {
                         x: centre.x + dit_dx,
                         y: centre.y + dit_dy,
                     };
-                    let dit_start = &dit_mid - &dit_dirn;
-                    let dit_end = &dit_mid + &dit_dirn;
-                    ctx.move_to(dit_start.x, dit_start.y);
-                    // ctx.line_to(dit_start.x, dit_start.y);
-                    // ctx.move_to(dit_end.x, dit_end.y);
-                    ctx.line_to(dit_end.x, dit_end.y);
+
+                    if shape == DitShape::Circle {
+                        ctx.set_line_width(hex.max_d * 0.01);
+                        let radius = hex.max_d * 0.085;
+                        let (x, y) = (dit_mid.x, dit_mid.y);
+                        ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                        ctx.set_source_rgb(0.0, 0.0, 0.0);
+                        ctx.fill_preserve();
+                        ctx.set_source_rgb(1.0, 1.0, 1.0);
+                    } else {
+                        let dit_start = &dit_mid - &dit_dirn;
+                        let dit_end = &dit_mid + &dit_dirn;
+                        ctx.move_to(dit_start.x, dit_start.y);
+                        ctx.line_to(dit_end.x, dit_end.y);
+                    }
                 }
             }
 
@@ -446,16 +503,24 @@ impl Track {
                     ctx.move_to(c0.x, c0.y);
                     ctx.line_to(c1.x, c1.y);
                 }
-                if let Some((dit_end, _revenue)) = self.dit {
-                    // NOTE: line needs to be perpendicular
+                if let Some((dit_end, _revenue, shape)) = self.dit {
                     let dit_locn = self.end_coord(dit_end, hex);
-                    let dit_width = hex.max_d * 0.10;
-                    let dit_dirn = Coord::unit_normal(&start, &end);
-                    let dit_dirn = &dit_dirn * dit_width;
-                    let dit_start = &dit_locn - &dit_dirn;
-                    let dit_end = &dit_locn + &dit_dirn;
-                    ctx.move_to(dit_start.x, dit_start.y);
-                    ctx.line_to(dit_end.x, dit_end.y);
+                    if shape == DitShape::Circle {
+                        // NOTE: don't add the circle, it will be drawn with
+                        // an inappropriately-thick line.
+                        // let radius = hex.max_d * 0.085;
+                        // let (x, y) = (dit_locn.x, dit_locn.y);
+                        // ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                    } else {
+                        // NOTE: line needs to be perpendicular
+                        let dit_width = hex.max_d * 0.10;
+                        let dit_dirn = Coord::unit_normal(&start, &end);
+                        let dit_dirn = &dit_dirn * dit_width;
+                        let dit_start = &dit_locn - &dit_dirn;
+                        let dit_end = &dit_locn + &dit_dirn;
+                        ctx.move_to(dit_start.x, dit_start.y);
+                        ctx.line_to(dit_end.x, dit_end.y);
+                    }
                 }
             }
             Curve {
@@ -495,7 +560,7 @@ impl Track {
                         ctx.arc_negative(centre.x, centre.y, radius, a0, a1);
                     }
                 }
-                if let Some((dit_end, _revenue)) = self.dit {
+                if let Some((dit_end, _revenue, shape)) = self.dit {
                     // NOTE: line needs to be perpendicular
                     // Find the location along the arc, relative to centre.
                     let angle = match dit_end {
@@ -515,10 +580,18 @@ impl Track {
                         x: centre.x + dit_dx,
                         y: centre.y + dit_dy,
                     };
-                    let dit_start = &dit_mid - &dit_dirn;
-                    let dit_end = &dit_mid + &dit_dirn;
-                    ctx.move_to(dit_start.x, dit_start.y);
-                    ctx.line_to(dit_end.x, dit_end.y);
+                    if shape == DitShape::Circle {
+                        // NOTE: don't add the circle, it will be drawn with
+                        // an inappropriately-thick line.
+                        // let radius = hex.max_d * 0.085;
+                        // let (x, y) = (dit_mid.x, dit_mid.y);
+                        // ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                    } else {
+                        let dit_start = &dit_mid - &dit_dirn;
+                        let dit_end = &dit_mid + &dit_dirn;
+                        ctx.move_to(dit_start.x, dit_start.y);
+                        ctx.line_to(dit_end.x, dit_end.y);
+                    }
                 }
             }
         }
@@ -531,7 +604,8 @@ impl Track {
     }
 
     pub fn dit_coord(&self, hex: &Hex) -> Option<Coord> {
-        self.dit.map(|(end, _revenue)| self.end_coord(end, hex))
+        self.dit
+            .map(|(end, _revenue, _shape)| self.end_coord(end, hex))
     }
 
     pub fn get_coord(&self, hex: &Hex, x: f64) -> Option<Coord> {

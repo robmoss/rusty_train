@@ -143,12 +143,40 @@ impl std::convert::From<TrackEnd> for crate::track::TrackEnd {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
+enum DitShape {
+    Bar,
+    Circle,
+}
+
+impl std::convert::From<crate::track::DitShape> for DitShape {
+    fn from(src: crate::track::DitShape) -> Self {
+        use crate::track::DitShape::*;
+
+        match src {
+            Bar => DitShape::Bar,
+            Circle => DitShape::Circle,
+        }
+    }
+}
+
+impl std::convert::From<DitShape> for crate::track::DitShape {
+    fn from(src: DitShape) -> Self {
+        use crate::track::DitShape::*;
+
+        match src {
+            DitShape::Bar => Bar,
+            DitShape::Circle => Circle,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Track {
     #[serde(flatten)]
     pub track_type: TrackType,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub dit: Option<(TrackEnd, usize)>,
+    pub dit: Option<(TrackEnd, usize, DitShape)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clip: Option<(f64, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -182,7 +210,9 @@ impl std::convert::From<&crate::track::Track> for Track {
         };
         Self {
             track_type: track_type,
-            dit: src.dit.map(|(end, revenue)| (end.into(), revenue)),
+            dit: src.dit.map(|(end, revenue, shape)| {
+                (end.into(), revenue, shape.into())
+            }),
             clip: src.clip,
             span: span,
         }
@@ -304,7 +334,6 @@ enum CentreLocation {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 enum CityType {
-    Dit(CentreLocation),
     Single(Location),
     Double(CornerLocation),
     Triple(CentreLocation),
@@ -370,7 +399,6 @@ impl std::convert::From<&crate::city::City> for City {
         let revenue = src.revenue;
         let position = &src.position;
         let city_type = match src.tokens {
-            Tokens::Dit => CityType::Dit(CentreLocation::Centre),
             Tokens::Single => CityType::Single(position.into()),
             Tokens::Double => CityType::Double(position.into()),
             Tokens::Triple => CityType::Triple(CentreLocation::Centre),
@@ -774,8 +802,8 @@ impl From<&Track> for crate::track::Track {
                 crate::track::Track::hard_r(face.into())
             }
         };
-        let track = if let Some((posn, revenue)) = t.dit {
-            track.with_dit(posn.into(), revenue)
+        let track = if let Some((posn, revenue, shape)) = t.dit {
+            track.with_dit(posn.into(), revenue, shape.into())
         } else {
             track
         };
@@ -798,7 +826,6 @@ impl CityType {
         use CityType::*;
 
         match self {
-            Dit(_centre) => crate::city::City::central_dit(revenue),
             Single(location) => {
                 use crate::city::City;
                 use crate::hex::HexCorner::*;
@@ -882,6 +909,7 @@ impl City {
 /// Should yield the same tiles as `crate::catalogue::tile_catalogue()`.
 #[allow(dead_code)]
 fn test_tiles() -> Tiles {
+    use DitShape::*;
     use HexColour::*;
     use TrackEnd::*;
     use TrackType::*;
@@ -896,7 +924,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: HardL(HexFace::Bottom),
-                        dit: Some((End, 10)),
+                        dit: Some((End, 10, Bar)),
                         span: Some((0.0, 0.5)),
                         ..Default::default()
                     },
@@ -919,7 +947,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Straight(HexFace::Bottom),
-                        dit: Some((End, 10)),
+                        dit: Some((End, 10, Bar)),
                         span: Some((0.0, 0.25)),
                         ..Default::default()
                     },
@@ -1547,7 +1575,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleR(HexFace::Bottom),
-                        dit: Some((End, 10)),
+                        dit: Some((End, 10, Bar)),
                         span: Some((0.0, 0.5)),
                         ..Default::default()
                     },
@@ -1636,6 +1664,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Mid(HexFace::Bottom),
+                        dit: Some((End, 10, Circle)),
                         ..Default::default()
                     },
                     Track {
@@ -1651,11 +1680,6 @@ fn test_tiles() -> Tiles {
                         ..Default::default()
                     },
                 ],
-                cities: vec![City {
-                    city_type: CityType::Dit(CentreLocation::Centre),
-                    revenue: 10,
-                    ..Default::default()
-                }],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::RightCorner,
@@ -1670,6 +1694,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Mid(HexFace::Bottom),
+                        dit: Some((End, 10, Circle)),
                         ..Default::default()
                     },
                     Track {
@@ -1685,11 +1710,6 @@ fn test_tiles() -> Tiles {
                         ..Default::default()
                     },
                 ],
-                cities: vec![City {
-                    city_type: CityType::Dit(CentreLocation::Centre),
-                    revenue: 10,
-                    ..Default::default()
-                }],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperRightFace,
@@ -1925,6 +1945,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Mid(HexFace::Bottom),
+                        dit: Some((End, 10, Circle)),
                         ..Default::default()
                     },
                     Track {
@@ -1940,11 +1961,6 @@ fn test_tiles() -> Tiles {
                         ..Default::default()
                     },
                 ],
-                cities: vec![City {
-                    city_type: CityType::Dit(CentreLocation::Centre),
-                    revenue: 10,
-                    ..Default::default()
-                }],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::LowerLeftFace,
@@ -2447,6 +2463,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: Mid(HexFace::Bottom),
+                        dit: Some((End, 10, Circle)),
                         ..Default::default()
                     },
                     Track {
@@ -2466,11 +2483,6 @@ fn test_tiles() -> Tiles {
                         ..Default::default()
                     },
                 ],
-                cities: vec![City {
-                    city_type: CityType::Dit(CentreLocation::Centre),
-                    revenue: 10,
-                    ..Default::default()
-                }],
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperLeftFace,
@@ -2988,7 +3000,7 @@ fn test_tiles() -> Tiles {
                 track: vec![
                     Track {
                         track_type: GentleL(HexFace::Bottom),
-                        dit: Some((End, 30)),
+                        dit: Some((End, 30, Bar)),
                         span: Some((0.0, 0.85)),
                         ..Default::default()
                     },
@@ -2999,7 +3011,7 @@ fn test_tiles() -> Tiles {
                     },
                     Track {
                         track_type: GentleR(HexFace::Bottom),
-                        dit: Some((End, 30)),
+                        dit: Some((End, 30, Bar)),
                         span: Some((0.0, 0.85)),
                         ..Default::default()
                     },

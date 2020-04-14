@@ -281,34 +281,64 @@ impl State for SelectToken {
                     ctx.set_matrix(m);
                 }
 
-                // Then draw visited cities.
-                for step in &pair.path.steps {
-                    let m = map.prepare_to_draw(step.addr, hex, ctx);
+                // Then draw visited cities and dits.
+                println!("Running train {:?}", pair.train);
+                for visit in &pair.path.visits {
+                    let m = map.prepare_to_draw(visit.addr, hex, ctx);
                     let tile =
-                        map.tile_at(step.addr).expect("Invalid step hex");
-
-                    use crate::connection::Connection::*;
-                    if let City { ix } = step.conn {
-                        let city = tile.cities()[ix];
-                        city.draw_fg(hex, ctx);
-                        ctx.set_source(&source);
-                        ctx.set_line_width(line_width);
-                        city.define_boundary(hex, ctx);
-                        if city.tokens == crate::city::Tokens::Dit {
-                            ctx.fill_preserve();
+                        map.tile_at(visit.addr).expect("Invalid step hex");
+                    use crate::route::StopLocation;
+                    match visit.visits {
+                        StopLocation::City { ix } => {
+                            let city = tile.cities()[ix];
+                            city.draw_fg(hex, ctx);
+                            if visit.revenue > 0 {
+                                ctx.set_source(&source);
+                            } else {
+                                // NOTE: the train did not stop here.
+                                ctx.set_source(&source);
+                                ctx.set_source_rgb(0.0, 0.0, 0.0);
+                            }
+                            ctx.set_line_width(line_width);
+                            city.define_boundary(hex, ctx);
+                            ctx.stroke();
+                            if let Some(hex_state) = map.get_hex(visit.addr) {
+                                let tokens_table = hex_state.get_tokens();
+                                for (token_space, map_token) in
+                                    tokens_table.iter()
+                                {
+                                    tile.define_token_space(
+                                        &token_space,
+                                        &hex,
+                                        ctx,
+                                    );
+                                    map_token.draw_token(&hex, ctx);
+                                }
+                            }
                         }
-                        ctx.stroke();
-                        if let Some(hex_state) = map.get_hex(step.addr) {
-                            let tokens_table = hex_state.get_tokens();
-                            for (token_space, map_token) in
-                                tokens_table.iter()
-                            {
-                                tile.define_token_space(
-                                    &token_space,
-                                    &hex,
-                                    ctx,
-                                );
-                                map_token.draw_token(&hex, ctx);
+                        StopLocation::Dit { ix } => {
+                            let dit = tile.dits()[ix];
+                            let track = tile.tracks()[dit.track_ix];
+                            if visit.revenue > 0 {
+                                ctx.set_source(&source);
+                            } else {
+                                // NOTE: the train did not stop here.
+                                ctx.set_source_rgb(0.0, 0.0, 0.0);
+                            }
+                            let dit_shape = track.dit.unwrap().2;
+                            use crate::track::DitShape::*;
+                            match dit_shape {
+                                Bar => {
+                                    ctx.set_line_width(hex.max_d * 0.08);
+                                    track.draw_dit_ends(0.10, hex, ctx);
+                                }
+                                Circle => {
+                                    track.define_circle_dit(hex, ctx);
+                                    ctx.fill_preserve();
+                                    ctx.set_source_rgb(1.0, 1.0, 1.0);
+                                    ctx.set_line_width(hex.max_d * 0.01);
+                                    ctx.stroke();
+                                }
                             }
                         }
                     }
