@@ -6,6 +6,7 @@ use gtk::Inhibit;
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, Token, TokensTable};
 use crate::tile::TokenSpace;
+use crate::ui::util;
 
 /// Placing or removing tokens from a tile.
 pub struct EditTokens {
@@ -52,16 +53,8 @@ impl State for EditTokens {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        for _ in &mut hex_iter {
-            // Draw a thick black border on all hexes.
-            // This will give map edges a clear border.
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
-            hex.define_boundary(ctx);
-            ctx.set_line_width(hex.max_d * 0.05);
-            ctx.stroke();
-        }
+        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
-        hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, token_spaces)) = tile_opt {
                 // Draw the tile and any tokens.
@@ -72,38 +65,33 @@ impl State for EditTokens {
                 }
             } else {
                 // Draw an empty hex.
-                // TODO: draw "crosshairs" at hex intersections?
-                ctx.set_source_rgb(0.7, 0.7, 0.7);
-                hex.define_boundary(ctx);
-                ctx.set_line_width(hex.max_d * 0.01);
-                ctx.stroke();
+                util::draw_empty_hex(hex, ctx);
             }
         }
 
-        hex_iter.restart();
-        for (addr, tile_opt) in &mut hex_iter {
-            if self.active_hex == addr {
-                // Draw the active hex with a grey border.
-                ctx.set_source_rgb(0.3, 0.3, 0.3);
-                ctx.set_line_width(hex.max_d * 0.02);
-                hex.define_boundary(ctx);
-                ctx.stroke();
+        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
 
-                // Highlight the active token space.
-                if let Some((tile, _tokens)) = tile_opt {
-                    let token_space = &self.token_spaces[self.selected];
-                    tile.define_token_space(token_space, hex, ctx);
-                    ctx.set_source_rgb(0.8, 0.2, 0.2);
-                    ctx.set_line_width(hex.max_d * 0.025);
-                    ctx.stroke_preserve();
-                }
-            } else {
-                // Cover all other tiles with a partially-transparent layer.
-                ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
-                hex.define_boundary(ctx);
-                ctx.fill();
-            }
+        // Highlight the active token space.
+        if let Some(tile) = map.tile_at(self.active_hex) {
+            let m = map.prepare_to_draw(self.active_hex, hex, ctx);
+            let token_space = &self.token_spaces[self.selected];
+            tile.define_token_space(token_space, hex, ctx);
+            ctx.set_source_rgb(0.8, 0.2, 0.2);
+            ctx.set_line_width(hex.max_d * 0.025);
+            ctx.stroke_preserve();
+            ctx.set_matrix(m);
         }
+
+        // Draw the active hex with a grey border.
+        util::highlight_active_hex(
+            hex,
+            ctx,
+            &mut hex_iter,
+            &Some(self.active_hex),
+            0.3,
+            0.3,
+            0.3,
+        );
     }
 
     fn key_press(

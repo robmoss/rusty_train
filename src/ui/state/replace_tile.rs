@@ -5,6 +5,7 @@ use gtk::Inhibit;
 
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map, RotateCW};
+use crate::ui::util;
 
 /// Replacing one tile with another.
 pub struct ReplaceTile {
@@ -52,16 +53,8 @@ impl State for ReplaceTile {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        for _ in &mut hex_iter {
-            // Draw a thick black border on all hexes.
-            // This will give map edges a clear border.
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
-            hex.define_boundary(ctx);
-            ctx.set_line_width(hex.max_d * 0.05);
-            ctx.stroke();
-        }
+        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
-        hex_iter.restart();
         for (addr, tile_opt) in &mut hex_iter {
             if addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
@@ -92,29 +85,21 @@ impl State for ReplaceTile {
                 }
             } else {
                 // Draw an empty hex.
-                // TODO: draw "crosshairs" at hex intersections?
-                ctx.set_source_rgb(0.7, 0.7, 0.7);
-                hex.define_boundary(ctx);
-                ctx.set_line_width(hex.max_d * 0.01);
-                ctx.stroke();
+                util::draw_empty_hex(hex, ctx);
             }
         }
 
-        hex_iter.restart();
-        for (addr, _tile_opt) in &mut hex_iter {
-            if self.active_hex == addr {
-                // Draw the active hex with a blue border.
-                ctx.set_source_rgb(0.0, 0.0, 0.7);
-                ctx.set_line_width(hex.max_d * 0.02);
-                hex.define_boundary(ctx);
-                ctx.stroke();
-            } else {
-                // Cover all other tiles with a partially-transparent layer.
-                ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
-                hex.define_boundary(ctx);
-                ctx.fill();
-            }
-        }
+        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        // Draw the active hex with a blue border.
+        util::highlight_active_hex(
+            hex,
+            ctx,
+            &mut hex_iter,
+            &Some(self.active_hex),
+            0.0,
+            0.0,
+            0.7,
+        );
     }
 
     fn key_press(

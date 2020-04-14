@@ -4,6 +4,7 @@ use gtk::Inhibit;
 use super::{Action, State};
 use crate::hex::Hex;
 use crate::map::{HexAddress, Map};
+use crate::ui::util;
 
 /// The default state: selecting a tile.
 pub struct Default {
@@ -33,16 +34,8 @@ impl State for Default {
     ) {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        for _ in &mut hex_iter {
-            // Draw a thick black border on all hexes.
-            // This will give map edges a clear border.
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
-            hex.define_boundary(ctx);
-            ctx.set_line_width(hex.max_d * 0.05);
-            ctx.stroke();
-        }
+        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
-        hex_iter.restart();
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, token_spaces)) = tile_opt {
                 // Draw the tile and any tokens.
@@ -52,30 +45,23 @@ impl State for Default {
                     map_token.draw_token(&hex, ctx);
                 }
             } else {
-                // Draw an empty hex.
-                // TODO: draw "crosshairs" at hex intersections?
-                ctx.set_source_rgb(0.7, 0.7, 0.7);
-                hex.define_boundary(ctx);
-                ctx.set_line_width(hex.max_d * 0.01);
-                ctx.stroke();
+                // Fill empty hexes with a background colour.
+                util::draw_empty_hex(hex, ctx);
             }
         }
 
-        hex_iter.restart();
-        for (addr, _tile_opt) in &mut hex_iter {
-            if self.active_hex == Some(addr) {
-                // Draw the active hex with a red border.
-                ctx.set_source_rgb(0.7, 0.0, 0.0);
-                ctx.set_line_width(hex.max_d * 0.02);
-                hex.define_boundary(ctx);
-                ctx.stroke();
-            } else {
-                // Cover all other tiles with a partially-transparent layer.
-                ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
-                hex.define_boundary(ctx);
-                ctx.fill();
-            }
-        }
+        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
+
+        // Draw the active hex with a red border.
+        util::highlight_active_hex(
+            hex,
+            ctx,
+            &mut hex_iter,
+            &self.active_hex,
+            0.7,
+            0.0,
+            0.0,
+        );
     }
 
     fn key_press(
