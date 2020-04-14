@@ -17,36 +17,34 @@ use rusty_train::ui::UI;
 type App = Rc<RefCell<UI>>;
 
 pub fn build_ui(application: &gtk::Application) {
-    let hex = Hex::new(125.0);
-    let tiles = tile_catalogue(&hex);
-    let tile_names: Vec<String> =
-        tiles.iter().map(|t| t.name.clone()).collect();
-    let num_rows: usize = 6;
-    let num_cols: usize = 14;
-    let addrs: Vec<(usize, usize)> = (0..num_rows)
-        .map(|r| (0..num_cols).map(move |c| (r, c)))
-        .flatten()
-        .collect();
-    let hexes: Vec<HexAddress> =
-        addrs.iter().map(|coords| coords.into()).collect();
+    // NOTE: make this more like the doc example in rusty_train::ui.
 
-    let mut map = Map::new(tiles, hexes);
-    for (addr, tile_name) in addrs.iter().zip(tile_names.iter().cycle()) {
-        map.place_tile(addr.into(), &tile_name, RotateCW::Zero);
-    }
+    let hex_width: i32 = 125;
+    let hex = Hex::new(hex_width as f64);
+    let map = rusty_train::games::_1867::map(&hex);
+
+    let num_rows = map.max_row;
+    let num_cols = map.max_col;
+    let sw = ((num_cols as f64) * hex.min_d) as i32;
+    let sh = (num_rows as i32) * hex_width;
 
     let state = Rc::new(RefCell::new(UI::new(hex, map)));
 
-    let surface = ImageSurface::create(Format::ARgb32, 1366, 740)
+    let surface = ImageSurface::create(Format::ARgb32, sw, sh)
         .expect("Can't create surface");
     let icx = Context::new(&surface);
 
-    drawable(application, state.clone(), 1366, 740, move |area, cr| {
+    drawable(application, state.clone(), sw, sh, move |area, cr| {
         let w = area.get_allocated_width();
         let h = area.get_allocated_height();
         if let Ok(ui) = state.try_borrow() {
             ui.draw(w, h, cr);
             // Copy what the UI has just drawn to the image surface.
+            // TODO: do we need to resize or recreate the surface when the
+            // user zooms in or out?
+            // It needs to be at least as big as (w, h).
+            // Can the move lambda capture surface and icx as mutable
+            // variables and create a new surface/context are required?
             icx.set_source_surface(&cr.get_target(), 0.0, 0.0);
             icx.rectangle(0.0, 0.0, w.into(), h.into());
             icx.set_operator(cairo::Operator::Source);
