@@ -148,7 +148,12 @@ impl Train {
         }
     }
 
-    pub fn revenue_for(&self, path: &Path) -> Option<usize> {
+    /// Determine the revenue earned and stops made when the train operates
+    /// the given path, if it can operate this path.
+    ///
+    /// The train must stop at the first and last visits, and the indices of
+    /// the intermediate stops are returned.
+    pub fn revenue_for(&self, path: &Path) -> Option<(usize, Vec<usize>)> {
         if let Some(max_stops) = self.max_stops {
             if self.can_skip_cities && self.can_skip_dits {
                 // NOTE: must include first and last stops.
@@ -157,54 +162,141 @@ impl Train {
                 let mut rev_rest = path
                     .visits
                     .iter()
+                    .enumerate()
                     .skip(1)
                     .take(path.visits.len() - 2)
-                    .map(|v| v.revenue)
-                    .collect::<Vec<usize>>();
-                rev_rest.sort();
+                    .map(|(ix, v)| (ix, v.revenue))
+                    .collect::<Vec<(usize, usize)>>();
+                rev_rest.sort_by_key(|(_ix, v)| *v);
                 rev_rest.reverse();
-                let rev_rest: usize =
-                    rev_rest.iter().take(max_stops - 2).sum();
+                let stops: Vec<_> =
+                    rev_rest.iter().take(max_stops - 2).collect();
+                let rev_rest: usize = stops.iter().map(|(_ix, v)| v).sum();
                 let path_revenue = rev_first + rev_last + rev_rest;
-                return Some(path_revenue * self.revenue_multiplier);
+                let stop_ixs: Vec<_> =
+                    stops.iter().map(|(ix, _v)| *ix).collect();
+                return Some((
+                    path_revenue * self.revenue_multiplier,
+                    stop_ixs,
+                ));
             } else if self.can_skip_dits {
                 if path.num_cities <= max_stops {
-                    let cities =
-                        path.visits.iter().filter(|v| v.visits.is_city());
-                    let dits =
-                        path.visits.iter().filter(|v| v.visits.is_dit());
-                    let city_revenue: usize = cities.map(|v| v.revenue).sum();
-                    let mut dit_revenues =
-                        dits.map(|v| v.revenue).collect::<Vec<usize>>();
-                    dit_revenues.sort();
-                    dit_revenues.reverse();
-                    let dit_revenue: usize = dit_revenues
+                    let mut num_dit_stops = max_stops - path.num_cities;
+                    let first_visit = path.visits.first().unwrap();
+                    let last_visit = path.visits.last().unwrap();
+                    if first_visit.visits.is_dit() {
+                        if num_dit_stops > 0 {
+                            num_dit_stops -= 1;
+                        } else {
+                            return None;
+                        }
+                    }
+                    if last_visit.visits.is_dit() {
+                        if num_dit_stops > 0 {
+                            num_dit_stops -= 1;
+                        } else {
+                            return None;
+                        }
+                    }
+                    let rev_first = first_visit.revenue;
+                    let rev_last = last_visit.revenue;
+                    let cities: Vec<_> = path
+                        .visits
                         .iter()
-                        .take(max_stops - path.num_cities)
-                        .sum();
-                    let path_revenue = city_revenue + dit_revenue;
-                    return Some(path_revenue * self.revenue_multiplier);
+                        .enumerate()
+                        .skip(1)
+                        .take(path.visits.len() - 2)
+                        .filter(|(_ix, v)| v.visits.is_city())
+                        .collect();
+                    let mut dits: Vec<_> = path
+                        .visits
+                        .iter()
+                        .enumerate()
+                        .skip(1)
+                        .take(path.visits.len() - 2)
+                        .filter(|(_ix, v)| v.visits.is_dit())
+                        .map(|(ix, v)| (ix, v.revenue))
+                        .collect();
+                    let city_revenue: usize =
+                        cities.iter().map(|(_ix, v)| v.revenue).sum();
+                    dits.sort_by_key(|(_ix, v)| *v);
+                    dits.reverse();
+                    let dit_stops: Vec<_> =
+                        dits.iter().take(num_dit_stops).collect();
+                    let dit_revenue: usize =
+                        dit_stops.iter().map(|(_ix, v)| *v).sum();
+                    let stop_ixs: Vec<_> = dit_stops
+                        .iter()
+                        .map(|(ix, _)| *ix)
+                        .chain(cities.iter().map(|(ix, _)| *ix))
+                        .collect();
+                    let path_revenue =
+                        city_revenue + dit_revenue + rev_first + rev_last;
+                    return Some((
+                        path_revenue * self.revenue_multiplier,
+                        stop_ixs,
+                    ));
                 } else {
                     // NOTE: too many cities, cannot stop at them all.
                     return None;
                 }
             } else if self.can_skip_cities {
                 if path.num_dits <= max_stops {
-                    let cities =
-                        path.visits.iter().filter(|v| v.visits.is_city());
-                    let dits =
-                        path.visits.iter().filter(|v| v.visits.is_dit());
-                    let dit_revenue: usize = dits.map(|v| v.revenue).sum();
-                    let mut city_revenues =
-                        cities.map(|v| v.revenue).collect::<Vec<usize>>();
-                    city_revenues.sort();
-                    city_revenues.reverse();
-                    let city_revenue: usize = city_revenues
+                    let mut num_city_stops = max_stops - path.num_dits;
+                    let first_visit = path.visits.first().unwrap();
+                    let last_visit = path.visits.last().unwrap();
+                    if first_visit.visits.is_city() {
+                        if num_city_stops > 0 {
+                            num_city_stops -= 1;
+                        } else {
+                            return None;
+                        }
+                    }
+                    if last_visit.visits.is_city() {
+                        if num_city_stops > 0 {
+                            num_city_stops -= 1;
+                        } else {
+                            return None;
+                        }
+                    }
+                    let rev_first = first_visit.revenue;
+                    let rev_last = last_visit.revenue;
+                    let mut cities: Vec<_> = path
+                        .visits
                         .iter()
-                        .take(max_stops - path.num_dits)
-                        .sum();
-                    let path_revenue = city_revenue + dit_revenue;
-                    return Some(path_revenue * self.revenue_multiplier);
+                        .enumerate()
+                        .skip(1)
+                        .take(path.visits.len() - 2)
+                        .filter(|(_ix, v)| v.visits.is_city())
+                        .map(|(ix, v)| (ix, v.revenue))
+                        .collect();
+                    let dits: Vec<_> = path
+                        .visits
+                        .iter()
+                        .enumerate()
+                        .skip(1)
+                        .take(path.visits.len() - 2)
+                        .filter(|(_ix, v)| v.visits.is_dit())
+                        .collect();
+                    let dit_revenue: usize =
+                        dits.iter().map(|(_ix, v)| v.revenue).sum();
+                    cities.sort_by_key(|(_ix, v)| *v);
+                    cities.reverse();
+                    let city_stops: Vec<_> =
+                        cities.iter().take(num_city_stops).collect();
+                    let city_revenue: usize =
+                        city_stops.iter().map(|(_ix, v)| *v).sum();
+                    let stop_ixs: Vec<_> = city_stops
+                        .iter()
+                        .map(|(ix, _)| *ix)
+                        .chain(dits.iter().map(|(ix, _)| *ix))
+                        .collect();
+                    let path_revenue =
+                        city_revenue + dit_revenue + rev_first + rev_last;
+                    return Some((
+                        path_revenue * self.revenue_multiplier,
+                        stop_ixs,
+                    ));
                 } else {
                     // NOTE: too many dits, cannot stop at them all.
                     return None;
@@ -213,14 +305,19 @@ impl Train {
                 // NOTE: cannot skip dits or cities, must be able to stop at
                 // every visit along the path.
                 if path.num_visits <= max_stops {
-                    return Some(path.revenue * self.revenue_multiplier);
+                    let stop_ixs: Vec<_> = (0..(path.visits.len())).collect();
+                    return Some((
+                        path.revenue * self.revenue_multiplier,
+                        stop_ixs,
+                    ));
                 } else {
                     return None;
                 }
             }
         } else {
             // NOTE: no limit on stops, so we can stop at every visit.
-            return Some(path.revenue * self.revenue_multiplier);
+            let stop_ixs: Vec<_> = (0..(path.visits.len())).collect();
+            return Some((path.revenue * self.revenue_multiplier, stop_ixs));
         }
     }
 }
@@ -312,13 +409,14 @@ impl Trains {
     }
 
     /// Returns a pairing of trains to routes that earns the most revenue.
-    pub fn select_routes(&mut self, path_tbl: Vec<Path>) -> Option<Pairing> {
+    pub fn select_routes(&self, path_tbl: Vec<Path>) -> Option<Pairing> {
         let num_paths = path_tbl.len();
         let num_trains = self.train_count();
 
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
-        let rev: HashMap<usize, HashMap<Train, usize>> = (0..num_paths)
+        let rev: HashMap<usize, HashMap<Train, (usize, Vec<usize>)>> = (0
+            ..num_paths)
             .map(|path_ix| {
                 (
                     path_ix,
@@ -376,7 +474,10 @@ impl Trains {
 
         // Filter out path combinations that cannot be operated and find the
         // train-path pairing that yields the greatest revenue.
-        let best_pairing: Option<(usize, Vec<(Train, usize, usize)>)> = combs
+        let best_pairing: Option<(
+            usize,
+            Vec<(Train, usize, usize, Vec<usize>)>,
+        )> = combs
             .into_iter()
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
             .max_by_key(|&(revenue, _)| revenue);
@@ -402,10 +503,21 @@ impl Trains {
             // Replace the path indices with the actual paths.
             let pairs = pairings
                 .into_iter()
-                .map(|(train, path_ix, revenue)| Pair {
-                    train: train,
-                    path: path_map.remove(&path_ix).unwrap(),
-                    revenue: revenue,
+                .map(|(train, path_ix, revenue, stop_ixs)| {
+                    let mut path = path_map.remove(&path_ix).unwrap();
+                    // Mark visit as a stop or not, by setting revenue to 0
+                    // for skipped visits.
+                    // NOTE: the first and last visit are always stopped at.
+                    for ix in 1..(path.visits.len() - 1) {
+                        if !stop_ixs.contains(&ix) {
+                            path.visits[ix].revenue = 0;
+                        }
+                    }
+                    Pair {
+                        train: train,
+                        path: path,
+                        revenue: revenue,
+                    }
                 })
                 .collect();
 
@@ -419,9 +531,9 @@ impl Trains {
 
     fn best_pairing_for(
         &self,
-        revenue: &HashMap<usize, HashMap<Train, usize>>,
+        revenue: &HashMap<usize, HashMap<Train, (usize, Vec<usize>)>>,
         path_ixs: &Vec<usize>,
-    ) -> Option<(usize, Vec<(Train, usize, usize)>)> {
+    ) -> Option<(usize, Vec<(Train, usize, usize, Vec<usize>)>)> {
         let num_paths = path_ixs.len();
         let num_trains = self.train_count();
         // NOTE: we only need to consider pairings that allocate a train to
@@ -430,17 +542,18 @@ impl Trains {
 
         train_combinations
             .filter_map(|train_ixs| {
-                let revenues: Vec<usize> = train_ixs
+                let revenues: Vec<(usize, Vec<usize>)> = train_ixs
                     .iter()
                     .enumerate()
                     .filter_map(|(path_ixs_ix, train_ix)| {
                         revenue.get(&path_ixs[path_ixs_ix]).and_then(|tbl| {
                             tbl.get(&self.train_vec[*train_ix])
-                                .map(|revenue| *revenue)
+                                .map(|revenue| revenue.clone())
                         })
                     })
                     .collect();
-                let net_revenue: usize = revenues.iter().sum();
+                let net_revenue: usize =
+                    revenues.iter().map(|(r, _)| r).sum();
                 if revenues.len() < train_ixs.len() {
                     // Some trains could not operate the corresponding path.
                     None
@@ -451,10 +564,13 @@ impl Trains {
                             .iter()
                             .enumerate()
                             .map(|(path_ixs_ix, train_ix)| {
+                                let stop_ixs =
+                                    revenues[path_ixs_ix].1.clone();
                                 (
                                     self.train_vec[*train_ix],
                                     path_ixs[path_ixs_ix],
-                                    revenues[path_ixs_ix],
+                                    revenues[path_ixs_ix].0,
+                                    stop_ixs,
                                 )
                             })
                             .collect(),
