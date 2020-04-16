@@ -6,6 +6,7 @@ use gtk::{DialogExt, FileChooserExt, GtkWindowExt, WidgetExt};
 
 use crate::hex::Hex;
 use crate::map::{HexAddress, HexIter, Map};
+use crate::ui::Content;
 
 /// Prompt the user to select a file to which data will be saved.
 pub fn save_file_dialog(
@@ -80,8 +81,7 @@ pub fn save_screenshot<S: State + ?Sized>(
     state: &Box<S>,
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,
-    hex: &Hex,
-    map: &mut Map,
+    content: &Content,
 ) -> Result<Action, Box<dyn std::error::Error>> {
     let filter_png = gtk::FileFilter::new();
     filter_png.set_name(Some("PNG images"));
@@ -116,7 +116,7 @@ pub fn save_screenshot<S: State + ?Sized>(
     icx.set_source_rgb(1.0, 1.0, 1.0);
     icx.paint();
     // Then draw the current map content.
-    state.draw(hex, map, width, height, &icx);
+    state.draw(content, width, height, &icx);
     let mut file = std::fs::File::create(dest_file)
         .expect(&format!("Couldn't create '{}'", dest_str));
     surface.write_to_png(&mut file)?;

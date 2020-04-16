@@ -1,9 +1,7 @@
 use cairo::Context;
 use gtk::Inhibit;
 
-use super::Action;
-use crate::hex::Hex;
-use crate::map::Map;
+use super::{Action, Content};
 
 pub mod default;
 pub mod edit_tokens;
@@ -13,20 +11,12 @@ pub mod select_token;
 /// The methods that are required in order to manipulate the user interface.
 pub trait State {
     /// Draws the current state of the map.
-    fn draw(
-        &self,
-        hex: &Hex,
-        map: &Map,
-        width: i32,
-        height: i32,
-        ctx: &Context,
-    );
+    fn draw(&self, content: &Content, width: i32, height: i32, ctx: &Context);
 
     /// Responds to a key being pressed, and returns the new state.
     fn key_press(
         self: Box<Self>,
-        hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
@@ -35,8 +25,7 @@ pub trait State {
     /// Responds to a mouse button being clicked, and returns the new state.
     fn button_press(
         self: Box<Self>,
-        hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,

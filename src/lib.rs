@@ -153,7 +153,7 @@ pub mod ui;
 pub mod prelude;
 
 /// Defines maps and tile sets for specific 18xx games.
-pub mod games;
+pub mod game;
 
 // TODO:
 //   grid module for tile arrangement

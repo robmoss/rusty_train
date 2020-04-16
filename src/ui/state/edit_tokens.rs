@@ -3,10 +3,11 @@ use super::{Action, State};
 use cairo::Context;
 use gtk::Inhibit;
 
-use crate::hex::{Hex, HexColour};
+use crate::hex::HexColour;
 use crate::map::{HexAddress, Map, Token, TokensTable};
 use crate::tile::TokenSpace;
 use crate::ui::util;
+use crate::ui::Content;
 
 /// Placing or removing tokens from a tile.
 pub struct EditTokens {
@@ -48,12 +49,13 @@ impl EditTokens {
 impl State for EditTokens {
     fn draw(
         &self,
-        hex: &Hex,
-        map: &Map,
+        content: &Content,
         _width: i32,
         _height: i32,
         ctx: &Context,
     ) {
+        let hex = &content.hex;
+        let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
@@ -99,12 +101,12 @@ impl State for EditTokens {
 
     fn key_press(
         mut self: Box<Self>,
-        _hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
+        let map = &mut content.map;
         let key = event.get_keyval();
         match key {
             gdk::enums::key::Escape => {
@@ -180,8 +182,7 @@ impl State for EditTokens {
 
     fn button_press(
         self: Box<Self>,
-        _hex: &Hex,
-        _map: &mut Map,
+        _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,

@@ -1,5 +1,7 @@
 use gtk::prelude::*;
+use std::collections::HashMap;
 
+use crate::game::Game;
 use crate::route::train::{Train, Trains};
 
 /// A dialog for selecting trains and options that provide route bonuses.
@@ -13,6 +15,8 @@ impl<'a> TrainDialog<'a> {
     pub fn new(
         parent: &gtk::ApplicationWindow,
         train_types: &'a Vec<Train>,
+        train_names: &'a HashMap<Train, &str>,
+        option_names: &'a Vec<&str>,
         name: &str,
     ) -> Self {
         let buttons = [
@@ -27,17 +31,20 @@ impl<'a> TrainDialog<'a> {
             flags,
             &buttons,
         );
-        // TODO: the game should provide these route bonuses.
-        let options = vec![
-            gtk::CheckButton::new_with_label("Some Private Company"),
-            gtk::CheckButton::new_with_label("Another Private Company"),
-        ];
+        let options: Vec<_> = option_names
+            .iter()
+            .map(|name| gtk::CheckButton::new_with_label(name))
+            .collect();
 
         let padding = 4;
         let content = dialog.get_content_area();
         let mut trains = Vec::with_capacity(train_types.len());
         train_types.iter().for_each(|train| {
-            let row = add_spinner(train, &mut trains);
+            let row = add_spinner(
+                train,
+                train_names.get(train).unwrap(),
+                &mut trains,
+            );
             content.pack_start(&row, true, true, padding)
         });
         options
@@ -88,13 +95,14 @@ impl<'a> TrainDialog<'a> {
 
 fn add_spinner<'a>(
     train: &'a Train,
+    name: &'a str,
     trains: &mut Vec<(&'a Train, gtk::SpinButton)>,
 ) -> gtk::Box {
     let spin = gtk::SpinButton::new_with_range(0.0, 9.0, 1.0);
     spin.set_digits(0);
     spin.set_numeric(true);
     spin.set_update_policy(gtk::SpinButtonUpdatePolicy::IfValid);
-    let label = gtk::Label::new(Some(train.describe().as_str()));
+    let label = gtk::Label::new(Some(name));
     label.set_justify(gtk::Justification::Left);
     let row = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     row.pack_start(&label, true, true, 0);
@@ -106,9 +114,21 @@ fn add_spinner<'a>(
 /// Display a train-selection dialog and return the selected trains.
 pub fn select<'a>(
     parent: &gtk::ApplicationWindow,
-    train_types: &'a Vec<Train>,
+    game: &Box<dyn Game>,
     name: &str,
 ) -> Option<Trains> {
-    let td = TrainDialog::new(parent, train_types, name);
+    let train_types = game.train_types();
+    let train_names: HashMap<_, &str> = train_types
+        .iter()
+        .map(|t| (*t, game.train_name(&t).unwrap()))
+        .collect();
+    let option_names = game.bonus_options();
+    let td = TrainDialog::new(
+        parent,
+        &train_types,
+        &train_names,
+        &option_names,
+        name,
+    );
     td.run()
 }

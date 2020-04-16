@@ -2,9 +2,9 @@ use cairo::Context;
 use gtk::Inhibit;
 
 use super::{Action, State};
-use crate::hex::Hex;
 use crate::map::{HexAddress, Map};
 use crate::ui::util;
+use crate::ui::Content;
 
 /// The default state: selecting a tile.
 pub struct Default {
@@ -26,12 +26,13 @@ impl Default {
 impl State for Default {
     fn draw(
         &self,
-        hex: &Hex,
-        map: &Map,
+        content: &Content,
         _width: i32,
         _height: i32,
         ctx: &Context,
     ) {
+        let hex = &content.hex;
+        let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
@@ -66,12 +67,12 @@ impl State for Default {
 
     fn key_press(
         mut self: Box<Self>,
-        _hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Box<dyn State>, Inhibit, Action) {
+        let map = &mut content.map;
         let key = event.get_keyval();
         match key {
             gdk::enums::key::e | gdk::enums::key::E => {
@@ -152,7 +153,7 @@ impl State for Default {
                 if let Some(addr) = self.active_hex {
                     if let Some(state) =
                         super::select_token::SelectToken::try_new(
-                            map, addr, window,
+                            content, addr, window,
                         )
                     {
                         (Box::new(state), Inhibit(false), Action::Redraw)
@@ -250,12 +251,13 @@ impl State for Default {
 
     fn button_press(
         mut self: Box<Self>,
-        hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventButton,
     ) -> (Box<dyn State>, Inhibit, Action) {
+        let hex = &content.hex;
+        let map = &mut content.map;
         // Allow the user to select hexes with a single click of any button.
         let (x, y) = event.get_position();
         let hexes = map.hexes();

@@ -8,12 +8,13 @@ use std::collections::HashMap;
 use log::info;
 
 use crate::draw::Draw;
-use crate::hex::{Hex, HexColour};
+use crate::hex::HexColour;
 use crate::map::{HexAddress, Map, Token};
 use crate::route::search::{paths_for_token, Criteria, PathLimit};
 use crate::route::train::{Pairing, Trains};
 use crate::tile::TokenSpace;
 use crate::ui::util;
+use crate::ui::Content;
 
 /// Selecting a company's tokens for route-finding.
 pub struct SelectToken {
@@ -49,10 +50,11 @@ fn token_matches(
 
 impl SelectToken {
     pub(super) fn try_new(
-        map: &Map,
+        content: &Content,
         addr: HexAddress,
         window: &gtk::ApplicationWindow,
     ) -> Option<Self> {
+        let map = &content.map;
         let tile = if let Some(tile) = map.tile_at(addr) {
             tile
         } else {
@@ -78,7 +80,7 @@ impl SelectToken {
             original_window_title: window_title,
         };
         // Prompt the user to select trains for the active token.
-        state.update_search(map, window);
+        state.update_search(content, window);
         Some(state)
     }
 
@@ -113,9 +115,10 @@ impl SelectToken {
     /// result of this search.
     fn update_search(
         &mut self,
-        map: &Map,
+        content: &Content,
         window: &gtk::ApplicationWindow,
     ) -> Action {
+        let map = &content.map;
         let action = if let Some(hex_state) = map.get_hex(self.active_hex) {
             // Update the matching tokens across the map.
             let space = self.token_spaces[self.selected];
@@ -132,11 +135,9 @@ impl SelectToken {
                 self.update_title(window);
                 return Action::Redraw;
             }
-            // TODO: store train types, bonuses, etc, in the state.
-            let train_types = crate::games::_1867::train_types();
             let tok_name = token.text();
             let trains_opt =
-                crate::ui::dialog::select(window, &train_types, tok_name);
+                crate::ui::dialog::select(window, &content.game, tok_name);
             if let Some(trains) = trains_opt {
                 self.token_trains.insert(*token, trains);
                 self.best_routes = self.best_routes_for(map, token);
@@ -220,12 +221,13 @@ impl SelectToken {
 impl State for SelectToken {
     fn draw(
         &self,
-        hex: &Hex,
-        map: &Map,
+        content: &Content,
         _width: i32,
         _height: i32,
         ctx: &Context,
     ) {
+        let hex = &content.hex;
+        let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
@@ -392,8 +394,7 @@ impl State for SelectToken {
 
     fn key_press(
         mut self: Box<Self>,
-        _hex: &Hex,
-        map: &mut Map,
+        content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
@@ -421,7 +422,7 @@ impl State for SelectToken {
                 } else {
                     self.selected -= 1
                 }
-                let action = self.update_search(map, window);
+                let action = self.update_search(content, window);
                 (self, Inhibit(false), action)
             }
             gdk::enums::key::Right => {
@@ -429,7 +430,7 @@ impl State for SelectToken {
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                let action = self.update_search(map, window);
+                let action = self.update_search(content, window);
                 (self, Inhibit(false), action)
             }
             _ => (self, Inhibit(false), Action::None),
@@ -438,8 +439,7 @@ impl State for SelectToken {
 
     fn button_press(
         self: Box<Self>,
-        _hex: &Hex,
-        _map: &mut Map,
+        _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,

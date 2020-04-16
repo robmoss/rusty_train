@@ -181,37 +181,72 @@ fn hex_labels() -> Vec<(HexAddress, Label)> {
     ]
 }
 
-/// The train types that companies can purchase and operate.
-pub fn train_types() -> Vec<Train> {
-    vec![
-        Train::new_2_train(),
-        Train::new_3_train(),
-        Train::new_4_train(),
-        Train::new_5_train(),
-        Train::new_6_train(),
-        Train::new_7_train(),
-        Train::new_8_train(),
-        Train::new_2p2_train(),
-        Train::new_5p5e_train(),
-    ]
+/// Defines the trains, tiles, and map for 1867: The Railways Of Canada.
+pub struct Game {
+    trains: Vec<Train>,
+    names: Vec<&'static str>,
 }
 
-/// Optional route bonuses that a company may hold.
-pub fn bonus_options() -> Vec<&'static str> {
-    vec!["Some Private Company", "Another Private Company"]
+impl Game {
+    pub fn new() -> Self {
+        let trains = vec![
+            Train::new_2_train(),
+            Train::new_3_train(),
+            Train::new_4_train(),
+            Train::new_5_train(),
+            Train::new_6_train(),
+            Train::new_7_train(),
+            Train::new_8_train(),
+            Train::new_2p2_train(),
+            Train::new_5p5e_train(),
+        ];
+        let names = vec!["2", "3", "4", "5", "6", "7", "8", "2+2", "5+5E"];
+        Game { trains, names }
+    }
 }
 
-/// Create the initial map for 1867.
-pub fn map(hex: &Hex) -> Map {
-    let tiles = tile_catalogue(&hex);
-    let hexes: Vec<HexAddress> =
-        addrs().iter().map(|coords| coords.into()).collect();
-    let mut map = Map::new(tiles, hexes);
-    for (addr, (tile_name, rotn)) in initial_tiles() {
-        map.place_tile(addr, tile_name, rotn);
+impl super::Game for Game {
+    /// The train types that companies can purchase and operate.
+    fn train_types(&self) -> Vec<Train> {
+        self.trains.clone()
     }
-    for (addr, label) in hex_labels() {
-        map.add_label_at(addr, label);
+
+    fn train_name(&self, train: &Train) -> Option<&str> {
+        for i in 0..self.trains.len() {
+            if self.trains[i] == *train {
+                return Some(self.names[i]);
+            }
+        }
+        return None;
     }
-    map
+
+    /// Optional route bonuses that a company may hold.
+    fn bonus_options(&self) -> Vec<&'static str> {
+        vec![
+            // $10 bonus for Buffalo.
+            "Niagara Falls Bridge",
+            // $10 bonus for Montreal.
+            "Montreal Bridge",
+            // $10 bonus for Quebec.
+            "Quebec Bridge",
+            // $10 bonus for Detroit.
+            "St. Clair Tunnel",
+        ]
+    }
+
+    /// Create the initial map for 1867.
+    fn create_map(&self, hex: &Hex) -> Map {
+        let tiles = tile_catalogue(&hex);
+        let hexes: Vec<HexAddress> =
+            addrs().iter().map(|coords| coords.into()).collect();
+        let mut map = Map::new(tiles, hexes);
+        for (addr, (tile_name, rotn)) in initial_tiles() {
+            map.place_tile(addr, tile_name, rotn);
+        }
+        for (addr, label) in hex_labels() {
+            map.add_label_at(addr, label);
+        }
+        // TODO: mark tiles that are not modifiable.
+        map
+    }
 }

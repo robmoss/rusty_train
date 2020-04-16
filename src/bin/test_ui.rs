@@ -21,14 +21,16 @@ pub fn build_ui(application: &gtk::Application) {
 
     let hex_width: i32 = 125;
     let hex = Hex::new(hex_width as f64);
-    let map = rusty_train::games::_1867::map(&hex);
+    let game = rusty_train::game::_1867::Game::new();
+    let map = game.create_map(&hex);
 
     let num_rows = map.max_row;
     let num_cols = map.max_col;
     let sw = ((num_cols as f64) * hex.min_d) as i32;
     let sh = (num_rows as i32) * hex_width;
 
-    let state = Rc::new(RefCell::new(UI::new(hex, map)));
+    let game_box = Box::new(game);
+    let state = Rc::new(RefCell::new(UI::new(hex, game_box, map)));
 
     let surface = ImageSurface::create(Format::ARgb32, sw, sh)
         .expect("Can't create surface");

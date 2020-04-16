@@ -125,3 +125,6 @@ pub use crate::route::train::Trains;
 
 #[doc(inline)]
 pub use crate::route::train::Pairing;
+
+#[doc(inline)]
+pub use crate::game::Game;

@@ -27,21 +27,13 @@
 //! let hex_diameter = 125.0;
 //! let hex = Hex::new(hex_diameter);
 //!
-//! // Load a pre-existing set of tiles.
-//! let tiles = tile_catalogue(&hex);
-//!
-//! // Define a 14x6 map.
-//! let num_rows: usize = 6;
-//! let num_cols: usize = 14;
-//! let hexes: Vec<HexAddress> = (0..num_rows)
-//!     .map(|r| (0..num_cols).map(move |c| (r, c)))
-//!     .flatten()
-//!     .map(|coords| coords.into())
-//!     .collect();
-//! let map = Map::new(tiles, hexes);
+//! // Use a provided game.
+//! let game = rusty_train::game::_1867::Game::new();
+//! let map = game.create_map(&hex);
 //!
 //! // Create the initial UI state.
-//! let state = Rc::new(RefCell::new(UI::new(hex, map)));
+//! let game_box = Box::new(game);
+//! let state = Rc::new(RefCell::new(UI::new(hex, game_box, map)));
 //!
 //! // Create a GTK application.
 //! let application = gtk::Application::new(
@@ -94,6 +86,7 @@
 use cairo::Context;
 use gtk::{Inhibit, WidgetExt};
 
+use crate::game::Game;
 use crate::hex::Hex;
 use crate::map::Map;
 
@@ -106,10 +99,16 @@ pub mod util;
 
 use state::State;
 
-/// Defines the current state of the user interface.
-pub struct UI {
+/// Defines the non-UI game state components.
+pub struct Content {
     hex: Hex,
     map: Map,
+    game: Box<dyn Game>,
+}
+
+/// Defines the current state of the user interface.
+pub struct UI {
+    content: Content,
     state: Option<Box<dyn State>>,
 }
 
@@ -127,12 +126,23 @@ pub enum Action {
     ZoomOut,
 }
 
+// TODO: collect hex, map, window, area, event into a struct Event<T>
+// where T is EventKey or EventButton?
+// pub struct Event<'a, T> {
+//     hex: &'a Hex,
+//     map: &'a mut Map,
+//     window: &'a gtk::ApplicationWindow,
+//     area: &'a gtk::DrawingArea,
+//     event: &'a T,
+// }
+
 impl UI {
     /// Creates the initial user interface state.
-    pub fn new(hex: Hex, map: Map) -> Self {
+    pub fn new(hex: Hex, game: Box<dyn Game>, map: Map) -> Self {
         let b: Box<dyn State> = Box::new(state::default::Default::new(&map));
         let state = Some(b);
-        UI { hex, map, state }
+        let content = Content { hex, game, map };
+        UI { content, state }
     }
 
     /// Draws the current state of the user interface.
@@ -141,7 +151,7 @@ impl UI {
             ctx.set_source_rgb(1.0, 1.0, 1.0);
             ctx.rectangle(0.0, 0.0, w as f64, h as f64);
             ctx.fill();
-            state.draw(&self.hex, &self.map, w, h, ctx);
+            state.draw(&self.content, w, h, ctx);
         }
     }
 
@@ -156,8 +166,7 @@ impl UI {
         if let Some(curr_state) = state_opt {
             let action = global_keymap(
                 &curr_state,
-                &self.hex,
-                &mut self.map,
+                &mut self.content,
                 window,
                 area,
                 event,
@@ -167,16 +176,16 @@ impl UI {
                     match reset_state {
                         ResetState::No => (curr_state, inhibit, action),
                         ResetState::Yes => {
-                            let b: Box<dyn State> = Box::new(
-                                state::default::Default::new(&self.map),
-                            );
+                            let b: Box<dyn State> =
+                                Box::new(state::default::Default::new(
+                                    &self.content.map,
+                                ));
                             (b, inhibit, action)
                         }
                     }
                 } else {
                     curr_state.key_press(
-                        &self.hex,
-                        &mut self.map,
+                        &mut self.content,
                         window,
                         area,
                         event,
@@ -185,26 +194,30 @@ impl UI {
             self.state = Some(new_state);
             match action {
                 Action::ZoomIn => {
-                    if self.hex.max_d < 154.0 {
-                        self.hex = Hex::new(self.hex.max_d + 10.0);
-                        let surf_w = ((self.map.max_col as f64)
-                            * self.hex.min_d)
+                    if self.content.hex.max_d < 154.0 {
+                        // NOTE: may need to increase surface, draw area size?
+                        self.content.hex =
+                            Hex::new(self.content.hex.max_d + 10.0);
+                        let surf_w = ((self.content.map.max_col as f64)
+                            * self.content.hex.min_d)
                             as i32;
-                        let surf_h = ((self.map.max_row as f64)
-                            * self.hex.max_d)
+                        let surf_h = ((self.content.map.max_row as f64)
+                            * self.content.hex.max_d)
                             as i32;
                         area.set_size_request(surf_w, surf_h);
                         area.queue_draw();
                     }
                 }
                 Action::ZoomOut => {
-                    if self.hex.max_d > 66.0 {
-                        self.hex = Hex::new(self.hex.max_d - 10.0);
-                        let surf_w = ((self.map.max_col as f64)
-                            * self.hex.min_d)
+                    if self.content.hex.max_d > 66.0 {
+                        // NOTE: may need to decrease surface, draw area size?
+                        self.content.hex =
+                            Hex::new(self.content.hex.max_d - 10.0);
+                        let surf_w = ((self.content.map.max_col as f64)
+                            * self.content.hex.min_d)
                             as i32;
-                        let surf_h = ((self.map.max_row as f64)
-                            * self.hex.max_d)
+                        let surf_h = ((self.content.map.max_row as f64)
+                            * self.content.hex.max_d)
                             as i32;
                         area.set_size_request(surf_w, surf_h);
                         area.queue_draw();
@@ -234,8 +247,7 @@ impl UI {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
             let (new_state, inhibit, action) = curr_state.button_press(
-                &self.hex,
-                &mut self.map,
+                &mut self.content,
                 window,
                 area,
                 event,
@@ -243,26 +255,30 @@ impl UI {
             self.state = Some(new_state);
             match action {
                 Action::ZoomIn => {
-                    if self.hex.max_d < 154.0 {
-                        self.hex = Hex::new(self.hex.max_d + 10.0);
-                        let surf_w = ((self.map.max_col as f64)
-                            * self.hex.min_d)
+                    if self.content.hex.max_d < 154.0 {
+                        // NOTE: may need to increase surface, draw area size?
+                        self.content.hex =
+                            Hex::new(self.content.hex.max_d + 10.0);
+                        let surf_w = ((self.content.map.max_col as f64)
+                            * self.content.hex.min_d)
                             as i32;
-                        let surf_h = ((self.map.max_row as f64)
-                            * self.hex.max_d)
+                        let surf_h = ((self.content.map.max_row as f64)
+                            * self.content.hex.max_d)
                             as i32;
                         area.set_size_request(surf_w, surf_h);
                         area.queue_draw();
                     }
                 }
                 Action::ZoomOut => {
-                    if self.hex.max_d > 66.0 {
-                        self.hex = Hex::new(self.hex.max_d - 10.0);
-                        let surf_w = ((self.map.max_col as f64)
-                            * self.hex.min_d)
+                    if self.content.hex.max_d > 66.0 {
+                        // NOTE: may need to decrease surface, draw area size?
+                        self.content.hex =
+                            Hex::new(self.content.hex.max_d - 10.0);
+                        let surf_w = ((self.content.map.max_col as f64)
+                            * self.content.hex.min_d)
                             as i32;
-                        let surf_h = ((self.map.max_row as f64)
-                            * self.hex.max_d)
+                        let surf_h = ((self.content.map.max_row as f64)
+                            * self.content.hex.max_d)
                             as i32;
                         area.set_size_request(surf_w, surf_h);
                         area.queue_draw();
@@ -303,8 +319,7 @@ pub enum ResetState {
 /// - `Ctrl+s`, `Ctrl+S`: save the current map to disk.
 pub fn global_keymap<S: State + ?Sized>(
     state: &Box<S>,
-    hex: &Hex,
-    map: &mut Map,
+    content: &mut Content,
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,
     event: &gdk::EventKey,
@@ -317,7 +332,7 @@ pub fn global_keymap<S: State + ?Sized>(
             Some((ResetState::No, Inhibit(false), Action::Quit))
         }
         (gdk::enums::key::o, true) | (gdk::enums::key::O, true) => {
-            match util::load_map(window, map) {
+            match util::load_map(window, &mut content.map) {
                 Ok(action) => {
                     let reset = match action {
                         Action::None => ResetState::No,
@@ -332,7 +347,7 @@ pub fn global_keymap<S: State + ?Sized>(
             }
         }
         (gdk::enums::key::s, true) | (gdk::enums::key::S, true) => {
-            match util::save_map(window, map) {
+            match util::save_map(window, &mut content.map) {
                 Ok(action) => {
                     let reset = match action {
                         Action::None => ResetState::No,
@@ -347,7 +362,7 @@ pub fn global_keymap<S: State + ?Sized>(
             }
         }
         (gdk::enums::key::s, false) | (gdk::enums::key::S, false) => {
-            match util::save_screenshot(state, window, area, hex, map) {
+            match util::save_screenshot(state, window, area, content) {
                 Ok(action) => Some((ResetState::No, Inhibit(false), action)),
                 Err(error) => {
                     eprintln!("Error saving screenshot: {}", error);
