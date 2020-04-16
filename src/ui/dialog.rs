@@ -77,12 +77,15 @@ impl<'a> TrainDialog<'a> {
         train_vec.into()
     }
 
-    pub fn run(&self) -> Option<Trains> {
+    pub fn get_options(&self) -> Vec<bool> {
+        self.options.iter().map(|cb| cb.get_active()).collect()
+    }
+
+    pub fn run(&self) -> Option<(Trains, Vec<bool>)> {
         let response = self.dialog.run();
         self.dialog.hide();
         if response == gtk::ResponseType::Accept {
-            // TODO: also return which route bonuses were selected.
-            Some(self.get_trains())
+            Some((self.get_trains(), self.get_options()))
         } else {
             None
         }
@@ -111,12 +114,13 @@ fn add_spinner<'a>(
     row
 }
 
-/// Display a train-selection dialog and return the selected trains.
+/// Display a train-selection dialog and return the selected trains and route
+/// bonuses.
 pub fn select<'a>(
     parent: &gtk::ApplicationWindow,
     game: &Box<dyn Game>,
     name: &str,
-) -> Option<Trains> {
+) -> Option<(Trains, Vec<bool>)> {
     let train_types = game.train_types();
     let train_names: HashMap<_, &str> = train_types
         .iter()
