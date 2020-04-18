@@ -25,106 +25,106 @@ pub const PI_1_4: f64 = FRAC_PI_4;
 pub const PI_3_4: f64 = 3.0 * FRAC_PI_4;
 
 #[doc(inline)]
-pub use crate::hex::Hex;
+pub use rusty_hex::Hex;
 
 #[doc(inline)]
-pub use crate::hex::HexColour;
+pub use rusty_hex::HexColour;
 
 #[doc(inline)]
-pub use crate::hex::HexCorner;
+pub use rusty_hex::HexCorner;
 
 #[doc(inline)]
-pub use crate::hex::HexFace;
+pub use rusty_hex::HexFace;
 
 #[doc(inline)]
-pub use crate::hex::HexPosition;
+pub use rusty_hex::HexPosition;
 
 #[doc(inline)]
-pub use crate::hex::Delta;
+pub use rusty_hex::Delta;
 
 #[doc(inline)]
-pub use crate::hex::Direction;
+pub use rusty_hex::Direction;
 
 #[doc(inline)]
-pub use crate::city::City;
+pub use rusty_tile::City;
 
 #[doc(inline)]
-pub use crate::city::Rotation;
+pub use rusty_tile::Rotation;
 
 #[doc(inline)]
-pub use crate::track::Track;
+pub use rusty_tile::Track;
 
 #[doc(inline)]
-pub use crate::track::TrackCurve;
+pub use rusty_tile::TrackCurve;
 
 #[doc(inline)]
-pub use crate::track::TrackEnd;
+pub use rusty_tile::TrackEnd;
 
 #[doc(inline)]
-pub use crate::track::DitShape;
+pub use rusty_tile::DitShape;
 
 #[doc(inline)]
-pub use crate::label::Label;
+pub use rusty_tile::Label;
 
 #[doc(inline)]
-pub use crate::tile::Tile;
+pub use rusty_tile::Tile;
 
 #[doc(inline)]
-pub use crate::tile::Tiles;
+pub use rusty_tile::Connection;
 
 #[doc(inline)]
-pub use crate::connection::Connection;
+pub use rusty_catalogue::tile_catalogue;
 
 #[doc(inline)]
-pub use crate::catalogue::tile_catalogue;
+pub use rusty_io::read_tile;
 
 #[doc(inline)]
-pub use crate::de::read_tile;
+pub use rusty_io::write_tile;
 
 #[doc(inline)]
-pub use crate::de::write_tile;
+pub use rusty_io::read_tiles;
 
 #[doc(inline)]
-pub use crate::de::read_tiles;
+pub use rusty_io::write_tiles;
 
 #[doc(inline)]
-pub use crate::de::write_tiles;
+pub use rusty_map::Map;
 
 #[doc(inline)]
-pub use crate::map::Map;
+pub use rusty_map::HexAddress;
 
 #[doc(inline)]
-pub use crate::map::HexAddress;
+pub use rusty_map::RotateCW;
 
 #[doc(inline)]
-pub use crate::map::RotateCW;
+pub use rusty_map::Token;
 
 #[doc(inline)]
-pub use crate::map::Token;
+pub use rusty_map::TokensTable;
 
 #[doc(inline)]
-pub use crate::map::TokensTable;
+pub use rusty_route::Path;
 
 #[doc(inline)]
-pub use crate::route::Path;
+pub use rusty_route::conflict::ConflictRule;
 
 #[doc(inline)]
-pub use crate::route::conflict::ConflictRule;
+pub use rusty_route::search::Criteria;
 
 #[doc(inline)]
-pub use crate::route::search::Criteria;
+pub use rusty_route::search::paths_for_token;
 
 #[doc(inline)]
-pub use crate::route::search::paths_for_token;
+pub use rusty_route::train::Train;
 
 #[doc(inline)]
-pub use crate::route::train::Train;
+pub use rusty_route::train::Trains;
 
 #[doc(inline)]
-pub use crate::route::train::Trains;
+pub use rusty_route::train::Pairing;
 
 #[doc(inline)]
-pub use crate::route::train::Pairing;
+pub use rusty_game::Game;
 
 #[doc(inline)]
-pub use crate::game::Game;
+pub use rusty_ui::UI;

@@ -1,0 +1,16 @@
+[package]
+name = "rusty_game"
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+authors = ["Rob Moss <robm.dev@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rusty_hex = { path = "../rusty_hex" }
+rusty_tile = { path = "../rusty_tile" }
+rusty_map = { path = "../rusty_map" }
+rusty_route = { path = "../rusty_route" }
+rusty_catalogue = { path = "../rusty_catalogue" }
+log = "0.4"

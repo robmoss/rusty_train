@@ -538,6 +538,75 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1132f845907680735a84409c3bebc64d1364a5683ffbce899550cd09d5eaefc1"
 
 [[package]]
+name = "rusty_catalogue"
+version = "0.1.0"
+dependencies = [
+ "rusty_hex",
+ "rusty_tile",
+]
+
+[[package]]
+name = "rusty_game"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "rusty_catalogue",
+ "rusty_hex",
+ "rusty_map",
+ "rusty_route",
+ "rusty_tile",
+]
+
+[[package]]
+name = "rusty_hex"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+]
+
+[[package]]
+name = "rusty_io"
+version = "0.1.0"
+dependencies = [
+ "rusty_catalogue",
+ "rusty_hex",
+ "rusty_map",
+ "rusty_tile",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "rusty_map"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "rusty_catalogue",
+ "rusty_hex",
+ "rusty_tile",
+]
+
+[[package]]
+name = "rusty_route"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "log",
+ "rusty_catalogue",
+ "rusty_hex",
+ "rusty_map",
+ "rusty_tile",
+]
+
+[[package]]
+name = "rusty_tile"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "rusty_hex",
+]
+
+[[package]]
 name = "rusty_train"
 version = "0.1.0"
 dependencies = [
@@ -549,8 +618,33 @@ dependencies = [
  "glib",
  "gtk",
  "log",
- "serde",
- "serde_json",
+ "rusty_catalogue",
+ "rusty_game",
+ "rusty_hex",
+ "rusty_io",
+ "rusty_map",
+ "rusty_route",
+ "rusty_tile",
+ "rusty_ui",
+]
+
+[[package]]
+name = "rusty_ui"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "chrono",
+ "gdk",
+ "gio",
+ "glib",
+ "gtk",
+ "log",
+ "rusty_game",
+ "rusty_hex",
+ "rusty_io",
+ "rusty_map",
+ "rusty_route",
+ "rusty_tile",
 ]
 
 [[package]]

@@ -10,7 +10,19 @@ edition = "2018"
 # rust = "1.38"
 default-run = "test_ui"
 
+[workspace]
+members = ["crates/*"]
+
 [dependencies]
+rusty_hex = { path = "./crates/rusty_hex" }
+rusty_tile = { path = "./crates/rusty_tile" }
+rusty_catalogue = { path = "./crates/rusty_catalogue" }
+rusty_map = { path = "./crates/rusty_map" }
+rusty_io = { path = "./crates/rusty_io" }
+rusty_route = { path = "./crates/rusty_route" }
+rusty_game = { path = "./crates/rusty_game" }
+rusty_ui = { path = "./crates/rusty_ui" }
+
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.8", features = ["png", "pdf", "svg"] }
 # Use the minimum supported version of GTK (3.16).
@@ -20,7 +32,5 @@ gio = { version = "0.8", features = ["v2_44"] }
 gdk = "0.12"
 glib = "0.9"
 chrono = "0.4"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 log = "0.4"
 env_logger = "0.7"

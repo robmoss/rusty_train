@@ -12,7 +12,6 @@ use cairo::{Format, ImageSurface};
 use std::io::Write;
 
 use rusty_train::prelude::*;
-use rusty_train::ui::UI;
 
 type App = Rc<RefCell<UI>>;
 
@@ -21,7 +20,7 @@ pub fn build_ui(application: &gtk::Application) {
 
     let hex_width: i32 = 125;
     let hex = Hex::new(hex_width as f64);
-    let game = rusty_train::game::_1867::Game::new();
+    let game = rusty_game::_1867::Game::new();
     let map = game.create_map(&hex);
 
     let num_rows = map.max_row;

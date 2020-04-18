@@ -22,11 +22,13 @@
 //! Note: there **is** support for finding a single route that yields the
 //! highest possible revenue (ignoring bonuses for, e.g., visiting specific
 //! locations), and for finding the optimal pairing of trains to routes.
-//! See the [route-finding documentation](route/doc/index.html) for details.
+//! See the [route-finding documentation](../rusty_route/doc/index.html) for
+//! details.
 //!
 //! ## Defining tiles
 //!
-//! Use the [`rusty_train::tile::Tile`](tile/struct.Tile.html) data structure.
+//! Use the [`rusty_tile::Tile`](../rusty_tile/tile/struct.Tile.html) data
+//! structure.
 //! This uses the [Cairo bindings](https://gtk-rs.org/docs/cairo/) provided by
 //! the [Gtk-rs](https://gtk-rs.org/) project.
 //!
@@ -110,50 +112,8 @@
 //! ```
 //!
 
-/// Cities and token spaces.
-pub mod city;
-
-/// Cartesian coordinates for use with hex tiles.
-pub mod coord;
-
-/// Generic trait for tiles and tile elements that draw themselves.
-pub mod draw;
-
-/// Hexagonal tiles, and attributes such as faces, corners, and colours.
-pub mod hex;
-
-/// Tile labels, such as tile names, city names, and revenue.
-pub mod label;
-
-/// Tiles that can contain track segments, cities, and token spaces.
-pub mod tile;
-
-/// Track segments.
-pub mod track;
-
-/// Connections between track segments, cities, and tile edges.
-pub mod connection;
-
-/// Game-specific tile catalogues.
-pub mod catalogue;
-
-/// Support for tile (de)serialisation.
-pub mod de;
-
-/// Maps with spaces for tiles.
-pub mod map;
-
-/// Find train routes with the greatest revenue.
-pub mod route;
-
-/// A user interface for creating map states and calculating route revenue.
-pub mod ui;
-
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
-
-/// Defines maps and tile sets for specific 18xx games.
-pub mod game;
 
 // TODO:
 //   grid module for tile arrangement
