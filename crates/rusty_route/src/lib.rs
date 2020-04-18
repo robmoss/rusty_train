@@ -11,6 +11,10 @@ pub mod path;
 
 pub mod search;
 
+pub mod perm;
+
+pub mod comb;
+
 pub mod train;
 
 pub mod doc;
