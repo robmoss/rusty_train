@@ -11,6 +11,8 @@ pub mod path;
 
 pub mod search;
 
+pub mod bonus;
+
 pub mod perm;
 
 pub mod comb;
@@ -30,3 +32,6 @@ pub use search::{paths_for_token, Criteria, PathLimit, Query};
 
 #[doc(inline)]
 pub use train::{Pair, Pairing, Train, Trains};
+
+#[doc(inline)]
+pub use bonus::Bonus;

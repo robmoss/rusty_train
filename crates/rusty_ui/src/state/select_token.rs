@@ -161,7 +161,7 @@ impl SelectToken {
         content: &Content,
         token: &Token,
     ) -> Option<(Token, Pairing)> {
-        let (trains, bonuses) = match self.token_trains.get(token) {
+        let (trains, bonus_options) = match self.token_trains.get(token) {
             Some(value) => value,
             None => return None,
         };
@@ -188,7 +188,9 @@ impl SelectToken {
             now.elapsed().as_secs_f64()
         );
         let now = std::time::Instant::now();
-        let best_routes = trains.select_routes(paths);
+        // Determine the route bonuses that may apply.
+        let bonuses = content.game.get_bonuses(bonus_options);
+        let best_routes = trains.select_routes(paths, bonuses);
         info!(
             "Calculated (train, path) revenues in {}",
             now.elapsed().as_secs_f64()
