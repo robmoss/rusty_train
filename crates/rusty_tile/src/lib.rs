@@ -16,9 +16,20 @@ pub mod connection;
 /// Tiles that can contain track segments, cities, and token spaces.
 pub mod tile;
 
+#[doc(inline)]
 pub use city::{City, Rotation, Tokens};
+
+#[doc(inline)]
 pub use connection::{Connection, Connections, Dit};
+
+#[doc(inline)]
 pub use draw::Draw;
+
+#[doc(inline)]
 pub use label::Label;
+
+#[doc(inline)]
 pub use tile::{LabelAndPos, Tile, TokenSpace};
+
+#[doc(inline)]
 pub use track::{DitShape, Track, TrackCurve, TrackEnd};

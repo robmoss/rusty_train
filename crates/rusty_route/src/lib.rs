@@ -19,7 +19,14 @@ pub mod train;
 
 pub mod doc;
 
+#[doc(inline)]
 pub use conflict::{Conflict, ConflictRule};
+
+#[doc(inline)]
 pub use path::{Path, Step, Stop, StopLocation, Visit};
+
+#[doc(inline)]
 pub use search::{paths_for_token, Criteria, PathLimit, Query};
+
+#[doc(inline)]
 pub use train::{Pair, Pairing, Train, Trains};
