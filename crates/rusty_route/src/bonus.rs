@@ -3,6 +3,7 @@
 use rusty_map::HexAddress;
 
 /// The different types of route bonus that may be applied.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Bonus {
     /// A bonus for visiting a specific location.
     VisitBonus { locn: HexAddress, bonus: usize },

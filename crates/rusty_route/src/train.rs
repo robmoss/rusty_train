@@ -164,16 +164,16 @@ impl Train {
     pub fn revenue_for(
         &self,
         path: &Path,
-        bonuses: &HashMap<HexAddress, Bonus>,
+        visit_bonuses: &HashMap<HexAddress, usize>,
+        conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
     ) -> Option<(usize, Vec<usize>)> {
         // TODO: apply route bonuses!!!!
         //
         // Visit bonuses are simple:
-        // Bonus::VisitBonus { locn: HexAddress, bonus: usize }
+        // location -> bonus revenue
         //
         // Connection bonuses are difficult:
-        // Bonus::ConnectionBonus { from: HexAddress, to_any: Vec<HexAddress>,
-        //                          bonus: usize }
+        // location -> at least one of (to_any) -> bonus revenue
 
         if let Some(max_stops) = self.max_stops {
             if self.can_skip_cities && self.can_skip_dits {
@@ -454,14 +454,28 @@ impl Trains {
         let num_paths = path_tbl.len();
         let num_trains = self.train_count();
 
-        // Index each bonus by location.
-        let bonuses: HashMap<HexAddress, Bonus> = bonuses
-            .into_iter()
-            .map(|b| match b {
-                Bonus::VisitBonus { locn, .. } => (locn, b),
-                Bonus::ConnectionBonus { from, .. } => (from, b),
+        // Index visit bonuses by location.
+        let visit_bonuses: HashMap<HexAddress, usize> = bonuses
+            .iter()
+            .filter_map(|b| match b {
+                Bonus::VisitBonus { locn, bonus } => Some((*locn, *bonus)),
+                Bonus::ConnectionBonus { .. } => None,
             })
             .collect();
+
+        // Index connection bonuses by location.
+        let connect_bonuses: HashMap<HexAddress, (Vec<HexAddress>, usize)> =
+            bonuses
+                .into_iter()
+                .filter_map(|b| match b {
+                    Bonus::VisitBonus { .. } => None,
+                    Bonus::ConnectionBonus {
+                        from,
+                        to_any,
+                        bonus,
+                    } => Some((from, (to_any, bonus))),
+                })
+                .collect();
 
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
@@ -474,7 +488,11 @@ impl Trains {
                         .keys()
                         .filter_map(|train| {
                             train
-                                .revenue_for(&path_tbl[path_ix], &bonuses)
+                                .revenue_for(
+                                    &path_tbl[path_ix],
+                                    &visit_bonuses,
+                                    &connect_bonuses,
+                                )
                                 .map(|revenue| (*train, revenue))
                         })
                         .collect(),
