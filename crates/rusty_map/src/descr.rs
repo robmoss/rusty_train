@@ -22,7 +22,19 @@ pub struct TileDescr {
 
 /// A description of each tile's configuration on a map.
 pub struct Descr {
-    pub tiles: HashMap<HexAddress, Option<TileDescr>>,
+    tiles: HashMap<HexAddress, Option<TileDescr>>,
+}
+
+impl<'a> From<&'a Descr> for &'a HashMap<HexAddress, Option<TileDescr>> {
+    fn from(src: &'a Descr) -> Self {
+        &src.tiles
+    }
+}
+
+impl<'a> From<HashMap<HexAddress, Option<TileDescr>>> for Descr {
+    fn from(src: HashMap<HexAddress, Option<TileDescr>>) -> Self {
+        Self { tiles: src }
+    }
 }
 
 /// Constructs a map configuration from a vector of tile descriptions.

@@ -3,6 +3,7 @@ use rusty_hex::Hex;
 
 use serde::{Deserialize, Serialize};
 
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -3265,33 +3266,30 @@ fn tile_descr(addr: &HexAddress, descr: &TileDescr) -> rusty_map::TileDescr {
 
 impl std::convert::From<&rusty_map::descr::Descr> for Descr {
     fn from(src: &rusty_map::descr::Descr) -> Self {
-        Descr {
-            tiles: src
-                .tiles
-                .iter()
-                .map(|(k, v)| {
-                    (HexAddress::from(k))
-                        .with_tile(v.as_ref().map(|td| td.into()))
-                })
-                .collect(),
-        }
+        let tiles: &HashMap<_, _> = src.into();
+        let tiles: Vec<HexAddress> = tiles
+            .iter()
+            .map(|(k, v)| {
+                HexAddress::from(k).with_tile(v.as_ref().map(|td| td.into()))
+            })
+            .collect();
+        Descr { tiles: tiles }
     }
 }
 
 impl std::convert::From<&Descr> for rusty_map::descr::Descr {
     fn from(src: &Descr) -> Self {
-        rusty_map::descr::Descr {
-            tiles: src
-                .tiles
-                .iter()
-                .map(|addr| {
-                    (
-                        addr.into(),
-                        addr.tile.as_ref().map(|td| tile_descr(addr, td)),
-                    )
-                })
-                .collect(),
-        }
+        let tiles: HashMap<_, _> = src
+            .tiles
+            .iter()
+            .map(|addr| {
+                (
+                    addr.into(),
+                    addr.tile.as_ref().map(|td| tile_descr(addr, td)),
+                )
+            })
+            .collect();
+        tiles.into()
     }
 }
 
