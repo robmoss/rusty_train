@@ -101,6 +101,10 @@ impl SelectToken {
     /// Updates the window title so that it shows the train route criteria and
     /// the revenue earned from the best path (if any).
     fn update_title(&self, window: &gtk::ApplicationWindow) {
+        if self.best_routes.is_none() {
+            window.set_title("No routes");
+            return;
+        }
         let descr = self.describe_query();
         let revenue = self
             .best_routes
@@ -126,8 +130,8 @@ impl SelectToken {
             let token_opt = hex_state.get_token_at(&space);
             self.matches = token_matches(map, token_opt);
             if token_opt == None {
-                self.update_title(window);
                 self.best_routes = None;
+                self.update_title(window);
                 return Action::Redraw;
             }
             let token = token_opt.unwrap();
@@ -142,9 +146,11 @@ impl SelectToken {
             if let Some((trains, bonuses)) = trains_opt {
                 self.token_trains.insert(*token, (trains, bonuses));
                 self.best_routes = self.best_routes_for(content, token);
+                self.update_title(window);
                 Action::Redraw
             } else {
                 self.best_routes = None;
+                self.update_title(window);
                 Action::Redraw
             }
         } else {
