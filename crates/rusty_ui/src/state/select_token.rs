@@ -172,6 +172,11 @@ impl SelectToken {
             None => return None,
         };
 
+        // Handle the case where no trains were selected.
+        if trains.train_count() == 0 {
+            return None;
+        }
+
         let start = std::time::Instant::now();
         info!("");
         info!("Searching for the best routes ...");
