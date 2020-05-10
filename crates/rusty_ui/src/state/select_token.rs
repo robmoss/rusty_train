@@ -214,7 +214,7 @@ impl SelectToken {
             for pair in &pairing.pairs {
                 info!(
                     "{}: ${} for {} to {}",
-                    pair.train.describe(),
+                    content.game.train_name(&pair.train).unwrap_or("???"),
                     pair.revenue,
                     pair.path.visits.first().unwrap().addr,
                     pair.path.visits.last().unwrap().addr

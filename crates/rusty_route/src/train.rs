@@ -82,27 +82,6 @@ impl Default for Train {
 }
 
 impl Train {
-    pub fn describe(&self) -> String {
-        if self.can_skip_dits
-            && !self.can_skip_cities
-            && self.revenue_multiplier == 1
-        {
-            format!("{}-train", self.max_stops.unwrap())
-        } else if self.can_skip_dits
-            && self.can_skip_cities
-            && self.revenue_multiplier == 2
-            && self.max_stops.is_some()
-        {
-            format!(
-                "{}+{}E-train",
-                self.max_stops.as_ref().unwrap(),
-                self.max_stops.as_ref().unwrap()
-            )
-        } else {
-            "".to_string()
-        }
-    }
-
     fn new_n_train(n: usize) -> Self {
         Train {
             max_stops: Some(n),
