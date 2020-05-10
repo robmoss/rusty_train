@@ -85,33 +85,16 @@ impl SelectToken {
         Some(state)
     }
 
-    /// Returns a description of the train route criteria.
-    fn describe_query(&self) -> String {
-        let visits = self
-            .path_limit
-            .map(|n| match n {
-                PathLimit::Cities { count } => count.to_string(),
-                PathLimit::CitiesAndTowns { count } => count.to_string(),
-                PathLimit::Hexes { count } => format!("H{}", count),
-            })
-            .unwrap_or("D".to_string());
-        visits
-    }
-
     /// Updates the window title so that it shows the train route criteria and
     /// the revenue earned from the best path (if any).
     fn update_title(&self, window: &gtk::ApplicationWindow) {
-        if self.best_routes.is_none() {
-            window.set_title("No routes");
-            return;
-        }
-        let descr = self.describe_query();
-        let revenue = self
+        let title = self
             .best_routes
             .as_ref()
-            .map(|(_token, pairing)| pairing.net_revenue)
-            .unwrap_or(0);
-        let title = format!("{} train: ${}", descr, revenue);
+            .map(|(token, pairing)| {
+                format!("{}: ${}", token.text(), pairing.net_revenue)
+            })
+            .unwrap_or("No routes".to_string());
         window.set_title(&title);
     }
 
