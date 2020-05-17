@@ -244,6 +244,43 @@ impl State for SelectToken {
 
         util::outline_empty_hexes(hex, ctx, &mut hex_iter);
 
+        // Highlight all matching token spaces on the map, before drawing each
+        // route. Note that the routes may pass through, but not stop at,
+        // these token spaces.
+        hex_iter.restart();
+        for (addr, tile_opt) in &mut hex_iter {
+            if let Some(spaces) = self.matches.get(&addr) {
+                // Highlight and/or fill token spaces
+                if let Some((tile, _tokens)) = tile_opt {
+                    for token_space in spaces {
+                        let (r, g, b, a) = (0.9, 0.1, 0.1, 0.25);
+                        tile.define_token_space(token_space, hex, ctx);
+                        ctx.set_source_rgb(r, g, b);
+                        ctx.set_line_width(hex.max_d * 0.025);
+                        ctx.stroke_preserve();
+                        if self.active_hex != addr {
+                            ctx.set_source_rgba(r, g, b, a);
+                            ctx.fill_preserve();
+                        }
+                    }
+                }
+            }
+
+            if self.active_hex == addr {
+                // Highlight the active token space.
+                // NOTE: this still needs to be done, as the active token
+                // space may be empty and thus no spaces will be highlighted
+                // by the code above.
+                if let Some((tile, _tokens)) = tile_opt {
+                    let token_space = &self.token_spaces[self.selected];
+                    tile.define_token_space(token_space, hex, ctx);
+                    ctx.set_source_rgb(0.8, 0.2, 0.2);
+                    ctx.set_line_width(hex.max_d * 0.025);
+                    ctx.stroke_preserve();
+                }
+            }
+        }
+
         // Draw each of the best routes.
         if let Some((_token, pairing)) = &self.best_routes {
             for (ix, pair) in pairing.pairs.iter().enumerate() {
@@ -294,16 +331,7 @@ impl State for SelectToken {
                         StopLocation::City { ix } => {
                             let city = tile.cities()[ix];
                             city.draw_fg(hex, ctx);
-                            if visit.revenue > 0 {
-                                ctx.set_source(&source);
-                            } else {
-                                // NOTE: the train did not stop here.
-                                ctx.set_source(&source);
-                                ctx.set_source_rgb(0.0, 0.0, 0.0);
-                            }
-                            ctx.set_line_width(line_width);
-                            city.define_boundary(hex, ctx);
-                            ctx.stroke();
+                            // Draw the tokens first.
                             if let Some(hex_state) = map.get_hex(visit.addr) {
                                 let tokens_table = hex_state.get_tokens();
                                 for (token_space, map_token) in
@@ -317,6 +345,17 @@ impl State for SelectToken {
                                     map_token.draw_token(&hex, ctx);
                                 }
                             }
+                            // Then draw a border around the city.
+                            if visit.revenue > 0 {
+                                ctx.set_source(&source);
+                            } else {
+                                // NOTE: the train did not stop here.
+                                ctx.set_source(&source);
+                                ctx.set_source_rgb(0.0, 0.0, 0.0);
+                            }
+                            ctx.set_line_width(line_width);
+                            city.define_boundary(hex, ctx);
+                            ctx.stroke();
                         }
                         StopLocation::Dit { ix } => {
                             let dit = tile.dits()[ix];
@@ -344,41 +383,6 @@ impl State for SelectToken {
                         }
                     }
                     ctx.set_matrix(m);
-                }
-            }
-        }
-
-        // Highlight all matching token spaces on the map.
-        hex_iter.restart();
-        for (addr, tile_opt) in &mut hex_iter {
-            if let Some(spaces) = self.matches.get(&addr) {
-                // Highlight and/or fill token spaces
-                if let Some((tile, _tokens)) = tile_opt {
-                    for token_space in spaces {
-                        let (r, g, b, a) = (0.9, 0.1, 0.1, 0.25);
-                        tile.define_token_space(token_space, hex, ctx);
-                        ctx.set_source_rgb(r, g, b);
-                        ctx.set_line_width(hex.max_d * 0.025);
-                        ctx.stroke_preserve();
-                        if self.active_hex != addr {
-                            ctx.set_source_rgba(r, g, b, a);
-                            ctx.fill_preserve();
-                        }
-                    }
-                }
-            }
-
-            if self.active_hex == addr {
-                // Highlight the active token space.
-                // NOTE: this still needs to be done, as the active token
-                // space may be empty and thus no spaces will be highlighted
-                // by the code above.
-                if let Some((tile, _tokens)) = tile_opt {
-                    let token_space = &self.token_spaces[self.selected];
-                    tile.define_token_space(token_space, hex, ctx);
-                    ctx.set_source_rgb(0.8, 0.2, 0.2);
-                    ctx.set_line_width(hex.max_d * 0.025);
-                    ctx.stroke_preserve();
                 }
             }
         }
