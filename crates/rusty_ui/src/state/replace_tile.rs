@@ -71,9 +71,19 @@ impl State for ReplaceTile {
                 tile.draw(ctx, hex);
                 if let Some((_tile, token_spaces)) = tile_opt {
                     // Draw any tokens that have been placed.
+                    // NOTE: the replacement tile may not have a matching
+                    // token space; when editing a tile there may be fewer
+                    // token spaces, and when upgrading there may be fewer
+                    // cities --- and the token_space is linked to the city
+                    // index. So we really need to identify an appropriate
+                    // "equivalent" token space, if one exists. For now, this
+                    // only draws the token if there is a matching space
+                    // (i.e., matching city index and token index).
                     for (token_space, map_token) in token_spaces.iter() {
-                        tile.define_token_space(&token_space, &hex, ctx);
-                        map_token.draw_token(&hex, ctx);
+                        // Determine if the tile has a matching token space.
+                        if tile.define_token_space(&token_space, &hex, ctx) {
+                            map_token.draw_token(&hex, ctx);
+                        }
                     }
                 }
                 ctx.rotate(-self.rotation.radians() - extra_angle);

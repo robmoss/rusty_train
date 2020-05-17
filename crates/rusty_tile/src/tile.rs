@@ -366,9 +366,12 @@ impl Tile {
         space: &TokenSpace,
         hex: &Hex,
         ctx: &Context,
-    ) {
+    ) -> bool {
+        if space.city_ix >= self.cities.len() {
+            return false;
+        }
         let city = self.cities[space.city_ix];
-        city.define_token_path(space.token_ix, hex, ctx);
+        city.define_token_path(space.token_ix, hex, ctx)
     }
 
     /// Check whether a tile can be upgraded to another tile.
