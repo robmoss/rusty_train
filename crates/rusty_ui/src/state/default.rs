@@ -1,5 +1,6 @@
 use cairo::Context;
 use gtk::Inhibit;
+use log::info;
 
 use super::{Action, State};
 use crate::util;
@@ -116,6 +117,7 @@ impl State for Default {
                             );
                             (state, Inhibit(false), Action::Redraw)
                         } else {
+                            info!("No upgrade candidates for {}", tile.name);
                             (self, Inhibit(false), Action::None)
                         }
                     } else {
@@ -137,6 +139,7 @@ impl State for Default {
                             );
                             (state, Inhibit(false), Action::Redraw)
                         } else {
+                            info!("No placement candidates for empty hex");
                             (self, Inhibit(false), Action::None)
                         }
                     }
