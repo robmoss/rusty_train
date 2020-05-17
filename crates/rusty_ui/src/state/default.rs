@@ -85,6 +85,16 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
+            gdk::enums::key::p | gdk::enums::key::P => {
+                let phase_opt =
+                    crate::dialog::select_phase(window, &content.game);
+                if let Some(phase) = phase_opt {
+                    content.game.set_phase(&mut content.map, phase);
+                    (self, Inhibit(false), Action::Redraw)
+                } else {
+                    (self, Inhibit(false), Action::None)
+                }
+            }
             gdk::enums::key::u | gdk::enums::key::U => {
                 if let Some(addr) = self.active_hex {
                     if let Some(tile) = map.tile_at(addr) {

@@ -147,3 +147,89 @@ pub fn select_trains(
     );
     td.run()
 }
+
+/// A dialog for selecting the game phase.
+pub struct PhaseDialog<'a> {
+    phase_names: Vec<&'a str>,
+    combo: gtk::ComboBoxText,
+    pub dialog: gtk::Dialog,
+}
+
+impl<'a> PhaseDialog<'a> {
+    pub fn new(
+        parent: &gtk::ApplicationWindow,
+        phase_names: &'a [&'a str],
+        current_phase: usize,
+        title: &str,
+    ) -> Self {
+        let buttons = [
+            ("OK", gtk::ResponseType::Accept),
+            // ("Cancel", gtk::ResponseType::Reject),
+        ];
+        let flags = gtk::DialogFlags::all();
+        let dialog = gtk::Dialog::new_with_buttons(
+            Some(&title),
+            Some(parent),
+            flags,
+            &buttons,
+        );
+
+        let padding = 4;
+        let content = dialog.get_content_area();
+
+        let combo = gtk::ComboBoxText::new();
+        // phase_names.iter().for_each(|name| combo.append_text(name));
+        let phase_names = phase_names.to_vec();
+        phase_names
+            .iter()
+            .for_each(|name| combo.append(Some(name), name));
+        combo.set_active_id(phase_names.get(current_phase).map(|s| *s));
+        content.pack_start(&combo, true, false, padding);
+        dialog.show_all();
+
+        PhaseDialog {
+            phase_names,
+            combo,
+            dialog,
+        }
+    }
+
+    fn get_phase_ix(&self) -> Option<usize> {
+        self.combo.get_active_text().and_then(|text| {
+            let text = text.as_str();
+            self.phase_names
+                .iter()
+                .enumerate()
+                .find(|(_ix, name)| &text == *name)
+                .map(|(ix, _name)| ix)
+        })
+    }
+
+    pub fn run(&self) -> Option<usize> {
+        let response = self.dialog.run();
+        self.dialog.hide();
+        if response == gtk::ResponseType::Accept {
+            self.get_phase_ix()
+        } else {
+            None
+        }
+    }
+
+    pub fn destroy(&self) {
+        self.dialog.destroy();
+    }
+}
+
+/// Display a phase-selection dialog and return the selected game phase.
+pub fn select_phase(
+    parent: &gtk::ApplicationWindow,
+    game: &Box<dyn Game>,
+) -> Option<usize> {
+    let pd = PhaseDialog::new(
+        parent,
+        game.phase_names(),
+        game.get_phase(),
+        "Select Game Phase",
+    );
+    pd.run()
+}
