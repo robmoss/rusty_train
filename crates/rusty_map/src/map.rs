@@ -1071,8 +1071,14 @@ impl HexAddress {
 impl std::fmt::Display for HexAddress {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
-        let row_letter = alphabet[self.row];
-        write!(f, "{}{}", row_letter, self.col)
+        // NOTE: this is consistent with the 1861/67 maps.
+        let col_letter = alphabet[self.col];
+        let row_num = if self.col % 2 == 0 {
+            2 * self.row + 1
+        } else {
+            2 * self.row + 2
+        };
+        write!(f, "{}{}", col_letter, row_num)
     }
 }
 
