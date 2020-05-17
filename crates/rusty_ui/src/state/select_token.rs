@@ -125,7 +125,7 @@ impl SelectToken {
             }
             let tok_name = token.text();
             let trains_opt =
-                crate::dialog::select(window, &content.game, tok_name);
+                crate::dialog::select_trains(window, &content.game, tok_name);
             if let Some((trains, bonuses)) = trains_opt {
                 self.token_trains.insert(*token, (trains, bonuses));
                 self.best_routes = self.best_routes_for(content, token);

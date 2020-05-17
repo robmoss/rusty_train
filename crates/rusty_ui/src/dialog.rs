@@ -37,7 +37,18 @@ impl<'a> TrainDialog<'a> {
             .collect();
 
         let padding = 4;
+        let spacing = 8;
         let content = dialog.get_content_area();
+
+        // NOTE: pack the train list on the left, and options on the right.
+        let train_col = gtk::Box::new(gtk::Orientation::Vertical, spacing);
+        let option_col = gtk::Box::new(gtk::Orientation::Vertical, spacing);
+        let option_box = gtk::Box::new(gtk::Orientation::Vertical, spacing);
+        content.set_orientation(gtk::Orientation::Horizontal);
+        content.pack_start(&train_col, true, true, padding);
+        content.pack_start(&option_col, true, true, padding);
+        option_col.pack_start(&option_box, true, false, padding);
+
         let mut trains = Vec::with_capacity(train_types.len());
         train_types.iter().for_each(|train| {
             let row = add_spinner(
@@ -45,11 +56,11 @@ impl<'a> TrainDialog<'a> {
                 train_names.get(train).unwrap(),
                 &mut trains,
             );
-            content.pack_start(&row, true, true, padding)
+            train_col.pack_start(&row, false, false, padding)
         });
-        options
-            .iter()
-            .for_each(|btn| content.pack_start(btn, true, true, padding));
+        options.iter().for_each(|btn| {
+            option_box.pack_start(btn, false, false, padding)
+        });
         dialog.show_all();
         TrainDialog {
             trains,
@@ -107,7 +118,7 @@ fn add_spinner<'a>(
     spin.set_update_policy(gtk::SpinButtonUpdatePolicy::IfValid);
     let label = gtk::Label::new(Some(name));
     label.set_justify(gtk::Justification::Left);
-    let row = gtk::Box::new(gtk::Orientation::Horizontal, 0);
+    let row = gtk::Box::new(gtk::Orientation::Horizontal, 16);
     row.pack_start(&label, true, true, 0);
     row.pack_end(&spin, false, false, 0);
     trains.push((train, spin));
@@ -116,7 +127,7 @@ fn add_spinner<'a>(
 
 /// Display a train-selection dialog and return the selected trains and route
 /// bonuses.
-pub fn select<'a>(
+pub fn select_trains(
     parent: &gtk::ApplicationWindow,
     game: &Box<dyn Game>,
     name: &str,
