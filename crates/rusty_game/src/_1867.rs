@@ -8,8 +8,8 @@ use std::collections::HashMap;
 use rusty_catalogue::tile_catalogue;
 use rusty_hex::Hex;
 use rusty_map::{HexAddress, Map, RotateCW};
-use rusty_route::train::Train;
-use rusty_tile::Label;
+use rusty_route::{Bonus, Train};
+use rusty_tile::{Label, Tile};
 
 fn addrs() -> Vec<(usize, usize)> {
     vec![
@@ -185,10 +185,13 @@ fn hex_labels() -> Vec<(HexAddress, Label)> {
 pub struct Game {
     trains: Vec<Train>,
     names: Vec<&'static str>,
+    all_tiles: Vec<Tile>,
+    phase: usize,
+    phase_names: Vec<&'static str>,
 }
 
 impl Game {
-    pub fn new() -> Self {
+    pub fn new(hex: &Hex) -> Self {
         let trains = vec![
             Train::new_2_train(),
             Train::new_3_train(),
@@ -201,11 +204,25 @@ impl Game {
             Train::new_5p5e_train(),
         ];
         let names = vec!["2", "3", "4", "5", "6", "7", "8", "2+2", "5+5E"];
-        Game { trains, names }
+        let all_tiles = tile_catalogue(&hex);
+        let phase = 0;
+        let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
+        Game {
+            trains,
+            names,
+            all_tiles,
+            phase,
+            phase_names,
+        }
     }
 }
 
 impl super::Game for Game {
+    /// The name of this game.
+    fn name(&self) -> &str {
+        "1867: The Railways of Canada"
+    }
+
     /// The train types that companies can purchase and operate.
     fn train_types(&self) -> Vec<Train> {
         self.trains.clone()
@@ -234,6 +251,56 @@ impl super::Game for Game {
         ]
     }
 
+    fn get_bonuses(&self, bonus_options: &Vec<bool>) -> Vec<Bonus> {
+        let timmins = Bonus::ConnectionBonus {
+            from: (0, 3).into(),
+            to_any: vec![
+                (7, 5).into(),  // Toronto
+                (5, 11).into(), // Montreal
+                (3, 14).into(), // Quebec
+            ],
+            bonus: 40,
+        };
+        let mut bonuses = vec![timmins];
+        if bonus_options.len() == 4 {
+            if bonus_options[0] {
+                // Buffalo
+                bonuses.push(Bonus::VisitBonus {
+                    locn: (8, 5).into(),
+                    bonus: 10,
+                });
+            }
+            if bonus_options[1] {
+                // Montreal
+                bonuses.push(Bonus::VisitBonus {
+                    locn: (5, 11).into(),
+                    bonus: 10,
+                });
+            }
+            if bonus_options[2] {
+                // Quebec
+                bonuses.push(Bonus::VisitBonus {
+                    locn: (3, 14).into(),
+                    bonus: 10,
+                });
+            }
+            if bonus_options[3] {
+                // Detroit
+                bonuses.push(Bonus::VisitBonus {
+                    locn: (8, 0).into(),
+                    bonus: 10,
+                });
+                bonuses.push(Bonus::VisitBonus {
+                    locn: (9, 0).into(),
+                    bonus: 10,
+                });
+            }
+        } else {
+            panic!("Invalid number of bonus options: {}", bonus_options.len())
+        }
+        bonuses
+    }
+
     /// Create the initial map for 1867.
     fn create_map(&self, hex: &Hex) -> Map {
         let tiles = tile_catalogue(&hex);
@@ -248,5 +315,39 @@ impl super::Game for Game {
         }
         // TODO: mark tiles that are not modifiable.
         map
+    }
+
+    /// Return the tiles that players are allowed to place on the map.
+    fn player_tiles(&self) -> &[Tile] {
+        // TODO: this also returns special map tiles.
+        &self.all_tiles
+    }
+
+    /// Return the number of game phases.
+    fn phase_count(&self) -> usize {
+        7
+    }
+
+    /// Return the current game phase.
+    fn get_phase(&self) -> usize {
+        self.phase
+    }
+
+    /// Change the current game phase, which may update the map.
+    fn set_phase(&mut self, _map: &mut Map, phase: usize) {
+        if phase > 6 {
+            return;
+        }
+        self.phase = phase;
+    }
+
+    /// Return the name of a game phase.
+    fn phase_name(&self, phase: usize) -> Option<&str> {
+        self.phase_names.get(phase).map(|s| *s)
+    }
+
+    /// Return the name of each game phase.
+    fn phase_names(&self) -> &[&str] {
+        &self.phase_names
     }
 }
