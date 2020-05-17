@@ -64,18 +64,27 @@ use std::iter::FromIterator;
 /// The types of trains that can operate routes to earn revenue.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Train {
+    train_type: TrainType,
     max_stops: Option<usize>,
-    can_skip_dits: bool,
-    can_skip_cities: bool,
     revenue_multiplier: usize,
+}
+
+/// The types of trains that can operate routes to earn revenue.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum TrainType {
+    /// Cannot skip towns or cities.
+    MustStop,
+    /// Can skip towns but cannot skip cities.
+    SkipTowns,
+    /// Can skip towns or cities.
+    SkipAny,
 }
 
 impl Default for Train {
     fn default() -> Self {
         Train {
             max_stops: Some(2),
-            can_skip_dits: true,
-            can_skip_cities: false,
+            train_type: TrainType::SkipTowns,
             revenue_multiplier: 1,
         }
     }
@@ -87,6 +96,13 @@ impl Train {
             max_stops: Some(n),
             ..Default::default()
         }
+    }
+
+    /// Return true if this train can operate a route of arbitrary length, as
+    /// a result of being able to (a) make an unlimited number of stops; or
+    /// (b) skip any number of towns and cities.
+    pub fn is_express(&self) -> bool {
+        self.max_stops.is_none() || self.train_type == TrainType::SkipAny
     }
 
     pub fn new_2_train() -> Self {
@@ -120,8 +136,7 @@ impl Train {
     pub fn new_2p2_train() -> Self {
         Train {
             max_stops: Some(2),
-            can_skip_dits: true,
-            can_skip_cities: false,
+            train_type: TrainType::SkipTowns,
             revenue_multiplier: 2,
         }
     }
@@ -129,8 +144,7 @@ impl Train {
     pub fn new_5p5e_train() -> Self {
         Train {
             max_stops: Some(5),
-            can_skip_dits: true,
-            can_skip_cities: true,
+            train_type: TrainType::SkipAny,
             revenue_multiplier: 2,
         }
     }
@@ -146,180 +160,357 @@ impl Train {
         visit_bonuses: &HashMap<HexAddress, usize>,
         conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
     ) -> Option<(usize, Vec<usize>)> {
-        // TODO: apply route bonuses!!!!
-        //
-        // Visit bonuses are simple:
-        // location -> bonus revenue
-        //
-        // Connection bonuses are difficult:
-        // location -> at least one of (to_any) -> bonus revenue
-
-        if let Some(max_stops) = self.max_stops {
-            if self.can_skip_cities && self.can_skip_dits {
-                // NOTE: must include first and last stops.
-                let rev_first = path.visits.first().unwrap().revenue;
-                let rev_last = path.visits.last().unwrap().revenue;
-                let mut rev_rest = path
-                    .visits
-                    .iter()
-                    .enumerate()
-                    .skip(1)
-                    .take(path.visits.len() - 2)
-                    .map(|(ix, v)| (ix, v.revenue))
-                    .collect::<Vec<(usize, usize)>>();
-                rev_rest.sort_by_key(|(_ix, v)| *v);
-                rev_rest.reverse();
-                let stops: Vec<_> =
-                    rev_rest.iter().take(max_stops - 2).collect();
-                let rev_rest: usize = stops.iter().map(|(_ix, v)| v).sum();
-                let path_revenue = rev_first + rev_last + rev_rest;
-                let stop_ixs: Vec<_> =
-                    stops.iter().map(|(ix, _v)| *ix).collect();
-                return Some((
-                    path_revenue * self.revenue_multiplier,
-                    stop_ixs,
-                ));
-            } else if self.can_skip_dits {
-                if path.num_cities <= max_stops {
-                    let mut num_dit_stops = max_stops - path.num_cities;
-                    let first_visit = path.visits.first().unwrap();
-                    let last_visit = path.visits.last().unwrap();
-                    if first_visit.visits.is_dit() {
-                        if num_dit_stops > 0 {
-                            num_dit_stops -= 1;
-                        } else {
-                            return None;
-                        }
-                    }
-                    if last_visit.visits.is_dit() {
-                        if num_dit_stops > 0 {
-                            num_dit_stops -= 1;
-                        } else {
-                            return None;
-                        }
-                    }
-                    let rev_first = first_visit.revenue;
-                    let rev_last = last_visit.revenue;
-                    let cities: Vec<_> = path
-                        .visits
-                        .iter()
-                        .enumerate()
-                        .skip(1)
-                        .take(path.visits.len() - 2)
-                        .filter(|(_ix, v)| v.visits.is_city())
-                        .collect();
-                    let mut dits: Vec<_> = path
-                        .visits
-                        .iter()
-                        .enumerate()
-                        .skip(1)
-                        .take(path.visits.len() - 2)
-                        .filter(|(_ix, v)| v.visits.is_dit())
-                        .map(|(ix, v)| (ix, v.revenue))
-                        .collect();
-                    let city_revenue: usize =
-                        cities.iter().map(|(_ix, v)| v.revenue).sum();
-                    dits.sort_by_key(|(_ix, v)| *v);
-                    dits.reverse();
-                    let dit_stops: Vec<_> =
-                        dits.iter().take(num_dit_stops).collect();
-                    let dit_revenue: usize =
-                        dit_stops.iter().map(|(_ix, v)| *v).sum();
-                    let stop_ixs: Vec<_> = dit_stops
-                        .iter()
-                        .map(|(ix, _)| *ix)
-                        .chain(cities.iter().map(|(ix, _)| *ix))
-                        .collect();
-                    let path_revenue =
-                        city_revenue + dit_revenue + rev_first + rev_last;
-                    return Some((
-                        path_revenue * self.revenue_multiplier,
-                        stop_ixs,
-                    ));
-                } else {
-                    // NOTE: too many cities, cannot stop at them all.
-                    return None;
-                }
-            } else if self.can_skip_cities {
-                if path.num_dits <= max_stops {
-                    let mut num_city_stops = max_stops - path.num_dits;
-                    let first_visit = path.visits.first().unwrap();
-                    let last_visit = path.visits.last().unwrap();
-                    if first_visit.visits.is_city() {
-                        if num_city_stops > 0 {
-                            num_city_stops -= 1;
-                        } else {
-                            return None;
-                        }
-                    }
-                    if last_visit.visits.is_city() {
-                        if num_city_stops > 0 {
-                            num_city_stops -= 1;
-                        } else {
-                            return None;
-                        }
-                    }
-                    let rev_first = first_visit.revenue;
-                    let rev_last = last_visit.revenue;
-                    let mut cities: Vec<_> = path
-                        .visits
-                        .iter()
-                        .enumerate()
-                        .skip(1)
-                        .take(path.visits.len() - 2)
-                        .filter(|(_ix, v)| v.visits.is_city())
-                        .map(|(ix, v)| (ix, v.revenue))
-                        .collect();
-                    let dits: Vec<_> = path
-                        .visits
-                        .iter()
-                        .enumerate()
-                        .skip(1)
-                        .take(path.visits.len() - 2)
-                        .filter(|(_ix, v)| v.visits.is_dit())
-                        .collect();
-                    let dit_revenue: usize =
-                        dits.iter().map(|(_ix, v)| v.revenue).sum();
-                    cities.sort_by_key(|(_ix, v)| *v);
-                    cities.reverse();
-                    let city_stops: Vec<_> =
-                        cities.iter().take(num_city_stops).collect();
-                    let city_revenue: usize =
-                        city_stops.iter().map(|(_ix, v)| *v).sum();
-                    let stop_ixs: Vec<_> = city_stops
-                        .iter()
-                        .map(|(ix, _)| *ix)
-                        .chain(dits.iter().map(|(ix, _)| *ix))
-                        .collect();
-                    let path_revenue =
-                        city_revenue + dit_revenue + rev_first + rev_last;
-                    return Some((
-                        path_revenue * self.revenue_multiplier,
-                        stop_ixs,
-                    ));
-                } else {
-                    // NOTE: too many dits, cannot stop at them all.
-                    return None;
-                }
-            } else {
-                // NOTE: cannot skip dits or cities, must be able to stop at
-                // every visit along the path.
+        let (base_revenue, ixs): (usize, Vec<usize>) = match self.max_stops {
+            // With no limit on stops, we can stop at every visit, and this
+            // should earn more revenue than skipping any of the visits (if
+            // possible).
+            None => {
+                let stop_ixs: Vec<usize> = (0..(path.visits.len())).collect();
+                let revenue = revenue_for_stops(
+                    path,
+                    &stop_ixs,
+                    visit_bonuses,
+                    conn_bonuses,
+                );
+                (revenue, stop_ixs)
+            }
+            Some(max_stops) => {
                 if path.num_visits <= max_stops {
-                    let stop_ixs: Vec<_> = (0..(path.visits.len())).collect();
-                    return Some((
-                        path.revenue * self.revenue_multiplier,
-                        stop_ixs,
-                    ));
+                    // Can stop at every visit, and this should earn more
+                    // revenue than skipping any of the visits (if possible).
+                    let stop_ixs: Vec<usize> =
+                        (0..(path.visits.len())).collect();
+                    let revenue = revenue_for_stops(
+                        path,
+                        &stop_ixs,
+                        visit_bonuses,
+                        conn_bonuses,
+                    );
+                    (revenue, stop_ixs)
                 } else {
-                    return None;
+                    // Must be able to skip some of the visits.
+                    let final_ix = path.visits.len() - 1;
+                    let can_skip: Vec<bool> = match self.train_type {
+                        TrainType::MustStop => {
+                            return None;
+                        }
+                        TrainType::SkipTowns => path
+                            .visits
+                            .iter()
+                            .enumerate()
+                            .map(|(ix, visit)| {
+                                {
+                                    ix > 0
+                                        && ix < final_ix
+                                        && visit.visits.is_dit()
+                                }
+                            })
+                            .collect(),
+                        TrainType::SkipAny => path
+                            .visits
+                            .iter()
+                            .enumerate()
+                            .map(|(ix, _visit)| ix > 0 && ix < final_ix)
+                            .collect(),
+                    };
+
+                    // Check that enough visits can be skipped that the train
+                    // is capable of operating this route.
+                    let num_skip: usize =
+                        can_skip.iter().map(|b| *b as usize).sum();
+                    if path.visits.len() > (max_stops + num_skip) {
+                        return None;
+                    }
+
+                    // Return the stops that earn the most revenue.
+                    best_stop_ixs(
+                        path,
+                        visit_bonuses,
+                        conn_bonuses,
+                        can_skip,
+                        max_stops,
+                    )
                 }
             }
-        } else {
-            // NOTE: no limit on stops, so we can stop at every visit.
-            let stop_ixs: Vec<_> = (0..(path.visits.len())).collect();
-            return Some((path.revenue * self.revenue_multiplier, stop_ixs));
-        }
+        };
+        let revenue = base_revenue * self.revenue_multiplier;
+        return Some((revenue, ixs));
     }
+}
+
+/// Calculate the revenue bonus for stopping at a location.
+fn visit_bonus(
+    addr: &HexAddress,
+    visit_bonuses: &HashMap<HexAddress, usize>,
+) -> usize {
+    visit_bonuses.get(addr).map(|b| *b).unwrap_or(0)
+}
+
+/// Return true if the selected path stops include at least one of the
+/// provided locations.
+fn stops_at_any(
+    path: &Path,
+    stop_ixs: &[usize],
+    dests: &Vec<HexAddress>,
+) -> bool {
+    dests.iter().any(|addr| {
+        // NOTE: the train must stop at one of the connecting locations.
+        path.visits
+            .iter()
+            .enumerate()
+            .any(|(ix, v)| stop_ixs.contains(&ix) && v.addr == *addr)
+    })
+}
+
+/// Calculate the revenue bonus for connecting one location to another.
+fn connection_bonus(
+    addr: &HexAddress,
+    path: &Path,
+    stop_ixs: &[usize],
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+) -> usize {
+    conn_bonuses
+        .get(addr)
+        .map(|(dests, bonus)| {
+            if stops_at_any(path, stop_ixs, dests) {
+                *bonus
+            } else {
+                0
+            }
+        })
+        .unwrap_or(0)
+}
+
+fn revenue_for_stop(
+    path: &Path,
+    stop_ixs: &[usize],
+    ix: usize,
+    visit_bonuses: &HashMap<HexAddress, usize>,
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+) -> usize {
+    let base_revenue: usize = path.visits[ix].revenue;
+    let addr = path.visits[ix].addr;
+    let visit = visit_bonus(&addr, visit_bonuses);
+    let connect = connection_bonus(&addr, path, stop_ixs, conn_bonuses);
+    base_revenue + visit + connect
+}
+
+fn addr_ix_and_base_revenue(
+    path: &Path,
+    addr: &HexAddress,
+    visit_bonuses: &HashMap<HexAddress, usize>,
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+) -> (usize, usize) {
+    let ix = path
+        .visits
+        .iter()
+        .enumerate()
+        .find_map(
+            |(ix, visit)| {
+                if visit.addr == *addr {
+                    Some(ix)
+                } else {
+                    None
+                }
+            },
+        )
+        .unwrap();
+    let revenue =
+        revenue_for_stop(path, &vec![], ix, visit_bonuses, conn_bonuses);
+    (ix, revenue)
+}
+
+fn best_ix_and_base_revenue(
+    path: &Path,
+    addrs: &[HexAddress],
+    visit_bonuses: &HashMap<HexAddress, usize>,
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+) -> (usize, usize) {
+    addrs
+        .iter()
+        .map(|addr| {
+            addr_ix_and_base_revenue(path, addr, visit_bonuses, conn_bonuses)
+        })
+        .max_by_key(|&(_ix, revenue)| revenue)
+        .unwrap()
+}
+
+/// Calculate the revenue, including bonuses, for stopping at a subset of
+/// visits along a path; this does **not** include any revenue multiplier.
+fn revenue_for_stops(
+    path: &Path,
+    stop_ixs: &Vec<usize>,
+    visit_bonuses: &HashMap<HexAddress, usize>,
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+) -> usize {
+    stop_ixs
+        .iter()
+        .map(|ix| {
+            revenue_for_stop(path, stop_ixs, *ix, visit_bonuses, conn_bonuses)
+        })
+        .sum()
+}
+
+/// Calculate the best visits at which to stop, given possible restrictions on
+/// which visits may be skipped.
+fn best_stop_ixs(
+    path: &Path,
+    visit_bonuses: &HashMap<HexAddress, usize>,
+    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    can_skip: Vec<bool>,
+    max_stops: usize,
+) -> (usize, Vec<usize>) {
+    // Categorise each visit as must-stop or can-skip.
+    let must_stop: Vec<bool> = can_skip.iter().map(|b| !b).collect();
+    let must_stop_ixs: Vec<usize> = must_stop
+        .iter()
+        .enumerate()
+        .filter_map(|(ix, stop)| if *stop { Some(ix) } else { None })
+        .collect();
+
+    if must_stop_ixs.len() > max_stops {
+        panic!("Train cannot operate this path")
+    }
+
+    // For the can-skip visits, calculate their revenue when only stops are
+    // the must-stop visits.
+    let mut skip_revenues: Vec<(usize, usize)> = can_skip
+        .iter()
+        .enumerate()
+        .filter_map(|(ix, skip)| {
+            if *skip {
+                let rev = revenue_for_stop(
+                    path,
+                    &must_stop_ixs,
+                    ix,
+                    visit_bonuses,
+                    conn_bonuses,
+                );
+                Some((ix, rev))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    // Sort the can-skip visits from most revenue to least revenue.
+    skip_revenues.sort_by_key(|(_ix, v)| *v);
+    skip_revenues.reverse();
+
+    // Stop at the can-skip visits that earn the most revenue.
+    let num_to_keep = max_stops - must_stop_ixs.len();
+    let extra_stop_ixs: Vec<_> = skip_revenues
+        .iter()
+        .take(num_to_keep)
+        .map(|(ix, _rev)| *ix)
+        .collect();
+    let default_skip_ixs: Vec<_> = skip_revenues
+        .iter()
+        .skip(num_to_keep)
+        .map(|(ix, _rev)| *ix)
+        .collect();
+    let default_skip_addrs: HashSet<HexAddress> = default_skip_ixs
+        .iter()
+        .map(|ix| path.visits[*ix].addr)
+        .collect();
+
+    // Combine the must-stop visits and the can-skip visits that earn the most
+    // revenue. These are the optimal stops, with the possible exception of
+    // connection bonuses.
+    let default_ixs: Vec<usize> = must_stop_ixs
+        .iter()
+        .chain(extra_stop_ixs.iter())
+        .map(|ix| *ix)
+        .collect();
+    let default_revenue =
+        revenue_for_stops(path, &default_ixs, visit_bonuses, conn_bonuses);
+
+    let visit_addrs: HashSet<HexAddress> =
+        path.visits.iter().map(|v| v.addr).collect();
+    // Find connection bonuses that could be satisfied, but are not satisfied
+    // by the default approach of stopping at visits with the most revenue.
+    let maybe_conn: HashMap<_, _> = conn_bonuses
+        .iter()
+        .filter(|(addr, (conns, _bonus))| {
+            visit_addrs.contains(addr)
+                && conns.iter().any(|conn| visit_addrs.contains(conn))
+                && (default_skip_addrs.contains(addr)
+                    || conns
+                        .iter()
+                        .any(|conn| default_skip_addrs.contains(conn)))
+        })
+        .collect();
+    if maybe_conn.len() == 1 {
+        let (src, (dests, _bonus)) = maybe_conn.iter().next().unwrap();
+        let skipped_src = default_skip_addrs.contains(src);
+        // NOTE: not all dests may belong to the path!!!
+        let candidate_dests: Vec<HexAddress> = dests
+            .iter()
+            .filter(|addr| visit_addrs.contains(addr))
+            .map(|addr| *addr)
+            .collect();
+        let skipped_dests = candidate_dests
+            .iter()
+            .all(|dest| default_skip_addrs.contains(dest));
+        let (src_ix, _revenue) =
+            addr_ix_and_base_revenue(path, src, visit_bonuses, conn_bonuses);
+        let (dest_ix, _revenue) = best_ix_and_base_revenue(
+            path,
+            &candidate_dests,
+            visit_bonuses,
+            conn_bonuses,
+        );
+        // Determine the new stops that need to be made.
+        let must_not_skip_ixs: Vec<usize> = vec![src_ix, dest_ix];
+        let mut new_stop_ixs: Vec<usize> = vec![];
+        if skipped_src {
+            new_stop_ixs.push(src_ix)
+        }
+        if skipped_dests {
+            new_stop_ixs.push(dest_ix)
+        }
+        let num_to_skip = new_stop_ixs.len();
+        if num_to_skip > num_to_keep {
+            // NOTE: cannot skip enough visits to satisfy this bonus.
+            info!(
+                "num_to_skip = {} > num_to_keep = {}",
+                num_to_skip, num_to_keep
+            );
+            return (default_revenue, default_ixs);
+        }
+        let new_num_to_keep = num_to_keep - num_to_skip;
+        // NOTE: it's important here that we don't skip any visit that
+        // currently contributes towards satisfying the connection bonus.
+        let new_extra_stop_ixs: Vec<usize> = skip_revenues
+            .iter()
+            .filter(|(ix, _revenue)| !must_not_skip_ixs.contains(ix))
+            .take(new_num_to_keep)
+            .map(|(ix, _rev)| *ix)
+            .chain(new_stop_ixs.into_iter())
+            .collect();
+        let new_ixs: Vec<usize> = must_stop_ixs
+            .iter()
+            .chain(new_extra_stop_ixs.iter())
+            .map(|ix| *ix)
+            .collect();
+        let new_revenue =
+            revenue_for_stops(path, &new_ixs, visit_bonuses, conn_bonuses);
+        info!("Without the connection bonus: {}", default_revenue);
+        info!("With the connection bonus: {}", new_revenue);
+        info!("Without the connection bonus: {} stops", default_ixs.len());
+        info!("With the connection bonus: {} stops", new_ixs.len());
+        if new_revenue > default_revenue {
+            return (new_revenue, new_ixs);
+        }
+    } else if maybe_conn.len() > 0 {
+        info!(
+            "Found {} relevant connection bonuses, ignoring",
+            maybe_conn.len()
+        )
+    }
+
+    // NOTE: also return the revenue (excluding any revenue multiplier).
+    (default_revenue, default_ixs)
 }
 
 /// Pairings of trains to routes.
@@ -400,9 +591,7 @@ impl Trains {
     /// Returns the most restrictive path limit that respects the abilities of
     /// each train in this collection.
     pub fn path_limit(&self) -> Option<PathLimit> {
-        let express = self.trains.keys().any(|t| {
-            t.max_stops.is_none() || (t.can_skip_cities && t.can_skip_dits)
-        });
+        let express = self.trains.keys().any(|t| t.is_express());
         if express {
             return None;
         }
@@ -410,7 +599,10 @@ impl Trains {
         // NOTE: so there is a maximum number of stops, and no train can skip
         // cities and dits. For now, ignore the possibility of trains that can
         // skip cities but cannot skip dits.
-        let skip_dits = self.trains.keys().any(|t| t.can_skip_dits);
+        let skip_dits = self
+            .trains
+            .keys()
+            .any(|t| t.train_type == TrainType::SkipTowns);
         let max_stops = self
             .trains
             .keys()
@@ -496,13 +688,15 @@ impl Trains {
                     .map(move |b| (a, b))
             })
             .collect();
-        info!(
-            "There are {} conflicting pairs out of {} paths ({} pairs)",
-            conflict_tbl.len(),
-            num_paths,
-            num_paths * (num_paths - 1) / 2,
-        );
-        info!("This took {}", now.elapsed().as_secs_f64());
+        if num_paths > 0 {
+            info!(
+                "There are {} conflicting pairs out of {} paths ({} pairs)",
+                conflict_tbl.len(),
+                num_paths,
+                num_paths * (num_paths - 1) / 2,
+            );
+            info!("This took {}", now.elapsed().as_secs_f64());
+        }
 
         // Identify all non-conflicting path combinations, from a single path
         // to one path for each train.

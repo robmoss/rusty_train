@@ -31,7 +31,9 @@ pub struct Query {
 pub struct Criteria {
     pub token: Token,
     pub path_limit: Option<PathLimit>,
+    /// The rule that governs what elements can be shared in a single route.
     pub conflict_rule: ConflictRule,
+    /// The rule that governs what elements can be shared between routes.
     pub route_conflict_rule: ConflictRule,
 }
 
@@ -76,6 +78,11 @@ impl Context {
             .maybe_conflict(&query.addr, &query.from)
         {
             route_conflicts.insert(conflict);
+        }
+
+        if query.criteria.route_conflict_rule >= query.criteria.conflict_rule
+        {
+            panic!("Route conflict rule must be more general than path conflict rule")
         }
 
         // NOTE: record the starting city/dit and its revenue.
