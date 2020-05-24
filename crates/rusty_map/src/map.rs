@@ -1082,6 +1082,66 @@ impl std::fmt::Display for HexAddress {
     }
 }
 
+#[derive(Debug)]
+pub struct ParseHexAddressError {}
+
+impl std::fmt::Display for ParseHexAddressError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Could not parse hex address")
+    }
+}
+
+impl std::error::Error for ParseHexAddressError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+}
+
+/// Parse the result of `format!("{}", hex_address)`.
+impl std::str::FromStr for HexAddress {
+    type Err = ParseHexAddressError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // Examine the first byte, it must be within 'A'..'Z' (inclusive).
+        let col: usize = (b'A'..=b'Z')
+            .enumerate()
+            .find_map(|(ix, byte)| {
+                s.bytes().nth(0).and_then(|b| {
+                    if b == byte {
+                        Some(ix)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .ok_or(ParseHexAddressError {})?;
+        // Parse the remaining bytes as a positive integer.
+        let row = s[1..].parse::<usize>().or(Err(ParseHexAddressError {}))?;
+        // NOTE: depending on whether the column is odd or even, the row must
+        // be even or odd, respectively.
+        let row = if col % 2 == 0 {
+            if row < 1 {
+                Err(ParseHexAddressError {})?
+            }
+            if row % 2 == 1 {
+                (row - 1) / 2
+            } else {
+                Err(ParseHexAddressError {})?
+            }
+        } else {
+            if row < 2 {
+                Err(ParseHexAddressError {})?
+            }
+            if row % 2 == 0 {
+                (row - 2) / 2
+            } else {
+                Err(ParseHexAddressError {})?
+            }
+        };
+        Ok(HexAddress { row, col })
+    }
+}
+
 impl From<(usize, usize)> for HexAddress {
     fn from(src: (usize, usize)) -> Self {
         let (row, col) = src;
@@ -1112,6 +1172,70 @@ mod tests {
     use rusty_tile::{Connection, TrackEnd};
 
     static HEX_DIAMETER: f64 = 150.0;
+
+    #[test]
+    /// Test various strings of the form "A[0-9]+"; only strings where the
+    /// digits form an odd integer should result in valid HexAddress values.
+    fn test_parse_hex_address_a() {
+        let a0 = "A0".parse::<HexAddress>();
+        let a1 = "A1".parse::<HexAddress>();
+        let a2 = "A2".parse::<HexAddress>();
+        let a3 = "A3".parse::<HexAddress>();
+        let a10 = "A10".parse::<HexAddress>();
+        let a11 = "A11".parse::<HexAddress>();
+
+        // Check that we obtained the expected Ok or Err value.
+        assert!(a0.is_err());
+        assert!(a1.is_ok());
+        assert!(a2.is_err());
+        assert!(a3.is_ok());
+        assert!(a10.is_err());
+        assert!(a11.is_ok());
+
+        // Check the coordinates of the Ok values.
+        let a1 = a1.unwrap();
+        assert!(a1.row == 0);
+        assert!(a1.col == 0);
+        let a3 = a3.unwrap();
+        assert!(a3.row == 1);
+        assert!(a3.col == 0);
+        let a11 = a11.unwrap();
+        assert!(a11.row == 5);
+        assert!(a11.col == 0);
+    }
+
+    #[test]
+    /// Test various strings of the form "B[0-9]+"; only strings where the
+    /// digits form an even integer should result in valid HexAddress values.
+    fn test_parse_hex_address_b() {
+        let b0 = "B0".parse::<HexAddress>();
+        let b1 = "B1".parse::<HexAddress>();
+        let b2 = "B2".parse::<HexAddress>();
+        let b3 = "B3".parse::<HexAddress>();
+        let b4 = "B4".parse::<HexAddress>();
+        let b10 = "B10".parse::<HexAddress>();
+        let b11 = "B11".parse::<HexAddress>();
+
+        // Check that we obtained the expected Ok or Err value.
+        assert!(b0.is_err());
+        assert!(b1.is_err());
+        assert!(b2.is_ok());
+        assert!(b3.is_err());
+        assert!(b4.is_ok());
+        assert!(b10.is_ok());
+        assert!(b11.is_err());
+
+        // Check the coordinates of the Ok values.
+        let b2 = b2.unwrap();
+        assert!(b2.row == 0);
+        assert!(b2.col == 1);
+        let b4 = b4.unwrap();
+        assert!(b4.row == 1);
+        assert!(b4.col == 1);
+        let b10 = b10.unwrap();
+        assert!(b10.row == 4);
+        assert!(b10.col == 1);
+    }
 
     #[test]
     fn test_simple_two_by_two() {
