@@ -42,8 +42,11 @@
 //! // Find all paths for which at least one of the company's trains can run.
 //! let paths = paths_for_token(&game_map, &criteria);
 //!
+//! // Assume there are no relevant route bonuses.
+//! let bonuses = vec![];
+//!
 //! // Find the pairing of trains to paths that earns the most revenue.
-//! let best_routes = trains.select_routes(paths);
+//! let best_routes = trains.select_routes(paths, bonuses);
 //! if let Some(pairing) = &best_routes {
 //!     println!("Net revenue is ${}", pairing.net_revenue);
 //! }
