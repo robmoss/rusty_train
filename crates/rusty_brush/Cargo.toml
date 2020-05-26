@@ -1,5 +1,5 @@
 [package]
-name = "rusty_ui"
+name = "rusty_brush"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
@@ -9,23 +9,8 @@ edition = "2018"
 
 [dependencies]
 rusty_hex = { path = "../rusty_hex" }
-rusty_tile = { path = "../rusty_tile" }
 rusty_map = { path = "../rusty_map" }
-rusty_io = { path = "../rusty_io" }
 rusty_route = { path = "../rusty_route" }
-rusty_game = { path = "../rusty_game" }
-rusty_brush = { path = "../rusty_brush" }
-
+rusty_tile = { path = "../rusty_tile" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.8", features = ["png", "pdf", "svg"] }
-
-# Use the minimum supported version of GTK (3.16).
-gtk = { version = "0.8", features = ["v3_16"] }
-
-# Use the minimum supported version of GIO (2.44).
-gio = { version = "0.8", features = ["v2_44"] }
-
-gdk = "0.12"
-glib = "0.9"
-chrono = "0.4"
-log = "0.4"

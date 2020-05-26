@@ -21,6 +21,7 @@ rusty_map = { path = "./crates/rusty_map" }
 rusty_io = { path = "./crates/rusty_io" }
 rusty_route = { path = "./crates/rusty_route" }
 rusty_game = { path = "./crates/rusty_game" }
+rusty_brush = { path = "./crates/rusty_brush" }
 rusty_ui = { path = "./crates/rusty_ui" }
 
 # Include support for saving surfaces as PNG images.

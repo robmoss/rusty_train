@@ -3,8 +3,8 @@ use gtk::Inhibit;
 use log::info;
 
 use super::{Action, State};
-use crate::util;
 use crate::Content;
+use rusty_brush;
 use rusty_map::{HexAddress, Map};
 
 /// The default state: selecting a tile.
@@ -36,7 +36,7 @@ impl State for Default {
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, token_spaces)) = tile_opt {
@@ -48,14 +48,14 @@ impl State for Default {
                 }
             } else {
                 // Fill empty hexes with a background colour.
-                util::draw_empty_hex(hex, ctx);
+                rusty_brush::draw_empty_hex(hex, ctx);
             }
         }
 
-        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        rusty_brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
 
         // Draw the active hex with a red border.
-        util::highlight_active_hex(
+        rusty_brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,

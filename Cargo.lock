@@ -538,6 +538,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1132f845907680735a84409c3bebc64d1364a5683ffbce899550cd09d5eaefc1"
 
 [[package]]
+name = "rusty_brush"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "rusty_hex",
+ "rusty_map",
+ "rusty_route",
+ "rusty_tile",
+]
+
+[[package]]
 name = "rusty_catalogue"
 version = "0.1.0"
 dependencies = [
@@ -618,6 +629,7 @@ dependencies = [
  "glib",
  "gtk",
  "log",
+ "rusty_brush",
  "rusty_catalogue",
  "rusty_game",
  "rusty_hex",
@@ -639,6 +651,7 @@ dependencies = [
  "glib",
  "gtk",
  "log",
+ "rusty_brush",
  "rusty_game",
  "rusty_hex",
  "rusty_io",

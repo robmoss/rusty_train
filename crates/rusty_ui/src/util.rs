@@ -5,8 +5,7 @@ use cairo::{Context, Format, ImageSurface};
 use gtk::{DialogExt, FileChooserExt, GtkWindowExt, WidgetExt};
 
 use super::Content;
-use rusty_hex::Hex;
-use rusty_map::{HexAddress, HexIter, Map};
+use rusty_map::Map;
 
 /// Prompt the user to select a file to which data will be saved.
 pub fn save_file_dialog(
@@ -169,81 +168,4 @@ pub fn load_map(
     let descr = rusty_io::read_map_descr(dest_file)?;
     descr.update_map(map);
     Ok(Action::Redraw)
-}
-
-pub fn draw_hex_backgrounds(
-    hex: &Hex,
-    ctx: &Context,
-    mut hex_iter: &mut HexIter<'_>,
-) {
-    hex_iter.restart();
-    for _ in &mut hex_iter {
-        // Draw a thick black border on all hexes.
-        // This will give map edges a clear border.
-        hex.define_boundary(ctx);
-        ctx.set_source_rgb(0.741, 0.86, 0.741);
-        ctx.fill();
-    }
-    hex_iter.restart();
-    for _ in &mut hex_iter {
-        hex.define_boundary(ctx);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.set_line_width(hex.max_d * 0.05);
-        ctx.stroke();
-    }
-
-    hex_iter.restart();
-}
-
-pub fn draw_empty_hex(hex: &Hex, ctx: &Context) {
-    hex.define_boundary(ctx);
-    ctx.set_source_rgb(0.741, 0.86, 0.741);
-    ctx.fill();
-}
-
-pub fn outline_empty_hexes(
-    hex: &Hex,
-    ctx: &Context,
-    mut hex_iter: &mut HexIter<'_>,
-) {
-    // Draw a thin grey border around empty hexes.
-    hex_iter.restart();
-    for (_addr, tile_opt) in &mut hex_iter {
-        if tile_opt.is_none() {
-            ctx.set_source_rgb(0.7, 0.7, 0.7);
-            hex.define_boundary(ctx);
-            ctx.set_line_width(hex.max_d * 0.01);
-            ctx.stroke();
-        }
-    }
-
-    hex_iter.restart();
-}
-
-pub fn highlight_active_hex(
-    hex: &Hex,
-    ctx: &Context,
-    mut hex_iter: &mut HexIter<'_>,
-    active_hex: &Option<HexAddress>,
-    r: f64,
-    g: f64,
-    b: f64,
-) {
-    hex_iter.restart();
-    for (addr, _tile_opt) in &mut hex_iter {
-        if active_hex == &Some(addr) {
-            // Draw the active hex with a coloured border.
-            ctx.set_source_rgb(r, g, b);
-            ctx.set_line_width(hex.max_d * 0.02);
-            hex.define_boundary(ctx);
-            ctx.stroke();
-        } else {
-            // Cover all other tiles with a partially-transparent layer.
-            ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
-            hex.define_boundary(ctx);
-            ctx.fill();
-        }
-    }
-
-    hex_iter.restart();
 }

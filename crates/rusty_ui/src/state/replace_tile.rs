@@ -3,8 +3,8 @@ use super::{Action, State};
 use cairo::Context;
 use gtk::Inhibit;
 
-use crate::util;
 use crate::Content;
+use rusty_brush;
 use rusty_map::{HexAddress, Map, RotateCW};
 
 /// Replacing one tile with another.
@@ -54,7 +54,7 @@ impl State for ReplaceTile {
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
         for (addr, tile_opt) in &mut hex_iter {
             if addr == self.active_hex && !self.show_original {
@@ -96,13 +96,13 @@ impl State for ReplaceTile {
                 }
             } else {
                 // Draw an empty hex.
-                util::draw_empty_hex(hex, ctx);
+                rusty_brush::draw_empty_hex(hex, ctx);
             }
         }
 
-        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        rusty_brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
         // Draw the active hex with a blue border.
-        util::highlight_active_hex(
+        rusty_brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,

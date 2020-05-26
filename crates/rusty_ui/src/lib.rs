@@ -31,7 +31,7 @@
 //! let hex = Hex::new(hex_diameter);
 //!
 //! // Use a provided game.
-//! let game = _1867::Game::new();
+//! let game = _1867::Game::new(&hex);
 //! let map = game.create_map(&hex);
 //!
 //! // Create the initial UI state.

@@ -7,15 +7,14 @@ use std::collections::HashMap;
 
 use log::info;
 
-use crate::util;
 use crate::Content;
+use rusty_brush;
 use rusty_hex::HexColour;
 use rusty_map::{HexAddress, Map, Token};
 use rusty_route::{
-    paths_for_token, ConflictRule, Criteria, Pairing, PathLimit,
-    StopLocation, Trains,
+    paths_for_token, ConflictRule, Criteria, Pairing, PathLimit, Trains,
 };
-use rusty_tile::{Connection, DitShape, Draw, TokenSpace};
+use rusty_tile::TokenSpace;
 
 /// Selecting a company's tokens for route-finding.
 pub struct SelectToken {
@@ -226,7 +225,7 @@ impl State for SelectToken {
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        util::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
         for (_addr, tile_opt) in &mut hex_iter {
             if let Some((tile, token_spaces)) = tile_opt {
@@ -238,15 +237,15 @@ impl State for SelectToken {
                 }
             } else {
                 // Draw an empty hex.
-                util::draw_empty_hex(hex, ctx);
+                rusty_brush::draw_empty_hex(hex, ctx);
             }
         }
 
-        util::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        rusty_brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
 
         // Highlight all matching token spaces on the map, before drawing each
-        // route. Note that the routes may pass through, but not stop at,
-        // these token spaces.
+        // route. Note that the routes may pass through these token spaces
+        // without stopping at them.
         hex_iter.restart();
         for (addr, tile_opt) in &mut hex_iter {
             if let Some(spaces) = self.matches.get(&addr) {
@@ -265,129 +264,24 @@ impl State for SelectToken {
                     }
                 }
             }
-
-            if self.active_hex == addr {
-                // Highlight the active token space.
-                // NOTE: this still needs to be done, as the active token
-                // space may be empty and thus no spaces will be highlighted
-                // by the code above.
-                if let Some((tile, _tokens)) = tile_opt {
-                    let token_space = &self.token_spaces[self.selected];
-                    tile.define_token_space(token_space, hex, ctx);
-                    ctx.set_source_rgb(0.8, 0.2, 0.2);
-                    ctx.set_line_width(hex.max_d * 0.025);
-                    ctx.stroke_preserve();
-                }
-            }
         }
 
-        // Draw each of the best routes.
+        // Draw each route.
         if let Some((_token, pairing)) = &self.best_routes {
-            for (ix, pair) in pairing.pairs.iter().enumerate() {
-                // NOTE: cycle through colours for each path.
-                if ix % 3 == 0 {
-                    ctx.set_source_rgb(0.7, 0.1, 0.1);
-                } else if ix % 3 == 1 {
-                    ctx.set_source_rgb(0.1, 0.7, 0.1);
-                } else {
-                    ctx.set_source_rgb(0.1, 0.1, 0.7);
-                }
-                ctx.set_line_width(hex.max_d * 0.025);
-                let source = ctx.get_source();
-                let line_width = ctx.get_line_width();
-
-                // Draw track segments first.
-                for step in &pair.path.steps {
-                    let m = map.prepare_to_draw(step.addr, hex, ctx);
-                    let tile =
-                        map.tile_at(step.addr).expect("Invalid step hex");
-
-                    use Connection::*;
-                    if let Track { ix, end: _ } = step.conn {
-                        let track = tile.tracks()[ix];
-                        track.define_path(hex, ctx);
-                        // NOTE: hack to replace the black part of the track.
-                        ctx.set_line_width(hex.max_d * 0.08);
-                        ctx.stroke();
-                    }
-                    ctx.set_matrix(m);
-                }
-
-                // Then draw visited cities and dits.
-                println!("Running train {:?}", pair.train);
-                for visit in &pair.path.visits {
-                    let m = map.prepare_to_draw(visit.addr, hex, ctx);
-                    let tile =
-                        map.tile_at(visit.addr).expect("Invalid step hex");
-                    if visit.revenue > 0 {
-                        println!(
-                            "Stopping at {} for ${}",
-                            visit.addr, visit.revenue
-                        )
-                    } else {
-                        println!("Skipping {}", visit.addr)
-                    }
-                    match visit.visits {
-                        StopLocation::City { ix } => {
-                            let city = tile.cities()[ix];
-                            city.draw_fg(hex, ctx);
-                            // Draw the tokens first.
-                            if let Some(hex_state) = map.get_hex(visit.addr) {
-                                let tokens_table = hex_state.get_tokens();
-                                for (token_space, map_token) in
-                                    tokens_table.iter()
-                                {
-                                    tile.define_token_space(
-                                        &token_space,
-                                        &hex,
-                                        ctx,
-                                    );
-                                    map_token.draw_token(&hex, ctx);
-                                }
-                            }
-                            // Then draw a border around the city.
-                            if visit.revenue > 0 {
-                                ctx.set_source(&source);
-                            } else {
-                                // NOTE: the train did not stop here.
-                                ctx.set_source(&source);
-                                ctx.set_source_rgb(0.0, 0.0, 0.0);
-                            }
-                            ctx.set_line_width(line_width);
-                            city.define_boundary(hex, ctx);
-                            ctx.stroke();
-                        }
-                        StopLocation::Dit { ix } => {
-                            let dit = tile.dits()[ix];
-                            let track = tile.tracks()[dit.track_ix];
-                            if visit.revenue > 0 {
-                                ctx.set_source(&source);
-                            } else {
-                                // NOTE: the train did not stop here.
-                                ctx.set_source_rgb(0.0, 0.0, 0.0);
-                            }
-                            let dit_shape = track.dit.unwrap().2;
-                            match dit_shape {
-                                DitShape::Bar => {
-                                    ctx.set_line_width(hex.max_d * 0.08);
-                                    track.draw_dit_ends(0.10, hex, ctx);
-                                }
-                                DitShape::Circle => {
-                                    track.define_circle_dit(hex, ctx);
-                                    ctx.fill_preserve();
-                                    ctx.set_source_rgb(1.0, 1.0, 1.0);
-                                    ctx.set_line_width(hex.max_d * 0.01);
-                                    ctx.stroke();
-                                }
-                            }
-                        }
-                    }
-                    ctx.set_matrix(m);
-                }
-            }
+            rusty_brush::highlight_routes(
+                &hex,
+                &ctx,
+                &map,
+                &pairing.pairs,
+                |ix| match ix % 3 {
+                    0 => (0.7, 0.1, 0.1, 1.0),
+                    1 => (0.1, 0.7, 0.1, 1.0),
+                    _ => (0.1, 0.1, 0.7, 1.0),
+                },
+            );
         }
 
-        util::highlight_active_hex(
+        rusty_brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,
