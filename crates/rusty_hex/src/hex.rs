@@ -13,6 +13,7 @@ pub enum HexColour {
     Brown,
     Grey,
     Red,
+    Blue,
     Empty,
 }
 
@@ -32,6 +33,7 @@ impl HexColour {
             // #BD5E64 -- Too similar to brown
             // HexColour::Red => ctx.set_source_rgb(0.741, 0.369, 0.392),
             HexColour::Red => ctx.set_source_rgb(0.86, 0.243, 0.243),
+            HexColour::Blue => ctx.set_source_rgb(0.0, 0.5, 0.96),
             HexColour::Empty => ctx.set_source_rgb(0.741, 0.86, 0.741),
         }
     }
@@ -52,7 +54,8 @@ impl HexColour {
             HexColour::Green => HexColour::Brown,
             HexColour::Brown => HexColour::Grey,
             HexColour::Grey => HexColour::Red,
-            HexColour::Red => HexColour::Empty,
+            HexColour::Red => HexColour::Blue,
+            HexColour::Blue => HexColour::Empty,
             HexColour::Empty => HexColour::Yellow,
         }
     }

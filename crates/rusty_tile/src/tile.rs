@@ -309,6 +309,7 @@ impl Tile {
         self.layer_fg(&Topmost, ctx, hex);
         // Draw the tile name.
         if self.colour != HexColour::Red
+            && self.colour != HexColour::Blue
             && self.colour != HexColour::Grey
             && self.colour != HexColour::Empty
         {

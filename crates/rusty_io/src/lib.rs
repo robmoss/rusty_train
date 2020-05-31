@@ -29,6 +29,7 @@ enum HexColour {
     Brown,
     Grey,
     Red,
+    Blue,
     Empty,
 }
 
@@ -42,6 +43,7 @@ impl std::convert::From<rusty_hex::HexColour> for HexColour {
             Brown => HexColour::Brown,
             Grey => HexColour::Grey,
             Red => HexColour::Red,
+            Blue => HexColour::Blue,
             Empty => HexColour::Empty,
         }
     }
@@ -763,6 +765,7 @@ impl From<&HexColour> for rusty_hex::HexColour {
             HexColour::Brown => rusty_hex::HexColour::Brown,
             HexColour::Grey => rusty_hex::HexColour::Grey,
             HexColour::Red => rusty_hex::HexColour::Red,
+            HexColour::Blue => rusty_hex::HexColour::Blue,
             HexColour::Empty => rusty_hex::HexColour::Empty,
         }
     }

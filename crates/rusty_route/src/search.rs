@@ -417,8 +417,10 @@ fn depth_first_search(
             ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this city, then do so.
-            // NOTE: trains cannot exit a red off-board tile.
-            if tile.colour != HexColour::Red {
+            // NOTE: trains cannot continue past an off-board city/town.
+            let off_board = tile.colour == HexColour::Red
+                || tile.colour == HexColour::Blue;
+            if !off_board {
                 let token_spaces = tile.city_token_spaces(city_ix);
                 // NOTE: we must only check tokens associated with this city.
                 let city_tokens: Vec<_> = map
@@ -456,9 +458,11 @@ fn depth_first_search(
             ctx.visits.push(visit);
             paths.push(ctx.get_current_path());
             // NOTE: if we can continue travelling past this dit, then do so.
+            let off_board = tile.colour == HexColour::Red
+                || tile.colour == HexColour::Blue;
             let more_visits_allowed =
                 ctx.can_continue(&query.criteria.path_limit);
-            if more_visits_allowed {
+            if !off_board && more_visits_allowed {
                 dfs_over(map, query, ctx, paths, addr, conns, tile);
             }
             ctx.visits.pop();
