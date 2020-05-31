@@ -67,18 +67,18 @@ impl Map {
         &self,
         t: &Token,
     ) -> Vec<(&HexAddress, &TokenSpace)> {
-        self.state
-            .iter()
-            .filter_map(|(addr, state)| {
-                state.tokens.iter().find_map(|(token_space, token)| {
-                    if t == token {
-                        Some((addr, token_space))
-                    } else {
-                        None
-                    }
-                })
+        // NOTE: a tile may have multiple token spaces that are not connected
+        // to each other, so we need to check each of these spaces for a
+        // matching token.
+        let mut placed: Vec<(&HexAddress, &TokenSpace)> = vec![];
+        self.state.iter().for_each(|(addr, state)| {
+            state.tokens.iter().for_each(|(token_space, token)| {
+                if t == token {
+                    placed.push((addr, token_space))
+                }
             })
-            .collect()
+        });
+        placed
     }
 
     /// Returns the hex face **relative to the map** that corresponds to the
