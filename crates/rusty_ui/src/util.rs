@@ -23,6 +23,8 @@ pub fn save_file_dialog(
             ("_Save", gtk::ResponseType::Accept),
         ],
     );
+    // Ask the user to confirm overwriting an existing file.
+    dialog.set_do_overwrite_confirmation(true);
     for filter in filters {
         dialog.add_filter(filter)
     }
