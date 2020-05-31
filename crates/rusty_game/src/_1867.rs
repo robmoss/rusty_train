@@ -122,49 +122,61 @@ fn addrs() -> Vec<(usize, usize)> {
 
 fn initial_tiles() -> HashMap<HexAddress, (&'static str, RotateCW)> {
     let tiles: Vec<(HexAddress, (&str, RotateCW))> = vec![
+        // Blue off-board tiles.
+        // Unnamed port ($10)
+        ((7, 7).into(), ("Port2", RotateCW::Zero)),
+        // Unnamed port ($10)
+        ((9, 4).into(), ("Port1", RotateCW::Zero)),
         // Red off-board tiles.
-        ((3, 0).into(), ("Red1", RotateCW::Zero)),
-        ((3, 15).into(), ("Red1", RotateCW::Three)),
-        ((6, 14).into(), ("Red1", RotateCW::Four)),
-        ((7, 7).into(), ("Red3", RotateCW::Zero)),
-        ((7, 12).into(), ("Red2", RotateCW::Four)),
-        ((8, 0).into(), ("Red2", RotateCW::Zero)),
-        ((8, 5).into(), ("Red2", RotateCW::Three)),
-        ((9, 0).into(), ("Red2", RotateCW::Five)),
-        ((9, 4).into(), ("Red2", RotateCW::Four)),
-        // Grey (fixed) tiles.
+        // Sault Ste. Marie
+        ((3, 0).into(), ("Sault Ste Marie Yw", RotateCW::Zero)),
+        // Maritime Provinces
+        ((3, 15).into(), ("Maritime Provinces Yw", RotateCW::Zero)),
+        // Maine
+        ((6, 14).into(), ("Maine Yw", RotateCW::Zero)),
+        // New England
+        ((7, 12).into(), ("New England Yw", RotateCW::Zero)),
+        // Detroit
+        ((8, 0).into(), ("Detroit2", RotateCW::Zero)),
+        // Buffalo
+        ((8, 5).into(), ("Buffalo Yw", RotateCW::Zero)),
+        // Detroit
+        ((9, 0).into(), ("Detroit Yw", RotateCW::Zero)),
+        // Grey (fixed) tiles:
+        // Timmins (3 tiles)
         ((0, 3).into(), ("Timmins", RotateCW::Zero)),
         ((0, 4).into(), ("Grey2", RotateCW::One)),
         ((1, 2).into(), ("Grey2", RotateCW::Zero)),
+        // South of Montreal.
         ((6, 11).into(), ("Grey1", RotateCW::Three)),
-        ((7, 1).into(), ("Grey1", RotateCW::Zero)),
+        // North of Sarnia, north-west of London.
         ((7, 1).into(), ("Grey1", RotateCW::Zero)),
         // Towns without track.
-        ((4, 7).into(), ("EmptyTown", RotateCW::Zero)),
-        ((4, 11).into(), ("EmptyTown", RotateCW::Zero)),
-        ((6, 7).into(), ("EmptyTown", RotateCW::Zero)),
-        ((6, 10).into(), ("EmptyTown", RotateCW::Zero)),
-        ((6, 12).into(), ("EmptyTown", RotateCW::Zero)),
-        ((7, 2).into(), ("EmptyTown", RotateCW::Zero)),
-        ((8, 1).into(), ("EmptyTown", RotateCW::Zero)),
+        ((4, 7).into(), ("Pembroke", RotateCW::Zero)),
+        ((4, 11).into(), ("St Jerome", RotateCW::Zero)),
+        ((6, 7).into(), ("Belleville", RotateCW::Zero)),
+        ((6, 10).into(), ("Cornwall", RotateCW::Zero)),
+        ((6, 12).into(), ("Granby", RotateCW::Zero)),
+        ((7, 2).into(), ("Goderich", RotateCW::Zero)),
+        ((8, 1).into(), ("Sarnia", RotateCW::Zero)),
         // Cities without track.
-        ((3, 3).into(), ("EmptyCity", RotateCW::Zero)),
-        ((3, 5).into(), ("EmptyCity", RotateCW::Zero)),
-        ((4, 12).into(), ("EmptyCity", RotateCW::Zero)),
-        ((5, 13).into(), ("EmptyCity", RotateCW::Zero)),
-        ((6, 4).into(), ("EmptyCity", RotateCW::Zero)),
-        ((7, 4).into(), ("EmptyCity", RotateCW::Zero)),
-        ((7, 6).into(), ("EmptyCity", RotateCW::Zero)),
-        ((7, 8).into(), ("EmptyCity", RotateCW::Zero)),
-        ((8, 2).into(), ("EmptyCity", RotateCW::Zero)),
+        ((3, 3).into(), ("Sudbury", RotateCW::Zero)),
+        ((3, 5).into(), ("North Bay", RotateCW::Zero)),
+        ((4, 12).into(), ("Trois-Rivières", RotateCW::Zero)),
+        ((5, 13).into(), ("Sherbrooke", RotateCW::Zero)),
+        ((6, 4).into(), ("Barrie", RotateCW::Zero)),
+        ((7, 4).into(), ("Guelph", RotateCW::Zero)),
+        ((7, 6).into(), ("Peterborough", RotateCW::Zero)),
+        ((7, 8).into(), ("Kingston", RotateCW::Zero)),
+        ((8, 2).into(), ("London", RotateCW::Zero)),
         // Y Cities without track.
-        ((3, 14).into(), ("EmptyCityY", RotateCW::Zero)),
-        ((5, 9).into(), ("Ottawa1", RotateCW::Zero)),
-        ((7, 3).into(), ("EmptyCityY", RotateCW::Zero)),
-        ((8, 4).into(), ("EmptyCityY", RotateCW::Zero)),
+        ((3, 14).into(), ("Quebec", RotateCW::Zero)),
+        ((5, 9).into(), ("Ottawa", RotateCW::Zero)),
+        ((7, 3).into(), ("Berlin", RotateCW::Zero)),
+        ((8, 4).into(), ("Hamilton", RotateCW::Zero)),
         // Cities with initial track.
-        ((5, 11).into(), ("M0", RotateCW::Zero)),
-        ((7, 5).into(), ("T0", RotateCW::Zero)),
+        ((5, 11).into(), ("Montreal", RotateCW::Zero)),
+        ((7, 5).into(), ("Toronto", RotateCW::Zero)),
     ];
     tiles.into_iter().collect()
 }
@@ -204,7 +216,7 @@ impl Game {
             Train::new_5p5e_train(),
         ];
         let names = vec!["2", "3", "4", "5", "6", "7", "8", "2+2", "5+5E"];
-        let all_tiles = tile_catalogue(&hex);
+        let all_tiles = game_tiles(&hex);
         let phase = 0;
         let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
         Game {
@@ -302,13 +314,14 @@ impl super::Game for Game {
     }
 
     /// Create the initial map for 1867.
-    fn create_map(&self, hex: &Hex) -> Map {
-        let tiles = tile_catalogue(&hex);
+    fn create_map(&self, _hex: &Hex) -> Map {
         let hexes: Vec<HexAddress> =
             addrs().iter().map(|coords| coords.into()).collect();
-        let mut map = Map::new(tiles, hexes);
+        let mut map = Map::new(self.all_tiles.clone(), hexes);
         for (addr, (tile_name, rotn)) in initial_tiles() {
-            map.place_tile(addr, tile_name, rotn);
+            if !map.place_tile(addr, tile_name, rotn) {
+                println!("Could not place tile {} at {}", tile_name, addr)
+            }
         }
         for (addr, label) in hex_labels() {
             map.add_label_at(addr, label);
@@ -319,7 +332,7 @@ impl super::Game for Game {
 
     /// Return the tiles that players are allowed to place on the map.
     fn player_tiles(&self) -> &[Tile] {
-        // TODO: this also returns special map tiles.
+        // TODO: this currently also returns special map tiles.
         &self.all_tiles
     }
 
@@ -334,11 +347,31 @@ impl super::Game for Game {
     }
 
     /// Change the current game phase, which may update the map.
-    fn set_phase(&mut self, _map: &mut Map, phase: usize) {
+    fn set_phase(&mut self, map: &mut Map, phase: usize) {
         if phase > 6 {
             return;
         }
         self.phase = phase;
+        let red_cities: Vec<(HexAddress, &str)> = vec![
+            ((3, 0).into(), "Sault Ste Marie"),
+            ((3, 15).into(), "Maritime Provinces"),
+            ((6, 14).into(), "Maine"),
+            ((7, 12).into(), "New England"),
+            ((8, 5).into(), "Buffalo"),
+            ((9, 0).into(), "Detroit"),
+        ];
+        let suffix = match phase {
+            0 => "Yw",
+            1 | 2 => "Gn",
+            3 | 4 => "Bn",
+            _ => "Gy",
+        };
+        for (addr, city_name) in &red_cities {
+            let tile_name = format!("{} {}", city_name, suffix);
+            if !map.place_tile(*addr, &tile_name, RotateCW::Zero) {
+                println!("Could not place tile {} at {}", tile_name, addr)
+            }
+        }
     }
 
     /// Return the name of a game phase.
@@ -350,4 +383,386 @@ impl super::Game for Game {
     fn phase_names(&self) -> &[&str] {
         &self.phase_names
     }
+}
+
+fn game_tiles(hex: &Hex) -> Vec<Tile> {
+    let mut all_tiles = tile_catalogue(&hex);
+    let mut town_tiles = starting_town_tiles(&hex);
+    let mut city_tiles = starting_city_tiles(&hex);
+    let mut offb_tiles = offboard_tiles(&hex);
+    let mut misc_tiles = miscellaneous_tiles(&hex);
+    all_tiles.append(&mut town_tiles);
+    all_tiles.append(&mut city_tiles);
+    all_tiles.append(&mut offb_tiles);
+    all_tiles.append(&mut misc_tiles);
+    all_tiles
+}
+
+/// Tiles that are specific to 1867 and which cannot be placed by the player.
+fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
+    use rusty_hex::Direction::*;
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexCorner::*;
+    use HexFace::*;
+
+    let cities = vec![
+        "Sudbury",
+        "North Bay",
+        "Trois-Rivières",
+        "Sherbrooke",
+        "Barrie",
+        "Guelph",
+        "Peterborough",
+        "Kingston",
+        "London",
+    ];
+
+    let cities_y = vec!["Quebec", "Berlin", "Hamilton"];
+    let cities_oy = vec!["Ottawa"];
+
+    let montreal = Tile::new(
+        Yellow,
+        "Montreal",
+        vec![
+            Track::straight(LowerLeft).with_span(0.0, 0.3),
+            Track::straight(Top).with_span(0.0, 0.3),
+        ],
+        vec![
+            City::single(40).nudge(SWW, 0.4),
+            City::single(40).nudge(N, 0.4),
+            City::single(40).nudge(SEE, 0.4),
+        ],
+        hex,
+    )
+    .label(Label::City("M".to_string()), UpperLeft.to_centre(0.3))
+    .label(Label::Revenue(0), UpperRight.to_centre(0.3));
+
+    let toronto = Tile::new(
+        Yellow,
+        "Toronto",
+        vec![
+            Track::straight(LowerLeft).with_span(0.0, 0.3),
+            Track::straight(UpperRight).with_span(0.0, 0.3),
+        ],
+        vec![
+            City::single(30).nudge(SWW, 0.4),
+            City::single(30).nudge(NEE, 0.4),
+        ],
+        hex,
+    )
+    .label(Label::City("T".to_string()), UpperLeft.to_centre(0.3))
+    .label(Label::Revenue(0), BottomRight.to_centre(0.1));
+
+    let timmins = Tile::new(
+        Grey,
+        "Timmins",
+        vec![
+            Track::straight(LowerLeft).with_span(0.0, 0.5),
+            Track::straight(Bottom).with_span(0.0, 0.5),
+            Track::straight(LowerRight).with_span(0.0, 0.5),
+            Track::straight(UpperRight).with_span(0.0, 0.5),
+        ],
+        vec![City::single(40)],
+        hex,
+    )
+    .label(Label::Revenue(0), BottomRight.to_centre(0.1));
+
+    cities
+        .into_iter()
+        .map(|name| {
+            Tile::new(Empty, name, vec![], vec![City::single(0)], hex).label(
+                Label::MapLocation(name.to_string()),
+                Top.to_centre(0.5),
+            )
+        })
+        .chain(cities_y.into_iter().map(|name| {
+            Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
+                .label(Label::Y, Bottom.to_centre(0.3))
+                .label(
+                    Label::MapLocation(name.to_string()),
+                    Top.to_centre(0.5),
+                )
+        }))
+        .chain(cities_oy.into_iter().map(|name| {
+            Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
+                .label(Label::Y, LowerLeft.to_centre(0.3))
+                .label(
+                    Label::City("O".to_string()),
+                    LowerRight.to_centre(0.3),
+                )
+                .label(
+                    Label::MapLocation(name.to_string()),
+                    Top.to_centre(0.5),
+                )
+        }))
+        .chain(vec![toronto, montreal, timmins].into_iter())
+        .collect()
+}
+
+/// Tiles that are specific to 1867 and which cannot be placed by the player.
+fn starting_town_tiles(hex: &Hex) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::DitShape::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+    use TrackEnd::*;
+
+    let towns = vec![
+        "Pembroke",
+        "St Jerome",
+        "Belleville",
+        "Cornwall",
+        "Granby",
+        "Goderich",
+        "Sarnia",
+    ];
+
+    towns
+        .into_iter()
+        .map(|name| {
+            Tile::new(
+                Empty,
+                name,
+                vec![Track::straight(Bottom)
+                    .with_span(0.5, 0.5)
+                    .with_dit(End, 10, Circle)],
+                vec![],
+                hex,
+            )
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+        })
+        .collect()
+}
+
+fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "Sault Ste Marie";
+    vec![20, 30, 40, 40]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![
+                    Track::straight(LowerRight).with_span(0.0, 0.5),
+                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                ],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), Bottom.to_centre(0.25))
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+        })
+        .collect()
+}
+
+fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "Maritime Provinces";
+    vec![30, 30, 40, 40]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![
+                    Track::straight(LowerLeft).with_span(0.0, 0.5),
+                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                ],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), Bottom.to_centre(0.25))
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+        })
+        .collect()
+}
+
+fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "Maine";
+    vec![20, 30, 40, 40]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![
+                    Track::straight(Top).with_span(0.0, 0.5),
+                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                ],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), UpperRight.to_centre(0.25))
+            .label(
+                Label::MapLocation(name.to_string()),
+                Bottom.to_centre(0.5),
+            )
+        })
+        .collect()
+}
+
+fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "New England";
+    vec![30, 40, 50, 60]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![Track::straight(Top).with_span(0.0, 0.5)],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), UpperLeft.to_centre(0.25))
+            .label(
+                Label::MapLocation(name.to_string()),
+                Bottom.to_centre(0.5),
+            )
+        })
+        .collect()
+}
+
+fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "Buffalo";
+    vec![30, 40, 50, 60]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![Track::straight(UpperLeft).with_span(0.0, 0.5)],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), Bottom.to_centre(0.25))
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+        })
+        .collect()
+}
+
+fn detroit(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    let name = "Detroit";
+    let mut tiles: Vec<Tile> = vec![30, 40, 50, 70]
+        .iter()
+        .enumerate()
+        .map(|(ix, &revenue)| {
+            Tile::new(
+                Red,
+                format!("{} {}", name, suffixes[ix]),
+                vec![
+                    Track::straight(Top).with_span(0.0, 0.5),
+                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                ],
+                vec![City::single(revenue)],
+                hex,
+            )
+            .label(Label::Revenue(0), UpperLeft.to_centre(0.25))
+            .label(
+                Label::MapLocation(name.to_string()),
+                Bottom.to_centre(0.5),
+            )
+        })
+        .collect();
+    tiles.push(Tile::new(
+        Red,
+        "Detroit2",
+        vec![Track::hard_l(LowerRight)],
+        vec![],
+        hex,
+    ));
+    tiles
+}
+
+/// Tiles that are specific to 1867 and which cannot be placed by the player.
+fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::DitShape::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+    use TrackEnd::*;
+
+    let mut ports = vec![
+        Tile::new(
+            Blue,
+            "Port1",
+            vec![Track::straight(Top)
+                .with_span(0.0, 0.5)
+                .with_dit(End, 10, Circle)],
+            vec![],
+            hex,
+        )
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
+        Tile::new(
+            Blue,
+            "Port2",
+            vec![
+                Track::straight(UpperLeft)
+                    .with_span(0.0, 0.5)
+                    .with_dit(End, 10, Circle),
+                Track::straight(UpperRight).with_span(0.0, 0.5),
+            ],
+            vec![],
+            hex,
+        )
+        .label(Label::Revenue(0), Top.to_centre(0.5)),
+    ];
+
+    let suffixes = vec!["Yw", "Gn", "Bn", "Gy"];
+    ports.append(&mut sault_ste_marie(hex, &suffixes));
+    ports.append(&mut maritime_provinces(hex, &suffixes));
+    ports.append(&mut maine(hex, &suffixes));
+    ports.append(&mut new_england(hex, &suffixes));
+    ports.append(&mut buffalo(hex, &suffixes));
+    ports.append(&mut detroit(hex, &suffixes));
+    ports
+}
+
+fn miscellaneous_tiles(hex: &Hex) -> Vec<Tile> {
+    use rusty_hex::*;
+    use rusty_tile::*;
+    use HexColour::*;
+    use HexFace::*;
+
+    vec![
+        Tile::new(Grey, "Grey1", vec![Track::hard_r(Bottom)], vec![], hex),
+        Tile::new(Grey, "Grey2", vec![Track::gentle_r(Bottom)], vec![], hex),
+    ]
 }

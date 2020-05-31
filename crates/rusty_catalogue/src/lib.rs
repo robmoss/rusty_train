@@ -3,7 +3,6 @@ use rusty_tile::*;
 
 /// Tiles as per the [18xx Tile Database](http://www.fwtwr.com/18xx/tiles/).
 pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
-    use crate::hex::Direction::*;
     use crate::track::DitShape::*;
     use HexColour::*;
     use HexCorner::*;
@@ -876,100 +875,5 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             hex,
         )
         .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
-        // TODO: mark the following tiles in some way so that their names are
-        // not shown on the map?
-        Tile::new(
-            Red,
-            "Red1",
-            vec![
-                Track::straight(LowerRight).with_span(0.0, 0.5),
-                Track::straight(UpperRight).with_span(0.0, 0.5),
-            ],
-            vec![City::single(50)],
-            hex,
-        )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
-        Tile::new(
-            Red,
-            "Red2",
-            vec![Track::straight(LowerRight).with_span(0.0, 0.5)],
-            vec![City::single(50)],
-            hex,
-        )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
-        Tile::new(
-            Red,
-            "Red3",
-            vec![
-                Track::straight(UpperLeft).with_span(0.0, 0.5),
-                Track::straight(UpperRight).with_span(0.0, 0.5),
-            ],
-            vec![City::single(50)],
-            hex,
-        )
-        .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
-        Tile::new(Grey, "Grey1", vec![Track::hard_r(Bottom)], vec![], hex),
-        Tile::new(Grey, "Grey2", vec![Track::gentle_r(Bottom)], vec![], hex),
-        Tile::new(
-            Grey,
-            "Timmins",
-            vec![
-                Track::straight(LowerLeft).with_span(0.0, 0.5),
-                Track::straight(Bottom).with_span(0.0, 0.5),
-                Track::straight(LowerRight).with_span(0.0, 0.5),
-                Track::straight(UpperRight).with_span(0.0, 0.5),
-            ],
-            vec![City::single(40)],
-            hex,
-        )
-        .label(Label::Revenue(0), BottomRight.to_centre(0.1)),
-        Tile::new(
-            Empty,
-            "EmptyTown",
-            // vec![],
-            // vec![City::central_dit(0)],
-            vec![Track::straight(Bottom)
-                .with_span(0.5, 0.5)
-                .with_dit(End, 10, Circle)],
-            vec![],
-            hex,
-        ),
-        Tile::new(Empty, "EmptyCity", vec![], vec![City::single(0)], hex),
-        Tile::new(Empty, "EmptyCityY", vec![], vec![City::single(0)], hex)
-            .label(Label::Y, Bottom.to_centre(0.3)),
-        Tile::new(Empty, "Ottawa1", vec![], vec![City::single(0)], hex)
-            .label(Label::City("O".to_string()), Right.to_centre(0.1))
-            .label(Label::Y, Left.to_centre(0.1)),
-        Tile::new(
-            Yellow,
-            "M0",
-            vec![
-                Track::straight(LowerLeft).with_span(0.0, 0.3),
-                Track::straight(Top).with_span(0.0, 0.3),
-            ],
-            vec![
-                City::single(40).nudge(SWW, 0.4),
-                City::single(40).nudge(N, 0.4),
-                City::single(40).nudge(SEE, 0.4),
-            ],
-            hex,
-        )
-        .label(Label::City("M".to_string()), UpperLeft.to_centre(0.3))
-        .label(Label::Revenue(0), UpperRight.to_centre(0.3)),
-        Tile::new(
-            Yellow,
-            "T0",
-            vec![
-                Track::straight(LowerLeft).with_span(0.0, 0.3),
-                Track::straight(UpperRight).with_span(0.0, 0.3),
-            ],
-            vec![
-                City::single(30).nudge(SWW, 0.4),
-                City::single(30).nudge(NEE, 0.4),
-            ],
-            hex,
-        )
-        .label(Label::City("T".to_string()), UpperLeft.to_centre(0.3))
-        .label(Label::Revenue(0), BottomRight.to_centre(0.1)),
     ]
 }
