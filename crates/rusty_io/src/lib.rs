@@ -439,6 +439,7 @@ enum LabelType {
     City(String),
     Y(()),
     TileName(()),
+    MapLocation(String),
     Revenue(usize),
 }
 
@@ -450,6 +451,7 @@ impl std::convert::From<&rusty_tile::Label> for LabelType {
             L::City(ref name) => LabelType::City(name.clone()),
             L::Y => LabelType::Y(()),
             L::TileName => LabelType::TileName(()),
+            L::MapLocation(ref name) => LabelType::MapLocation(name.clone()),
             L::Revenue(revenue) => LabelType::Revenue(*revenue),
         }
     }
@@ -698,6 +700,9 @@ impl From<&LabelType> for rusty_tile::Label {
             }
             LabelType::Y(()) => rusty_tile::Label::Y,
             LabelType::TileName(()) => rusty_tile::Label::TileName,
+            LabelType::MapLocation(ref name) => {
+                rusty_tile::Label::MapLocation(name.clone())
+            }
             LabelType::Revenue(ix) => rusty_tile::Label::Revenue(*ix),
         }
     }

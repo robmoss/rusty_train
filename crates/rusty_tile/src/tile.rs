@@ -283,6 +283,7 @@ impl Tile {
             Label::City(name) => Some(name.to_string()),
             Label::Y => Some("Y".to_string()),
             Label::TileName => Some(self.name.to_string()),
+            Label::MapLocation(name) => Some(name.to_string()),
             Label::Revenue(ref ix) => {
                 self.revenues.get(*ix).map(|r| format!("{}", r))
             }

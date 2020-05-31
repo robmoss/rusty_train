@@ -7,6 +7,7 @@ pub enum Label {
     City(String),
     Y,
     TileName,
+    MapLocation(String),
     Revenue(usize),
 }
 
@@ -39,6 +40,14 @@ impl Label {
                     FontWeight::Normal,
                 );
                 ctx.set_font_size(8.0 * scale);
+            }
+            Self::MapLocation(_) => {
+                ctx.select_font_face(
+                    "Serif",
+                    FontSlant::Normal,
+                    FontWeight::Normal,
+                );
+                ctx.set_font_size(12.0 * scale);
             }
             Self::Revenue(_) => {
                 ctx.select_font_face(
