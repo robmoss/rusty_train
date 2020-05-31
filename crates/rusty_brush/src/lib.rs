@@ -75,6 +75,12 @@ pub fn outline_empty_hexes(
     hex_iter.restart();
 }
 
+pub fn draw_map(hex: &Hex, ctx: &Context, hex_iter: &mut HexIter<'_>) {
+    draw_hex_backgrounds(hex, ctx, hex_iter);
+    draw_tiles(hex, ctx, hex_iter);
+    outline_empty_hexes(hex, ctx, hex_iter);
+}
+
 pub fn highlight_active_hex(
     hex: &Hex,
     ctx: &Context,

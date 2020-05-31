@@ -36,23 +36,7 @@ impl State for Default {
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
-        rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
-
-        for (_addr, tile_opt) in &mut hex_iter {
-            if let Some((tile, token_spaces)) = tile_opt {
-                // Draw the tile and any tokens.
-                tile.draw(ctx, hex);
-                for (token_space, map_token) in token_spaces.iter() {
-                    tile.define_token_space(&token_space, &hex, ctx);
-                    map_token.draw_token(&hex, ctx);
-                }
-            } else {
-                // Fill empty hexes with a background colour.
-                rusty_brush::draw_empty_hex(hex, ctx);
-            }
-        }
-
-        rusty_brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_map(hex, ctx, &mut hex_iter);
 
         // Draw the active hex with a red border.
         rusty_brush::highlight_active_hex(
