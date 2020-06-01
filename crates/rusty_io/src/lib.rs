@@ -3166,7 +3166,7 @@ struct TileDescr {
     #[serde(default, skip_serializing_if = "TileRotation::is_default")]
     pub rotation: TileRotation,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub tokens: Vec<(usize, Token)>,
+    pub tokens: Vec<(usize, String)>,
 }
 
 #[derive(Serialize, Deserialize)]

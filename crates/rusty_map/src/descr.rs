@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::map::{HexAddress, Map, MapHex, RotateCW};
 use rusty_tile::Tile;
-use rusty_token::{Token, Tokens};
+use rusty_token::Tokens;
 
 /// A description of a tile's configuration on a map hex.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -18,7 +18,7 @@ pub struct TileDescr {
     /// The tile rotation.
     pub rotation: RotateCW,
     /// Token spaces are identified by index into `Tile::token_spaces()`.
-    pub tokens: Vec<(usize, Token)>,
+    pub tokens: Vec<(usize, String)>,
 }
 
 /// A description of each tile's configuration on a map.
@@ -61,11 +61,12 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
         let tokens: Vec<_> = token_table
             .iter()
             .map(|(token_space, token)| {
+                let name = map.tokens().get_name(token).unwrap();
                 let ix = token_spaces
                     .iter()
                     .position(|ts| ts == token_space)
                     .unwrap();
-                (ix, *token)
+                (ix, name.to_string())
             })
             .collect();
         TileDescr {
@@ -120,9 +121,25 @@ impl Descr {
                     let tile = map.tile_at(*addr).expect("No tile");
                     tile.token_spaces()
                 };
+                // NOTE: we need to retrieve each token by name before we get
+                // a mutable reference to the hex state, because looking up
+                // tokens requires us to borrow map as immutable.
+                let tile_tokens: Vec<_> = tile_descr
+                    .tokens
+                    .iter()
+                    .map(|(space_ix, token_name)| {
+                        (
+                            space_ix,
+                            map.tokens()
+                                .get_token(token_name)
+                                .map(|x| *x)
+                                .unwrap(),
+                        )
+                    })
+                    .collect();
                 let hex_state = map.get_hex_mut(*addr).expect("No hex state");
-                for (space_ix, token) in &tile_descr.tokens {
-                    hex_state.set_token_at(&spaces[*space_ix], *token);
+                for (space_ix, token) in tile_tokens {
+                    hex_state.set_token_at(&spaces[*space_ix], token);
                 }
             } else {
                 // Ensure that no tiles occupy empty hexes.
