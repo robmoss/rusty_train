@@ -7,8 +7,9 @@ use std::collections::HashSet;
 use super::conflict::{Conflict, ConflictRule};
 use super::{Path, Step, StopLocation, Visit};
 use rusty_hex::HexColour;
-use rusty_map::{HexAddress, Map, Token};
+use rusty_map::{HexAddress, Map};
 use rusty_tile::{Connection, Tile, TokenSpace};
+use rusty_token::Token;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum PathLimit {
@@ -490,8 +491,9 @@ mod tests {
     use super::{Criteria, PathLimit, Query};
     use crate::conflict::ConflictRule;
     use rusty_hex::Hex;
-    use rusty_map::{Descr, HexAddress, Map, RotateCW, TileDescr, Token};
+    use rusty_map::{Descr, HexAddress, Map, RotateCW, TileDescr};
     use rusty_tile::Connection;
+    use rusty_token::{Token, Tokens};
 
     static HEX_DIAMETER: f64 = 150.0;
 
@@ -506,29 +508,56 @@ mod tests {
     /// on tiles 6 and 63.
     ///
     /// Note that this map may be used by test cases in other modules.
-    pub fn map_2x2_tiles_5_6_58_63(hex: &Hex) -> Map {
+    pub fn map_2x2_tiles_5_6_58_63(hex: &Hex, tokens: Tokens) -> Map {
         let tiles = rusty_catalogue::tile_catalogue(hex);
-        let descr = descr_2x2_tiles_5_6_58_63();
-        let map = descr.build_map(tiles);
+        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let map = descr.build_map(tiles, tokens);
         map
     }
 
+    /// Define the tokens used in the following test cases.
+    fn define_tokens() -> Tokens {
+        use rusty_token::TokenStyle;
+
+        vec![
+            (
+                "LP".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (63, 153, 153).into(),
+                    bg: (255, 127, 127).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+            (
+                "PO".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (63, 153, 153).into(),
+                    bg: (127, 255, 127).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+        ]
+        .into()
+    }
+
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
-    fn descr_2x2_tiles_5_6_58_63() -> Descr {
+    fn descr_2x2_tiles_5_6_58_63(tokens: &Tokens) -> Descr {
+        let token_lp = *tokens.get_token("LP").unwrap();
+        let token_po = *tokens.get_token("PO").unwrap();
         vec![
             TileDescr {
                 row: 0,
                 col: 0,
                 tile: "5".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, Token::LP)],
+                tokens: vec![(0, token_lp)],
             },
             TileDescr {
                 row: 0,
                 col: 1,
                 tile: "6".to_string(),
                 rotation: RotateCW::Two,
-                tokens: vec![(0, Token::PO)],
+                tokens: vec![(0, token_po)],
             },
             TileDescr {
                 row: 1,
@@ -542,7 +571,7 @@ mod tests {
                 col: 1,
                 tile: "63".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, Token::PO), (1, Token::LP)],
+                tokens: vec![(0, token_po), (1, token_lp)],
             },
         ]
         .into()
@@ -564,13 +593,15 @@ mod tests {
     #[test]
     fn test_2x2_paths() {
         let hex = Hex::new(HEX_DIAMETER);
-        let map = map_2x2_tiles_5_6_58_63(&hex);
+        let tokens = define_tokens();
+        let token_lp = *tokens.get_token("LP").unwrap();
+        let map = map_2x2_tiles_5_6_58_63(&hex, tokens.clone());
 
         let query = Query {
             addr: HexAddress::new(0, 0),
             from: Connection::City { ix: 0 },
             criteria: Criteria {
-                token: Token::LP,
+                token: token_lp,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 2 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
                 route_conflict_rule: ConflictRule::TrackOnly,
@@ -587,7 +618,7 @@ mod tests {
             addr: HexAddress::new(0, 0),
             from: Connection::City { ix: 0 },
             criteria: Criteria {
-                token: Token::LP,
+                token: token_lp,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 3 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
                 route_conflict_rule: ConflictRule::TrackOnly,
@@ -604,7 +635,7 @@ mod tests {
             addr: HexAddress::new(0, 0),
             from: Connection::City { ix: 0 },
             criteria: Criteria {
-                token: Token::LP,
+                token: token_lp,
                 path_limit: Some(PathLimit::CitiesAndTowns { count: 4 }),
                 conflict_rule: ConflictRule::TrackOrCityHex,
                 route_conflict_rule: ConflictRule::TrackOnly,
@@ -621,7 +652,7 @@ mod tests {
             addr: HexAddress::new(0, 0),
             from: Connection::City { ix: 0 },
             criteria: Criteria {
-                token: Token::LP,
+                token: token_lp,
                 path_limit: None,
                 conflict_rule: ConflictRule::TrackOrCityHex,
                 route_conflict_rule: ConflictRule::TrackOnly,

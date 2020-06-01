@@ -10,11 +10,12 @@ use log::info;
 use crate::Content;
 use rusty_brush;
 use rusty_hex::HexColour;
-use rusty_map::{HexAddress, Map, Token};
+use rusty_map::{HexAddress, Map};
 use rusty_route::{
     paths_for_token, ConflictRule, Criteria, Pairing, PathLimit, Trains,
 };
 use rusty_tile::TokenSpace;
+use rusty_token::Token;
 
 /// Selecting a company's tokens for route-finding.
 pub struct SelectToken {
@@ -86,12 +87,17 @@ impl SelectToken {
 
     /// Updates the window title so that it shows the train route criteria and
     /// the revenue earned from the best path (if any).
-    fn update_title(&self, window: &gtk::ApplicationWindow) {
+    fn update_title(
+        &self,
+        window: &gtk::ApplicationWindow,
+        content: &Content,
+    ) {
         let title = self
             .best_routes
             .as_ref()
             .map(|(token, pairing)| {
-                format!("{}: ${}", token.text(), pairing.net_revenue)
+                let tok_name = content.map.tokens().get_name(token).unwrap();
+                format!("{}: ${}", tok_name, pairing.net_revenue)
             })
             .unwrap_or("No routes".to_string());
         window.set_title(&title);
@@ -113,32 +119,32 @@ impl SelectToken {
             self.matches = token_matches(map, token_opt);
             if token_opt == None {
                 self.best_routes = None;
-                self.update_title(window);
+                self.update_title(window, content);
                 return Action::Redraw;
             }
             let token = token_opt.unwrap();
             if self.token_trains.contains_key(&token) {
                 self.best_routes = self.best_routes_for(content, token);
-                self.update_title(window);
+                self.update_title(window, content);
                 return Action::Redraw;
             }
-            let tok_name = token.text();
+            let tok_name = map.tokens().get_name(token).unwrap();
             let trains_opt =
                 crate::dialog::select_trains(window, &content.game, tok_name);
             if let Some((trains, bonuses)) = trains_opt {
                 self.token_trains.insert(*token, (trains, bonuses));
                 self.best_routes = self.best_routes_for(content, token);
-                self.update_title(window);
+                self.update_title(window, content);
                 Action::Redraw
             } else {
                 self.best_routes = None;
-                self.update_title(window);
+                self.update_title(window, content);
                 Action::Redraw
             }
         } else {
             Action::None
         };
-        self.update_title(window);
+        self.update_title(window, content);
         action
     }
 
@@ -231,7 +237,7 @@ impl State for SelectToken {
         // route. Note that the routes may pass through these token spaces
         // without stopping at them.
         hex_iter.restart();
-        for (addr, tile_opt) in &mut hex_iter {
+        for (addr, tile_opt, _tok_mgr) in &mut hex_iter {
             if let Some(spaces) = self.matches.get(&addr) {
                 // Highlight and/or fill token spaces
                 if let Some((tile, _tokens)) = tile_opt {

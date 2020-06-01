@@ -12,5 +12,6 @@ rusty_hex = { path = "../rusty_hex" }
 rusty_map = { path = "../rusty_map" }
 rusty_route = { path = "../rusty_route" }
 rusty_tile = { path = "../rusty_tile" }
+rusty_token = { path = "../rusty_token" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.8", features = ["png", "pdf", "svg"] }

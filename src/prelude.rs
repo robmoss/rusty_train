@@ -73,6 +73,18 @@ pub use rusty_tile::Tile;
 pub use rusty_tile::Connection;
 
 #[doc(inline)]
+pub use rusty_token::Tokens;
+
+#[doc(inline)]
+pub use rusty_token::Token;
+
+#[doc(inline)]
+pub use rusty_token::TokenStyle;
+
+#[doc(inline)]
+pub use rusty_token::Colour;
+
+#[doc(inline)]
 pub use rusty_catalogue::tile_catalogue;
 
 #[doc(inline)]
@@ -95,9 +107,6 @@ pub use rusty_map::HexAddress;
 
 #[doc(inline)]
 pub use rusty_map::RotateCW;
-
-#[doc(inline)]
-pub use rusty_map::Token;
 
 #[doc(inline)]
 pub use rusty_map::TokensTable;

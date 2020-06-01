@@ -33,13 +33,14 @@ pub fn draw_hex_backgrounds(
 
 pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
     hex_iter.restart();
-    for (_addr, tile_opt) in &mut hex_iter {
+    for (_addr, tile_opt, tok_mgr) in &mut hex_iter {
         if let Some((tile, token_spaces)) = tile_opt {
             // Draw the tile and any tokens.
             tile.draw(&ctx, &hex);
             for (token_space, map_token) in token_spaces.iter() {
                 tile.define_token_space(&token_space, &hex, &ctx);
-                map_token.draw_token(&hex, &ctx);
+                let name = tok_mgr.get_name(&map_token).unwrap();
+                map_token.draw(&hex, &ctx, name);
             }
         } else {
             // Fill empty hexes with a background colour.
@@ -63,7 +64,7 @@ pub fn outline_empty_hexes(
 ) {
     // Draw a thin grey border around empty hexes.
     hex_iter.restart();
-    for (_addr, tile_opt) in &mut hex_iter {
+    for (_addr, tile_opt, _tok_mgr) in &mut hex_iter {
         if tile_opt.is_none() {
             ctx.set_source_rgb(0.7, 0.7, 0.7);
             hex.define_boundary(ctx);
@@ -91,7 +92,7 @@ pub fn highlight_active_hex(
     b: f64,
 ) {
     hex_iter.restart();
-    for (addr, _tile_opt) in &mut hex_iter {
+    for (addr, _tile_opt, _tok_mgr) in &mut hex_iter {
         if active_hex == &Some(addr) {
             // Draw the active hex with a coloured border.
             ctx.set_source_rgb(r, g, b);
@@ -163,7 +164,8 @@ pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
                     let tokens_table = hex_state.get_tokens();
                     for (token_space, map_token) in tokens_table.iter() {
                         tile.define_token_space(&token_space, &hex, &ctx);
-                        map_token.draw_token(&hex, &ctx);
+                        let name = map.tokens().get_name(&map_token).unwrap();
+                        map_token.draw(&hex, &ctx, name);
                     }
                 }
                 // Then draw a border around the city.

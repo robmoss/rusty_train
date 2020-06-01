@@ -1,12 +1,15 @@
-use cairo::{Context, FontSlant, FontWeight};
+use cairo::Context;
 use std::collections::HashMap;
 
 use rusty_hex::{Hex, HexColour, HexFace, PI};
 use rusty_tile::{Label, Tile, TokenSpace};
+use rusty_token::{Token, Tokens};
 
 /// A grid of hexes, each of which may contain a `Tile`.
 #[derive(Debug, PartialEq)]
 pub struct Map {
+    /// The tokens that might be placed on the map.
+    tokens: Tokens,
     /// All tiles that might be placed on the map.
     tiles: Vec<Tile>,
     /// All tiles, indexed by name.
@@ -34,6 +37,10 @@ pub struct Map {
 impl Map {
     pub fn tiles(&self) -> &[Tile] {
         self.tiles.as_slice()
+    }
+
+    pub fn tokens(&self) -> &Tokens {
+        &self.tokens
     }
 
     pub fn hexes(&self) -> &[HexAddress] {
@@ -222,7 +229,11 @@ impl Map {
         }
     }
 
-    pub fn new(tiles: Vec<Tile>, hexes: Vec<HexAddress>) -> Self {
+    pub fn new(
+        tiles: Vec<Tile>,
+        tokens: Tokens,
+        hexes: Vec<HexAddress>,
+    ) -> Self {
         if hexes.is_empty() {
             panic!("Can not create map with no hexes")
         }
@@ -242,6 +253,7 @@ impl Map {
         let flat_top = true;
 
         Map {
+            tokens,
             tiles,
             catalogue,
             state,
@@ -458,7 +470,8 @@ impl Map {
                     // Draw any tokens.
                     for (token_space, map_token) in hex_state.tokens.iter() {
                         tile.define_token_space(&token_space, &hex, ctx);
-                        map_token.draw_token(&hex, ctx);
+                        let name = self.tokens.get_name(&map_token).unwrap();
+                        map_token.draw(&hex, ctx, name);
                     }
                 } else {
                     // Draw the hex border.
@@ -481,20 +494,22 @@ impl Map {
     /// ```
     /// # use rusty_hex::*;
     /// # use rusty_map::*;
+    /// # use rusty_token::*;
     /// # use rusty_catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue(&hex);
+    /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, hexes);
+    /// # let map = Map::new(tiles, tokens, hexes);
     /// // Draw a thick black border around each hex.
     /// ctx.set_source_rgb(0.0, 0.0, 0.0);
     /// ctx.set_line_width(hex.max_d * 0.05);
-    /// for (_addr, _tile_opt) in map.hex_iter(&hex, ctx) {
+    /// for (_addr, _tile_opt, _tok_mgr) in map.hex_iter(&hex, ctx) {
     ///     hex.define_boundary(ctx);
     ///     ctx.stroke();
     /// }
@@ -517,16 +532,18 @@ impl Map {
     /// ```
     /// # use rusty_hex::*;
     /// # use rusty_map::*;
+    /// # use rusty_token::*;
     /// # use rusty_catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue(&hex);
+    /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, hexes);
+    /// # let map = Map::new(tiles, tokens, hexes);
     /// // Fill each empty tile with a dark grey.
     /// ctx.set_source_rgb(0.4, 0.4, 0.4);
     /// for _addr in map.empty_hex_iter(&hex, ctx) {
@@ -553,20 +570,22 @@ impl Map {
     /// # use rusty_hex::*;
     /// # use rusty_tile::*;
     /// # use rusty_map::*;
+    /// # use rusty_token::*;
     /// # use rusty_catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue(&hex);
+    /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, hexes);
+    /// # let map = Map::new(tiles, tokens, hexes);
     /// // Draw a red border around each token space.
     /// ctx.set_source_rgb(0.8, 0.2, 0.2);
     /// ctx.set_line_width(hex.max_d * 0.015);
-    /// for (_addr, (tile, _tokens)) in map.tile_hex_iter(&hex, ctx) {
+    /// for (_addr, (tile, _tokens), _) in map.tile_hex_iter(&hex, ctx) {
     ///     for token_space in tile.token_spaces() {
     ///         tile.define_token_space(&token_space, &hex, ctx);
     ///         ctx.stroke();
@@ -718,7 +737,7 @@ impl<'a> HexIter<'a> {
 }
 
 impl<'a> Iterator for HexIter<'a> {
-    type Item = (HexAddress, Option<TileState<'a>>);
+    type Item = (HexAddress, Option<TileState<'a>>, &'a Tokens);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.ix >= self.map.hexes.len() {
@@ -744,9 +763,9 @@ impl<'a> Iterator for HexIter<'a> {
             self.ctx.rotate(self.angle + hex_state.rotation.radians());
             let tile =
                 Some((&self.map.tiles[hex_state.tile_ix], &hex_state.tokens));
-            Some((addr, tile))
+            Some((addr, tile, self.map.tokens()))
         } else {
-            Some((addr, None))
+            Some((addr, None, self.map.tokens()))
         }
     }
 }
@@ -775,7 +794,7 @@ impl<'a> Iterator for EmptyHexIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
-        while let Some((addr, tile)) = item {
+        while let Some((addr, tile, _tokens)) = item {
             if tile == None {
                 return Some(addr);
             }
@@ -811,13 +830,13 @@ impl<'a> TileHexIter<'a> {
 }
 
 impl<'a> Iterator for TileHexIter<'a> {
-    type Item = (HexAddress, TileState<'a>);
+    type Item = (HexAddress, TileState<'a>, &'a Tokens);
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
-        while let Some((addr, tile_opt)) = item {
+        while let Some((addr, tile_opt, tokens)) = item {
             if let Some(tile) = tile_opt {
-                return Some((addr, tile));
+                return Some((addr, tile, tokens));
             }
             item = self.iter.next();
         }
@@ -948,110 +967,6 @@ impl MapHex {
 
     pub fn set_tokens(&mut self, tokens: TokensTable) {
         self.tokens = tokens
-    }
-}
-
-/// A token that may occupy a token space on a `Tile`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Token {
-    LP,
-    PO,
-    MK,
-    N,
-}
-
-impl Token {
-    pub fn text(&self) -> &str {
-        use Token::*;
-
-        match self {
-            LP => "LP",
-            PO => "PO",
-            MK => "MK",
-            N => "N",
-        }
-    }
-
-    fn set_bg(&self, ctx: &Context) {
-        use Token::*;
-
-        match self {
-            LP => ctx.set_source_rgb(1.0, 0.5, 0.5),
-            PO => ctx.set_source_rgb(0.5, 1.0, 0.5),
-            MK => ctx.set_source_rgb(0.5, 1.0, 1.0),
-            N => ctx.set_source_rgb(1.0, 0.5, 1.0),
-        }
-    }
-
-    pub fn draw_token(&self, hex: &Hex, ctx: &Context) {
-        let text = self.text();
-        self.set_bg(ctx);
-
-        let (x0, y0, x1, y1) = ctx.fill_extents();
-        let x = 0.5 * (x0 + x1);
-        let y = 0.5 * (y0 + y1);
-        ctx.fill_preserve();
-
-        // Draw background elements.
-        let stroke_path = ctx.copy_path();
-        ctx.save();
-        ctx.clip_preserve();
-        let radius = hex.max_d * 0.125;
-        ctx.set_source_rgb(0.25, 0.6, 0.6);
-        ctx.new_path();
-        ctx.arc(x - 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
-        ctx.arc(x + 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
-        ctx.fill();
-        ctx.restore();
-
-        // Redraw the outer black circle.
-        ctx.new_path();
-        ctx.append_path(&stroke_path);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.set_line_width(hex.max_d * 0.01);
-        ctx.stroke_preserve();
-
-        // Draw the token label.
-        ctx.select_font_face("Serif", FontSlant::Normal, FontWeight::Bold);
-        // NOTE: scale font size relative to hex diameter.
-        let scale = hex.max_d / 125.0;
-        ctx.set_font_size(10.0 * scale);
-        let exts = ctx.text_extents(text);
-        let x = x - 0.5 * exts.width;
-        let y = y + 0.5 * exts.height;
-        ctx.move_to(x, y);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.show_text(text);
-    }
-
-    pub fn next(&self) -> Self {
-        use Token::*;
-
-        match self {
-            LP => PO,
-            PO => MK,
-            MK => N,
-            N => LP,
-        }
-    }
-
-    pub fn prev(&self) -> Self {
-        use Token::*;
-
-        match self {
-            LP => N,
-            PO => LP,
-            MK => PO,
-            N => MK,
-        }
-    }
-
-    pub fn first() -> Self {
-        Token::LP
-    }
-
-    pub fn last() -> Self {
-        Token::N
     }
 }
 

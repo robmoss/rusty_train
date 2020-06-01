@@ -34,6 +34,7 @@ fn test_connection_bonus_between_two_dits() {
     let hex = Hex::new(hex_width as f64);
     let game = rusty_game::_1867::Game::new(&hex);
     let mut map = game.create_map(&hex);
+    let company_token = game.company_tokens().first_token();
 
     // Define the map state. Note that all 1861/67 dit tiles earn 10 revenue.
     // We first calculate the optimal route in the absence of any connection
@@ -78,7 +79,7 @@ fn test_connection_bonus_between_two_dits() {
     let hex_tile = map.tile_at(toronto).unwrap();
     let token_space = hex_tile.token_spaces()[1];
     let map_hex = map.get_hex_mut(toronto).unwrap();
-    map_hex.set_token_at(&token_space, Token::LP);
+    map_hex.set_token_at(&token_space, company_token);
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
@@ -102,7 +103,7 @@ fn test_connection_bonus_between_two_dits() {
     let company_trains: Trains = vec![*all_trains.get("4").unwrap()].into();
     let limit = company_trains.path_limit();
     let criteria = Criteria {
-        token: Token::LP,
+        token: company_token,
         path_limit: limit,
         conflict_rule: ConflictRule::TrackOrCityHex,
         route_conflict_rule: ConflictRule::TrackOnly,

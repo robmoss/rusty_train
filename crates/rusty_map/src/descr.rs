@@ -2,8 +2,9 @@
 
 use std::collections::HashMap;
 
-use crate::map::{HexAddress, Map, MapHex, RotateCW, Token};
+use crate::map::{HexAddress, Map, MapHex, RotateCW};
 use rusty_tile::Tile;
+use rusty_token::{Token, Tokens};
 
 /// A description of a tile's configuration on a map hex.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -95,13 +96,13 @@ impl From<&Map> for Descr {
 
 impl Descr {
     /// Constructs a map whose state reflects the tile configurations.
-    pub fn build_map(&self, tiles: Vec<Tile>) -> Map {
+    pub fn build_map(&self, tiles: Vec<Tile>, tokens: Tokens) -> Map {
         let addrs = self
             .tiles
             .keys()
             .map(|addr| addr.clone())
             .collect::<Vec<_>>();
-        let mut map = Map::new(tiles, addrs);
+        let mut map = Map::new(tiles, tokens, addrs);
         self.update_map(&mut map);
         map
     }
@@ -147,6 +148,31 @@ pub mod tests {
         (Context::new(&surface), surface)
     }
 
+    /// Define the tokens used in the following test cases.
+    fn define_tokens() -> Tokens {
+        use rusty_token::TokenStyle;
+
+        vec![
+            (
+                "LP".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (63, 153, 153).into(),
+                    bg: (255, 127, 127).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+            (
+                "PO".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (63, 153, 153).into(),
+                    bg: (127, 255, 127).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+        ]
+        .into()
+    }
+
     /// Return a 2x2 map that contains the following tiles:
     ///
     /// - Tile 5 at (0, 0);
@@ -160,27 +186,30 @@ pub mod tests {
     /// Note that this map may be used by test cases in other modules.
     pub fn map_2x2_tiles_5_6_58_63(hex: &Hex) -> Map {
         let tiles = rusty_catalogue::tile_catalogue(hex);
-        let descr = descr_2x2_tiles_5_6_58_63();
-        let map = descr.build_map(tiles);
+        let tokens = define_tokens();
+        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let map = descr.build_map(tiles, tokens);
         map
     }
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
-    fn descr_2x2_tiles_5_6_58_63() -> Descr {
+    fn descr_2x2_tiles_5_6_58_63(tokens: &Tokens) -> Descr {
+        let token_lp = *tokens.get_token("LP").unwrap();
+        let token_po = *tokens.get_token("PO").unwrap();
         vec![
             TileDescr {
                 row: 0,
                 col: 0,
                 tile: "5".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, Token::LP)],
+                tokens: vec![(0, token_lp)],
             },
             TileDescr {
                 row: 0,
                 col: 1,
                 tile: "6".to_string(),
                 rotation: RotateCW::Two,
-                tokens: vec![(0, Token::PO)],
+                tokens: vec![(0, token_po)],
             },
             TileDescr {
                 row: 1,
@@ -194,7 +223,7 @@ pub mod tests {
                 col: 1,
                 tile: "63".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, Token::PO), (1, Token::LP)],
+                tokens: vec![(0, token_po), (1, token_lp)],
             },
         ]
         .into()
@@ -204,6 +233,7 @@ pub mod tests {
     fn simple_two_by_two() {
         let hex = Hex::new(HEX_DIAMETER);
         let map = map_2x2_tiles_5_6_58_63(&hex);
+        let tokens = define_tokens();
 
         // NOTE: check the three hex iterators to ensure they all yield the
         // expected map configuration.
@@ -216,7 +246,9 @@ pub mod tests {
         let hexes: Vec<_> = map.hex_iter(&hex, hex.context()).collect();
         assert_eq!(hexes.len(), 4);
         // Check that all four hexes contain tiles.
-        assert!(hexes.iter().all(|(_addr, ts_opt)| ts_opt.is_some()));
+        assert!(hexes
+            .iter()
+            .all(|(_addr, ts_opt, _tok_mgr)| ts_opt.is_some()));
 
         // Check (again) that there are four tiles.
         let tile_hexes: Vec<_> =
@@ -225,22 +257,23 @@ pub mod tests {
 
         // Check that the same tiles are reported to be at the same locations
         // according to Map::hex_iter() and Map::tile_hex_iter().
-        for (addr, ts_opt) in hexes.into_iter() {
-            let h = (addr, ts_opt.unwrap());
+        for (addr, ts_opt, tok_mgr) in hexes.into_iter() {
+            let h = (addr, ts_opt.unwrap(), tok_mgr);
             assert!(tile_hexes.iter().find(|&&th| th == h).is_some())
         }
 
         // Check the hex location, rotation, and tokens for each tile.
-        let descr = descr_2x2_tiles_5_6_58_63();
+        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
         for (addr, tile_descr) in descr.tiles.iter() {
             if let Some(tile_descr) = tile_descr {
                 // Check that the map contains a tile at this hex location.
-                let th =
-                    tile_hexes.iter().find(|&(th_addr, _)| addr == th_addr);
+                let th = tile_hexes
+                    .iter()
+                    .find(|&(th_addr, _, _)| addr == th_addr);
                 assert!(th.is_some());
 
                 // Check that tile names match.
-                let (_addr, (tile, tokens_tbl)) = th.unwrap();
+                let (_addr, (tile, tokens_tbl), _tok_mgr) = th.unwrap();
                 assert_eq!(tile_descr.tile, tile.name);
 
                 // Check that all of the tokens are placed correctly, and that
@@ -259,8 +292,9 @@ pub mod tests {
                 assert_eq!(rot, &tile_descr.rotation);
             } else {
                 // Check that the map contains no tile at this hex location.
-                let th =
-                    tile_hexes.iter().find(|&(th_addr, _)| addr == th_addr);
+                let th = tile_hexes
+                    .iter()
+                    .find(|&(th_addr, _, _)| addr == th_addr);
                 assert!(th.is_none());
             }
         }
@@ -281,11 +315,12 @@ pub mod tests {
     fn simple_two_by_two_with_empty_hexes() {
         let hex = Hex::new(HEX_DIAMETER);
         let tiles = rusty_catalogue::tile_catalogue(&hex);
-        let mut descr = descr_2x2_tiles_5_6_58_63();
+        let tokens = define_tokens();
+        let mut descr = descr_2x2_tiles_5_6_58_63(&tokens);
         // Remove two of the tiles.
         descr.tiles.insert((0, 1).into(), None);
         descr.tiles.insert((1, 1).into(), None);
-        let map = descr.build_map(tiles);
+        let map = descr.build_map(tiles, tokens);
 
         // Check that there are two empty hexes.
         let empty_iter = map.empty_hex_iter(&hex, hex.context());
@@ -301,7 +336,7 @@ pub mod tests {
         assert_eq!(tile_hexes.len(), 2);
 
         // Check that the tiles are at the correct locations.
-        for (addr, ts_opt) in hexes.into_iter() {
+        for (addr, ts_opt, _tok_mgr) in hexes.into_iter() {
             if addr.col == 0 {
                 assert!(ts_opt.is_some())
             } else {

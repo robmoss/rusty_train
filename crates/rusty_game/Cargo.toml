@@ -10,6 +10,7 @@ edition = "2018"
 [dependencies]
 rusty_hex = { path = "../rusty_hex" }
 rusty_tile = { path = "../rusty_tile" }
+rusty_token = { path = "../rusty_token" }
 rusty_map = { path = "../rusty_map" }
 rusty_route = { path = "../rusty_route" }
 rusty_catalogue = { path = "../rusty_catalogue" }

@@ -56,7 +56,7 @@ impl State for ReplaceTile {
 
         rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
-        for (addr, tile_opt) in &mut hex_iter {
+        for (addr, tile_opt, _tok_mgr) in &mut hex_iter {
             if addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
                 // NOTE: must account for the current tile's rotation.
@@ -82,7 +82,12 @@ impl State for ReplaceTile {
                     for (token_space, map_token) in token_spaces.iter() {
                         // Determine if the tile has a matching token space.
                         if tile.define_token_space(&token_space, &hex, ctx) {
-                            map_token.draw_token(&hex, ctx);
+                            let tok_name = content
+                                .map
+                                .tokens()
+                                .get_name(map_token)
+                                .unwrap();
+                            map_token.draw(&hex, ctx, &tok_name);
                         }
                     }
                 }
@@ -92,7 +97,9 @@ impl State for ReplaceTile {
                 tile.draw(ctx, hex);
                 for (token_space, map_token) in token_spaces.iter() {
                     tile.define_token_space(&token_space, &hex, ctx);
-                    map_token.draw_token(&hex, ctx);
+                    let tok_name =
+                        content.map.tokens().get_name(map_token).unwrap();
+                    map_token.draw(&hex, ctx, &tok_name);
                 }
             } else {
                 // Draw an empty hex.

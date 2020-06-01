@@ -8,6 +8,7 @@
 //! # use rusty_map::*;
 //! # use rusty_catalogue::tile_catalogue;
 //! # use rusty_route::*;
+//! # use rusty_token::{Token, Tokens, TokenStyle};
 //! // Create a map; this one has 6 rows and 14 columns.
 //! let hex = Hex::new(125.0);
 //! let tiles = tile_catalogue(&hex);
@@ -19,7 +20,16 @@
 //!     .collect();
 //! let hexes: Vec<HexAddress> =
 //!     addrs.iter().map(|coords| coords.into()).collect();
-//! let mut game_map = Map::new(tiles, hexes);
+//!
+//! // Define the token colours and appearance for an example company.
+//! let fg = (63, 153, 153).into();
+//! let bg = (255, 127, 127).into();
+//! let text = (0, 0, 0).into();
+//! let company_token = Token::new(TokenStyle::SideArcs {fg, bg, text});
+//! let tokens: Tokens = vec![("AB".to_string(), company_token)].into();
+//!
+//! // Create the game map.
+//! let mut game_map = Map::new(tiles, tokens, hexes);
 //! // NOTE: place tiles and tokens, or load an existing map configuration.
 //!
 //! // Define the collection of trains owned by a company.
@@ -33,7 +43,7 @@
 //! // Determine the search criteria for this collection of trains.
 //! let path_limit = trains.path_limit();
 //! let criteria = Criteria {
-//!     token: Token::LP,
+//!     token: company_token,
 //!     path_limit: path_limit,
 //!     conflict_rule: ConflictRule::TrackOrCityHex,
 //!     route_conflict_rule: ConflictRule::TrackOnly,

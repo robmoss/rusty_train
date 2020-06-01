@@ -25,6 +25,7 @@ fn test_dual_routes_from_montreal() {
     let hex = Hex::new(hex_width as f64);
     let game = rusty_game::_1867::Game::new(&hex);
     let mut map = game.create_map(&hex);
+    let company_token = game.company_tokens().first_token();
 
     // Upgrade the Montreal tile and place two tokens.
     let addr_montreal = "L12".parse().unwrap();
@@ -33,8 +34,8 @@ fn test_dual_routes_from_montreal() {
     let space_0 = hex_tile.token_spaces()[0];
     let space_1 = hex_tile.token_spaces()[1];
     let map_hex = map.get_hex_mut(addr_montreal).unwrap();
-    map_hex.set_token_at(&space_0, Token::LP);
-    map_hex.set_token_at(&space_1, Token::LP);
+    map_hex.set_token_at(&space_0, company_token);
+    map_hex.set_token_at(&space_1, company_token);
     // Place the other tiles for these two routes.
     assert!(map.place_tile("M13".parse().unwrap(), "4", RotateCW::Zero));
     assert!(map.place_tile("M11".parse().unwrap(), "7", RotateCW::One));
@@ -66,7 +67,7 @@ fn test_dual_routes_from_montreal() {
             .into();
     let limit = company_trains.path_limit();
     let criteria = Criteria {
-        token: Token::LP,
+        token: company_token,
         path_limit: limit,
         conflict_rule: ConflictRule::TrackOrCityHex,
         route_conflict_rule: ConflictRule::TrackOnly,

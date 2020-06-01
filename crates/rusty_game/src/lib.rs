@@ -2,6 +2,7 @@ use rusty_hex::Hex;
 use rusty_map::Map;
 use rusty_route::{Bonus, Train};
 use rusty_tile::Tile;
+use rusty_token::Tokens;
 
 pub mod _1867;
 
@@ -28,6 +29,9 @@ pub trait Game {
 
     /// Return the tiles that players are allowed to place on the map.
     fn player_tiles(&self) -> &[Tile];
+
+    /// Return the unique tokens (one per company).
+    fn company_tokens(&self) -> &Tokens;
 
     /// Return the number of game phases.
     fn phase_count(&self) -> usize;

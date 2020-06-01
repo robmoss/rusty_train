@@ -6,8 +6,9 @@ use gtk::Inhibit;
 use crate::Content;
 use rusty_brush;
 use rusty_hex::HexColour;
-use rusty_map::{HexAddress, Map, Token, TokensTable};
+use rusty_map::{HexAddress, Map, TokensTable};
 use rusty_tile::TokenSpace;
+use rusty_token::Token;
 
 /// Placing or removing tokens from a tile.
 pub struct EditTokens {
@@ -131,22 +132,28 @@ impl State for EditTokens {
             }
             gdk::enums::key::Up => {
                 let token_space = &self.token_spaces[self.selected];
+                // NOTE: we cannot borrow map.tokens() to get the next token,
+                // so we have to take a reference to the game's tokens.
+                let tokens = content.game.company_tokens();
                 map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next = hex_state
+                    let next: Token = hex_state
                         .get_token_at(token_space)
-                        .map(|t| t.next())
-                        .unwrap_or(Token::first());
+                        .and_then(|t| tokens.next_token(t))
+                        .unwrap_or(tokens.first_token());
                     hex_state.set_token_at(token_space, next);
                 });
                 (self, Inhibit(false), Action::Redraw)
             }
             gdk::enums::key::Down => {
                 let token_space = &self.token_spaces[self.selected];
+                // NOTE: we cannot borrow map.tokens() to get the next token,
+                // so we have to take a reference to the game's tokens.
+                let tokens = content.game.company_tokens();
                 map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next = hex_state
+                    let next: Token = hex_state
                         .get_token_at(token_space)
-                        .map(|t| t.prev())
-                        .unwrap_or(Token::last());
+                        .and_then(|t| tokens.prev_token(t))
+                        .unwrap_or(tokens.last_token());
                     hex_state.set_token_at(token_space, next);
                 });
                 (self, Inhibit(false), Action::Redraw)

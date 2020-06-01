@@ -16,6 +16,7 @@ members = ["crates/*"]
 [dependencies]
 rusty_hex = { path = "./crates/rusty_hex" }
 rusty_tile = { path = "./crates/rusty_tile" }
+rusty_token = { path = "./crates/rusty_token" }
 rusty_catalogue = { path = "./crates/rusty_catalogue" }
 rusty_map = { path = "./crates/rusty_map" }
 rusty_io = { path = "./crates/rusty_io" }

@@ -3132,11 +3132,32 @@ impl Default for TileRotation {
 }
 
 #[derive(Serialize, Deserialize)]
-enum Token {
-    LP,
-    PO,
-    MK,
-    N,
+pub struct Token {
+    pub style: TokenStyle,
+    pub x_pcnt: usize,
+    pub y_pcnt: usize,
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum TokenStyle {
+    SideArcs {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+    TopArcs {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TokenColour {
+    pub red: usize,
+    pub green: usize,
+    pub blue: usize,
+    pub alpha: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -3199,29 +3220,82 @@ impl std::convert::From<&TileRotation> for rusty_map::RotateCW {
     }
 }
 
-impl std::convert::From<&rusty_map::Token> for Token {
-    fn from(src: &rusty_map::Token) -> Self {
-        use rusty_map::Token::*;
-
-        match src {
-            LP => Token::LP,
-            PO => Token::PO,
-            MK => Token::MK,
-            N => Token::N,
+impl std::convert::From<&rusty_token::Colour> for TokenColour {
+    fn from(src: &rusty_token::Colour) -> Self {
+        Self {
+            red: src.red,
+            blue: src.blue,
+            green: src.green,
+            alpha: src.alpha,
         }
     }
 }
 
-impl std::convert::From<&Token> for rusty_map::Token {
-    fn from(src: &Token) -> Self {
-        use self::Token::*;
-        use rusty_map::Token;
+impl std::convert::From<&TokenColour> for rusty_token::Colour {
+    fn from(src: &TokenColour) -> Self {
+        Self {
+            red: src.red,
+            blue: src.blue,
+            green: src.green,
+            alpha: src.alpha,
+        }
+    }
+}
+
+impl std::convert::From<&rusty_token::TokenStyle> for TokenStyle {
+    fn from(src: &rusty_token::TokenStyle) -> Self {
+        use rusty_token::TokenStyle::*;
 
         match src {
-            LP => Token::LP,
-            PO => Token::PO,
-            MK => Token::MK,
-            N => Token::N,
+            SideArcs { bg, fg, text } => Self::SideArcs {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopArcs { bg, fg, text } => Self::TopArcs {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+        }
+    }
+}
+
+impl std::convert::From<&TokenStyle> for rusty_token::TokenStyle {
+    fn from(src: &TokenStyle) -> Self {
+        use TokenStyle::*;
+
+        match src {
+            SideArcs { bg, fg, text } => Self::SideArcs {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopArcs { bg, fg, text } => Self::TopArcs {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+        }
+    }
+}
+
+impl std::convert::From<&rusty_token::Token> for Token {
+    fn from(src: &rusty_token::Token) -> Self {
+        Token {
+            style: (&src.style).into(),
+            x_pcnt: src.x_pcnt,
+            y_pcnt: src.y_pcnt,
+        }
+    }
+}
+
+impl std::convert::From<&Token> for rusty_token::Token {
+    fn from(src: &Token) -> Self {
+        Self {
+            style: (&src.style).into(),
+            x_pcnt: src.x_pcnt,
+            y_pcnt: src.y_pcnt,
         }
     }
 }

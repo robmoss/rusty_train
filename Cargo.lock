@@ -546,6 +546,7 @@ dependencies = [
  "rusty_map",
  "rusty_route",
  "rusty_tile",
+ "rusty_token",
 ]
 
 [[package]]
@@ -566,6 +567,7 @@ dependencies = [
  "rusty_map",
  "rusty_route",
  "rusty_tile",
+ "rusty_token",
 ]
 
 [[package]]
@@ -583,6 +585,7 @@ dependencies = [
  "rusty_hex",
  "rusty_map",
  "rusty_tile",
+ "rusty_token",
  "serde",
  "serde_json",
 ]
@@ -595,6 +598,7 @@ dependencies = [
  "rusty_catalogue",
  "rusty_hex",
  "rusty_tile",
+ "rusty_token",
 ]
 
 [[package]]
@@ -607,10 +611,19 @@ dependencies = [
  "rusty_hex",
  "rusty_map",
  "rusty_tile",
+ "rusty_token",
 ]
 
 [[package]]
 name = "rusty_tile"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "rusty_hex",
+]
+
+[[package]]
+name = "rusty_token"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
@@ -637,6 +650,7 @@ dependencies = [
  "rusty_map",
  "rusty_route",
  "rusty_tile",
+ "rusty_token",
  "rusty_ui",
 ]
 
@@ -658,6 +672,7 @@ dependencies = [
  "rusty_map",
  "rusty_route",
  "rusty_tile",
+ "rusty_token",
 ]
 
 [[package]]

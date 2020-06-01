@@ -10,6 +10,7 @@ use rusty_hex::Hex;
 use rusty_map::{HexAddress, Map, RotateCW};
 use rusty_route::{Bonus, Train};
 use rusty_tile::{Label, Tile};
+use rusty_token::{Token, TokenStyle, Tokens};
 
 fn addrs() -> Vec<(usize, usize)> {
     vec![
@@ -198,6 +199,7 @@ pub struct Game {
     trains: Vec<Train>,
     names: Vec<&'static str>,
     all_tiles: Vec<Tile>,
+    tokens: Tokens,
     phase: usize,
     phase_names: Vec<&'static str>,
 }
@@ -217,12 +219,48 @@ impl Game {
         ];
         let names = vec!["2", "3", "4", "5", "6", "7", "8", "2+2", "5+5E"];
         let all_tiles = game_tiles(&hex);
+        let tokens = vec![
+            (
+                "CNR".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (176, 176, 176).into(),
+                    bg: (66, 0, 0).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+            (
+                "CPR".to_string(),
+                Token::new(TokenStyle::TopArcs {
+                    fg: (176, 176, 176).into(),
+                    bg: (0, 66, 0).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+            (
+                "C&O".to_string(),
+                Token::new(TokenStyle::SideArcs {
+                    fg: (176, 176, 176).into(),
+                    bg: (0, 0, 66).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+            (
+                "GT".to_string(),
+                Token::new(TokenStyle::TopArcs {
+                    fg: (176, 0, 0).into(),
+                    bg: (0, 0, 66).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+        ]
+        .into();
         let phase = 0;
         let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
         Game {
             trains,
             names,
             all_tiles,
+            tokens,
             phase,
             phase_names,
         }
@@ -315,9 +353,10 @@ impl super::Game for Game {
 
     /// Create the initial map for 1867.
     fn create_map(&self, _hex: &Hex) -> Map {
+        let tokens = self.company_tokens().clone();
         let hexes: Vec<HexAddress> =
             addrs().iter().map(|coords| coords.into()).collect();
-        let mut map = Map::new(self.all_tiles.clone(), hexes);
+        let mut map = Map::new(self.all_tiles.clone(), tokens, hexes);
         for (addr, (tile_name, rotn)) in initial_tiles() {
             if !map.place_tile(addr, tile_name, rotn) {
                 println!("Could not place tile {} at {}", tile_name, addr)
@@ -334,6 +373,11 @@ impl super::Game for Game {
     fn player_tiles(&self) -> &[Tile] {
         // TODO: this currently also returns special map tiles.
         &self.all_tiles
+    }
+
+    /// Return the unique tokens (one per company).
+    fn company_tokens(&self) -> &Tokens {
+        &self.tokens
     }
 
     /// Return the number of game phases.
