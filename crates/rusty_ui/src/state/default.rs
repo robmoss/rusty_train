@@ -37,6 +37,7 @@ impl State for Default {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         rusty_brush::draw_map(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_barriers(hex, ctx, map);
 
         // Draw the active hex with a red border.
         rusty_brush::highlight_active_hex(

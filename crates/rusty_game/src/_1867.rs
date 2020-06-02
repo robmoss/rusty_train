@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use rusty_catalogue::tile_catalogue;
-use rusty_hex::Hex;
+use rusty_hex::{Hex, HexFace};
 use rusty_map::{HexAddress, Map, RotateCW};
 use rusty_route::{Bonus, Train};
 use rusty_tile::{Label, Tile};
@@ -200,6 +200,7 @@ pub struct Game {
     names: Vec<&'static str>,
     all_tiles: Vec<Tile>,
     tokens: Tokens,
+    barriers: Vec<(HexAddress, HexFace)>,
     phase: usize,
     phase_names: Vec<&'static str>,
 }
@@ -254,6 +255,26 @@ impl Game {
             ),
         ]
         .into();
+        let barriers = vec![
+            // The two ports.
+            ("E19".parse().unwrap(), rusty_hex::HexFace::UpperLeft),
+            ("H16".parse().unwrap(), rusty_hex::HexFace::Top),
+            // Lake Huron
+            ("C11".parse().unwrap(), rusty_hex::HexFace::Top),
+            ("C11".parse().unwrap(), rusty_hex::HexFace::Bottom),
+            ("D10".parse().unwrap(), rusty_hex::HexFace::UpperLeft),
+            ("D10".parse().unwrap(), rusty_hex::HexFace::LowerLeft),
+            ("D10".parse().unwrap(), rusty_hex::HexFace::Bottom),
+            ("D10".parse().unwrap(), rusty_hex::HexFace::LowerRight),
+            ("D12".parse().unwrap(), rusty_hex::HexFace::UpperRight),
+            // St Lawrence River
+            ("M11".parse().unwrap(), rusty_hex::HexFace::UpperLeft),
+            ("M11".parse().unwrap(), rusty_hex::HexFace::Top),
+            ("N10".parse().unwrap(), rusty_hex::HexFace::UpperLeft),
+            ("N10".parse().unwrap(), rusty_hex::HexFace::Top),
+            ("O9".parse().unwrap(), rusty_hex::HexFace::UpperLeft),
+            ("O9".parse().unwrap(), rusty_hex::HexFace::Top),
+        ];
         let phase = 0;
         let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
         Game {
@@ -261,6 +282,7 @@ impl Game {
             names,
             all_tiles,
             tokens,
+            barriers,
             phase,
             phase_names,
         }
@@ -364,6 +386,9 @@ impl super::Game for Game {
         }
         for (addr, label) in hex_labels() {
             map.add_label_at(addr, label);
+        }
+        for (addr, face) in &self.barriers {
+            map.add_barrier(*addr, *face)
         }
         // TODO: mark tiles that are not modifiable.
         map

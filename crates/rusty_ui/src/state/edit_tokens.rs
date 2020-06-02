@@ -60,6 +60,7 @@ impl State for EditTokens {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         rusty_brush::draw_map(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_barriers(hex, ctx, map);
 
         // Highlight the active token space.
         if let Some(tile) = map.tile_at(self.active_hex) {

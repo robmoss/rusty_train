@@ -10,6 +10,9 @@ use rusty_token::{Token, Tokens};
 pub struct Map {
     /// The tokens that might be placed on the map.
     tokens: Tokens,
+    /// Barriers across which track cannot be built, or for which there is an
+    /// additional cost (e.g., rivers).
+    barriers: Vec<(HexAddress, HexFace)>,
     /// All tiles that might be placed on the map.
     tiles: Vec<Tile>,
     /// All tiles, indexed by name.
@@ -41,6 +44,14 @@ impl Map {
 
     pub fn tokens(&self) -> &Tokens {
         &self.tokens
+    }
+
+    pub fn barriers(&self) -> &[(HexAddress, HexFace)] {
+        self.barriers.as_slice()
+    }
+
+    pub fn add_barrier(&mut self, addr: HexAddress, face: HexFace) {
+        self.barriers.push((addr, face))
     }
 
     pub fn hexes(&self) -> &[HexAddress] {
@@ -238,6 +249,7 @@ impl Map {
             panic!("Can not create map with no hexes")
         }
 
+        let barriers = vec![];
         let catalogue = tiles
             .iter()
             .enumerate()
@@ -255,6 +267,7 @@ impl Map {
         Map {
             tokens,
             tiles,
+            barriers,
             catalogue,
             state,
             hexes,

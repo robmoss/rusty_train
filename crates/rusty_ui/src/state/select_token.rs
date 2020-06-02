@@ -232,6 +232,7 @@ impl State for SelectToken {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         rusty_brush::draw_map(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_barriers(hex, ctx, map);
 
         // Highlight all matching token spaces on the map, before drawing each
         // route. Note that the routes may pass through these token spaces

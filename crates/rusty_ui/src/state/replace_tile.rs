@@ -116,6 +116,8 @@ impl State for ReplaceTile {
         }
 
         rusty_brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
+        rusty_brush::draw_barriers(hex, ctx, map);
+
         // Draw the active hex with a blue border.
         rusty_brush::highlight_active_hex(
             hex,
