@@ -152,6 +152,26 @@ pub enum TokenStyle {
         fg: Colour,
         text: Colour,
     },
+    TopSquares {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
+    TopLines {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
+    TopTriangles {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
+    TripleTriangles {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
 }
 
 impl TokenStyle {
@@ -185,6 +205,106 @@ impl TokenStyle {
                 fg.apply_to(ctx);
                 ctx.fill();
             }
+            TopSquares { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                ctx.new_path();
+                ctx.move_to(-0.4 * radius, -0.45 * radius);
+                ctx.line_to(0.4 * radius, -0.45 * radius);
+                ctx.line_to(0.4 * radius, -1.1 * radius);
+                ctx.line_to(-0.4 * radius, -1.1 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+                ctx.new_path();
+                ctx.move_to(-0.4 * radius, 0.45 * radius);
+                ctx.line_to(0.4 * radius, 0.45 * radius);
+                ctx.line_to(0.4 * radius, 1.1 * radius);
+                ctx.line_to(-0.4 * radius, 1.1 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
+            TopLines { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                ctx.new_path();
+                ctx.move_to(-0.5 * radius, -0.45 * radius);
+                ctx.line_to(-0.3 * radius, -0.45 * radius);
+                ctx.line_to(-0.3 * radius, -1.1 * radius);
+                ctx.line_to(-0.5 * radius, -1.1 * radius);
+                ctx.move_to(-0.1 * radius, -0.45 * radius);
+                ctx.line_to(0.1 * radius, -0.45 * radius);
+                ctx.line_to(0.1 * radius, -1.1 * radius);
+                ctx.line_to(-0.1 * radius, -1.1 * radius);
+                ctx.move_to(0.5 * radius, -0.45 * radius);
+                ctx.line_to(0.3 * radius, -0.45 * radius);
+                ctx.line_to(0.3 * radius, -1.1 * radius);
+                ctx.line_to(0.5 * radius, -1.1 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+                ctx.new_path();
+                ctx.move_to(-0.5 * radius, 0.45 * radius);
+                ctx.line_to(-0.3 * radius, 0.45 * radius);
+                ctx.line_to(-0.3 * radius, 1.1 * radius);
+                ctx.line_to(-0.5 * radius, 1.1 * radius);
+                ctx.move_to(-0.1 * radius, 0.45 * radius);
+                ctx.line_to(0.1 * radius, 0.45 * radius);
+                ctx.line_to(0.1 * radius, 1.1 * radius);
+                ctx.line_to(-0.1 * radius, 1.1 * radius);
+                ctx.move_to(0.5 * radius, 0.45 * radius);
+                ctx.line_to(0.3 * radius, 0.45 * radius);
+                ctx.line_to(0.3 * radius, 1.1 * radius);
+                ctx.line_to(0.5 * radius, 1.1 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
+            TopTriangles { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                ctx.new_path();
+                ctx.move_to(-0.45 * radius, -1.0 * radius);
+                ctx.line_to(0.0, -0.45 * radius);
+                ctx.line_to(0.45 * radius, -1.0 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+                ctx.new_path();
+                ctx.move_to(-0.45 * radius, 1.0 * radius);
+                ctx.line_to(0.0, 0.45 * radius);
+                ctx.line_to(0.45 * radius, 1.0 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
+            TripleTriangles { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                ctx.new_path();
+                ctx.move_to(-1.5 * radius, -1.0 * radius);
+                ctx.line_to(-0.3 * radius, -0.45 * radius);
+                ctx.line_to(-0.3 * radius, -1.0 * radius);
+                ctx.line_to(0.0, -0.5 * radius);
+                ctx.line_to(0.3 * radius, -1.0 * radius);
+                ctx.line_to(0.3 * radius, -0.45 * radius);
+                ctx.line_to(1.5 * radius, -1.0 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+                ctx.new_path();
+                ctx.move_to(-1.5 * radius, 1.0 * radius);
+                ctx.line_to(-0.3 * radius, 0.45 * radius);
+                ctx.line_to(-0.3 * radius, 1.0 * radius);
+                ctx.line_to(0.0, 0.5 * radius);
+                ctx.line_to(0.3 * radius, 1.0 * radius);
+                ctx.line_to(0.3 * radius, 0.45 * radius);
+                ctx.line_to(1.5 * radius, 1.0 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
         }
     }
 
@@ -194,6 +314,10 @@ impl TokenStyle {
         match self {
             SideArcs { text, .. } => &text,
             TopArcs { text, .. } => &text,
+            TopSquares { text, .. } => &text,
+            TopLines { text, .. } => &text,
+            TopTriangles { text, .. } => &text,
+            TripleTriangles { text, .. } => &text,
         }
     }
 }
