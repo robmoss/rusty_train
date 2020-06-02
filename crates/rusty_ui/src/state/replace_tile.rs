@@ -56,20 +56,22 @@ impl State for ReplaceTile {
 
         rusty_brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
 
-        for (addr, tile_opt, _tok_mgr) in &mut hex_iter {
-            if addr == self.active_hex && !self.show_original {
+        for hex_state in &mut hex_iter {
+            if hex_state.addr == self.active_hex && !self.show_original {
                 // Draw the currently-selected replacement tile.
                 // NOTE: must account for the current tile's rotation.
-                let extra_angle = if let Some(hs) = map.get_hex(addr) {
-                    -hs.radians()
-                } else {
-                    0.0
-                };
-                ctx.rotate(self.rotation.radians() + extra_angle);
+                let extra_angle =
+                    if let Some(hs) = map.get_hex(hex_state.addr) {
+                        -hs.radians()
+                    } else {
+                        0.0
+                    };
+                let rotn = self.rotation.radians() + extra_angle;
+                ctx.rotate(rotn);
                 let tile_ix = self.candidates[self.selected];
                 let tile = &map.tiles()[tile_ix];
                 tile.draw(ctx, hex);
-                if let Some((_tile, token_spaces)) = tile_opt {
+                if let Some((_tile, token_spaces)) = hex_state.tile_state {
                     // Draw any tokens that have been placed.
                     // NOTE: the replacement tile may not have a matching
                     // token space; when editing a tile there may be fewer
@@ -87,19 +89,25 @@ impl State for ReplaceTile {
                                 .tokens()
                                 .get_name(map_token)
                                 .unwrap();
-                            map_token.draw(&hex, ctx, &tok_name);
+                            map_token.draw(&hex, ctx, &tok_name, rotn);
+                        } else {
+                            println!("Could not define token space.")
                         }
                     }
                 }
                 ctx.rotate(-self.rotation.radians() - extra_angle);
-            } else if let Some((tile, token_spaces)) = tile_opt {
+            } else if let Some((tile, token_spaces)) = hex_state.tile_state {
                 // Draw the tile and any tokens.
                 tile.draw(ctx, hex);
+                let rotn = hex_state.tile_rotation;
                 for (token_space, map_token) in token_spaces.iter() {
-                    tile.define_token_space(&token_space, &hex, ctx);
-                    let tok_name =
-                        content.map.tokens().get_name(map_token).unwrap();
-                    map_token.draw(&hex, ctx, &tok_name);
+                    if tile.define_token_space(&token_space, &hex, ctx) {
+                        let tok_name =
+                            content.map.tokens().get_name(map_token).unwrap();
+                        map_token.draw(&hex, ctx, &tok_name, rotn);
+                    } else {
+                        println!("Could not define token space.")
+                    }
                 }
             } else {
                 // Draw an empty hex.

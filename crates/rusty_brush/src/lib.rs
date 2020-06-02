@@ -33,14 +33,20 @@ pub fn draw_hex_backgrounds(
 
 pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
     hex_iter.restart();
-    for (_addr, tile_opt, tok_mgr) in &mut hex_iter {
-        if let Some((tile, token_spaces)) = tile_opt {
+    for hex_state in &mut hex_iter {
+        if let Some((tile, token_spaces)) = hex_state.tile_state {
             // Draw the tile and any tokens.
             tile.draw(&ctx, &hex);
             for (token_space, map_token) in token_spaces.iter() {
-                tile.define_token_space(&token_space, &hex, &ctx);
-                let name = tok_mgr.get_name(&map_token).unwrap();
-                map_token.draw(&hex, &ctx, name);
+                if tile.define_token_space(&token_space, &hex, &ctx) {
+                    let name = hex_state
+                        .available_tokens
+                        .get_name(&map_token)
+                        .unwrap();
+                    map_token.draw(&hex, &ctx, name, hex_state.tile_rotation);
+                } else {
+                    println!("Could not define token space.")
+                }
             }
         } else {
             // Fill empty hexes with a background colour.
@@ -64,8 +70,8 @@ pub fn outline_empty_hexes(
 ) {
     // Draw a thin grey border around empty hexes.
     hex_iter.restart();
-    for (_addr, tile_opt, _tok_mgr) in &mut hex_iter {
-        if tile_opt.is_none() {
+    for hex_state in &mut hex_iter {
+        if hex_state.tile_state.is_none() {
             ctx.set_source_rgb(0.7, 0.7, 0.7);
             hex.define_boundary(ctx);
             ctx.set_line_width(hex.max_d * 0.01);
@@ -92,8 +98,8 @@ pub fn highlight_active_hex(
     b: f64,
 ) {
     hex_iter.restart();
-    for (addr, _tile_opt, _tok_mgr) in &mut hex_iter {
-        if active_hex == &Some(addr) {
+    for hex_state in &mut hex_iter {
+        if active_hex == &Some(hex_state.addr) {
             // Draw the active hex with a coloured border.
             ctx.set_source_rgb(r, g, b);
             ctx.set_line_width(hex.max_d * 0.02);
@@ -161,11 +167,16 @@ pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
                 city.draw_fg(&hex, &ctx);
                 // Draw the tokens first.
                 if let Some(hex_state) = map.get_hex(visit.addr) {
+                    let rotn = hex_state.radians();
                     let tokens_table = hex_state.get_tokens();
                     for (token_space, map_token) in tokens_table.iter() {
-                        tile.define_token_space(&token_space, &hex, &ctx);
-                        let name = map.tokens().get_name(&map_token).unwrap();
-                        map_token.draw(&hex, &ctx, name);
+                        if tile.define_token_space(&token_space, &hex, &ctx) {
+                            let name =
+                                map.tokens().get_name(&map_token).unwrap();
+                            map_token.draw(&hex, &ctx, name, rotn);
+                        } else {
+                            println!("Could not define token space.")
+                        }
                     }
                 }
                 // Then draw a border around the city.

@@ -237,17 +237,17 @@ impl State for SelectToken {
         // route. Note that the routes may pass through these token spaces
         // without stopping at them.
         hex_iter.restart();
-        for (addr, tile_opt, _tok_mgr) in &mut hex_iter {
-            if let Some(spaces) = self.matches.get(&addr) {
+        for hex_state in &mut hex_iter {
+            if let Some(spaces) = self.matches.get(&hex_state.addr) {
                 // Highlight and/or fill token spaces
-                if let Some((tile, _tokens)) = tile_opt {
+                if let Some((tile, _tokens)) = hex_state.tile_state {
                     for token_space in spaces {
                         let (r, g, b, a) = (0.9, 0.1, 0.1, 0.25);
                         tile.define_token_space(token_space, hex, ctx);
                         ctx.set_source_rgb(r, g, b);
                         ctx.set_line_width(hex.max_d * 0.025);
                         ctx.stroke_preserve();
-                        if self.active_hex != addr {
+                        if self.active_hex != hex_state.addr {
                             ctx.set_source_rgba(r, g, b, a);
                             ctx.fill_preserve();
                         }

@@ -736,8 +736,16 @@ impl<'a> HexIter<'a> {
     }
 }
 
+/// The state of a map hex that may, or may not, contain a tile.
+pub struct HexState<'a> {
+    pub addr: HexAddress,
+    pub tile_state: Option<(&'a Tile, &'a TokensTable)>,
+    pub available_tokens: &'a Tokens,
+    pub tile_rotation: f64,
+}
+
 impl<'a> Iterator for HexIter<'a> {
-    type Item = (HexAddress, Option<TileState<'a>>, &'a Tokens);
+    type Item = HexState<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.ix >= self.map.hexes.len() {
@@ -761,11 +769,21 @@ impl<'a> Iterator for HexIter<'a> {
 
         if let Some(hex_state) = self.map.state.get(&addr) {
             self.ctx.rotate(self.angle + hex_state.rotation.radians());
-            let tile =
+            let tile_state =
                 Some((&self.map.tiles[hex_state.tile_ix], &hex_state.tokens));
-            Some((addr, tile, self.map.tokens()))
+            Some(HexState {
+                addr,
+                tile_state,
+                available_tokens: &self.map.tokens(),
+                tile_rotation: hex_state.rotation.radians(),
+            })
         } else {
-            Some((addr, None, self.map.tokens()))
+            Some(HexState {
+                addr,
+                tile_state: None,
+                available_tokens: &self.map.tokens(),
+                tile_rotation: 0.0,
+            })
         }
     }
 }
@@ -794,9 +812,9 @@ impl<'a> Iterator for EmptyHexIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
-        while let Some((addr, tile, _tokens)) = item {
-            if tile == None {
-                return Some(addr);
+        while let Some(hex_state) = item {
+            if hex_state.tile_state == None {
+                return Some(hex_state.addr);
             }
             item = self.iter.next();
         }
@@ -829,14 +847,29 @@ impl<'a> TileHexIter<'a> {
     }
 }
 
+/// The state of a map hex that contains a tile.
+pub struct TileHexState<'a> {
+    pub addr: HexAddress,
+    pub tile: &'a Tile,
+    pub tile_tokens: &'a TokensTable,
+    pub available_tokens: &'a Tokens,
+    pub tile_rotation: f64,
+}
+
 impl<'a> Iterator for TileHexIter<'a> {
-    type Item = (HexAddress, TileState<'a>, &'a Tokens);
+    type Item = TileHexState<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
-        while let Some((addr, tile_opt, tokens)) = item {
-            if let Some(tile) = tile_opt {
-                return Some((addr, tile, tokens));
+        while let Some(hex_state) = item {
+            if let Some(tile_state) = hex_state.tile_state {
+                return Some(TileHexState {
+                    addr: hex_state.addr,
+                    tile: tile_state.0,
+                    tile_tokens: tile_state.1,
+                    available_tokens: hex_state.available_tokens,
+                    tile_rotation: hex_state.tile_rotation,
+                });
             }
             item = self.iter.next();
         }

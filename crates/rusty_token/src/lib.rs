@@ -155,13 +155,8 @@ pub enum TokenStyle {
 }
 
 impl TokenStyle {
-    pub fn draw_background(&self, hex: &Hex, ctx: &Context) {
+    fn draw_background(&self, hex: &Hex, ctx: &Context) {
         use TokenStyle::*;
-
-        // Locate the centre of the token.
-        let (x0, y0, x1, y1) = ctx.fill_extents();
-        let x = 0.5 * (x0 + x1);
-        let y = 0.5 * (y0 + y1);
 
         match self {
             SideArcs { fg, bg, .. } => {
@@ -171,11 +166,11 @@ impl TokenStyle {
                 ctx.clip_preserve();
                 let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.arc(x - 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
-                ctx.arc(x + 1.5 * radius, y, 1.0 * radius, 0.0, 2.0 * PI);
+                ctx.arc(-1.5 * radius, 0.0, 1.0 * radius, 0.0, 2.0 * PI);
+                ctx.arc(1.5 * radius, 0.0, 1.0 * radius, 0.0, 2.0 * PI);
 
                 fg.apply_to(ctx);
-                ctx.fill_preserve();
+                ctx.fill();
             }
             TopArcs { fg, bg, .. } => {
                 bg.apply_to(ctx);
@@ -184,11 +179,11 @@ impl TokenStyle {
                 ctx.clip_preserve();
                 let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.arc(x, y - 1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
-                ctx.arc(x, y + 1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
+                ctx.arc(0.0, -1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
+                ctx.arc(0.0, 1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
 
                 fg.apply_to(ctx);
-                ctx.fill_preserve();
+                ctx.fill();
             }
         }
     }
@@ -212,47 +207,64 @@ impl Token {
         }
     }
 
+    pub fn shift_text(mut self, x_pcnt: usize, y_pcnt: usize) -> Self {
+        self.x_pcnt = x_pcnt;
+        self.y_pcnt = y_pcnt;
+        self
+    }
+
     fn draw_text(&self, hex: &Hex, ctx: &Context, text: &str) {
+        // NOTE: scale font size relative to hex diameter.
+        ctx.select_font_face("Sans", FontSlant::Normal, FontWeight::Bold);
+        let scale = hex.max_d / 125.0;
+        ctx.set_font_size(10.0 * scale);
+
+        // Move to the appropriate starting location so that the text is
+        // centred at the desired location.
+        let exts = ctx.text_extents(text);
+        let dx = -0.5 * exts.width;
+        let dy = 0.5 * exts.height;
+
+        // Shift the text according to the values of `x_pcnt` and `y_pcnt`.
+        let radius = hex.max_d * 0.125;
+        let x = (radius + dx) * ((self.x_pcnt as f64 - 50.0) / 50.0);
+        let y = (radius - dy) * ((self.y_pcnt as f64 - 50.0) / 50.0);
+
+        // TODO: use pango crate so that we can specify a maximum width and
+        // wrap the text ...
+        // https://developer.gnome.org/pango/stable/pango-Cairo-Rendering.html
+        // https://gtk-rs.org/docs/pango/struct.Layout.html
+        // Draw the token label.
+        self.style.text_colour().apply_to(ctx);
+        ctx.move_to(x + dx, y + dy);
+        ctx.show_text(text);
+    }
+
+    pub fn draw(&self, hex: &Hex, ctx: &Context, text: &str, rotn: f64) {
         // Locate the centre of the token.
         let (x0, y0, x1, y1) = ctx.fill_extents();
         let x = 0.5 * (x0 + x1);
         let y = 0.5 * (y0 + y1);
 
-        // NOTE: allow the text position to be adjusted.
-        let x = x * (self.x_pcnt as f64 / 50.0);
-        let y = y * (self.y_pcnt as f64 / 50.0);
+        let m = ctx.get_matrix();
+        ctx.save();
 
-        // NOTE: scale font size relative to hex diameter.
-        ctx.select_font_face("Sans", FontSlant::Normal, FontWeight::Bold);
-        let scale = hex.max_d / 125.0;
-        ctx.set_font_size(10.0 * scale);
-        let exts = ctx.text_extents(text);
-        let x = x - 0.5 * exts.width;
-        let y = y + 0.5 * exts.height;
+        // NOTE: move to the token centre and apply the inverse rotation.
+        ctx.translate(x, y);
+        ctx.rotate(-rotn);
 
-        // Draw the token label.
-        self.style.text_colour().apply_to(ctx);
-        ctx.move_to(x, y);
-        ctx.show_text(text);
-    }
-
-    pub fn draw(&self, hex: &Hex, ctx: &Context, text: &str) {
         let stroke_path = ctx.copy_path();
-        ctx.save();
         self.style.draw_background(hex, ctx);
-        ctx.restore();
-
-        ctx.save();
         self.draw_text(hex, ctx, text);
-        ctx.restore();
 
         // Redraw the outer black circle.
-        ctx.save();
         ctx.new_path();
         ctx.append_path(&stroke_path);
         ctx.set_source_rgb(0.0, 0.0, 0.0);
         ctx.set_line_width(hex.max_d * 0.01);
         ctx.stroke_preserve();
+
         ctx.restore();
+        ctx.set_matrix(m);
     }
 }
