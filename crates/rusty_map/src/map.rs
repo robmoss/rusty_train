@@ -400,12 +400,6 @@ impl Map {
         }
     }
 
-    fn draw_hex_border(&self, hex: &Hex, ctx: &Context) {
-        hex.define_boundary(ctx);
-        ctx.set_line_width(hex.max_d * 0.01);
-        ctx.stroke();
-    }
-
     pub fn prepare_to_draw(
         &self,
         addr: HexAddress,
@@ -434,54 +428,6 @@ impl Map {
         }
 
         m
-    }
-
-    pub fn draw_tiles(&self, hex: &Hex, ctx: &Context) {
-        // TODO! This should probably be implemented for a separate structure,
-        // since it will involve drawing backgrounds and other details ...
-        // Or should this simply draw hexes and let the UI fill in other stuff?
-        // If Map doesn't do this, the UI needs to interrogate each HexCoord ...
-
-        let angle = if self.flat_top { 0.0 } else { PI / 6.0 };
-        let x0 = if self.flat_top {
-            0.5 * hex.max_d + 10.0
-        } else {
-            0.5 * hex.min_d + 10.0
-        };
-        let y0 = if self.flat_top {
-            0.5 * hex.min_d + 10.0
-        } else {
-            0.5 * hex.max_d + 10.0
-        };
-
-        let m = ctx.get_matrix();
-
-        for r in 0..(self.max_row + 1 - self.min_row) {
-            for c in 0..(self.max_col + 1 - self.min_col) {
-                let (x, y) = self.hex_centre(r, c, x0, y0, hex);
-                ctx.translate(x, y);
-
-                let hex_locn = HexAddress::new(r, c);
-                if let Some(hex_state) = self.state.get(&hex_locn) {
-                    // Draw this tile.
-                    ctx.rotate(angle + hex_state.rotation.radians());
-                    let tile = &self.tiles[hex_state.tile_ix];
-                    tile.draw(ctx, &hex);
-                    // Draw any tokens.
-                    for (token_space, map_token) in hex_state.tokens.iter() {
-                        tile.define_token_space(&token_space, &hex, ctx);
-                        let name = self.tokens.get_name(&map_token).unwrap();
-                        map_token.draw(&hex, ctx, name);
-                    }
-                } else {
-                    // Draw the hex border.
-                    ctx.set_source_rgb(0.7, 0.7, 0.7);
-                    self.draw_hex_border(&hex, ctx);
-                }
-
-                ctx.set_matrix(m);
-            }
-        }
     }
 
     /// Iterates over all map hexes.
