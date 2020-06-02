@@ -230,10 +230,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::_0
-            | gdk::enums::key::KP_0
-            | gdk::enums::key::BackSpace
-            | gdk::enums::key::Delete => {
+            gdk::enums::key::BackSpace | gdk::enums::key::Delete => {
                 if let Some(addr) = self.active_hex {
                     // TODO: allow this action to be undone?
                     map.remove_tile(addr);
