@@ -3150,6 +3150,26 @@ pub enum TokenStyle {
         fg: TokenColour,
         text: TokenColour,
     },
+    TopSquares {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+    TopLines {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+    TopTriangles {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+    TripleTriangles {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -3257,6 +3277,26 @@ impl std::convert::From<&rusty_token::TokenStyle> for TokenStyle {
                 fg: fg.into(),
                 text: text.into(),
             },
+            TopSquares { bg, fg, text } => Self::TopSquares {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopLines { bg, fg, text } => Self::TopLines {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopTriangles { bg, fg, text } => Self::TopTriangles {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TripleTriangles { bg, fg, text } => Self::TripleTriangles {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
         }
     }
 }
@@ -3272,6 +3312,26 @@ impl std::convert::From<&TokenStyle> for rusty_token::TokenStyle {
                 text: text.into(),
             },
             TopArcs { bg, fg, text } => Self::TopArcs {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopSquares { bg, fg, text } => Self::TopSquares {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopLines { bg, fg, text } => Self::TopLines {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TopTriangles { bg, fg, text } => Self::TopTriangles {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TripleTriangles { bg, fg, text } => Self::TripleTriangles {
                 bg: bg.into(),
                 fg: fg.into(),
                 text: text.into(),
