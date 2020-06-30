@@ -510,7 +510,7 @@ mod tests {
     /// Note that this map may be used by test cases in other modules.
     pub fn map_2x2_tiles_5_6_58_63(hex: &Hex, tokens: Tokens) -> Map {
         let tiles = rusty_catalogue::tile_catalogue(hex);
-        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let descr = descr_2x2_tiles_5_6_58_63();
         let map = descr.build_map(tiles, tokens);
         map
     }
@@ -541,23 +541,21 @@ mod tests {
     }
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
-    fn descr_2x2_tiles_5_6_58_63(tokens: &Tokens) -> Descr {
-        let token_lp = *tokens.get_token("LP").unwrap();
-        let token_po = *tokens.get_token("PO").unwrap();
+    fn descr_2x2_tiles_5_6_58_63() -> Descr {
         vec![
             TileDescr {
                 row: 0,
                 col: 0,
                 tile: "5".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, token_lp)],
+                tokens: vec![(0, "LP".to_string())],
             },
             TileDescr {
                 row: 0,
                 col: 1,
                 tile: "6".to_string(),
                 rotation: RotateCW::Two,
-                tokens: vec![(0, token_po)],
+                tokens: vec![(0, "PO".to_string())],
             },
             TileDescr {
                 row: 1,
@@ -571,7 +569,7 @@ mod tests {
                 col: 1,
                 tile: "63".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, token_po), (1, token_lp)],
+                tokens: vec![(0, "PO".to_string()), (1, "LP".to_string())],
             },
         ]
         .into()
