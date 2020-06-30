@@ -468,7 +468,7 @@ impl Map {
     /// // Draw a thick black border around each hex.
     /// ctx.set_source_rgb(0.0, 0.0, 0.0);
     /// ctx.set_line_width(hex.max_d * 0.05);
-    /// for (_addr, _tile_opt, _tok_mgr) in map.hex_iter(&hex, ctx) {
+    /// for h_state in map.hex_iter(&hex, ctx) {
     ///     hex.define_boundary(ctx);
     ///     ctx.stroke();
     /// }
@@ -544,9 +544,9 @@ impl Map {
     /// // Draw a red border around each token space.
     /// ctx.set_source_rgb(0.8, 0.2, 0.2);
     /// ctx.set_line_width(hex.max_d * 0.015);
-    /// for (_addr, (tile, _tokens), _) in map.tile_hex_iter(&hex, ctx) {
-    ///     for token_space in tile.token_spaces() {
-    ///         tile.define_token_space(&token_space, &hex, ctx);
+    /// for th in map.tile_hex_iter(&hex, ctx) {
+    ///     for token_space in th.tile.token_spaces() {
+    ///         th.tile.define_token_space(&token_space, &hex, ctx);
     ///         ctx.stroke();
     ///     }
     /// }
@@ -807,6 +807,7 @@ impl<'a> TileHexIter<'a> {
 }
 
 /// The state of a map hex that contains a tile.
+#[derive(PartialEq)]
 pub struct TileHexState<'a> {
     pub addr: HexAddress,
     pub tile: &'a Tile,

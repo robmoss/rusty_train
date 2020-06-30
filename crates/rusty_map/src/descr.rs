@@ -154,8 +154,10 @@ pub mod tests {
     use cairo::{Context, Format, ImageSurface};
 
     use super::*;
+    use crate::map::TileHexState;
 
     use rusty_hex::Hex;
+    use rusty_token::Token;
 
     static HEX_DIAMETER: f64 = 150.0;
 
@@ -163,6 +165,30 @@ pub mod tests {
         let surface = ImageSurface::create(Format::ARgb32, width, height)
             .expect("Can't create surface");
         (Context::new(&surface), surface)
+    }
+
+    fn draw_tiles(map: &Map, hex: &Hex, ctx: &Context) {
+        for hex_state in map.hex_iter(hex, ctx) {
+            match &hex_state.tile_state {
+                &Some((tile, tokens_table)) => {
+                    tile.draw(ctx, hex);
+                    for (token_space, token) in tokens_table.iter() {
+                        tile.define_token_space(&token_space, &hex, &ctx);
+                        let rotn = hex_state.tile_rotation;
+                        let token_name =
+                            map.tokens().get_name(token).unwrap();
+                        token.draw(hex, ctx, token_name, rotn);
+                    }
+                }
+                &None => {
+                    // Draw a border around this hex.
+                    ctx.set_source_rgb(0.7, 0.7, 0.7);
+                    hex.define_boundary(ctx);
+                    ctx.set_line_width(hex.max_d * 0.01);
+                    ctx.stroke();
+                }
+            }
+        }
     }
 
     /// Define the tokens used in the following test cases.
@@ -204,29 +230,27 @@ pub mod tests {
     pub fn map_2x2_tiles_5_6_58_63(hex: &Hex) -> Map {
         let tiles = rusty_catalogue::tile_catalogue(hex);
         let tokens = define_tokens();
-        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let descr = descr_2x2_tiles_5_6_58_63();
         let map = descr.build_map(tiles, tokens);
         map
     }
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
-    fn descr_2x2_tiles_5_6_58_63(tokens: &Tokens) -> Descr {
-        let token_lp = *tokens.get_token("LP").unwrap();
-        let token_po = *tokens.get_token("PO").unwrap();
+    fn descr_2x2_tiles_5_6_58_63() -> Descr {
         vec![
             TileDescr {
                 row: 0,
                 col: 0,
                 tile: "5".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, token_lp)],
+                tokens: vec![(0, "LP".to_string())],
             },
             TileDescr {
                 row: 0,
                 col: 1,
                 tile: "6".to_string(),
                 rotation: RotateCW::Two,
-                tokens: vec![(0, token_po)],
+                tokens: vec![(0, "PO".to_string())],
             },
             TileDescr {
                 row: 1,
@@ -240,7 +264,7 @@ pub mod tests {
                 col: 1,
                 tile: "63".to_string(),
                 rotation: RotateCW::Zero,
-                tokens: vec![(0, token_po), (1, token_lp)],
+                tokens: vec![(0, "PO".to_string()), (1, "LP".to_string())],
             },
         ]
         .into()
@@ -263,9 +287,7 @@ pub mod tests {
         let hexes: Vec<_> = map.hex_iter(&hex, hex.context()).collect();
         assert_eq!(hexes.len(), 4);
         // Check that all four hexes contain tiles.
-        assert!(hexes
-            .iter()
-            .all(|(_addr, ts_opt, _tok_mgr)| ts_opt.is_some()));
+        assert!(hexes.iter().all(|hex_state| hex_state.tile_state.is_some()));
 
         // Check (again) that there are four tiles.
         let tile_hexes: Vec<_> =
@@ -274,32 +296,49 @@ pub mod tests {
 
         // Check that the same tiles are reported to be at the same locations
         // according to Map::hex_iter() and Map::tile_hex_iter().
-        for (addr, ts_opt, tok_mgr) in hexes.into_iter() {
-            let h = (addr, ts_opt.unwrap(), tok_mgr);
-            assert!(tile_hexes.iter().find(|&&th| th == h).is_some())
+        for hex_state in hexes.into_iter() {
+            let (tile, tok_mgr) = hex_state.tile_state.unwrap();
+            let tile_hex_state = TileHexState {
+                addr: hex_state.addr,
+                tile: tile,
+                tile_tokens: tok_mgr,
+                available_tokens: hex_state.available_tokens,
+                tile_rotation: hex_state.tile_rotation,
+            };
+            assert!(tile_hexes
+                .iter()
+                .find(|&th| th == &tile_hex_state)
+                .is_some())
         }
 
         // Check the hex location, rotation, and tokens for each tile.
-        let descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let descr = descr_2x2_tiles_5_6_58_63();
         for (addr, tile_descr) in descr.tiles.iter() {
             if let Some(tile_descr) = tile_descr {
                 // Check that the map contains a tile at this hex location.
                 let th = tile_hexes
                     .iter()
-                    .find(|&(th_addr, _, _)| addr == th_addr);
+                    .find(|tile_hex_state| addr == &tile_hex_state.addr);
                 assert!(th.is_some());
 
                 // Check that tile names match.
-                let (_addr, (tile, tokens_tbl), _tok_mgr) = th.unwrap();
-                assert_eq!(tile_descr.tile, tile.name);
+                let tile_hex_state = th.unwrap();
+                assert_eq!(tile_descr.tile, tile_hex_state.tile.name);
 
                 // Check that all of the tokens are placed correctly, and that
                 // no additional tokens have been placed.
-                assert_eq!(tokens_tbl.len(), tile_descr.tokens.len());
-                let token_spaces = tile.token_spaces();
-                for (ix, token) in &tile_descr.tokens {
+                assert_eq!(
+                    tile_hex_state.tile_tokens.len(),
+                    tile_descr.tokens.len()
+                );
+                let token_spaces = tile_hex_state.tile.token_spaces();
+                for (ix, token_name) in &tile_descr.tokens {
+                    let token_opt = tokens.get_token(token_name);
                     let token_space = token_spaces[*ix];
-                    assert_eq!(tokens_tbl.get(&token_space), Some(token));
+                    assert_eq!(
+                        tile_hex_state.tile_tokens.get(&token_space),
+                        token_opt,
+                    );
                 }
 
                 // Check that the tile rotations match.
@@ -311,7 +350,7 @@ pub mod tests {
                 // Check that the map contains no tile at this hex location.
                 let th = tile_hexes
                     .iter()
-                    .find(|&(th_addr, _, _)| addr == th_addr);
+                    .find(|tile_hex_state| addr == &tile_hex_state.addr);
                 assert!(th.is_none());
             }
         }
@@ -320,7 +359,7 @@ pub mod tests {
         let dx = HEX_DIAMETER * 2.1;
         let dy = HEX_DIAMETER * 2.3;
         let (ctx, surf) = new_context(dx as i32, dy as i32);
-        map.draw_tiles(&hex, &ctx);
+        draw_tiles(&map, &hex, &ctx);
         let filename = "test-map-descr-simple-2x2.png";
         let mut file = std::fs::File::create(filename)
             .expect("Couldn't create output PNG file");
@@ -333,7 +372,7 @@ pub mod tests {
         let hex = Hex::new(HEX_DIAMETER);
         let tiles = rusty_catalogue::tile_catalogue(&hex);
         let tokens = define_tokens();
-        let mut descr = descr_2x2_tiles_5_6_58_63(&tokens);
+        let mut descr = descr_2x2_tiles_5_6_58_63();
         // Remove two of the tiles.
         descr.tiles.insert((0, 1).into(), None);
         descr.tiles.insert((1, 1).into(), None);
@@ -353,11 +392,11 @@ pub mod tests {
         assert_eq!(tile_hexes.len(), 2);
 
         // Check that the tiles are at the correct locations.
-        for (addr, ts_opt, _tok_mgr) in hexes.into_iter() {
-            if addr.col == 0 {
-                assert!(ts_opt.is_some())
+        for hex_state in hexes.into_iter() {
+            if hex_state.addr.col == 0 {
+                assert!(hex_state.tile_state.is_some())
             } else {
-                assert!(ts_opt.is_none())
+                assert!(hex_state.tile_state.is_none())
             }
         }
 
@@ -365,7 +404,7 @@ pub mod tests {
         let dx = HEX_DIAMETER * 2.1;
         let dy = HEX_DIAMETER * 2.3;
         let (ctx, surf) = new_context(dx as i32, dy as i32);
-        map.draw_tiles(&hex, &ctx);
+        draw_tiles(&map, &hex, &ctx);
         let filename = "test-map-descr-simple-2x2_with_empty_hexes.png";
         let mut file = std::fs::File::create(filename)
             .expect("Couldn't create output PNG file");
