@@ -202,7 +202,6 @@ pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
                     ctx.set_source(&source);
                 } else {
                     // NOTE: the train did not stop here.
-                    ctx.set_source(&source);
                     ctx.set_source_rgb(0.0, 0.0, 0.0);
                 }
                 ctx.set_line_width(line_width);
