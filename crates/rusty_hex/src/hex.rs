@@ -138,6 +138,20 @@ impl HexFace {
             }
         }
     }
+
+    /// Return the two corners that are connected by this hexagon face.
+    pub fn corners(&self) -> (HexCorner, HexCorner) {
+        match *self {
+            HexFace::Top => (HexCorner::TopLeft, HexCorner::TopRight),
+            HexFace::UpperRight => (HexCorner::TopRight, HexCorner::Right),
+            HexFace::LowerRight => (HexCorner::Right, HexCorner::BottomRight),
+            HexFace::Bottom => {
+                (HexCorner::BottomRight, HexCorner::BottomLeft)
+            }
+            HexFace::LowerLeft => (HexCorner::BottomLeft, HexCorner::Left),
+            HexFace::UpperLeft => (HexCorner::Left, HexCorner::TopLeft),
+        }
+    }
 }
 
 /// The hexagon corners.
