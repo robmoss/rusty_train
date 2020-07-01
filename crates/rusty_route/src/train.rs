@@ -103,6 +103,17 @@ impl Default for Train {
     }
 }
 
+/// Identify visits along a path where a train stops and earns revenue.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct TrainStop {
+    /// The index of the visit in the path.
+    pub visit_ix: usize,
+    /// The revenue earned by stopping at this location, including bonus
+    /// revenue where relevant, but not including the effect of any revenue
+    /// multiplier associated with the train itself.
+    pub revenue: usize,
+}
+
 impl Train {
     fn new_n_train(n: usize) -> Self {
         Train {
@@ -172,20 +183,21 @@ impl Train {
         path: &Path,
         visit_bonuses: &HashMap<HexAddress, usize>,
         conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
-    ) -> Option<(usize, Vec<usize>)> {
-        let (base_revenue, ixs): (usize, Vec<usize>) = match self.max_stops {
+    ) -> Option<(usize, Vec<TrainStop>)> {
+        let (base_revenue, stops): (usize, Vec<TrainStop>) = match self
+            .max_stops
+        {
             // With no limit on stops, we can stop at every visit, and this
             // should earn more revenue than skipping any of the visits (if
             // possible).
             None => {
                 let stop_ixs: Vec<usize> = (0..(path.visits.len())).collect();
-                let revenue = revenue_for_stops(
+                revenue_for_stops(
                     path,
                     &stop_ixs,
                     visit_bonuses,
                     conn_bonuses,
-                );
-                (revenue, stop_ixs)
+                )
             }
             Some(max_stops) => {
                 if path.num_visits <= max_stops {
@@ -193,13 +205,12 @@ impl Train {
                     // revenue than skipping any of the visits (if possible).
                     let stop_ixs: Vec<usize> =
                         (0..(path.visits.len())).collect();
-                    let revenue = revenue_for_stops(
+                    revenue_for_stops(
                         path,
                         &stop_ixs,
                         visit_bonuses,
                         conn_bonuses,
-                    );
-                    (revenue, stop_ixs)
+                    )
                 } else {
                     // Must be able to skip some of the visits.
                     let final_ix = path.visits.len() - 1;
@@ -247,7 +258,7 @@ impl Train {
             }
         };
         let revenue = base_revenue * self.revenue_multiplier;
-        return Some((revenue, ixs));
+        return Some((revenue, stops));
     }
 }
 
@@ -355,13 +366,25 @@ fn revenue_for_stops(
     stop_ixs: &Vec<usize>,
     visit_bonuses: &HashMap<HexAddress, usize>,
     conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
-) -> usize {
-    stop_ixs
+) -> (usize, Vec<TrainStop>) {
+    let stops: Vec<TrainStop> = stop_ixs
         .iter()
         .map(|ix| {
-            revenue_for_stop(path, stop_ixs, *ix, visit_bonuses, conn_bonuses)
+            let rev = revenue_for_stop(
+                path,
+                stop_ixs,
+                *ix,
+                visit_bonuses,
+                conn_bonuses,
+            );
+            TrainStop {
+                visit_ix: *ix,
+                revenue: rev,
+            }
         })
-        .sum()
+        .collect();
+    let net_revenue = stops.iter().map(|stop| stop.revenue).sum();
+    (net_revenue, stops)
 }
 
 /// Calculate the best visits at which to stop, given possible restrictions on
@@ -372,7 +395,7 @@ fn best_stop_ixs(
     conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
     can_skip: Vec<bool>,
     max_stops: usize,
-) -> (usize, Vec<usize>) {
+) -> (usize, Vec<TrainStop>) {
     // Categorise each visit as must-stop or can-skip.
     let must_stop: Vec<bool> = can_skip.iter().map(|b| !b).collect();
     let must_stop_ixs: Vec<usize> = must_stop
@@ -435,7 +458,7 @@ fn best_stop_ixs(
         .chain(extra_stop_ixs.iter())
         .map(|ix| *ix)
         .collect();
-    let default_revenue =
+    let (default_revenue, default_stops) =
         revenue_for_stops(path, &default_ixs, visit_bonuses, conn_bonuses);
 
     let visit_addrs: HashSet<HexAddress> =
@@ -489,7 +512,7 @@ fn best_stop_ixs(
                 "num_to_skip = {} > num_to_keep = {}",
                 num_to_skip, num_to_keep
             );
-            return (default_revenue, default_ixs);
+            return (default_revenue, default_stops);
         }
         let new_num_to_keep = num_to_keep - num_to_skip;
         // NOTE: it's important here that we don't skip any visit that
@@ -506,14 +529,14 @@ fn best_stop_ixs(
             .chain(new_extra_stop_ixs.iter())
             .map(|ix| *ix)
             .collect();
-        let new_revenue =
+        let (new_revenue, new_stops) =
             revenue_for_stops(path, &new_ixs, visit_bonuses, conn_bonuses);
         info!("Without the connection bonus: {}", default_revenue);
         info!("With the connection bonus: {}", new_revenue);
         info!("Without the connection bonus: {} stops", default_ixs.len());
         info!("With the connection bonus: {} stops", new_ixs.len());
         if new_revenue > default_revenue {
-            return (new_revenue, new_ixs);
+            return (new_revenue, new_stops);
         }
     } else if maybe_conn.len() > 0 {
         info!(
@@ -523,7 +546,7 @@ fn best_stop_ixs(
     }
 
     // NOTE: also return the revenue (excluding any revenue multiplier).
-    (default_revenue, default_ixs)
+    (default_revenue, default_stops)
 }
 
 /// Pairings of trains to routes.
@@ -663,7 +686,7 @@ impl Trains {
 
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
-        let rev: HashMap<usize, HashMap<Train, (usize, Vec<usize>)>> = (0
+        let rev: HashMap<usize, HashMap<Train, (usize, Vec<TrainStop>)>> = (0
             ..num_paths)
             .map(|path_ix| {
                 (
@@ -730,7 +753,7 @@ impl Trains {
         // train-path pairing that yields the greatest revenue.
         let best_pairing: Option<(
             usize,
-            Vec<(Train, usize, usize, Vec<usize>)>,
+            Vec<(Train, usize, usize, Vec<TrainStop>)>,
         )> = combs
             .into_iter()
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
@@ -757,15 +780,17 @@ impl Trains {
             // Replace the path indices with the actual paths.
             let pairs = pairings
                 .into_iter()
-                .map(|(train, path_ix, revenue, stop_ixs)| {
+                .map(|(train, path_ix, revenue, stops)| {
                     let mut path = path_map.remove(&path_ix).unwrap();
                     // Mark visit as a stop or not, by setting revenue to 0
                     // for skipped visits.
-                    // NOTE: the first and last visit are always stopped at.
-                    for ix in 1..(path.visits.len() - 1) {
-                        if !stop_ixs.contains(&ix) {
-                            path.visits[ix].revenue = 0;
-                        }
+                    // NOTE: the first and last visit are always stopped at,
+                    // but we may need to update their revenue due to bonuses.
+                    for ix in 0..path.visits.len() {
+                        let stop_opt =
+                            stops.iter().find(|stop| stop.visit_ix == ix);
+                        path.visits[ix].revenue =
+                            stop_opt.map(|stop| stop.revenue).unwrap_or(0);
                     }
                     Pair {
                         train: train,
@@ -785,9 +810,9 @@ impl Trains {
 
     fn best_pairing_for(
         &self,
-        revenue: &HashMap<usize, HashMap<Train, (usize, Vec<usize>)>>,
+        revenue: &HashMap<usize, HashMap<Train, (usize, Vec<TrainStop>)>>,
         path_ixs: &Vec<usize>,
-    ) -> Option<(usize, Vec<(Train, usize, usize, Vec<usize>)>)> {
+    ) -> Option<(usize, Vec<(Train, usize, usize, Vec<TrainStop>)>)> {
         let num_paths = path_ixs.len();
         // NOTE: we only need to consider pairings that allocate a train to
         // each path, we can can ignore smaller combinations.
@@ -799,7 +824,7 @@ impl Trains {
 
         train_combinations
             .filter_map(|train_ixs| {
-                let revenues: Vec<(usize, Vec<usize>)> = train_ixs
+                let revenues: Vec<(usize, Vec<TrainStop>)> = train_ixs
                     .iter()
                     .enumerate()
                     .filter_map(|(path_ixs_ix, train_ix)| {
