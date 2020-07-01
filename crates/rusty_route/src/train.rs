@@ -184,9 +184,7 @@ impl Train {
         visit_bonuses: &HashMap<HexAddress, usize>,
         conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
     ) -> Option<(usize, Vec<TrainStop>)> {
-        let (base_revenue, stops): (usize, Vec<TrainStop>) = match self
-            .max_stops
-        {
+        let (revenue, stops): (usize, Vec<TrainStop>) = match self.max_stops {
             // With no limit on stops, we can stop at every visit, and this
             // should earn more revenue than skipping any of the visits (if
             // possible).
@@ -194,6 +192,7 @@ impl Train {
                 let stop_ixs: Vec<usize> = (0..(path.visits.len())).collect();
                 revenue_for_stops(
                     path,
+                    self,
                     &stop_ixs,
                     visit_bonuses,
                     conn_bonuses,
@@ -207,6 +206,7 @@ impl Train {
                         (0..(path.visits.len())).collect();
                     revenue_for_stops(
                         path,
+                        self,
                         &stop_ixs,
                         visit_bonuses,
                         conn_bonuses,
@@ -249,6 +249,7 @@ impl Train {
                     // Return the stops that earn the most revenue.
                     best_stop_ixs(
                         path,
+                        self,
                         visit_bonuses,
                         conn_bonuses,
                         can_skip,
@@ -257,7 +258,6 @@ impl Train {
                 }
             }
         };
-        let revenue = base_revenue * self.revenue_multiplier;
         return Some((revenue, stops));
     }
 }
@@ -360,9 +360,10 @@ fn best_ix_and_base_revenue(
 }
 
 /// Calculate the revenue, including bonuses, for stopping at a subset of
-/// visits along a path; this does **not** include any revenue multiplier.
+/// visits along a path; this includes the train's revenue multiplier, if any.
 fn revenue_for_stops(
     path: &Path,
+    train: &Train,
     stop_ixs: &Vec<usize>,
     visit_bonuses: &HashMap<HexAddress, usize>,
     conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
@@ -377,9 +378,10 @@ fn revenue_for_stops(
                 visit_bonuses,
                 conn_bonuses,
             );
+            // NOTE: apply the train's revenue multiplier here.
             TrainStop {
                 visit_ix: *ix,
-                revenue: rev,
+                revenue: rev * train.revenue_multiplier,
             }
         })
         .collect();
@@ -391,6 +393,7 @@ fn revenue_for_stops(
 /// which visits may be skipped.
 fn best_stop_ixs(
     path: &Path,
+    train: &Train,
     visit_bonuses: &HashMap<HexAddress, usize>,
     conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
     can_skip: Vec<bool>,
@@ -458,8 +461,13 @@ fn best_stop_ixs(
         .chain(extra_stop_ixs.iter())
         .map(|ix| *ix)
         .collect();
-    let (default_revenue, default_stops) =
-        revenue_for_stops(path, &default_ixs, visit_bonuses, conn_bonuses);
+    let (default_revenue, default_stops) = revenue_for_stops(
+        path,
+        train,
+        &default_ixs,
+        visit_bonuses,
+        conn_bonuses,
+    );
 
     let visit_addrs: HashSet<HexAddress> =
         path.visits.iter().map(|v| v.addr).collect();
@@ -529,8 +537,13 @@ fn best_stop_ixs(
             .chain(new_extra_stop_ixs.iter())
             .map(|ix| *ix)
             .collect();
-        let (new_revenue, new_stops) =
-            revenue_for_stops(path, &new_ixs, visit_bonuses, conn_bonuses);
+        let (new_revenue, new_stops) = revenue_for_stops(
+            path,
+            train,
+            &new_ixs,
+            visit_bonuses,
+            conn_bonuses,
+        );
         info!("Without the connection bonus: {}", default_revenue);
         info!("With the connection bonus: {}", new_revenue);
         info!("Without the connection bonus: {} stops", default_ixs.len());
