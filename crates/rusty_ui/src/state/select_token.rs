@@ -292,7 +292,7 @@ impl State for SelectToken {
     ) -> (Box<dyn State>, Inhibit, Action) {
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::Escape | gdk::enums::key::Return => {
+            gdk::keys::constants::Escape | gdk::keys::constants::Return => {
                 // Exit this mode.
                 // Once the token is selected, switch to EnterTrains state;
                 // Once the trains have been entered, calculate the optimal
@@ -307,7 +307,7 @@ impl State for SelectToken {
                 )));
                 (state, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::Left => {
+            gdk::keys::constants::Left => {
                 if self.selected == 0 {
                     self.selected = self.token_spaces.len() - 1;
                 } else {
@@ -316,7 +316,7 @@ impl State for SelectToken {
                 let action = self.update_search(content, window);
                 (self, Inhibit(false), action)
             }
-            gdk::enums::key::Right => {
+            gdk::keys::constants::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0

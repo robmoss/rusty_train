@@ -25,7 +25,7 @@ impl<'a> TrainDialog<'a> {
         ];
         let flags = gtk::DialogFlags::all();
         let title = format!("{} Trains", name);
-        let dialog = gtk::Dialog::new_with_buttons(
+        let dialog = gtk::Dialog::with_buttons(
             Some(&title),
             Some(parent),
             flags,
@@ -33,7 +33,7 @@ impl<'a> TrainDialog<'a> {
         );
         let options: Vec<_> = option_names
             .iter()
-            .map(|name| gtk::CheckButton::new_with_label(name))
+            .map(|name| gtk::CheckButton::with_label(name))
             .collect();
 
         let padding = 4;
@@ -101,10 +101,6 @@ impl<'a> TrainDialog<'a> {
             None
         }
     }
-
-    pub fn destroy(&self) {
-        self.dialog.destroy();
-    }
 }
 
 fn add_spinner<'a>(
@@ -112,7 +108,7 @@ fn add_spinner<'a>(
     name: &'a str,
     trains: &mut Vec<(&'a Train, gtk::SpinButton)>,
 ) -> gtk::Box {
-    let spin = gtk::SpinButton::new_with_range(0.0, 9.0, 1.0);
+    let spin = gtk::SpinButton::with_range(0.0, 9.0, 1.0);
     spin.set_digits(0);
     spin.set_numeric(true);
     spin.set_update_policy(gtk::SpinButtonUpdatePolicy::IfValid);
@@ -167,7 +163,7 @@ impl<'a> PhaseDialog<'a> {
             // ("Cancel", gtk::ResponseType::Reject),
         ];
         let flags = gtk::DialogFlags::all();
-        let dialog = gtk::Dialog::new_with_buttons(
+        let dialog = gtk::Dialog::with_buttons(
             Some(&title),
             Some(parent),
             flags,
@@ -213,10 +209,6 @@ impl<'a> PhaseDialog<'a> {
         } else {
             None
         }
-    }
-
-    pub fn destroy(&self) {
-        self.dialog.destroy();
     }
 }
 

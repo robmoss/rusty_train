@@ -140,14 +140,14 @@ impl State for ReplaceTile {
         let map = &mut content.map;
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::Escape => (
+            gdk::keys::constants::Escape => (
                 Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
                 ))),
                 Inhibit(false),
                 Action::Redraw,
             ),
-            gdk::enums::key::Return => {
+            gdk::keys::constants::Return => {
                 if self.show_original {
                     (self, Inhibit(false), Action::None)
                 } else {
@@ -168,11 +168,11 @@ impl State for ReplaceTile {
                     )
                 }
             }
-            gdk::enums::key::o | gdk::enums::key::O => {
+            gdk::keys::constants::o | gdk::keys::constants::O => {
                 self.show_original = !self.show_original;
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::Up => {
+            gdk::keys::constants::Up => {
                 if self.show_original {
                     (self, Inhibit(false), Action::None)
                 } else {
@@ -184,7 +184,7 @@ impl State for ReplaceTile {
                     (self, Inhibit(false), Action::Redraw)
                 }
             }
-            gdk::enums::key::Down => {
+            gdk::keys::constants::Down => {
                 if self.show_original {
                     (self, Inhibit(false), Action::None)
                 } else {
@@ -195,11 +195,11 @@ impl State for ReplaceTile {
                     (self, Inhibit(false), Action::Redraw)
                 }
             }
-            gdk::enums::key::less | gdk::enums::key::comma => {
+            gdk::keys::constants::less | gdk::keys::constants::comma => {
                 self.rotation = self.rotation.rotate_anti_cw();
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::greater | gdk::enums::key::period => {
+            gdk::keys::constants::greater | gdk::keys::constants::period => {
                 self.rotation = self.rotation.rotate_cw();
                 (self, Inhibit(false), Action::Redraw)
             }

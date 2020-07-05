@@ -87,7 +87,7 @@
 //! ```
 //!
 use cairo::Context;
-use gtk::{Inhibit, WidgetExt};
+use gtk::{GtkWindowExt, Inhibit, WidgetExt};
 
 use rusty_game::Game;
 use rusty_hex::Hex;
@@ -230,7 +230,7 @@ impl UI {
                     area.queue_draw();
                 }
                 Action::Quit => {
-                    window.destroy();
+                    window.close();
                 }
                 Action::None => {}
             }
@@ -291,7 +291,7 @@ impl UI {
                     area.queue_draw();
                 }
                 Action::Quit => {
-                    window.destroy();
+                    window.close();
                 }
                 Action::None => {}
             }
@@ -331,10 +331,11 @@ pub fn global_keymap<S: State + ?Sized>(
     let modifiers = event.get_state();
     let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
     match (key, ctrl) {
-        (gdk::enums::key::q, false) | (gdk::enums::key::Q, false) => {
+        (gdk::keys::constants::q, false)
+        | (gdk::keys::constants::Q, false) => {
             Some((ResetState::No, Inhibit(false), Action::Quit))
         }
-        (gdk::enums::key::o, true) | (gdk::enums::key::O, true) => {
+        (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
             match util::load_map(window, &mut content.map) {
                 Ok(action) => {
                     let reset = match action {
@@ -349,7 +350,7 @@ pub fn global_keymap<S: State + ?Sized>(
                 }
             }
         }
-        (gdk::enums::key::s, true) | (gdk::enums::key::S, true) => {
+        (gdk::keys::constants::s, true) | (gdk::keys::constants::S, true) => {
             match util::save_map(window, &mut content.map) {
                 Ok(action) => {
                     let reset = match action {
@@ -364,7 +365,8 @@ pub fn global_keymap<S: State + ?Sized>(
                 }
             }
         }
-        (gdk::enums::key::s, false) | (gdk::enums::key::S, false) => {
+        (gdk::keys::constants::s, false)
+        | (gdk::keys::constants::S, false) => {
             match util::save_screenshot(state, window, area, content) {
                 Ok(action) => Some((ResetState::No, Inhibit(false), action)),
                 Err(error) => {
@@ -373,11 +375,12 @@ pub fn global_keymap<S: State + ?Sized>(
                 }
             }
         }
-        (gdk::enums::key::plus, false) | (gdk::enums::key::equal, false) => {
+        (gdk::keys::constants::plus, false)
+        | (gdk::keys::constants::equal, false) => {
             Some((ResetState::No, Inhibit(false), Action::ZoomIn))
         }
-        (gdk::enums::key::minus, false)
-        | (gdk::enums::key::underscore, false) => {
+        (gdk::keys::constants::minus, false)
+        | (gdk::keys::constants::underscore, false) => {
             Some((ResetState::No, Inhibit(false), Action::ZoomOut))
         }
         _ => None,

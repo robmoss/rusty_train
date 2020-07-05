@@ -10,4 +10,4 @@ edition = "2018"
 [dependencies]
 rusty_hex = { path = "../rusty_hex" }
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.8", features = ["png", "pdf", "svg"] }
+cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }

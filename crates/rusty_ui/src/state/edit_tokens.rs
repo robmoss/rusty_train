@@ -95,7 +95,7 @@ impl State for EditTokens {
         let map = &mut content.map;
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::Escape => {
+            gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.
                 let restore = self.original_tokens.drain().collect();
                 map.get_hex_mut(self.active_hex)
@@ -108,7 +108,7 @@ impl State for EditTokens {
                     Action::Redraw,
                 )
             }
-            gdk::enums::key::Return => (
+            gdk::keys::constants::Return => (
                 // NOTE: no changes to apply, just exit this mode.
                 Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
@@ -116,7 +116,7 @@ impl State for EditTokens {
                 Inhibit(false),
                 Action::Redraw,
             ),
-            gdk::enums::key::Left => {
+            gdk::keys::constants::Left => {
                 if self.selected == 0 {
                     self.selected = self.token_spaces.len() - 1;
                 } else {
@@ -124,14 +124,14 @@ impl State for EditTokens {
                 }
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::Right => {
+            gdk::keys::constants::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::Up => {
+            gdk::keys::constants::Up => {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
@@ -145,7 +145,7 @@ impl State for EditTokens {
                 });
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::Down => {
+            gdk::keys::constants::Down => {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
@@ -159,10 +159,10 @@ impl State for EditTokens {
                 });
                 (self, Inhibit(false), Action::Redraw)
             }
-            gdk::enums::key::_0
-            | gdk::enums::key::KP_0
-            | gdk::enums::key::BackSpace
-            | gdk::enums::key::Delete => {
+            gdk::keys::constants::_0
+            | gdk::keys::constants::KP_0
+            | gdk::keys::constants::BackSpace
+            | gdk::keys::constants::Delete => {
                 let token_space = &self.token_spaces[self.selected];
                 map.get_hex_mut(self.active_hex)
                     .map(|hex_state| hex_state.remove_token_at(token_space));

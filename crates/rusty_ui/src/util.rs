@@ -34,11 +34,10 @@ pub fn save_file_dialog(
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
         let dest = dialog.get_filename().expect("Couldn't get filename");
-        dialog.destroy();
+        dialog.close();
         Some(dest)
     } else {
         dialog.close();
-        dialog.destroy();
         None
     }
 }
@@ -68,11 +67,10 @@ pub fn open_file_dialog(
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
         let dest = dialog.get_filename().expect("Couldn't get filename");
-        dialog.destroy();
+        dialog.close();
         Some(dest)
     } else {
         dialog.close();
-        dialog.destroy();
         None
     }
 }

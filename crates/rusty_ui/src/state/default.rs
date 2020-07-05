@@ -61,7 +61,7 @@ impl State for Default {
         let map = &mut content.map;
         let key = event.get_keyval();
         match key {
-            gdk::enums::key::e | gdk::enums::key::E => {
+            gdk::keys::constants::e | gdk::keys::constants::E => {
                 if let Some(addr) = self.active_hex {
                     let state = Box::new(
                         super::replace_tile::ReplaceTile::with_any(map, addr),
@@ -71,7 +71,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::p | gdk::enums::key::P => {
+            gdk::keys::constants::p | gdk::keys::constants::P => {
                 let phase_opt =
                     crate::dialog::select_phase(window, &content.game);
                 if let Some(phase) = phase_opt {
@@ -81,7 +81,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::u | gdk::enums::key::U => {
+            gdk::keys::constants::u | gdk::keys::constants::U => {
                 if let Some(addr) = self.active_hex {
                     if let Some(tile) = map.tile_at(addr) {
                         let candidates: Vec<usize> = map
@@ -132,7 +132,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::t | gdk::enums::key::T => {
+            gdk::keys::constants::t | gdk::keys::constants::T => {
                 if let Some(addr) = self.active_hex {
                     if let Some(state) =
                         super::edit_tokens::EditTokens::try_new(map, addr)
@@ -145,7 +145,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::r | gdk::enums::key::R => {
+            gdk::keys::constants::r | gdk::keys::constants::R => {
                 // Allow the user to select tokens, and highlight all matching
                 // tokens on the map.
                 if let Some(addr) = self.active_hex {
@@ -162,7 +162,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::Left => {
+            gdk::keys::constants::Left => {
                 // TODO: these are boilerplate, define a common function?
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.prev_col(addr);
@@ -176,7 +176,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::Right => {
+            gdk::keys::constants::Right => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.next_col(addr);
                     if new_addr == addr {
@@ -189,7 +189,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::Up => {
+            gdk::keys::constants::Up => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.prev_row(addr);
                     if new_addr == addr {
@@ -202,7 +202,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::Down => {
+            gdk::keys::constants::Down => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.next_row(addr);
                     if new_addr == addr {
@@ -215,7 +215,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::less | gdk::enums::key::comma => {
+            gdk::keys::constants::less | gdk::keys::constants::comma => {
                 if let Some(addr) = self.active_hex {
                     map.get_hex_mut(addr).map(|hs| hs.rotate_anti_cw());
                     (self, Inhibit(false), Action::Redraw)
@@ -223,7 +223,7 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::greater | gdk::enums::key::period => {
+            gdk::keys::constants::greater | gdk::keys::constants::period => {
                 if let Some(addr) = self.active_hex {
                     map.get_hex_mut(addr).map(|hs| hs.rotate_cw());
                     (self, Inhibit(false), Action::Redraw)
@@ -231,7 +231,8 @@ impl State for Default {
                     (self, Inhibit(false), Action::None)
                 }
             }
-            gdk::enums::key::BackSpace | gdk::enums::key::Delete => {
+            gdk::keys::constants::BackSpace
+            | gdk::keys::constants::Delete => {
                 if let Some(addr) = self.active_hex {
                     // TODO: allow this action to be undone?
                     map.remove_tile(addr);
