@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use rusty_catalogue::tile_catalogue;
-use rusty_hex::{Hex, HexFace};
+use rusty_hex::{Hex, HexColour, HexFace};
 use rusty_map::{HexAddress, Map, RotateCW};
 use rusty_route::{Bonus, Train};
 use rusty_tile::{Label, Tile};
@@ -145,7 +145,7 @@ fn initial_tiles() -> HashMap<HexAddress, (&'static str, RotateCW)> {
         ((9, 0).into(), ("Detroit Yw", RotateCW::Zero)),
         // Grey (fixed) tiles:
         // Timmins (3 tiles)
-        ((0, 3).into(), ("Timmins", RotateCW::Zero)),
+        ((0, 3).into(), ("Timmins Yw", RotateCW::Zero)),
         ((0, 4).into(), ("Grey2", RotateCW::One)),
         ((1, 2).into(), ("Grey2", RotateCW::Zero)),
         // South of Montreal.
@@ -441,6 +441,18 @@ impl super::Game for Game {
                 println!("Could not place tile {} at {}", tile_name, addr)
             }
         }
+        let timmins_addr: HexAddress = (0, 3).into();
+        let timmins_tile = if phase == 0 {
+            "Timmins Yw"
+        } else {
+            "Timmins Gr"
+        };
+        if !map.place_tile(timmins_addr, timmins_tile, RotateCW::Zero) {
+            println!(
+                "Could not place tile {} at {}",
+                timmins_tile, timmins_addr
+            )
+        }
     }
 
     /// Return the name of a game phase.
@@ -524,9 +536,27 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
     .label(Label::City("T".to_string()), UpperLeft.to_centre(0.3))
     .label(Label::Revenue(0), BottomRight.to_centre(0.1));
 
-    let timmins = Tile::new(
+    let timmins_yw = Tile::new(
         Grey,
-        "Timmins",
+        "Timmins Yw",
+        vec![
+            Track::straight(LowerLeft).with_span(0.0, 0.5),
+            Track::straight(Bottom).with_span(0.0, 0.5),
+            Track::straight(LowerRight).with_span(0.0, 0.5),
+            Track::straight(UpperRight).with_span(0.0, 0.5),
+        ],
+        vec![City::single(40).with_fill(HexColour::Green)],
+        hex,
+    )
+    .label(Label::Revenue(0), BottomRight.to_centre(0.1))
+    .label(
+        Label::MapLocation("Timmins".to_string()),
+        Top.to_centre(0.4),
+    );
+
+    let timmins_gr = Tile::new(
+        Grey,
+        "Timmins Gr",
         vec![
             Track::straight(LowerLeft).with_span(0.0, 0.5),
             Track::straight(Bottom).with_span(0.0, 0.5),
@@ -536,7 +566,11 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         vec![City::single(40)],
         hex,
     )
-    .label(Label::Revenue(0), BottomRight.to_centre(0.1));
+    .label(Label::Revenue(0), BottomRight.to_centre(0.1))
+    .label(
+        Label::MapLocation("Timmins".to_string()),
+        Top.to_centre(0.4),
+    );
 
     cities
         .into_iter()
@@ -566,7 +600,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                     Top.to_centre(0.5),
                 )
         }))
-        .chain(vec![toronto, montreal, timmins].into_iter())
+        .chain(vec![toronto, montreal, timmins_yw, timmins_gr].into_iter())
         .collect()
 }
 

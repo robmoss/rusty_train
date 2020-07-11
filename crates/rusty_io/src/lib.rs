@@ -388,6 +388,8 @@ struct City {
     pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rotate: Option<CityRotation>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fill_colour: Option<HexColour>,
 }
 
 impl std::convert::From<&rusty_tile::City> for City {
@@ -414,11 +416,13 @@ impl std::convert::From<&rusty_tile::City> for City {
             }
         };
         let rotate = CityRotation::from_rot(src.angle);
+        let fill_colour = src.fill_colour.map(|colour| colour.into());
         Self {
             city_type,
             revenue,
             nudge,
             rotate,
+            fill_colour,
         }
     }
 }
@@ -430,6 +434,7 @@ impl Default for City {
             revenue: 10,
             nudge: None,
             rotate: None,
+            fill_colour: None,
         }
     }
 }

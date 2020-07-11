@@ -1,7 +1,8 @@
 use crate::draw::Draw;
 use cairo::Context;
 use rusty_hex::{
-    Coord, Delta, Direction, Hex, HexCorner, HexFace, HexPosition, PI,
+    Coord, Delta, Direction, Hex, HexColour, HexCorner, HexFace, HexPosition,
+    PI,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -51,6 +52,8 @@ pub struct City {
     pub revenue: usize,
     pub position: HexPosition,
     pub angle: Rotation,
+    /// Mark unavailable token space(s) with a solid colour.
+    pub fill_colour: Option<HexColour>,
 }
 
 impl City {
@@ -142,12 +145,18 @@ impl City {
         self
     }
 
+    pub fn with_fill(mut self, fill: HexColour) -> Self {
+        self.fill_colour = Some(fill);
+        self
+    }
+
     pub fn single(revenue: usize) -> City {
         City {
             tokens: Tokens::Single,
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -157,6 +166,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Face(*face, None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -166,6 +176,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -175,6 +186,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -184,6 +196,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -194,6 +207,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -203,6 +217,7 @@ impl City {
             revenue: revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
+            fill_colour: None,
         }
     }
 
@@ -427,7 +442,10 @@ impl Draw for City {
         self.translate_begin(hex, ctx);
 
         self.define_bg_path(hex, ctx);
-        ctx.set_source_rgb(1.0, 1.0, 1.0);
+        match self.fill_colour {
+            None => ctx.set_source_rgb(1.0, 1.0, 1.0),
+            Some(colour) => colour.set_source_rgb(&ctx),
+        }
         ctx.fill_preserve();
         self.define_fg_path(hex, ctx);
         ctx.set_source_rgb(0.0, 0.0, 0.0);
