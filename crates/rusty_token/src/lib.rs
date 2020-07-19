@@ -343,6 +343,9 @@ impl Token {
         let scale = hex.max_d / 125.0;
         ctx.set_font_size(10.0 * scale);
 
+        // NOTE: hard-coded example for use with 1867.
+        let text = if text == "CNR" { "CN\nR" } else { text };
+
         // Move to the appropriate starting location so that the text is
         // centred at the desired location.
         let exts = ctx.text_extents(text);
@@ -354,14 +357,34 @@ impl Token {
         let x = (radius + dx) * ((self.x_pcnt as f64 - 50.0) / 50.0);
         let y = (radius - dy) * ((self.y_pcnt as f64 - 50.0) / 50.0);
 
-        // TODO: use pango crate so that we can specify a maximum width and
-        // wrap the text ...
-        // https://developer.gnome.org/pango/stable/pango-Cairo-Rendering.html
-        // https://gtk-rs.org/docs/pango/struct.Layout.html
+        // NOTE: use pango to draw the label on tokens, so that we can specify
+        // a maximum width and wrap the text, and support line breaks for
+        // token names that are deliberately split over multiple lines.
+        let mut font_descr = pango::FontDescription::new();
+        font_descr.set_family("Sans");
+        font_descr.set_absolute_size(10.0 * scale * pango::SCALE as f64);
+        font_descr.set_style(pango::Style::Normal);
+        font_descr.set_weight(pango::Weight::Bold);
+
+        let layout = pangocairo::create_layout(ctx)
+            .expect("Could not create Pango layout");
+        layout.set_font_description(Some(&font_descr));
+        layout.set_text(text);
+
         // Draw the token label.
         self.style.text_colour().apply_to(ctx);
-        ctx.move_to(x + dx, y + dy);
-        ctx.show_text(text);
+        layout.set_width((30.0 * scale) as i32 * pango::SCALE);
+        layout.set_alignment(pango::Alignment::Center);
+        layout.set_wrap(pango::WrapMode::Word);
+        pangocairo::update_layout(ctx, &layout);
+        let (_ink_rect, logical_rect) = layout.get_pixel_extents();
+        let (dx, dy) = layout.get_pixel_size();
+        let nudge_fac = 0.5;
+        ctx.move_to(
+            x - nudge_fac * dx as f64 - logical_rect.x as f64,
+            y - nudge_fac * dy as f64 - logical_rect.y as f64,
+        );
+        pangocairo::show_layout(ctx, &layout);
     }
 
     pub fn draw(&self, hex: &Hex, ctx: &Context, text: &str, rotn: f64) {

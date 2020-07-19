@@ -549,6 +549,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "pangocairo"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00f5ae67a05a5e023f09f64e9a71c845274d4b82dedee237b70425811885e883"
+dependencies = [
+ "bitflags",
+ "cairo-rs",
+ "cairo-sys-rs",
+ "glib",
+ "glib-sys",
+ "gobject-sys",
+ "libc",
+ "pango",
+ "pango-sys",
+ "pangocairo-sys",
+]
+
+[[package]]
+name = "pangocairo-sys"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94ccc97f698c2f0233b84e5ca676893a1e676785b60eec700b9c0e6dcd0feb98"
+dependencies = [
+ "cairo-sys-rs",
+ "glib-sys",
+ "libc",
+ "pango-sys",
+ "system-deps",
+]
+
+[[package]]
 name = "pin-project"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -762,6 +793,8 @@ name = "rusty_tile"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
+ "pango",
+ "pangocairo",
  "rusty_hex",
 ]
 
@@ -770,6 +803,8 @@ name = "rusty_token"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
+ "pango",
+ "pangocairo",
  "rusty_hex",
 ]
 

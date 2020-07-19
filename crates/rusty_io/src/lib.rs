@@ -446,6 +446,7 @@ enum LabelType {
     TileName(()),
     MapLocation(String),
     Revenue(usize),
+    PhaseRevenue(Vec<(HexColour, usize, bool)>),
 }
 
 impl std::convert::From<&rusty_tile::Label> for LabelType {
@@ -458,6 +459,15 @@ impl std::convert::From<&rusty_tile::Label> for LabelType {
             L::TileName => LabelType::TileName(()),
             L::MapLocation(ref name) => LabelType::MapLocation(name.clone()),
             L::Revenue(revenue) => LabelType::Revenue(*revenue),
+            L::PhaseRevenue(revenues) => {
+                let revs = revenues
+                    .iter()
+                    .map(|(colour, revenue, active)| {
+                        ((*colour).into(), *revenue, *active)
+                    })
+                    .collect();
+                LabelType::PhaseRevenue(revs)
+            }
         }
     }
 }
@@ -709,6 +719,15 @@ impl From<&LabelType> for rusty_tile::Label {
                 rusty_tile::Label::MapLocation(name.clone())
             }
             LabelType::Revenue(ix) => rusty_tile::Label::Revenue(*ix),
+            LabelType::PhaseRevenue(revenues) => {
+                let revs = revenues
+                    .iter()
+                    .map(|(colour, revenue, active)| {
+                        (colour.into(), *revenue, *active)
+                    })
+                    .collect();
+                rusty_tile::Label::PhaseRevenue(revs)
+            }
         }
     }
 }

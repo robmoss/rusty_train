@@ -167,7 +167,7 @@ fn initial_tiles() -> HashMap<HexAddress, (&'static str, RotateCW)> {
         ((5, 13).into(), ("Sherbrooke", RotateCW::Zero)),
         ((6, 4).into(), ("Barrie", RotateCW::Zero)),
         ((7, 4).into(), ("Guelph", RotateCW::Zero)),
-        ((7, 6).into(), ("Peterborough", RotateCW::Zero)),
+        ((7, 6).into(), ("Peter\u{ad}borough", RotateCW::Zero)),
         ((7, 8).into(), ("Kingston", RotateCW::Zero)),
         ((8, 2).into(), ("London", RotateCW::Zero)),
         // Y Cities without track.
@@ -495,7 +495,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         "Sherbrooke",
         "Barrie",
         "Guelph",
-        "Peterborough",
+        "Peter\u{ad}borough",
         "Kingston",
         "London",
     ];
@@ -577,7 +577,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         .map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex).label(
                 Label::MapLocation(name.to_string()),
-                Top.to_centre(0.5),
+                Top.to_centre(0.4),
             )
         })
         .chain(cities_y.into_iter().map(|name| {
@@ -585,7 +585,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 .label(Label::Y, Bottom.to_centre(0.3))
                 .label(
                     Label::MapLocation(name.to_string()),
-                    Top.to_centre(0.5),
+                    Top.to_centre(0.4),
                 )
         }))
         .chain(cities_oy.into_iter().map(|name| {
@@ -597,7 +597,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 )
                 .label(
                     Label::MapLocation(name.to_string()),
-                    Top.to_centre(0.5),
+                    Top.to_centre(0.4),
                 )
         }))
         .chain(vec![toronto, montreal, timmins_yw, timmins_gr].into_iter())
@@ -655,14 +655,22 @@ fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 Red,
                 format!("{} {}", name, suffixes[ix]),
                 vec![
-                    Track::straight(LowerRight).with_span(0.0, 0.5),
-                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                    Track::hard_r(LowerRight).with_span(0.0, 0.5),
+                    Track::hard_l(UpperRight).with_span(0.0, 0.5),
                 ],
-                vec![City::single(revenue)],
+                vec![City::single_at_corner(revenue, &HexCorner::Right)],
                 hex,
             )
-            .label(Label::Revenue(0), Bottom.to_centre(0.25))
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 20, ix == 0),
+                    (HexColour::Green, 30, ix == 1),
+                    (HexColour::Brown, 40, ix == 2),
+                    (HexColour::Grey, 40, ix == 3),
+                ]),
+                Bottom.to_centre(0.35),
+            )
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.35))
         })
         .collect()
 }
@@ -682,14 +690,22 @@ fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 Red,
                 format!("{} {}", name, suffixes[ix]),
                 vec![
-                    Track::straight(LowerLeft).with_span(0.0, 0.5),
-                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_r(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_l(LowerLeft).with_span(0.0, 0.5),
                 ],
-                vec![City::single(revenue)],
+                vec![City::single_at_corner(revenue, &HexCorner::Left)],
                 hex,
             )
-            .label(Label::Revenue(0), Bottom.to_centre(0.25))
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 30, ix == 0),
+                    (HexColour::Green, 30, ix == 1),
+                    (HexColour::Brown, 40, ix == 2),
+                    (HexColour::Grey, 40, ix == 3),
+                ]),
+                Bottom.to_centre(0.35),
+            )
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.3))
         })
         .collect()
 }
@@ -709,16 +725,24 @@ fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 Red,
                 format!("{} {}", name, suffixes[ix]),
                 vec![
-                    Track::straight(Top).with_span(0.0, 0.5),
-                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_r(Top).with_span(0.0, 0.5),
+                    Track::hard_l(UpperLeft).with_span(0.0, 0.5),
                 ],
-                vec![City::single(revenue)],
+                vec![City::single_at_corner(revenue, &HexCorner::TopLeft)],
                 hex,
             )
-            .label(Label::Revenue(0), UpperRight.to_centre(0.25))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 20, ix == 0),
+                    (HexColour::Green, 30, ix == 1),
+                    (HexColour::Brown, 40, ix == 2),
+                    (HexColour::Grey, 40, ix == 3),
+                ]),
+                Bottom.to_centre(0.35),
+            )
             .label(
                 Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.5),
+                Bottom.to_centre(0.75),
             )
         })
         .collect()
@@ -738,14 +762,22 @@ fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
             Tile::new(
                 Red,
                 format!("{} {}", name, suffixes[ix]),
-                vec![Track::straight(Top).with_span(0.0, 0.5)],
-                vec![City::single(revenue)],
+                vec![Track::straight(Top).with_span(0.0, 0.25)],
+                vec![City::single(revenue).nudge(Direction::N, 0.4)],
                 hex,
             )
-            .label(Label::Revenue(0), UpperLeft.to_centre(0.25))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 30, ix == 0),
+                    (HexColour::Green, 40, ix == 1),
+                    (HexColour::Brown, 50, ix == 2),
+                    (HexColour::Grey, 60, ix == 3),
+                ]),
+                Bottom.to_centre(0.25),
+            )
             .label(
                 Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.5),
+                Bottom.to_centre(0.75),
             )
         })
         .collect()
@@ -769,8 +801,16 @@ fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 vec![City::single(revenue)],
                 hex,
             )
-            .label(Label::Revenue(0), Bottom.to_centre(0.25))
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 30, ix == 0),
+                    (HexColour::Green, 40, ix == 1),
+                    (HexColour::Brown, 50, ix == 2),
+                    (HexColour::Grey, 60, ix == 3),
+                ]),
+                Bottom.to_centre(0.35),
+            )
+            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.4))
         })
         .collect()
 }
@@ -790,16 +830,24 @@ fn detroit(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 Red,
                 format!("{} {}", name, suffixes[ix]),
                 vec![
-                    Track::straight(Top).with_span(0.0, 0.5),
-                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                    Track::hard_r(UpperRight).with_span(0.0, 0.5),
+                    Track::hard_l(Top).with_span(0.0, 0.5),
                 ],
-                vec![City::single(revenue)],
+                vec![City::single_at_corner(revenue, &HexCorner::TopRight)],
                 hex,
             )
-            .label(Label::Revenue(0), UpperLeft.to_centre(0.25))
+            .label(
+                Label::PhaseRevenue(vec![
+                    (HexColour::Yellow, 30, ix == 0),
+                    (HexColour::Green, 40, ix == 1),
+                    (HexColour::Brown, 50, ix == 2),
+                    (HexColour::Grey, 70, ix == 3),
+                ]),
+                Bottom.to_centre(0.35),
+            )
             .label(
                 Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.5),
+                Bottom.to_centre(0.75),
             )
         })
         .collect();

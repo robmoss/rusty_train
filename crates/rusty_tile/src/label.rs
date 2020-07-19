@@ -1,5 +1,5 @@
 use cairo::{Context, FontSlant, FontWeight};
-use rusty_hex::Hex;
+use rusty_hex::{Hex, HexColour};
 
 /// The different types of labels that may appear on a tile.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9,6 +9,7 @@ pub enum Label {
     TileName,
     MapLocation(String),
     Revenue(usize),
+    PhaseRevenue(Vec<(HexColour, usize, bool)>),
 }
 
 impl Label {
@@ -49,7 +50,7 @@ impl Label {
                 );
                 ctx.set_font_size(12.0 * scale);
             }
-            Self::Revenue(_) => {
+            Self::Revenue(_) | Self::PhaseRevenue(_) => {
                 ctx.select_font_face(
                     "Sans",
                     FontSlant::Normal,

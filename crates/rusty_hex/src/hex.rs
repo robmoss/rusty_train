@@ -525,7 +525,8 @@ impl Hex {
         ctx.new_path();
     }
 
-    fn text_nudge(
+    // NOTE: this is used by rusty_tile::Tile::draw().
+    pub fn text_nudge(
         self: &Self,
         pos: &HexPosition,
         exts: &TextExtents,
