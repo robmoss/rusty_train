@@ -220,13 +220,7 @@ impl SelectToken {
 }
 
 impl State for SelectToken {
-    fn draw(
-        &self,
-        content: &Content,
-        _width: i32,
-        _height: i32,
-        ctx: &Context,
-    ) {
+    fn draw(&self, content: &Content, ctx: &Context) {
         let hex = &content.hex;
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
@@ -313,16 +307,18 @@ impl State for SelectToken {
                 } else {
                     self.selected -= 1
                 }
-                let action = self.update_search(content, window);
-                (self, Inhibit(false), action)
+                // NOTE: always redraw, the selected token has changed.
+                let _action = self.update_search(content, window);
+                (self, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                let action = self.update_search(content, window);
-                (self, Inhibit(false), action)
+                // NOTE: always redraw, the selected token has changed.
+                let _action = self.update_search(content, window);
+                (self, Inhibit(false), Action::Redraw)
             }
             _ => (self, Inhibit(false), Action::None),
         }

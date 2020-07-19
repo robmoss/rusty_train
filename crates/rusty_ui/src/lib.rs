@@ -72,10 +72,8 @@
 //!
 //! // Let the UI draw on the window.
 //! drawing_area.connect_draw(move |area, ctx| {
-//!     let w = area.get_allocated_width();
-//!     let h = area.get_allocated_height();
 //!     let ui = state.borrow();
-//!     ui.draw(w, h, ctx);
+//!     ui.draw(ctx);
 //!     Inhibit(false)
 //! });
 //!
@@ -116,6 +114,7 @@ pub struct UI {
 }
 
 /// The actions that may be required when the UI state changes.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Action {
     /// No action required.
     None,
@@ -149,22 +148,71 @@ impl UI {
     }
 
     /// Draws the current state of the user interface.
-    pub fn draw(&self, w: i32, h: i32, ctx: &Context) {
+    pub fn draw(&self, ctx: &Context) {
         if let Some(ref state) = self.state {
             ctx.set_source_rgb(1.0, 1.0, 1.0);
-            ctx.rectangle(0.0, 0.0, w as f64, h as f64);
+            ctx.reset_clip();
+            let (x1, y1, x2, y2) = ctx.clip_extents();
+            ctx.rectangle(x1, y1, x2, y2);
             ctx.fill();
-            state.draw(&self.content, w, h, ctx);
+            state.draw(&self.content, ctx);
+        }
+    }
+
+    pub fn handle_action(
+        &mut self,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
+        action: Action,
+    ) {
+        match action {
+            Action::ZoomIn => {
+                if self.content.hex.max_d < 154.0 {
+                    // NOTE: may need to increase surface, draw area size?
+                    self.content.hex =
+                        Hex::new(self.content.hex.max_d + 10.0);
+                    let surf_w = ((self.content.map.max_col as f64)
+                        * self.content.hex.min_d)
+                        as i32;
+                    let surf_h = ((self.content.map.max_row as f64)
+                        * self.content.hex.max_d)
+                        as i32;
+                    area.set_size_request(surf_w, surf_h);
+                    area.queue_draw();
+                }
+            }
+            Action::ZoomOut => {
+                if self.content.hex.max_d > 66.0 {
+                    // NOTE: may need to decrease surface, draw area size?
+                    self.content.hex =
+                        Hex::new(self.content.hex.max_d - 10.0);
+                    let surf_w = ((self.content.map.max_col as f64)
+                        * self.content.hex.min_d)
+                        as i32;
+                    let surf_h = ((self.content.map.max_row as f64)
+                        * self.content.hex.max_d)
+                        as i32;
+                    area.set_size_request(surf_w, surf_h);
+                    area.queue_draw();
+                }
+            }
+            Action::Redraw => {
+                area.queue_draw();
+            }
+            Action::Quit => {
+                window.close();
+            }
+            Action::None => {}
         }
     }
 
     /// Responds to a key being pressed.
-    pub fn key_press(
+    pub fn key_press_action(
         &mut self,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> Inhibit {
+    ) -> (Inhibit, Action) {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
             let action = global_keymap(
@@ -195,48 +243,43 @@ impl UI {
                     )
                 };
             self.state = Some(new_state);
-            match action {
-                Action::ZoomIn => {
-                    if self.content.hex.max_d < 154.0 {
-                        // NOTE: may need to increase surface, draw area size?
-                        self.content.hex =
-                            Hex::new(self.content.hex.max_d + 10.0);
-                        let surf_w = ((self.content.map.max_col as f64)
-                            * self.content.hex.min_d)
-                            as i32;
-                        let surf_h = ((self.content.map.max_row as f64)
-                            * self.content.hex.max_d)
-                            as i32;
-                        area.set_size_request(surf_w, surf_h);
-                        area.queue_draw();
-                    }
-                }
-                Action::ZoomOut => {
-                    if self.content.hex.max_d > 66.0 {
-                        // NOTE: may need to decrease surface, draw area size?
-                        self.content.hex =
-                            Hex::new(self.content.hex.max_d - 10.0);
-                        let surf_w = ((self.content.map.max_col as f64)
-                            * self.content.hex.min_d)
-                            as i32;
-                        let surf_h = ((self.content.map.max_row as f64)
-                            * self.content.hex.max_d)
-                            as i32;
-                        area.set_size_request(surf_w, surf_h);
-                        area.queue_draw();
-                    }
-                }
-                Action::Redraw => {
-                    area.queue_draw();
-                }
-                Action::Quit => {
-                    window.close();
-                }
-                Action::None => {}
-            }
-            inhibit
+            (inhibit, action)
         } else {
-            Inhibit(false)
+            (Inhibit(false), Action::None)
+        }
+    }
+
+    /// Responds to a key being pressed.
+    pub fn key_press(
+        &mut self,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
+        event: &gdk::EventKey,
+    ) -> Inhibit {
+        let (inhibit, action) = self.key_press_action(window, area, event);
+        self.handle_action(window, area, action);
+        inhibit
+    }
+
+    /// Responds to a mouse button being clicked.
+    pub fn button_press_action(
+        &mut self,
+        window: &gtk::ApplicationWindow,
+        area: &gtk::DrawingArea,
+        event: &gdk::EventButton,
+    ) -> (Inhibit, Action) {
+        let state_opt = self.state.take();
+        if let Some(curr_state) = state_opt {
+            let (new_state, inhibit, action) = curr_state.button_press(
+                &mut self.content,
+                window,
+                area,
+                event,
+            );
+            self.state = Some(new_state);
+            (inhibit, action)
+        } else {
+            (Inhibit(false), Action::None)
         }
     }
 
@@ -247,58 +290,9 @@ impl UI {
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
     ) -> Inhibit {
-        let state_opt = self.state.take();
-        if let Some(curr_state) = state_opt {
-            let (new_state, inhibit, action) = curr_state.button_press(
-                &mut self.content,
-                window,
-                area,
-                event,
-            );
-            self.state = Some(new_state);
-            match action {
-                Action::ZoomIn => {
-                    if self.content.hex.max_d < 154.0 {
-                        // NOTE: may need to increase surface, draw area size?
-                        self.content.hex =
-                            Hex::new(self.content.hex.max_d + 10.0);
-                        let surf_w = ((self.content.map.max_col as f64)
-                            * self.content.hex.min_d)
-                            as i32;
-                        let surf_h = ((self.content.map.max_row as f64)
-                            * self.content.hex.max_d)
-                            as i32;
-                        area.set_size_request(surf_w, surf_h);
-                        area.queue_draw();
-                    }
-                }
-                Action::ZoomOut => {
-                    if self.content.hex.max_d > 66.0 {
-                        // NOTE: may need to decrease surface, draw area size?
-                        self.content.hex =
-                            Hex::new(self.content.hex.max_d - 10.0);
-                        let surf_w = ((self.content.map.max_col as f64)
-                            * self.content.hex.min_d)
-                            as i32;
-                        let surf_h = ((self.content.map.max_row as f64)
-                            * self.content.hex.max_d)
-                            as i32;
-                        area.set_size_request(surf_w, surf_h);
-                        area.queue_draw();
-                    }
-                }
-                Action::Redraw => {
-                    area.queue_draw();
-                }
-                Action::Quit => {
-                    window.close();
-                }
-                Action::None => {}
-            }
-            inhibit
-        } else {
-            Inhibit(false)
-        }
+        let (inhibit, action) = self.button_press_action(window, area, event);
+        self.handle_action(window, area, action);
+        inhibit
     }
 }
 

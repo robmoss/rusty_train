@@ -11,7 +11,7 @@ pub mod select_token;
 /// The methods that are required in order to manipulate the user interface.
 pub trait State {
     /// Draws the current state of the map.
-    fn draw(&self, content: &Content, width: i32, height: i32, ctx: &Context);
+    fn draw(&self, content: &Content, ctx: &Context);
 
     /// Responds to a key being pressed, and returns the new state.
     fn key_press(

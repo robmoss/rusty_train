@@ -115,7 +115,7 @@ pub fn save_screenshot<S: State + ?Sized>(
     icx.set_source_rgb(1.0, 1.0, 1.0);
     icx.paint();
     // Then draw the current map content.
-    state.draw(content, width, height, &icx);
+    state.draw(content, &icx);
     let mut file = std::fs::File::create(dest_file)
         .expect(&format!("Couldn't create '{}'", dest_str));
     surface.write_to_png(&mut file)?;

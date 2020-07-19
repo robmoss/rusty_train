@@ -43,13 +43,7 @@ impl ReplaceTile {
 }
 
 impl State for ReplaceTile {
-    fn draw(
-        &self,
-        content: &Content,
-        _width: i32,
-        _height: i32,
-        ctx: &Context,
-    ) {
+    fn draw(&self, content: &Content, ctx: &Context) {
         let hex = &content.hex;
         let map = &content.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
