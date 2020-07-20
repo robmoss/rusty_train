@@ -25,115 +25,115 @@ pub const PI_1_4: f64 = FRAC_PI_4;
 pub const PI_3_4: f64 = 3.0 * FRAC_PI_4;
 
 #[doc(inline)]
-pub use rusty_hex::Hex;
+pub use n18hex::Hex;
 
 #[doc(inline)]
-pub use rusty_hex::HexColour;
+pub use n18hex::HexColour;
 
 #[doc(inline)]
-pub use rusty_hex::HexCorner;
+pub use n18hex::HexCorner;
 
 #[doc(inline)]
-pub use rusty_hex::HexFace;
+pub use n18hex::HexFace;
 
 #[doc(inline)]
-pub use rusty_hex::HexPosition;
+pub use n18hex::HexPosition;
 
 #[doc(inline)]
-pub use rusty_hex::Delta;
+pub use n18hex::Delta;
 
 #[doc(inline)]
-pub use rusty_hex::Direction;
+pub use n18hex::Direction;
 
 #[doc(inline)]
-pub use rusty_tile::City;
+pub use n18tile::City;
 
 #[doc(inline)]
-pub use rusty_tile::Rotation;
+pub use n18tile::Rotation;
 
 #[doc(inline)]
-pub use rusty_tile::Track;
+pub use n18tile::Track;
 
 #[doc(inline)]
-pub use rusty_tile::TrackCurve;
+pub use n18tile::TrackCurve;
 
 #[doc(inline)]
-pub use rusty_tile::TrackEnd;
+pub use n18tile::TrackEnd;
 
 #[doc(inline)]
-pub use rusty_tile::DitShape;
+pub use n18tile::DitShape;
 
 #[doc(inline)]
-pub use rusty_tile::Label;
+pub use n18tile::Label;
 
 #[doc(inline)]
-pub use rusty_tile::Tile;
+pub use n18tile::Tile;
 
 #[doc(inline)]
-pub use rusty_tile::Connection;
+pub use n18tile::Connection;
 
 #[doc(inline)]
-pub use rusty_token::Tokens;
+pub use n18token::Tokens;
 
 #[doc(inline)]
-pub use rusty_token::Token;
+pub use n18token::Token;
 
 #[doc(inline)]
-pub use rusty_token::TokenStyle;
+pub use n18token::TokenStyle;
 
 #[doc(inline)]
-pub use rusty_token::Colour;
+pub use n18token::Colour;
 
 #[doc(inline)]
-pub use rusty_catalogue::tile_catalogue;
+pub use n18catalogue::tile_catalogue;
 
 #[doc(inline)]
-pub use rusty_io::read_tile;
+pub use n18io::read_tile;
 
 #[doc(inline)]
-pub use rusty_io::write_tile;
+pub use n18io::write_tile;
 
 #[doc(inline)]
-pub use rusty_io::read_tiles;
+pub use n18io::read_tiles;
 
 #[doc(inline)]
-pub use rusty_io::write_tiles;
+pub use n18io::write_tiles;
 
 #[doc(inline)]
-pub use rusty_map::Map;
+pub use n18map::Map;
 
 #[doc(inline)]
-pub use rusty_map::HexAddress;
+pub use n18map::HexAddress;
 
 #[doc(inline)]
-pub use rusty_map::RotateCW;
+pub use n18map::RotateCW;
 
 #[doc(inline)]
-pub use rusty_map::TokensTable;
+pub use n18map::TokensTable;
 
 #[doc(inline)]
-pub use rusty_route::Path;
+pub use n18route::Path;
 
 #[doc(inline)]
-pub use rusty_route::conflict::ConflictRule;
+pub use n18route::conflict::ConflictRule;
 
 #[doc(inline)]
-pub use rusty_route::search::Criteria;
+pub use n18route::search::Criteria;
 
 #[doc(inline)]
-pub use rusty_route::search::paths_for_token;
+pub use n18route::search::paths_for_token;
 
 #[doc(inline)]
-pub use rusty_route::train::Train;
+pub use n18route::train::Train;
 
 #[doc(inline)]
-pub use rusty_route::train::Trains;
+pub use n18route::train::Trains;
 
 #[doc(inline)]
-pub use rusty_route::train::Pairing;
+pub use n18route::train::Pairing;
 
 #[doc(inline)]
-pub use rusty_game::Game;
+pub use n18game::Game;
 
 #[doc(inline)]
-pub use rusty_ui::UI;
+pub use n18ui::UI;

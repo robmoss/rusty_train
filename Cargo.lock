@@ -497,6 +497,148 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
 
 [[package]]
+name = "n18brush"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "n18hex",
+ "n18map",
+ "n18route",
+ "n18tile",
+ "n18token",
+]
+
+[[package]]
+name = "n18catalogue"
+version = "0.1.0"
+dependencies = [
+ "n18hex",
+ "n18tile",
+]
+
+[[package]]
+name = "n18game"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "n18catalogue",
+ "n18hex",
+ "n18map",
+ "n18route",
+ "n18tile",
+ "n18token",
+]
+
+[[package]]
+name = "n18hex"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+]
+
+[[package]]
+name = "n18io"
+version = "0.1.0"
+dependencies = [
+ "n18catalogue",
+ "n18hex",
+ "n18map",
+ "n18tile",
+ "n18token",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "n18map"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "n18catalogue",
+ "n18hex",
+ "n18tile",
+ "n18token",
+]
+
+[[package]]
+name = "n18route"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "log",
+ "n18catalogue",
+ "n18hex",
+ "n18map",
+ "n18tile",
+ "n18token",
+]
+
+[[package]]
+name = "n18tile"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "n18hex",
+ "pango",
+ "pangocairo",
+]
+
+[[package]]
+name = "n18token"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "n18hex",
+ "pango",
+ "pangocairo",
+]
+
+[[package]]
+name = "n18ui"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "chrono",
+ "gdk",
+ "gio",
+ "glib",
+ "gtk",
+ "log",
+ "n18brush",
+ "n18game",
+ "n18hex",
+ "n18io",
+ "n18map",
+ "n18route",
+ "n18tile",
+ "n18token",
+]
+
+[[package]]
+name = "navig18xx"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "chrono",
+ "env_logger",
+ "gdk",
+ "gio",
+ "glib",
+ "gtk",
+ "log",
+ "n18brush",
+ "n18catalogue",
+ "n18game",
+ "n18hex",
+ "n18io",
+ "n18map",
+ "n18route",
+ "n18tile",
+ "n18token",
+ "n18ui",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -710,148 +852,6 @@ name = "regex-syntax"
 version = "0.6.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1132f845907680735a84409c3bebc64d1364a5683ffbce899550cd09d5eaefc1"
-
-[[package]]
-name = "rusty_brush"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "rusty_hex",
- "rusty_map",
- "rusty_route",
- "rusty_tile",
- "rusty_token",
-]
-
-[[package]]
-name = "rusty_catalogue"
-version = "0.1.0"
-dependencies = [
- "rusty_hex",
- "rusty_tile",
-]
-
-[[package]]
-name = "rusty_game"
-version = "0.1.0"
-dependencies = [
- "log",
- "rusty_catalogue",
- "rusty_hex",
- "rusty_map",
- "rusty_route",
- "rusty_tile",
- "rusty_token",
-]
-
-[[package]]
-name = "rusty_hex"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
-]
-
-[[package]]
-name = "rusty_io"
-version = "0.1.0"
-dependencies = [
- "rusty_catalogue",
- "rusty_hex",
- "rusty_map",
- "rusty_tile",
- "rusty_token",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "rusty_map"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "rusty_catalogue",
- "rusty_hex",
- "rusty_tile",
- "rusty_token",
-]
-
-[[package]]
-name = "rusty_route"
-version = "0.1.0"
-dependencies = [
- "env_logger",
- "log",
- "rusty_catalogue",
- "rusty_hex",
- "rusty_map",
- "rusty_tile",
- "rusty_token",
-]
-
-[[package]]
-name = "rusty_tile"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "pango",
- "pangocairo",
- "rusty_hex",
-]
-
-[[package]]
-name = "rusty_token"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "pango",
- "pangocairo",
- "rusty_hex",
-]
-
-[[package]]
-name = "rusty_train"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "chrono",
- "env_logger",
- "gdk",
- "gio",
- "glib",
- "gtk",
- "log",
- "rusty_brush",
- "rusty_catalogue",
- "rusty_game",
- "rusty_hex",
- "rusty_io",
- "rusty_map",
- "rusty_route",
- "rusty_tile",
- "rusty_token",
- "rusty_ui",
-]
-
-[[package]]
-name = "rusty_ui"
-version = "0.1.0"
-dependencies = [
- "cairo-rs",
- "chrono",
- "gdk",
- "gio",
- "glib",
- "gtk",
- "log",
- "rusty_brush",
- "rusty_game",
- "rusty_hex",
- "rusty_io",
- "rusty_map",
- "rusty_route",
- "rusty_tile",
- "rusty_token",
-]
 
 [[package]]
 name = "ryu"

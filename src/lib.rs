@@ -22,18 +22,18 @@
 //! Note: there **is** support for finding a single route that yields the
 //! highest possible revenue (ignoring bonuses for, e.g., visiting specific
 //! locations), and for finding the optimal pairing of trains to routes.
-//! See the [route-finding documentation](../rusty_route/doc/index.html) for
+//! See the [route-finding documentation](../n18route/doc/index.html) for
 //! details.
 //!
 //! ## Defining tiles
 //!
-//! Use the [`rusty_tile::Tile`](../rusty_tile/tile/struct.Tile.html) data
+//! Use the [`n18tile::Tile`](../n18tile/tile/struct.Tile.html) data
 //! structure.
 //! This uses the [Cairo bindings](https://gtk-rs.org/docs/cairo/) provided by
 //! the [Gtk-rs](https://gtk-rs.org/) project.
 //!
 //! ```rust
-//! use rusty_train::prelude::*;
+//! use navig18xx::prelude::*;
 //!
 //! // Define the basic tile geometry.
 //! let hex_max_diameter = 125.0;
@@ -66,7 +66,7 @@
 //! [X5](http://www.fwtwr.com/18xx/tiles/tf/X5_1.gif):
 //!
 //! ```rust
-//! # use rusty_train::prelude::*;
+//! # use navig18xx::prelude::*;
 //! #
 //! # // Define the basic tile geometry.
 //! # let hex_max_diameter = 125.0;

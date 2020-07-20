@@ -1,6 +1,6 @@
 use cairo::{Context, Format, ImageSurface};
-use rusty_brush;
-use rusty_train::prelude::*;
+use n18brush;
+use navig18xx::prelude::*;
 use std::collections::HashMap;
 
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
@@ -23,7 +23,7 @@ fn test_dual_routes_from_montreal() {
         margin + rows * (hex_width as f32 * 0.88) as i32,
     );
     let hex = Hex::new(hex_width as f64);
-    let game = rusty_game::_1867::Game::new(&hex);
+    let game = n18game::_1867::Game::new(&hex);
     let mut map = game.create_map(&hex);
     let company_token = game.company_tokens().first_token();
 
@@ -46,9 +46,10 @@ fn test_dual_routes_from_montreal() {
     let mut hex_iter = map.hex_iter(&hex, &ctx);
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    rusty_brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    rusty_brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    rusty_brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
+    n18brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
+    n18brush::draw_tiles(&hex, &ctx, &mut hex_iter);
+    n18brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
+    n18brush::draw_barriers(&hex, &ctx, &map);
 
     let filename = "test-dual-routes-montreal-map.png";
     let mut file = std::fs::File::create(filename)
@@ -84,20 +85,17 @@ fn test_dual_routes_from_montreal() {
     // Draw each of the best routes, and save this to a PNG file.
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    rusty_brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    rusty_brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    rusty_brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    rusty_brush::highlight_routes(
-        &hex,
-        &ctx,
-        &map,
-        &best.pairs,
-        |ix| match ix % 3 {
+    n18brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
+    n18brush::draw_tiles(&hex, &ctx, &mut hex_iter);
+    n18brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
+    n18brush::draw_barriers(&hex, &ctx, &map);
+    n18brush::highlight_routes(&hex, &ctx, &map, &best.pairs, |ix| {
+        match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
             1 => (0.1, 0.7, 0.1, 1.0),
             _ => (0.1, 0.1, 0.7, 1.0),
-        },
-    );
+        }
+    });
     let filename = "test-dual-routes-montreal-route.png";
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");

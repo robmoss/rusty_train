@@ -1,6 +1,6 @@
 use cairo::{Context, Format, ImageSurface};
-use rusty_tile::Draw;
-use rusty_train::prelude::*;
+use n18tile::Draw;
+use navig18xx::prelude::*;
 
 static HEX_DIAMETER: f64 = 150.0;
 
