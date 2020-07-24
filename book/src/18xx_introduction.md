@@ -3,13 +3,13 @@
 18xx refers to a
 [family of board games](https://boardgamegeek.com/wiki/page/18xx) that focus
 on investing in, and operating, train companies.
+Players aim to end the game with the most wealth, and this can be achieved in
+a number of different ways.
 Players can buy stock in companies, and the player who owns the most shares in
 a company is responsible for operating the company.
 Companies lay track by placing hexagonal tiles, and run trains along the track
 network to earn revenue.
 Dividends may then be paid to all players who own shares in the company.
-Players aim to end the game with the most wealth, and this can be achieved in
-a number of different ways.
 Some games emphasise manipulating the stock market, while other games place a
 greater emphasis on running profitable companies.
 
