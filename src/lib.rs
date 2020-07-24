@@ -88,7 +88,10 @@
 //!     HexColour::Brown,
 //!     "X5",
 //!     vec![
-//!         Track::straight(HexFace::Top).with_clip(0.3625, 0.75),
+//!         Track::straight(HexFace::Top).with_span(0.0, 0.1),
+//!         Track::straight(HexFace::Top)
+//!             .with_span(0.1, 1.0)
+//!             .with_clip(0.3625, 0.75),
 //!         Track::mid(HexFace::UpperLeft),
 //!         Track::mid(HexFace::LowerLeft),
 //!         Track::mid(HexFace::LowerRight),

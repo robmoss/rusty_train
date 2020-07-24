@@ -34,6 +34,12 @@ See the [developer guide](./dev_guide/index.html) for details.
 
 ![An example tile](./tile_x5.svg)
 
+This image was produced by the following code:
+
+```rust,no_run,noplayground
+{{#include ../../examples/tile_x5.rs}}
+```
+
 ## An example route
 
 ![An example route](./test-conn-bonus-route-no-bonus.png)
