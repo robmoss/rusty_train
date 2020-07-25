@@ -1,6 +1,6 @@
 use cairo::{Context, Format, ImageSurface};
-use n18tile::Draw;
 use navig18xx::prelude::*;
+use navig18xx::tile::Draw;
 
 static HEX_DIAMETER: f64 = 150.0;
 

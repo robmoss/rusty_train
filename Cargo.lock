@@ -618,14 +618,6 @@ dependencies = [
 name = "navig18xx"
 version = "0.1.0"
 dependencies = [
- "cairo-rs",
- "chrono",
- "env_logger",
- "gdk",
- "gio",
- "glib",
- "gtk",
- "log",
  "n18brush",
  "n18catalogue",
  "n18game",
@@ -852,6 +844,23 @@ name = "regex-syntax"
 version = "0.6.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1132f845907680735a84409c3bebc64d1364a5683ffbce899550cd09d5eaefc1"
+
+[[package]]
+name = "rusty-train"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "chrono",
+ "env_logger",
+ "gdk",
+ "gio",
+ "glib",
+ "gtk",
+ "log",
+ "n18game",
+ "n18ui",
+ "navig18xx",
+]
 
 [[package]]
 name = "ryu"

@@ -1,5 +1,5 @@
 use cairo::{Context, Format, ImageSurface};
-use n18brush;
+use navig18xx::brush;
 use navig18xx::prelude::*;
 use std::collections::HashMap;
 
@@ -46,10 +46,10 @@ fn test_dual_routes_from_montreal() {
     let mut hex_iter = map.hex_iter(&hex, &ctx);
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    n18brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    n18brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    n18brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    n18brush::draw_barriers(&hex, &ctx, &map);
+    brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
+    brush::draw_tiles(&hex, &ctx, &mut hex_iter);
+    brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
+    brush::draw_barriers(&hex, &ctx, &map);
 
     let filename = "test-dual-routes-montreal-map.png";
     let mut file = std::fs::File::create(filename)
@@ -85,11 +85,11 @@ fn test_dual_routes_from_montreal() {
     // Draw each of the best routes, and save this to a PNG file.
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    n18brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    n18brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    n18brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    n18brush::draw_barriers(&hex, &ctx, &map);
-    n18brush::highlight_routes(&hex, &ctx, &map, &best.pairs, |ix| {
+    brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
+    brush::draw_tiles(&hex, &ctx, &mut hex_iter);
+    brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
+    brush::draw_barriers(&hex, &ctx, &map);
+    brush::highlight_routes(&hex, &ctx, &map, &best.pairs, |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
             1 => (0.1, 0.7, 0.1, 1.0),

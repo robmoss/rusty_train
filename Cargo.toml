@@ -1,5 +1,5 @@
 [package]
-name = "navig18xx"
+name = "rusty-train"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
@@ -14,16 +14,9 @@ default-run = "rusty_train"
 members = ["crates/*"]
 
 [dependencies]
-n18hex = { path = "./crates/n18hex" }
-n18tile = { path = "./crates/n18tile" }
-n18token = { path = "./crates/n18token" }
-n18catalogue = { path = "./crates/n18catalogue" }
-n18map = { path = "./crates/n18map" }
-n18io = { path = "./crates/n18io" }
-n18route = { path = "./crates/n18route" }
 n18game = { path = "./crates/n18game" }
-n18brush = { path = "./crates/n18brush" }
 n18ui = { path = "./crates/n18ui" }
+navig18xx = { path = "./crates/navig18xx" }
 
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }

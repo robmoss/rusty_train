@@ -93,7 +93,7 @@ pub fn main() {
     .init();
 
     let application =
-        gtk::Application::new(Some("rusty_train"), Default::default())
+        gtk::Application::new(Some("rusty_train.bin"), Default::default())
             .expect("Initialisation failed...");
 
     application.connect_activate(|app| {

@@ -118,6 +118,17 @@
 /// Exports commonly-used elements of other modules.
 pub mod prelude;
 
+pub use n18brush as brush;
+pub use n18catalogue as catalogue;
+pub use n18game as game;
+pub use n18hex as hex;
+pub use n18io as io;
+pub use n18map as map;
+pub use n18route as route;
+pub use n18tile as tile;
+pub use n18token as token;
+pub use n18ui as ui;
+
 // TODO:
 //   grid module for tile arrangement
 //   map module for building on top of grid and having off-grid content?
