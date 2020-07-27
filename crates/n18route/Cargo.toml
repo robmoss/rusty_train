@@ -16,4 +16,6 @@ log = "0.4"
 
 [dev-dependencies]
 n18catalogue = { path = "../n18catalogue" }
+n18brush = { path = "../n18brush" }
+cairo-rs = { version = "0.9" }
 env_logger = "0.7"

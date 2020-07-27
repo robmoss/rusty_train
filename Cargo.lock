@@ -564,8 +564,10 @@ dependencies = [
 name = "n18route"
 version = "0.1.0"
 dependencies = [
+ "cairo-rs",
  "env_logger",
  "log",
+ "n18brush",
  "n18catalogue",
  "n18hex",
  "n18map",

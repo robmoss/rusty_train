@@ -19,6 +19,8 @@ pub mod comb;
 
 pub mod train;
 
+pub mod builder;
+
 pub mod doc;
 
 #[doc(inline)]
