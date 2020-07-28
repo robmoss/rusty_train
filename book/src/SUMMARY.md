@@ -17,6 +17,8 @@
   - [Connectivity]()
   - [Tokens]()
   - [Maps]()
+  - [Trains]()
+  - [Finding optimal routes](./dev_guide/routes.md)
   - [18xx games]()
   - [(De)serialisation]()
   - [GTK user interface]()
