@@ -1,88 +1,7 @@
-//! # Example
+//! The `UI` struct encapsulates event handling, and draws the map on a
+//! `gtk::DrawingArea` widget.
 //!
-//! The `UI` struct encapsulates event handling and drawing the map. It
-//! requires a `gtk::DrawingArea` widget, and the `UI` methods must be
-//! connected to the appropriate GTK signals:
-//!
-//! - `drawing_area.connect_draw` should dispatch to `UI::draw`;
-//! - `drawing_area.connect_button_press_event` should dispatch to
-//!   `UI::button_press`; and
-//! - `drawing_area.connect_key_press_event` should dispatch to
-//!   `UI::key_press`.
-//!
-//! See the code below for a complete example of how to do this.
-//!
-//! ```rust,no_run
-//! use std::cell::RefCell;
-//! use std::rc::Rc;
-//!
-//! use gtk::prelude::*;
-//! use gtk::DrawingArea;
-//! use cairo::Context;
-//!
-//! use n18hex::*;
-//! use n18tile::*;
-//! use n18map::*;
-//! use n18game::*;
-//! use n18ui::UI;
-//!
-//! // Define the tile geometry.
-//! let hex_diameter = 125.0;
-//! let hex = Hex::new(hex_diameter);
-//!
-//! // Use a provided game.
-//! let game = _1867::Game::new(&hex);
-//! let map = game.create_map(&hex);
-//!
-//! // Create the initial UI state.
-//! let game_box = Box::new(game);
-//! let state = Rc::new(RefCell::new(UI::new(hex, game_box, map)));
-//!
-//! // Create a GTK application.
-//! let application = gtk::Application::new(
-//!     Some("rusty_train"),
-//!     Default::default(),
-//! )
-//! .expect("Initialisation failed...");
-//!
-//! // Create the GTK widgets that will be used to draw the map.
-//! let window = gtk::ApplicationWindow::new(&application);
-//! let drawing_area = Box::new(DrawingArea::new)();
-//!
-//! // Let the UI handle mouse button events.
-//! let app = state.clone();
-//! let da = drawing_area.clone();
-//! let w = window.clone();
-//! drawing_area.connect_button_press_event(move |_widget, event| {
-//!     let mut ui = app.borrow_mut();
-//!     ui.button_press(&w, &da, event)
-//! });
-//! window.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
-//! drawing_area.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
-//!
-//! // Let the UI handle keyboard events.
-//! let app = state.clone();
-//! let da = drawing_area.clone();
-//! let w = window.clone();
-//! window.connect_key_press_event(move |_widget, event| {
-//!     let mut ui = app.borrow_mut();
-//!     ui.key_press(&w, &da, event)
-//! });
-//! window.add_events(gdk::EventMask::KEY_PRESS_MASK);
-//!
-//! // Let the UI draw on the window.
-//! drawing_area.connect_draw(move |area, ctx| {
-//!     let ui = state.borrow();
-//!     ui.draw(ctx);
-//!     Inhibit(false)
-//! });
-//!
-//! // Display the window.
-//! let (width, height) = (1366, 740);
-//! window.set_default_size(width, height);
-//! window.add(&drawing_area);
-//! window.show_all();
-//! ```
+//! See the `rusty_train` code for an example of how to use the `UI` struct.
 //!
 use cairo::Context;
 use gtk::{GtkWindowExt, Inhibit, WidgetExt};
@@ -164,6 +83,7 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         action: Action,
+        ctx: &Context,
     ) {
         match action {
             Action::ZoomIn => {
@@ -178,6 +98,8 @@ impl UI {
                         * self.content.hex.max_d)
                         as i32;
                     area.set_size_request(surf_w, surf_h);
+                    // NOTE: must redraw to the backing surface.
+                    self.draw(ctx);
                     area.queue_draw();
                 }
             }
@@ -193,10 +115,14 @@ impl UI {
                         * self.content.hex.max_d)
                         as i32;
                     area.set_size_request(surf_w, surf_h);
+                    // NOTE: must redraw to the backing surface.
+                    self.draw(ctx);
                     area.queue_draw();
                 }
             }
             Action::Redraw => {
+                // NOTE: must redraw to the backing surface.
+                self.draw(ctx);
                 area.queue_draw();
             }
             Action::Quit => {
@@ -255,9 +181,10 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
+        ctx: &Context,
     ) -> Inhibit {
         let (inhibit, action) = self.key_press_action(window, area, event);
-        self.handle_action(window, area, action);
+        self.handle_action(window, area, action, ctx);
         inhibit
     }
 
@@ -289,9 +216,10 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
+        ctx: &Context,
     ) -> Inhibit {
         let (inhibit, action) = self.button_press_action(window, area, event);
-        self.handle_action(window, area, action);
+        self.handle_action(window, area, action, ctx);
         inhibit
     }
 }
