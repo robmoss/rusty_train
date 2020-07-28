@@ -29,3 +29,12 @@ glib = "0.10"
 chrono = "0.4"
 log = "0.4"
 env_logger = "0.7"
+
+[dev-dependencies]
+# Use the minimum supported version of Pango (1.38).
+pango = { version = "0.9", features = ["v1_38"] }
+pangocairo = "0.10"
+
+[[example]]
+name = "example_routes"
+test = true

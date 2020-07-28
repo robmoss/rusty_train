@@ -862,6 +862,8 @@ dependencies = [
  "n18game",
  "n18ui",
  "navig18xx",
+ "pango",
+ "pangocairo",
 ]
 
 [[package]]
