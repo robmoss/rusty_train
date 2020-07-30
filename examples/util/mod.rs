@@ -92,6 +92,14 @@ impl Example {
         (ink_w, ink_h)
     }
 
+    pub fn erase_all(&mut self) -> Result<(), cairo::Error> {
+        let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)?;
+        let rec_ctx = Context::new(&rec_surf);
+        self.rec_surf = rec_surf;
+        self.rec_ctx = rec_ctx;
+        Ok(())
+    }
+
     fn image_size(&self, margin: usize) -> (f64, f64, f64, f64) {
         let (x0, y0, ink_w, ink_h) = self.rec_surf.ink_extents();
         let width = 2.0 * margin as f64 + ink_w + 1.0;

@@ -38,3 +38,7 @@ pangocairo = "0.10"
 [[example]]
 name = "example_routes"
 test = true
+
+[[example]]
+name = "optimal_routes_1"
+test = true
