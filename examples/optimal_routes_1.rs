@@ -5,6 +5,8 @@ use util::{tile_at, Example};
 
 #[test]
 fn run_test() -> Result<(), Box<dyn std::error::Error>> {
+    let dev_guide_dir = std::path::Path::new("./book/src/dev_guide");
+    assert!(std::env::set_current_dir(&dev_guide_dir).is_ok());
     main()
 }
 
@@ -17,15 +19,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     let tokens = vec![("A", token_a)];
 
-    // $80 --- $100 (token) --- $100 --- $50
+    // $70 --- $100 (token) --- $100 --- $50
     let tiles = vec![
-        tile_at("X6", "A1"),
-        tile_at("9", "A3"),
-        tile_at("639", "A5").token(0, "A"),
-        tile_at("9", "A7"),
-        tile_at("639", "A9"),
-        tile_at("9", "A11"),
-        tile_at("801", "A13"),
+        tile_at("X6", "B2"),
+        tile_at("124", "C3").token(0, "A").rotate_acw(1),
+        tile_at("124", "C1").rotate_cw(2),
+        tile_at("801", "D2"),
     ];
     let mut example = Example::new(hex_max_diameter, tokens, tiles);
 

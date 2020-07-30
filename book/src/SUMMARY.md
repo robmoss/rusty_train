@@ -22,5 +22,5 @@
   - [18xx games]()
   - [(De)serialisation]()
   - [GTK user interface]()
-  - [About this book](./dev_guide/about.md)
+- [About this book](./about.md)
 - [References]()

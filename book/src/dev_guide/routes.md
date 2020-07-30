@@ -25,6 +25,16 @@ Show, e.g.,:
 
 - Multiple routes along the same path due to different skips/stops.
 
+- Here is an example where the optimal routes for a pair of trains involves
+  sub-optimal routes for each train:
+
+  | Map                  | Description                          |
+  |:--------------------:|--------------------------------------|
+  | ![](opt_r1.png)      | Four connected cities                |
+  | ![](opt_r1_8.png)    | 8-train: optimal revenue is $320     |
+  | ![](opt_r1_2p2.png)  | 2+2-train: optimal revenue is $400   |
+  | ![](opt_r1_both.png) | Both trains: optimal revenue is $590 |
+
 ## Identifying all available routes
 
 We assume that all routes operated by a company must pass through a city that
