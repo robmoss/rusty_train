@@ -384,32 +384,32 @@ impl Map {
         x0: f64,
         y0: f64,
         hex: &Hex,
-    ) -> (f64, f64) {
+    ) -> Option<(f64, f64)> {
         if row < self.min_row || row > self.max_row {
-            panic!("Invalid hex row")
+            return None;
         }
         if col < self.min_col || col > self.max_col {
-            panic!("Invalid hex column")
+            return None;
         }
         let row = row - self.min_row;
         let col = col - self.min_col;
 
         if self.flat_top {
             let x = x0 + (col as f64) * hex.max_d * 0.75;
-            let y = if col % 2 == 1 {
+            let y = if (col + self.min_col) % 2 == 1 {
                 y0 + (row as f64 + 0.5) * hex.min_d
             } else {
                 y0 + (row as f64) * hex.min_d
             };
-            (x, y)
+            Some((x, y))
         } else {
-            let x = if row % 2 == 1 {
+            let x = if (row + self.min_row) % 2 == 1 {
                 x0 + (col as f64 + 0.5) * hex.min_d
             } else {
                 x0 + (col as f64) * hex.min_d
             };
             let y = y0 + (row as f64) * hex.max_d * 0.75;
-            (x, y)
+            Some((x, y))
         }
     }
 
@@ -431,7 +431,9 @@ impl Map {
             0.5 * hex.max_d + 10.0
         };
 
-        let (x, y) = self.hex_centre(addr.row, addr.col, x0, y0, hex);
+        let (x, y) = self
+            .hex_centre(addr.row, addr.col, x0, y0, hex)
+            .expect(&format!("Invalid hex: {}", addr));
 
         let m = ctx.get_matrix();
         ctx.translate(x, y);
@@ -662,36 +664,8 @@ impl<'a> HexIter<'a> {
     }
 
     fn hex_centre(&self, addr: HexAddress) -> Option<(f64, f64)> {
-        let row = addr.row;
-        let col = addr.col;
-
-        // NOTE: currently assuming that 0 marks the first row/column.
-        // if row < self.min_row || row > self.max_row {
-        //     return None;
-        // }
-        // if col < self.min_col || col > self.max_col {
-        //     return None;
-        // }
-        // let row = row - self.min_row;
-        // let col = col - self.min_col;
-
-        if self.map.flat_top {
-            let x = self.x0 + (col as f64) * self.hex.max_d * 0.75;
-            let y = if col % 2 == 1 {
-                self.y0 + (row as f64 + 0.5) * self.hex.min_d
-            } else {
-                self.y0 + (row as f64) * self.hex.min_d
-            };
-            Some((x, y))
-        } else {
-            let x = if row % 2 == 1 {
-                self.x0 + (col as f64 + 0.5) * self.hex.min_d
-            } else {
-                self.x0 + (col as f64) * self.hex.min_d
-            };
-            let y = self.y0 + (row as f64) * self.hex.max_d * 0.75;
-            Some((x, y))
-        }
+        self.map
+            .hex_centre(addr.row, addr.col, self.x0, self.y0, self.hex)
     }
 }
 
