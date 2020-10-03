@@ -9,7 +9,7 @@
   - [Placing and removing tokens]()
   - [Running routes]()
 - [Developer guide](./dev_guide/index.md)
-  - [Crates]()
+  - [Crates](./dev_guide/crates.md)
   - [Cairo and drawing]()
   - [Hex geometry and styling]()
   - [Tile elements]()
