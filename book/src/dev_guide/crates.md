@@ -14,3 +14,6 @@ The ``navig18xx`` crate is a wrapper that groups together a number of sub-crates
 - ``n18ui`` defines a GTK user interface for creating and modifying 18xx map states, and calculating the optimal revenue for each company.
 
 The ``navig18xx`` crate exports the main public types, traits, values, and functions from these crates in the ``navig18xx::prelude`` module.
+
+It also exports each of these crates without the ``n18`` prefix.
+For example, ``n18hex`` is re-exported as ``navig18xx::hex``.
