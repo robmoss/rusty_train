@@ -468,10 +468,23 @@ impl super::Game for Game {
 
 fn game_tiles(hex: &Hex) -> Vec<Tile> {
     let mut all_tiles = tile_catalogue(&hex);
-    let mut town_tiles = starting_town_tiles(&hex);
-    let mut city_tiles = starting_city_tiles(&hex);
-    let mut offb_tiles = offboard_tiles(&hex);
-    let mut misc_tiles = miscellaneous_tiles(&hex);
+    // NOTE: hide tile names on all starting tiles, off-board tiles, etc.
+    let mut town_tiles = starting_town_tiles(&hex)
+        .into_iter()
+        .map(|t| t.hide_tile_name())
+        .collect();
+    let mut city_tiles = starting_city_tiles(&hex)
+        .into_iter()
+        .map(|t| t.hide_tile_name())
+        .collect();
+    let mut offb_tiles = offboard_tiles(&hex)
+        .into_iter()
+        .map(|t| t.hide_tile_name())
+        .collect();
+    let mut misc_tiles = miscellaneous_tiles(&hex)
+        .into_iter()
+        .map(|t| t.hide_tile_name())
+        .collect();
     all_tiles.append(&mut town_tiles);
     all_tiles.append(&mut city_tiles);
     all_tiles.append(&mut offb_tiles);
