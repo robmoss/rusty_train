@@ -52,6 +52,8 @@ pub struct Tile {
     revenues: Vec<usize>,
     // Tile labels: tile name, revenue, city name, etc.
     labels: Vec<LabelAndPos>,
+    // Whether to show the tile name.
+    show_tile_name: bool,
     // Connections between tracks, dits, cities, and hex faces.
     conns: Connections,
 }
@@ -162,8 +164,14 @@ impl Tile {
             cities_tbl,
             revenues,
             labels: vec![],
+            show_tile_name: true,
             conns,
         }
+    }
+
+    pub fn hide_tile_name(mut self) -> Self {
+        self.show_tile_name = false;
+        self
     }
 
     pub fn connections(&self, from: &Connection) -> Option<&[Connection]> {
@@ -312,12 +320,9 @@ impl Tile {
         // Draw the top-most layer.
         self.layer_bg(&Topmost, ctx, hex);
         self.layer_fg(&Topmost, ctx, hex);
-        // Draw the tile name.
-        if self.colour != HexColour::Red
-            && self.colour != HexColour::Blue
-            && self.colour != HexColour::Grey
-            && self.colour != HexColour::Empty
-        {
+        // Draw the tile name, except for special tiles such as those that are
+        // part of the initial map and are not truly "tiles" as such.
+        if self.show_tile_name {
             Label::TileName.select_font(ctx, hex);
             hex.draw_tile_name(&self.name, ctx);
         }
