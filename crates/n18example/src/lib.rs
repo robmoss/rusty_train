@@ -1,8 +1,11 @@
 #![allow(dead_code)]
 
 use cairo::{Content, Context, Format, RecordingSurface};
-use navig18xx::brush;
-use navig18xx::prelude::*;
+use n18brush as brush;
+use n18hex::Hex;
+use n18map::{HexAddress, Map, RotateCW};
+use n18route::Path;
+use n18token::{Token, Tokens};
 use std::ops::Deref;
 
 pub struct Example {
@@ -19,7 +22,7 @@ impl Example {
         tiles: Vec<PlacedTile>,
     ) -> Self {
         let hex = Hex::new(max_d);
-        let all_tiles = tile_catalogue(&hex);
+        let all_tiles = n18catalogue::tile_catalogue(&hex);
         let tokens = tokens
             .into_iter()
             .map(|(name, style)| (name.to_string(), style))
@@ -242,7 +245,7 @@ impl PlacedTile {
 }
 
 pub fn create_map(hex: &Hex, tiles: &[PlacedTile], tokens: Tokens) -> Map {
-    let catalogue = navig18xx::catalogue::tile_catalogue(hex);
+    let catalogue = n18catalogue::tile_catalogue(hex);
     let hexes: Vec<HexAddress> =
         tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
     let map_tokens = tokens.clone();

@@ -517,6 +517,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "n18example"
+version = "0.1.0"
+dependencies = [
+ "cairo-rs",
+ "n18brush",
+ "n18catalogue",
+ "n18hex",
+ "n18map",
+ "n18route",
+ "n18token",
+ "pango",
+ "pangocairo",
+]
+
+[[package]]
 name = "n18game"
 version = "0.1.0"
 dependencies = [
@@ -622,6 +637,7 @@ version = "0.1.0"
 dependencies = [
  "n18brush",
  "n18catalogue",
+ "n18example",
  "n18game",
  "n18hex",
  "n18io",

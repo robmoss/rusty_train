@@ -1,8 +1,5 @@
 use navig18xx::prelude::*;
 
-mod util;
-use util::{tile_at, Example};
-
 #[test]
 fn run_test() -> Result<(), Box<dyn std::error::Error>> {
     let dev_guide_dir = std::path::Path::new("./book/src/dev_guide");

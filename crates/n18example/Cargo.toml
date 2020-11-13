@@ -1,5 +1,5 @@
 [package]
-name = "navig18xx"
+name = "n18example"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
@@ -9,13 +9,14 @@ edition = "2018"
 
 [dependencies]
 n18hex = { path = "../n18hex" }
-n18tile = { path = "../n18tile" }
 n18token = { path = "../n18token" }
 n18catalogue = { path = "../n18catalogue" }
 n18map = { path = "../n18map" }
-n18io = { path = "../n18io" }
 n18route = { path = "../n18route" }
-n18game = { path = "../n18game" }
 n18brush = { path = "../n18brush" }
-n18ui = { path = "../n18ui" }
-n18example = { path = "../n18example" }
+
+# Include support for saving surfaces as PNG images.
+cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
+# Use the minimum supported version of Pango (1.38).
+pango = { version = "0.9", features = ["v1_38"] }
+pangocairo = "0.10"

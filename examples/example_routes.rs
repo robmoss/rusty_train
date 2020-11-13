@@ -2,9 +2,6 @@ use navig18xx::prelude::*;
 use navig18xx::route::builder::{PathBuilder, Result};
 use std::io::Write;
 
-mod util;
-use util::{tile_at, Example};
-
 #[test]
 fn run_test() -> Result<()> {
     main()

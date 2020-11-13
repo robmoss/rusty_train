@@ -137,3 +137,9 @@ pub use n18game::Game;
 
 #[doc(inline)]
 pub use n18ui::UI;
+
+#[doc(inline)]
+pub use n18example::Example;
+
+#[doc(inline)]
+pub use n18example::tile_at;
