@@ -523,6 +523,7 @@ dependencies = [
  "cairo-rs",
  "n18brush",
  "n18catalogue",
+ "n18game",
  "n18hex",
  "n18map",
  "n18route",

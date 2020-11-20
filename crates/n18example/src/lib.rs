@@ -2,6 +2,7 @@
 
 use cairo::{Content, Context, Format, RecordingSurface};
 use n18brush as brush;
+use n18game::Game;
 use n18hex::Hex;
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::Path;
@@ -16,6 +17,20 @@ pub struct Example {
 }
 
 impl Example {
+    pub fn new_game(game: &dyn Game, max_d: f64) -> Self {
+        let hex = Hex::new(max_d);
+        let map = game.create_map(&hex);
+        let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
+            .expect("Can't create recording surface");
+        let rec_ctx = Context::new(&rec_surf);
+        Example {
+            hex,
+            map,
+            rec_surf,
+            rec_ctx,
+        }
+    }
+
     pub fn new<T: ToString>(
         max_d: f64,
         tokens: Vec<(T, Token)>,

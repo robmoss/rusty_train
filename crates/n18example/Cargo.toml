@@ -13,6 +13,7 @@ n18token = { path = "../n18token" }
 n18catalogue = { path = "../n18catalogue" }
 n18map = { path = "../n18map" }
 n18route = { path = "../n18route" }
+n18game = { path = "../n18game" }
 n18brush = { path = "../n18brush" }
 
 # Include support for saving surfaces as PNG images.
