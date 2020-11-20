@@ -8,6 +8,10 @@ edition = "2018"
 # See this tracking issue for specifying the minimum Rust version:
 # https://github.com/rust-lang/rust/issues/65262
 # rust = "1.38"
+# Require Rust 1.48 for linking to items by name with rustdoc:
+# https://doc.rust-lang.org/stable/rustdoc/linking-to-items-by-name.html
+# Rust 1.48 also speeds up compile times, likely due to an async compilation
+# regression being fixed (https://github.com/rust-lang/rust/pull/78410).
 default-run = "rusty_train"
 
 [workspace]

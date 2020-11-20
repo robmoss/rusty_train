@@ -3,7 +3,7 @@
 //! This module solves the problem of finding the set of routes that can be
 //! run by a company to yield the highest possible revenue.
 //!
-//! See the [route-finding documentation](doc/index.html) for details.
+//! See the [route-finding documentation](crate::doc) for details.
 
 pub mod conflict;
 

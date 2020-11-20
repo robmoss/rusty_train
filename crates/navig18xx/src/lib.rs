@@ -22,12 +22,12 @@
 //! Note: there **is** support for finding a single route that yields the
 //! highest possible revenue (ignoring bonuses for, e.g., visiting specific
 //! locations), and for finding the optimal pairing of trains to routes.
-//! See the [route-finding documentation](../n18route/doc/index.html) for
+//! See the [route-finding documentation](route::doc) for
 //! details.
 //!
 //! ## Defining tiles
 //!
-//! Use the [`n18tile::Tile`](../n18tile/tile/struct.Tile.html) data
+//! Use the [`Tile`](tile::Tile) data
 //! structure.
 //! This uses the [Cairo bindings](https://gtk-rs.org/docs/cairo/) provided by
 //! the [Gtk-rs](https://gtk-rs.org/) project.

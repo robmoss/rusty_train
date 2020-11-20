@@ -45,14 +45,14 @@ distinction must be made:
    + Multiple routes that traverse this path but stop at different locations.
 
 This is implemented by
-[``paths_for_token``](../search/fn.paths_for_token.html).
+[`paths_for_token`](crate::search::paths_for_token).
 
 # How route combinations are evaluated
 
 **NOTE:** support for route bonuses is not yet implemented.
 Optimal pairings of trains to routes **without** considering route bonuses is
 implemented by
-[``Trains::select_routes``](../train/struct.Trains.html#method.select_routes).
+[`Trains::select_routes`](crate::train::Trains::select_routes).
 
 Once we have collected all of the possible paths for a company, we need to
 find the allocation of trains to routes that yields the greatest revenue.
@@ -117,7 +117,7 @@ There are a number of complications to consider:
 
       In this case, we'd need to decide how much of the logic should be
       implemented by each train type, and how much by the generic
-      route-finding module ([``route::search``](../search/index.html)).
+      route-finding module ([`search`](crate::search)).
 
       At this stage, I *think* it would be preferable for ``route::search`` to
       construct Paths, and have each Train implement a method along the lines
