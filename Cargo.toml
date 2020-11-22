@@ -15,7 +15,11 @@ edition = "2018"
 default-run = "rusty_train"
 
 [workspace]
-members = ["crates/*"]
+members = ["crates/*", "."]
+# The next line makes package-related cargo commands (build, doc, test, etc.)
+# operate on all crates in the workspace, including rusty-train itself, so
+# that there is no need to pass the "--workspace" argument each time.
+default-members = ["crates/*", "."]
 
 [dependencies]
 n18game = { path = "./crates/n18game" }
