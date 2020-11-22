@@ -29,7 +29,7 @@ distinction must be made:
 4. We avoid duplicating paths that pass through multiple tokens by defining
    an ordering on token spaces (i.e., we derive
    [``Ord``](https://doc.rust-lang.org/std/cmp/trait.Ord.html) for
-   [``HexAddress``](../../rusty_map/map/struct.HexAddress.html) and this gives
+   [``HexAddress``](n18map::map::HexAddress) and this gives
    us an ordering for ``(HexAddress, usize)`` tuples).
    We only construct paths that connect token spaces in increasing order.
 
