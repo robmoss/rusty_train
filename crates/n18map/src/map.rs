@@ -483,6 +483,17 @@ impl Map {
         HexIter::new(hex, ctx, self)
     }
 
+    pub fn hex_subset_iter<'a, P: FnMut(&HexAddress) -> bool>(
+        &'a self,
+        hex: &'a Hex,
+        ctx: &'a Context,
+        mut include: P,
+    ) -> HexIter<'a> {
+        let incl: Vec<bool> =
+            self.hexes.iter().map(|addr| include(addr)).collect();
+        HexIter::new_subset(hex, ctx, self, incl)
+    }
+
     /// Iterates over all map hexes that do not contain a tile.
     ///
     /// At each iteration, the transformation matrix will be updated to
@@ -626,6 +637,7 @@ pub struct HexIter<'a> {
     angle: f64,
     ix: usize,
     m: cairo::Matrix,
+    include: Vec<bool>,
 }
 
 impl<'a> HexIter<'a> {
@@ -639,6 +651,16 @@ impl<'a> HexIter<'a> {
     }
 
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {
+        let include = vec![true; map.hexes.len()];
+        Self::new_subset(hex, ctx, map, include)
+    }
+
+    fn new_subset(
+        hex: &'a Hex,
+        ctx: &'a Context,
+        map: &'a Map,
+        include: Vec<bool>,
+    ) -> Self {
         let angle = if map.flat_top { 0.0 } else { PI / 6.0 };
         let x0 = if map.flat_top {
             0.5 * hex.max_d + 10.0
@@ -660,6 +682,7 @@ impl<'a> HexIter<'a> {
             angle,
             ix: 0,
             m: ctx.get_matrix(),
+            include,
         }
     }
 
@@ -681,6 +704,10 @@ impl<'a> Iterator for HexIter<'a> {
     type Item = HexState<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // Find the next address that should be returned.
+        while self.ix < self.map.hexes.len() && !self.include[self.ix] {
+            self.ix += 1;
+        }
         if self.ix >= self.map.hexes.len() {
             // NOTE: restore the original matrix.
             self.ctx.set_matrix(self.m);

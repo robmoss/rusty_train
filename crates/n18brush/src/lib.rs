@@ -88,6 +88,35 @@ pub fn draw_map(hex: &Hex, ctx: &Context, hex_iter: &mut HexIter<'_>) {
     outline_empty_hexes(hex, ctx, hex_iter);
 }
 
+pub fn draw_barriers_subset(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    mut hex_iter: &mut HexIter<'_>,
+) {
+    let cap = ctx.get_line_cap();
+    ctx.set_line_cap(cairo::LineCap::Round);
+    let barriers = map.barriers();
+    hex_iter.restart();
+    for hex_state in &mut hex_iter {
+        let hex_addr = hex_state.addr;
+        for (addr, face) in barriers {
+            if hex_addr != *addr {
+                continue;
+            }
+            let corners = face.corners();
+            let c0 = hex.corner_coord(&corners.0);
+            let c1 = hex.corner_coord(&corners.1);
+            ctx.set_line_width(hex.max_d * 0.05);
+            ctx.set_source_rgb(0.1, 0.1, 0.6);
+            ctx.move_to(c0.x, c0.y);
+            ctx.line_to(c1.x, c1.y);
+            ctx.stroke();
+        }
+    }
+    ctx.set_line_cap(cap);
+}
+
 pub fn draw_barriers(hex: &Hex, ctx: &Context, map: &Map) {
     let cap = ctx.get_line_cap();
     ctx.set_line_cap(cairo::LineCap::Round);
