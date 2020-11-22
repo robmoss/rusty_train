@@ -975,6 +975,19 @@ impl HexAddress {
     pub fn new(row: usize, col: usize) -> Self {
         Self { row, col }
     }
+
+    pub fn column(&self) -> char {
+        let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
+        alphabet[self.col]
+    }
+
+    pub fn row(&self) -> usize {
+        if self.col % 2 == 0 {
+            2 * self.row + 1
+        } else {
+            2 * self.row + 2
+        }
+    }
 }
 
 impl std::fmt::Display for HexAddress {
