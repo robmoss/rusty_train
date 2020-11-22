@@ -24,7 +24,7 @@ distinction must be made:
    token, we join pairs of paths  that start at the token to form a new path,
    ensuring that the two paths do not have any conflicts (i.e., they don't
    have any elements in common except for the token's location) and that the
-   resulting path respects any constrains on length, number of cities, etc.
+   resulting path respects any constraints on length, number of cities, etc.
 
 4. We avoid duplicating paths that pass through multiple tokens by defining
    an ordering on token spaces (i.e., we derive
