@@ -288,16 +288,59 @@ fn dfs_over(
                     // NOTE: record this face and the adjacent face, so that
                     // routes that don't share any track segments but do
                     // share a hex face will be detected!!!
+                    // TODO: we need to add the faces as conflicts and route_conflicts, and then remove them once done ...
                     let adj = map.adjacent_face(addr, *face);
                     if let Some((new_addr, new_face, new_tile)) = adj {
                         let first_face = Step {
-                            addr: addr,
+                            addr,
                             conn: *next_conn,
                         };
                         let second_face = Step {
                             addr: new_addr,
                             conn: Connection::Face { face: new_face },
                         };
+
+                        // Record the traversed hex faces if a single route
+                        // cannot reuse them.
+                        let conflict_1 = query
+                            .criteria
+                            .conflict_rule
+                            .maybe_conflict(&addr, &first_face.conn);
+                        if let Some(conflict) = conflict_1 {
+                            if ctx.conflicts.contains(&conflict) {
+                                // Stop searching here.
+                                return;
+                            }
+                            ctx.conflicts.insert(conflict);
+                        }
+                        let conflict_2 = query
+                            .criteria
+                            .conflict_rule
+                            .maybe_conflict(&new_addr, &second_face.conn);
+                        if let Some(conflict) = conflict_2 {
+                            if ctx.conflicts.contains(&conflict) {
+                                return;
+                            }
+                            ctx.conflicts.insert(conflict);
+                        }
+
+                        // Record the traversed hex faces if multiple routes
+                        // cannot share them.
+                        let route_conflict_1 = query
+                            .criteria
+                            .route_conflict_rule
+                            .maybe_conflict(&addr, &first_face.conn);
+                        if let Some(conflict) = route_conflict_1 {
+                            ctx.route_conflicts.insert(conflict);
+                        }
+                        let route_conflict_2 = query
+                            .criteria
+                            .route_conflict_rule
+                            .maybe_conflict(&new_addr, &second_face.conn);
+                        if let Some(conflict) = route_conflict_2 {
+                            ctx.route_conflicts.insert(conflict);
+                        }
+
                         ctx.path.push(first_face);
                         ctx.path.push(second_face);
                         ctx.num_hexes += 1;
@@ -317,6 +360,20 @@ fn dfs_over(
                         ctx.num_hexes -= 1;
                         ctx.path.pop();
                         ctx.path.pop();
+
+                        // Remove traversed hex face conflicts, if any.
+                        if let Some(conflict) = conflict_1 {
+                            ctx.conflicts.remove(&conflict);
+                        }
+                        if let Some(conflict) = conflict_2 {
+                            ctx.conflicts.remove(&conflict);
+                        }
+                        if let Some(conflict) = route_conflict_1 {
+                            ctx.route_conflicts.remove(&conflict);
+                        }
+                        if let Some(conflict) = route_conflict_2 {
+                            ctx.route_conflicts.remove(&conflict);
+                        }
                     }
                 }
                 _ => {
@@ -389,10 +446,7 @@ fn depth_first_search(
     }
 
     // Record this step and any conflict that it adds.
-    let step = Step {
-        addr: addr,
-        conn: conn,
-    };
+    let step = Step { addr, conn };
     ctx.path.push(step);
 
     // If this is a track connection, switch to the other end.
