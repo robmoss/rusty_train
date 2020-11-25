@@ -13,6 +13,7 @@ n18tile = { path = "../n18tile" }
 n18token = { path = "../n18token" }
 n18map = { path = "../n18map" }
 log = "0.4"
+rayon = "1.5"
 
 [dev-dependencies]
 n18catalogue = { path = "../n18catalogue" }

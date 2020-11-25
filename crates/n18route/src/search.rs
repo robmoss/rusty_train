@@ -165,25 +165,26 @@ pub fn paths_for_token(map: &Map, criteria: &Criteria) -> Vec<Path> {
         .iter()
         .map(|(addr, token_space)| (**addr, **token_space))
         .collect();
-    let mut all_paths: Vec<Path> = vec![];
-    for (addr, token_space) in &locations {
-        let query = Query {
-            addr: *addr,
-            from: Connection::City {
-                ix: token_space.city_ix(),
-            },
-            criteria: *criteria,
-        };
-        let mut paths = paths_through(map, &query);
-        info!(
-            "Found {} paths that pass through {} ({:?})",
-            paths.len(),
-            addr,
-            criteria.token
-        );
-        all_paths.append(&mut paths);
-    }
-    all_paths
+    // Allow the search from each token to proceed in parallel.
+    use rayon::prelude::*;
+    info!("Searching for paths from {} locations", locations.len());
+    let paths = locations
+        .par_iter()
+        .flat_map(|(addr, token_space)| {
+            let query = Query {
+                addr: *addr,
+                from: Connection::City {
+                    ix: token_space.city_ix(),
+                },
+                criteria: *criteria,
+            };
+            let paths = paths_through(map, &query);
+            info!("Found {} paths that pass through {}", paths.len(), addr);
+            paths
+        })
+        .collect::<Vec<Path>>();
+    info!("Found {} paths in total", paths.len());
+    paths
 }
 
 /// Returns all valid paths that match the provided criteria, passing through
