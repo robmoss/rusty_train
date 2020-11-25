@@ -699,6 +699,7 @@ impl Trains {
 
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
+        info!("Building path/train revenue table");
         let rev: HashMap<usize, HashMap<Train, (usize, Vec<TrainStop>)>> = (0
             ..num_paths)
             .map(|path_ix| {
@@ -720,55 +721,13 @@ impl Trains {
             })
             .collect();
 
-        // Record all pairs of paths that conflict, and which therefore cannot
-        // be operated at the same time.
-        // NOTE: paths are referred to by index into `path_tbl`. We record
-        // conflicts for paths with indices `a` and `b` where `a` < `b`.
-        let now = std::time::Instant::now();
-        let path_tbl_ref = &path_tbl;
-        let conflict_tbl: HashSet<(usize, usize)> = (0..num_paths)
-            .flat_map(|a| {
-                ((a + 1)..num_paths)
-                    .filter(move |b| {
-                        !path_tbl_ref[a]
-                            .route_conflicts
-                            .is_disjoint(&path_tbl_ref[*b].route_conflicts)
-                    })
-                    .map(move |b| (a, b))
-            })
-            .collect();
-        if num_paths > 0 {
-            info!(
-                "There are {} conflicting pairs out of {} paths ({} pairs)",
-                conflict_tbl.len(),
-                num_paths,
-                num_paths * (num_paths - 1) / 2,
-            );
-            info!("This took {}", now.elapsed().as_secs_f64());
-        }
-
-        // Identify all non-conflicting path combinations, from a single path
-        // to one path for each train.
-        let now = std::time::Instant::now();
-        let filter =
+        info!("Searching for best path combination");
+        let best_pairing: Option<(usize, Vec<_>)> =
             CombinationsFilter::new(num_paths, num_trains, |a, b| {
-                conflict_tbl.contains(&(a, b))
-            });
-        let combs: Vec<Vec<usize>> = filter.collect();
-        info!(
-            "Found {} {}-combinations in {}",
-            combs.len(),
-            num_trains,
-            now.elapsed().as_secs_f64()
-        );
-
-        // Filter out path combinations that cannot be operated and find the
-        // train-path pairing that yields the greatest revenue.
-        let best_pairing: Option<(
-            usize,
-            Vec<(Train, usize, usize, Vec<TrainStop>)>,
-        )> = combs
-            .into_iter()
+                !path_tbl[a]
+                    .route_conflicts
+                    .is_disjoint(&path_tbl[b].route_conflicts)
+            })
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
             .max_by_key(|&(revenue, _)| revenue);
 
@@ -806,9 +765,9 @@ impl Trains {
                             stop_opt.map(|stop| stop.revenue).unwrap_or(0);
                     }
                     Pair {
-                        train: train,
-                        path: path,
-                        revenue: revenue,
+                        train,
+                        path,
+                        revenue,
                     }
                 })
                 .collect();
