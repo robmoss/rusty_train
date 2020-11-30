@@ -5,7 +5,7 @@ use n18brush as brush;
 use n18game::Game;
 use n18hex::Hex;
 use n18map::{HexAddress, Map, RotateCW};
-use n18route::Path;
+use n18route::{Path, Route};
 use n18token::{Token, Tokens};
 use std::ops::Deref;
 
@@ -99,7 +99,15 @@ impl Example {
         let ctx = &self.rec_ctx;
         let (red, green, blue, alpha) = rgba;
         self.rec_ctx.set_source_rgba(red, green, blue, alpha);
-        brush::highlight_route(hex, ctx, &self.map, path);
+        brush::highlight_path(hex, ctx, &self.map, path);
+    }
+
+    pub fn draw_route(&self, route: &Route, rgba: (f64, f64, f64, f64)) {
+        let hex = &self.hex;
+        let ctx = &self.rec_ctx;
+        let (red, green, blue, alpha) = rgba;
+        self.rec_ctx.set_source_rgba(red, green, blue, alpha);
+        brush::highlight_route(hex, ctx, &self.map, route);
     }
 
     pub fn new_label<'a, T: ToString>(&'a self, text: T) -> LabelBuilder<'a> {

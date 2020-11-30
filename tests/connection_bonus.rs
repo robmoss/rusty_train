@@ -115,10 +115,10 @@ fn test_connection_bonus_between_two_dits() {
     let best_opt = company_trains.select_routes(paths.clone(), no_bonus);
     assert!(best_opt.is_some());
     let best = best_opt.unwrap();
-    assert!(best.pairs.len() == 1);
-    let best_path = &best.pairs[0].path;
+    assert!(best.train_routes.len() == 1);
+    let best_route = &best.train_routes[0].route;
     // NOTE: it picks L10 and M13 --- the two dits closest to Montreal.
-    for visit in &best_path.visits {
+    for visit in &best_route.visits {
         if visit.addr == "L10".parse().unwrap() {
             // Verify that this route stops at L10.
             assert!(visit.revenue > 0)
@@ -141,7 +141,7 @@ fn test_connection_bonus_between_two_dits() {
     brush::draw_tiles(&hex, &ctx, &mut hex_iter);
     brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
     brush::draw_barriers(&hex, &ctx, &map);
-    brush::highlight_routes(&hex, &ctx, &map, &best.pairs, |ix| {
+    brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
             1 => (0.1, 0.7, 0.1, 1.0),
@@ -166,8 +166,8 @@ fn test_connection_bonus_between_two_dits() {
     let new_best = new_best_conn_opt.unwrap();
     assert!(new_best.net_revenue > best.net_revenue);
     assert!(new_best.net_revenue == 100 + best.net_revenue);
-    assert!(new_best.pairs.len() == 1);
-    let new_best_path = &new_best.pairs[0].path;
+    assert!(new_best.train_routes.len() == 1);
+    let new_best_path = &new_best.train_routes[0].route;
     for visit in &new_best_path.visits {
         if visit.addr == "L10".parse().unwrap() {
             // Verify that this route skips L10.
@@ -191,7 +191,7 @@ fn test_connection_bonus_between_two_dits() {
     brush::draw_tiles(&hex, &ctx, &mut hex_iter);
     brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
     brush::draw_barriers(&hex, &ctx, &map);
-    brush::highlight_routes(&hex, &ctx, &map, &new_best.pairs, |ix| {
+    brush::highlight_routes(&hex, &ctx, &map, &new_best.routes(), |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
             1 => (0.1, 0.7, 0.1, 1.0),

@@ -2,7 +2,7 @@ use cairo::Context;
 
 use n18hex::Hex;
 use n18map::{HexAddress, HexIter, Map};
-use n18route::{Pair, Path, StopLocation};
+use n18route::{Path, Route, Step, StopLocation, Visit};
 use n18tile::connection::Connection;
 use n18tile::draw::Draw;
 use n18tile::track::DitShape;
@@ -163,29 +163,45 @@ pub fn highlight_active_hex(
     hex_iter.restart();
 }
 
-pub fn highlight_routes<C>(
+// TODO: provide a default colour cycle?
+pub fn highlight_routes<C, R>(
     hex: &Hex,
     ctx: &Context,
     map: &Map,
-    pairs: &[Pair],
+    routes: &[R],
+    colour_fn: C,
+) where
+    C: Fn(usize) -> (f64, f64, f64, f64),
+    R: AsRef<Route>,
+{
+    for (ix, route) in routes.iter().enumerate() {
+        let (red, green, blue, alpha) = colour_fn(ix);
+        ctx.set_source_rgba(red, green, blue, alpha);
+        highlight_route(&hex, &ctx, &map, route.as_ref())
+    }
+}
+
+pub fn highlight_paths<C>(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    paths: &[Path],
     colour_fn: C,
 ) where
     C: Fn(usize) -> (f64, f64, f64, f64),
 {
-    for (ix, pair) in pairs.iter().enumerate() {
+    for (ix, path) in paths.iter().enumerate() {
         let (red, green, blue, alpha) = colour_fn(ix);
         ctx.set_source_rgba(red, green, blue, alpha);
-        highlight_route(&hex, &ctx, &map, &pair.path)
+        highlight_path(&hex, &ctx, &map, &path)
     }
 }
 
-pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
+fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
     ctx.set_line_width(hex.max_d * 0.025);
-    let source = ctx.get_source();
-    let line_width = ctx.get_line_width();
 
     // Draw track segments first.
-    for step in &path.steps {
+    for step in steps {
         let m = map.prepare_to_draw(step.addr, &hex, &ctx);
         let tile = map.tile_at(step.addr).expect("Invalid step hex");
 
@@ -198,16 +214,16 @@ pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
         }
         ctx.set_matrix(m);
     }
+}
 
-    // Then draw visited cities and dits.
-    for visit in &path.visits {
+fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
+    ctx.set_line_width(hex.max_d * 0.025);
+    let source = ctx.get_source();
+    let line_width = ctx.get_line_width();
+
+    for visit in visits {
         let m = map.prepare_to_draw(visit.addr, &hex, &ctx);
         let tile = map.tile_at(visit.addr).expect("Invalid step hex");
-        if visit.revenue > 0 {
-            println!("Stopping at {} for ${}", visit.addr, visit.revenue)
-        } else {
-            println!("Skipping {}", visit.addr)
-        }
         match visit.visits {
             StopLocation::City { ix } => {
                 let city = tile.cities()[ix];
@@ -266,4 +282,18 @@ pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
         }
         ctx.set_matrix(m);
     }
+}
+
+pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, route: &Route) {
+    // Draw track segments first.
+    highlight_steps(hex, ctx, map, &route.steps);
+    // Then draw visited cities and dits.
+    highlight_visits(hex, ctx, map, &route.visits);
+}
+
+pub fn highlight_path(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
+    // Draw track segments first.
+    highlight_steps(hex, ctx, map, &path.steps);
+    // Then draw visited cities and dits.
+    highlight_visits(hex, ctx, map, &path.visits);
 }

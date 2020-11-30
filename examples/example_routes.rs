@@ -81,10 +81,10 @@ fn main() -> Result<()> {
     // TODO: need a more flexible way to define train types.
     let trains = Trains::new(vec![Train::new_8_train()]);
     let best_routes = trains.select_routes(paths, vec![]);
-    let best_path = &best_routes.unwrap().pairs[0].path;
+    let best_route = &best_routes.unwrap().train_routes[0].route;
 
     example.draw_map();
-    example.draw_path(&best_path, (0.1, 0.7, 0.1, 1.0));
+    example.draw_route(&best_route, (0.1, 0.7, 0.1, 1.0));
     example.draw_path(&path1, (0.7, 0.1, 0.1, 1.0));
     example.draw_path(&path2, (0.1, 0.1, 0.7, 1.0));
 

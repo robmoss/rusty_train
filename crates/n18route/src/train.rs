@@ -68,7 +68,7 @@ use super::bonus::Bonus;
 use super::comb::CombinationsFilter;
 use super::perm::KPermutationsFilter;
 use super::search::PathLimit;
-use super::Path;
+use super::{Path, Step, Visit};
 use log::info;
 use n18map::HexAddress;
 use std::collections::{HashMap, HashSet};
@@ -563,24 +563,68 @@ fn best_stop_ixs(
 }
 
 /// Pairings of trains to routes.
-pub struct Pairing {
-    /// The total revenue earned from this pairing.
+pub struct Routes {
+    /// The total revenue earned from these routes.
     pub net_revenue: usize,
     /// The routes that were operated and earned revenue.
-    pub pairs: Vec<Pair>,
+    pub train_routes: Vec<TrainRoute>,
+}
+
+impl Routes {
+    pub fn routes(&self) -> Vec<&Route> {
+        self.train_routes.iter().map(|tr| &tr.route).collect()
+    }
 }
 
 /// A train that operates a path to earn revenue.
 ///
 /// Note that the train may not earn revenue from every location along the
 /// path.
-pub struct Pair {
+pub struct TrainRoute {
     /// The train.
     pub train: Train,
-    /// The path.
-    pub path: Path,
-    /// The revenue earned by having the train run the path.
+    /// The revenue earned by having the train operate the route.
     pub revenue: usize,
+    /// The route operated by the train.
+    pub route: Route,
+}
+
+impl AsRef<Route> for TrainRoute {
+    fn as_ref(&self) -> &Route {
+        &self.route
+    }
+}
+
+/// A route operated by a train.
+pub struct Route {
+    /// The steps that form the entire route.
+    pub steps: Vec<Step>,
+    /// The visits along the route where revenue is earned.
+    pub visits: Vec<Visit>,
+}
+
+impl AsRef<Route> for Route {
+    fn as_ref(&self) -> &Route {
+        self
+    }
+}
+
+impl From<Path> for Route {
+    fn from(path: Path) -> Route {
+        Route {
+            steps: path.steps,
+            visits: path.visits,
+        }
+    }
+}
+
+impl From<&Path> for Route {
+    fn from(path: &Path) -> Route {
+        Route {
+            steps: path.steps.clone(),
+            visits: path.visits.clone(),
+        }
+    }
 }
 
 /// The trains owned by a single company, which may operate routes.
@@ -670,7 +714,7 @@ impl Trains {
         &self,
         path_tbl: Vec<Path>,
         bonuses: Vec<Bonus>,
-    ) -> Option<Pairing> {
+    ) -> Option<Routes> {
         let num_paths = path_tbl.len();
         let num_trains = self.train_count();
 
@@ -750,7 +794,7 @@ impl Trains {
                 .collect();
 
             // Replace the path indices with the actual paths.
-            let pairs = pairings
+            let train_routes = pairings
                 .into_iter()
                 .map(|(train, path_ix, revenue, stops)| {
                     let mut path = path_map.remove(&path_ix).unwrap();
@@ -764,15 +808,19 @@ impl Trains {
                         path.visits[ix].revenue =
                             stop_opt.map(|stop| stop.revenue).unwrap_or(0);
                     }
-                    Pair {
+                    let route: Route = path.into();
+                    TrainRoute {
                         train,
-                        path,
                         revenue,
+                        route,
                     }
                 })
                 .collect();
 
-            Pairing { net_revenue, pairs }
+            Routes {
+                net_revenue,
+                train_routes,
+            }
         });
 
         info!("Found a best pairing? {}", best_pairing.is_some());

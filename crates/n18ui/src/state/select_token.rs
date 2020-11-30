@@ -12,7 +12,7 @@ use n18brush;
 use n18hex::HexColour;
 use n18map::{HexAddress, Map};
 use n18route::{
-    paths_for_token, ConflictRule, Criteria, Pairing, PathLimit, Trains,
+    paths_for_token, ConflictRule, Criteria, PathLimit, Routes, Trains,
 };
 use n18tile::TokenSpace;
 use n18token::Token;
@@ -25,7 +25,7 @@ pub struct SelectToken {
     matches: HashMap<HexAddress, Vec<TokenSpace>>,
     token_trains: HashMap<Token, (Trains, Vec<bool>)>,
     path_limit: Option<PathLimit>,
-    best_routes: Option<(Token, Pairing)>,
+    best_routes: Option<(Token, Routes)>,
     original_window_title: Option<String>,
 }
 
@@ -154,7 +154,7 @@ impl SelectToken {
         &mut self,
         content: &Content,
         token: &Token,
-    ) -> Option<(Token, Pairing)> {
+    ) -> Option<(Token, Routes)> {
         let (trains, bonus_options) = match self.token_trains.get(token) {
             Some(value) => value,
             None => return None,
@@ -194,18 +194,21 @@ impl SelectToken {
             "Calculated (train, path) revenues in {}",
             now.elapsed().as_secs_f64()
         );
-        if let Some(pairing) = &best_routes {
+        if let Some(routes) = &best_routes {
             info!(
                 "BEST NET REVENUE FOR {:?} IS ${}",
-                token, pairing.net_revenue
+                token, routes.net_revenue
             );
-            for pair in &pairing.pairs {
+            for train_route in &routes.train_routes {
                 info!(
                     "{}: ${} for {} to {}",
-                    content.game.train_name(&pair.train).unwrap_or("???"),
-                    pair.revenue,
-                    pair.path.visits.first().unwrap().addr,
-                    pair.path.visits.last().unwrap().addr
+                    content
+                        .game
+                        .train_name(&train_route.train)
+                        .unwrap_or("???"),
+                    train_route.revenue,
+                    train_route.route.visits.first().unwrap().addr,
+                    train_route.route.visits.last().unwrap().addr
                 );
             }
         }
@@ -252,12 +255,12 @@ impl State for SelectToken {
         }
 
         // Draw each route.
-        if let Some((_token, pairing)) = &self.best_routes {
+        if let Some((_token, routes)) = &self.best_routes {
             n18brush::highlight_routes(
                 &hex,
                 &ctx,
                 &map,
-                &pairing.pairs,
+                &routes.routes(),
                 |ix| match ix % 3 {
                     0 => (0.7, 0.1, 0.1, 1.0),
                     1 => (0.1, 0.7, 0.1, 1.0),

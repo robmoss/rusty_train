@@ -130,7 +130,13 @@ pub use n18route::train::Train;
 pub use n18route::train::Trains;
 
 #[doc(inline)]
-pub use n18route::train::Pairing;
+pub use n18route::train::Routes;
+
+#[doc(inline)]
+pub use n18route::train::TrainRoute;
+
+#[doc(inline)]
+pub use n18route::train::Route;
 
 #[doc(inline)]
 pub use n18game::Game;

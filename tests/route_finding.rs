@@ -79,7 +79,7 @@ fn test_dual_routes_from_montreal() {
     let best_opt = company_trains.select_routes(paths.clone(), no_bonus);
     assert!(best_opt.is_some());
     let best = best_opt.unwrap();
-    assert!(best.pairs.len() == 2);
+    assert!(best.train_routes.len() == 2);
     assert!(best.net_revenue == 230);
 
     // Draw each of the best routes, and save this to a PNG file.
@@ -89,7 +89,7 @@ fn test_dual_routes_from_montreal() {
     brush::draw_tiles(&hex, &ctx, &mut hex_iter);
     brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
     brush::draw_barriers(&hex, &ctx, &map);
-    brush::highlight_routes(&hex, &ctx, &map, &best.pairs, |ix| {
+    brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
             1 => (0.1, 0.7, 0.1, 1.0),

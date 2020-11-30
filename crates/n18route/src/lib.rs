@@ -33,7 +33,7 @@ pub use path::{Path, Step, Stop, StopLocation, Visit};
 pub use search::{paths_for_token, Criteria, PathLimit, Query};
 
 #[doc(inline)]
-pub use train::{Pair, Pairing, Train, TrainType, Trains};
+pub use train::{Route, Routes, Train, TrainRoute, TrainType, Trains};
 
 #[doc(inline)]
 pub use bonus::Bonus;

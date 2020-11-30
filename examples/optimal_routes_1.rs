@@ -68,11 +68,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // Draw each of the routes operated by the company.
         example.draw_map();
-        for pair in &best_routes.pairs {
-            if pair.train == t8 {
-                example.draw_path(&pair.path, t8_rgba);
+        for tr in &best_routes.train_routes {
+            if tr.train == t8 {
+                example.draw_route(&tr.route, t8_rgba);
             } else {
-                example.draw_path(&pair.path, t2p2_rgba);
+                example.draw_route(&tr.route, t2p2_rgba);
             }
         }
 
