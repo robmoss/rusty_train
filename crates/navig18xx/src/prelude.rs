@@ -115,28 +115,28 @@ pub use n18map::TokensTable;
 pub use n18route::Path;
 
 #[doc(inline)]
-pub use n18route::conflict::ConflictRule;
+pub use n18route::Route;
 
 #[doc(inline)]
-pub use n18route::search::Criteria;
+pub use n18route::Routes;
 
 #[doc(inline)]
-pub use n18route::search::paths_for_token;
+pub use n18route::ConflictRule;
 
 #[doc(inline)]
-pub use n18route::train::Train;
+pub use n18route::Criteria;
 
 #[doc(inline)]
-pub use n18route::train::Trains;
+pub use n18route::paths_for_token;
 
 #[doc(inline)]
-pub use n18route::train::Routes;
+pub use n18route::Train;
 
 #[doc(inline)]
-pub use n18route::train::TrainRoute;
+pub use n18route::Trains;
 
 #[doc(inline)]
-pub use n18route::train::Route;
+pub use n18route::TrainRoute;
 
 #[doc(inline)]
 pub use n18game::Game;

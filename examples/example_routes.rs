@@ -1,5 +1,5 @@
 use navig18xx::prelude::*;
-use navig18xx::route::builder::{PathBuilder, Result};
+use navig18xx::route::builder::{Result, RouteBuilder};
 use std::io::Write;
 
 #[test]
@@ -53,7 +53,7 @@ fn main() -> Result<()> {
     let example = Example::new(hex_max_diameter, tokens, tiles);
 
     let map = example.get_map();
-    let path1 = PathBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
+    let route1 = RouteBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
         .to_city(0, true)?
         .to_edge(HexFace::Bottom)?
         .to_edge(HexFace::Bottom)?
@@ -63,11 +63,11 @@ fn main() -> Result<()> {
         .to_edge(HexFace::LowerRight)?
         .to_city(0, false)?
         .to_edge(HexFace::Bottom)?
-        .into_path();
-    let path2 = PathBuilder::from_edge(&map, "A3", HexFace::Top)?
+        .into_route();
+    let route2 = RouteBuilder::from_edge(&map, "A3", HexFace::Top)?
         .to_edge(HexFace::Bottom)?
         .to_city(0, true)?
-        .into_path();
+        .into_route();
 
     // Find the best route for an 8-train.
     let token = map.tokens().first_token();
@@ -85,8 +85,8 @@ fn main() -> Result<()> {
 
     example.draw_map();
     example.draw_route(&best_route, (0.1, 0.7, 0.1, 1.0));
-    example.draw_path(&path1, (0.7, 0.1, 0.1, 1.0));
-    example.draw_path(&path2, (0.1, 0.1, 0.7, 1.0));
+    example.draw_route(&route1, (0.7, 0.1, 0.1, 1.0));
+    example.draw_route(&route2, (0.1, 0.1, 0.7, 1.0));
 
     // NOTE: use Pango to draw a large label above the map.
     let ctx = example.get_context();

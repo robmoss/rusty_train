@@ -9,7 +9,7 @@
 //! # use n18map::Map;
 //! # use n18token::Tokens;
 //! # use n18route::builder::Result;
-//! use n18route::builder::PathBuilder;
+//! use n18route::builder::RouteBuilder;
 //! use n18hex::HexFace;
 //! use n18brush::highlight_route;
 //!
@@ -22,7 +22,7 @@
 //! // let hex: n18hex::Hex = ...
 //! // let map: n18map::Map = ...
 //! // let ctx: cairo::Context = ...
-//! let path = PathBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
+//! let route = RouteBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
 //!     .to_city(0, true)?
 //!     .to_edge(HexFace::Bottom)?
 //!     .to_edge(HexFace::Bottom)?
@@ -32,17 +32,17 @@
 //!     .to_edge(HexFace::LowerRight)?
 //!     .to_city(0, false)?
 //!     .to_edge(HexFace::Bottom)?
-//!     .into_path();
+//!     .into_route();
 //!
 //! let (red, green, blue, alpha) = (0.7, 0.1, 0.1, 1.0);
 //! ctx.set_source_rgba(red, green, blue, alpha);
-//! highlight_route(&hex, &ctx, &map, &path);
+//! highlight_route(&hex, &ctx, &map, &route);
 //! # Ok(())
 //! # }
 //! ```
 //!
 
-use super::{Path, Step, StopLocation, Visit};
+use super::{Path, Route, Step, StopLocation, Visit};
 use n18hex::HexFace;
 use n18map::{HexAddress, Map};
 use n18tile::{Connection, Tile};
@@ -62,7 +62,7 @@ pub enum Error {
     NotConnected(HexAddress, Connection, Connection),
 }
 
-/// Shorthand result type for `PathBuilder` operations.
+/// Shorthand result type for `RouteBuilder` operations.
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Required in order to implement `std::error::Error`.
@@ -107,8 +107,8 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// Provides a builder interface to constructing paths.
-pub struct PathBuilder<'a> {
+/// Provides a builder interface for constructing routes.
+pub struct RouteBuilder<'a> {
     map: &'a Map,
     steps: Vec<Step>,
     visits: Vec<Visit>,
@@ -137,7 +137,7 @@ fn edge_to_tile_face(
     Ok(tile_face)
 }
 
-impl<'a> PathBuilder<'a> {
+impl<'a> RouteBuilder<'a> {
     fn new(map: &'a Map, start: Step) -> Self {
         // NOTE: allowing paths to start at a hex face could be useful for,
         // e.g., illustrating conflicting segments of multiple paths.
@@ -161,7 +161,7 @@ impl<'a> PathBuilder<'a> {
         } else {
             vec![]
         };
-        PathBuilder {
+        RouteBuilder {
             map,
             steps: vec![start],
             visits: initial_visit,
@@ -318,7 +318,7 @@ impl<'a> PathBuilder<'a> {
 
     /// Construct the described path.
     ///
-    /// The returned path can be drawn using `n18brush::highlight_route`.
+    /// The returned path can be drawn using `n18brush::highlight_path`.
     pub fn into_path(self) -> Path {
         Path {
             steps: self.steps,
@@ -330,6 +330,16 @@ impl<'a> PathBuilder<'a> {
             num_dits: self.num_dits,
             num_hexes: self.num_hexes,
             revenue: 0,
+        }
+    }
+
+    /// Construct the described route.
+    ///
+    /// The returned route can be drawn using `n18brush::highlight_route`.
+    pub fn into_route(self) -> Route {
+        Route {
+            steps: self.steps,
+            visits: self.visits,
         }
     }
 
