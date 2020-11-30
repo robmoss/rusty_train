@@ -44,17 +44,6 @@ impl StopLocation {
     }
 }
 
-/// A location at which a train may stop and, optionally, earn revenue.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Stop {
-    /// The tile on which this stop occurs.
-    pub addr: HexAddress,
-    /// The revenue earned for this stop, if visited.
-    pub revenue: Option<usize>,
-    /// The city or dit associated with this stop.
-    pub stop_at: StopLocation,
-}
-
 /// A location on a path that, if the train stops here, may earn revenue.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Visit {

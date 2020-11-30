@@ -27,7 +27,7 @@ pub mod doc;
 pub use conflict::{Conflict, ConflictRule};
 
 #[doc(inline)]
-pub use path::{Path, Step, Stop, StopLocation, Visit};
+pub use path::{Path, Step, StopLocation, Visit};
 
 #[doc(inline)]
 pub use search::{paths_for_token, Criteria, PathLimit, Query};
