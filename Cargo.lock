@@ -633,6 +633,7 @@ dependencies = [
  "n18catalogue",
  "n18hex",
  "n18map",
+ "n18route",
  "n18tile",
  "n18token",
  "serde",

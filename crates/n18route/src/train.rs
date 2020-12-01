@@ -77,9 +77,12 @@ use std::iter::FromIterator;
 /// The types of trains that can operate routes to earn revenue.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Train {
-    train_type: TrainType,
-    max_stops: Option<usize>,
-    revenue_multiplier: usize,
+    /// The constraints on the routes that the train can operate.
+    pub train_type: TrainType,
+    /// The maximum number of stops the train can make, if any.
+    pub max_stops: Option<usize>,
+    /// The multiplier that is applied to the base revenue for each stop.
+    pub revenue_multiplier: usize,
 }
 
 /// The types of trains that can operate routes to earn revenue.

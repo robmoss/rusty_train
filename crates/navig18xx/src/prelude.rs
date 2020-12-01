@@ -100,6 +100,12 @@ pub use n18io::read_tiles;
 pub use n18io::write_tiles;
 
 #[doc(inline)]
+pub use n18io::read_routes;
+
+#[doc(inline)]
+pub use n18io::write_routes;
+
+#[doc(inline)]
 pub use n18map::Map;
 
 #[doc(inline)]

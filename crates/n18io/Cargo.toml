@@ -13,5 +13,6 @@ n18tile = { path = "../n18tile" }
 n18token = { path = "../n18token" }
 n18map = { path = "../n18map" }
 n18catalogue = { path = "../n18catalogue" }
+n18route = { path = "../n18route" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

@@ -9,6 +9,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 
+mod routes;
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct Tiles {
     pub tiles: Vec<Tile>,
@@ -49,7 +51,7 @@ impl std::convert::From<n18hex::HexColour> for HexColour {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 enum HexFace {
     Top,
     UpperRight,
@@ -678,6 +680,32 @@ pub fn write_tiles<P: AsRef<Path>>(
         serde_json::to_writer_pretty(file, &tiles)?;
     } else {
         serde_json::to_writer(file, &tiles)?;
+    }
+    Ok(())
+}
+
+/// Reads train routes from disk.
+pub fn read_routes<P: AsRef<Path>>(
+    path: P,
+) -> Result<n18route::Routes, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let routes: routes::Routes = serde_json::from_reader(reader)?;
+    Ok(routes.into())
+}
+
+/// Writes train routes to disk.
+pub fn write_routes<P: AsRef<Path>>(
+    path: P,
+    routes: &n18route::Routes,
+    pretty: bool,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(path)?;
+    let routes: routes::Routes = routes.into();
+    if pretty {
+        serde_json::to_writer_pretty(file, &routes)?;
+    } else {
+        serde_json::to_writer(file, &routes)?;
     }
     Ok(())
 }
