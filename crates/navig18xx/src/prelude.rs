@@ -147,6 +147,7 @@ pub use n18route::TrainRoute;
 #[doc(inline)]
 pub use n18game::Game;
 
+#[cfg(feature = "ui")]
 #[doc(inline)]
 pub use n18ui::UI;
 

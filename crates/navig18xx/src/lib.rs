@@ -127,4 +127,5 @@ pub use n18map as map;
 pub use n18route as route;
 pub use n18tile as tile;
 pub use n18token as token;
+#[cfg(feature = "ui")]
 pub use n18ui as ui;
