@@ -1,6 +1,7 @@
 # Table of contents
 
 - [18xx introduction](./18xx_introduction.md)
+  - [Motivation](./motivation.md)
 - [User guide](./user_guide/index.md)
   - [Modal interface](./user_guide/modal.md)
   - [Default mode](./user_guide/default.md)
@@ -21,6 +22,7 @@
   - [Finding optimal routes](./dev_guide/routes.md)
   - [18xx games]()
   - [(De)serialisation]()
-  - [GTK user interface]()
+  - [GTK user interface](./dev_guide/rusty_train.md)
+- [To-do list](./todo/index.md)
 - [About this book](./about.md)
 - [References]()

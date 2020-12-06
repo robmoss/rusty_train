@@ -5,11 +5,45 @@ operate into the following steps:
 
 1. Identify all routes available to the company;
 
+   + Constructing routes from each placed token.
+
+     + Paths as a sequence of `n18tile::Connection` values: `Track`, `Dit`,
+       `City`, `Face`.
+
+     + The need to represent all of the track segments, in addition to mere
+       connectivity between dits and cities.
+
+     + Use of `Face` and `n18map::Map::adjacent_face` so that we can divide
+       connectivity into two concerns: within-tile connectivity as provided by
+       `n18tile::Tile::connections`, and between-tile connectivity as provided
+       by `Map`.
+
+   + Joining routes together to form new routes.
+
+   + Constraints on, e.g., the number of stops.
+
+   + Can be extended to consider hex trains.
+
+   + "Flood" trains
+     ([description](https://boardgamegeek.com/listitem/7326833?commentid=9566272#comment9566272))
+     can also be handled, although this requires a depth-first search that
+     records cities and dits, rather than paths.
+     Pick one placed station and sum every revenue centre that can be reached
+     with no path limit and the ability to reuse track segments.
+
 2. Identify all valid combinations of available routes;
+
+   + No track segments in common.
 
 3. Identify all valid pairings of trains to routes; and
 
+   + Number of stops, number of hexes, etc.
+
 4. Identify the optimal pairing of trains to routes.
+
+   + Express trains: where to stop?
+
+   + Route bonuses.
 
 We now describe each of these steps in turn.
 
