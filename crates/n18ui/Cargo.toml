@@ -20,8 +20,8 @@ n18brush = { path = "../n18brush" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
 
-# Use the minimum supported version of GTK (3.16).
-gtk = { version = "0.9", features = ["v3_16"] }
+# Use features provided by GTK 3.20 (native file choosers).
+gtk = { version = "0.9", features = ["v3_20"] }
 
 # Use the minimum supported version of GIO (2.44).
 gio = { version = "0.9", features = ["v2_44"] }

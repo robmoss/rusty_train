@@ -2,7 +2,7 @@ use super::state::State;
 use super::Action;
 
 use cairo::{Context, Format, ImageSurface};
-use gtk::{DialogExt, FileChooserExt, GtkWindowExt, WidgetExt};
+use gtk::{FileChooserExt, NativeDialogExt, WidgetExt};
 
 use super::Content;
 use n18map::Map;
@@ -14,14 +14,12 @@ pub fn save_file_dialog(
     filters: &[&gtk::FileFilter],
     default_path: Option<&str>,
 ) -> Option<std::path::PathBuf> {
-    let dialog = gtk::FileChooserDialog::with_buttons(
+    let dialog = gtk::FileChooserNative::new(
         Some(title),
         Some(window),
         gtk::FileChooserAction::Save,
-        &[
-            ("_Cancel", gtk::ResponseType::Cancel),
-            ("_Save", gtk::ResponseType::Accept),
-        ],
+        Some("_Save"),
+        Some("_Cancel"),
     );
     // Ask the user to confirm overwriting an existing file.
     dialog.set_do_overwrite_confirmation(true);
@@ -34,10 +32,10 @@ pub fn save_file_dialog(
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
         let dest = dialog.get_filename().expect("Couldn't get filename");
-        dialog.close();
+        dialog.destroy();
         Some(dest)
     } else {
-        dialog.close();
+        dialog.destroy();
         None
     }
 }
@@ -49,14 +47,12 @@ pub fn open_file_dialog(
     filters: &[&gtk::FileFilter],
     default_path: Option<&str>,
 ) -> Option<std::path::PathBuf> {
-    let dialog = gtk::FileChooserDialog::with_buttons(
+    let dialog = gtk::FileChooserNative::new(
         Some(title),
         Some(window),
         gtk::FileChooserAction::Open,
-        &[
-            ("_Cancel", gtk::ResponseType::Cancel),
-            ("_Open", gtk::ResponseType::Accept),
-        ],
+        Some("_Open"),
+        Some("_Cancel"),
     );
     for filter in filters {
         dialog.add_filter(filter)
@@ -67,10 +63,10 @@ pub fn open_file_dialog(
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
         let dest = dialog.get_filename().expect("Couldn't get filename");
-        dialog.close();
+        dialog.destroy();
         Some(dest)
     } else {
-        dialog.close();
+        dialog.destroy();
         None
     }
 }
