@@ -71,6 +71,7 @@ use super::search::PathLimit;
 use super::{Path, Step, Visit};
 use log::info;
 use n18map::HexAddress;
+use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
@@ -775,6 +776,7 @@ impl Trains {
                     .route_conflicts
                     .is_disjoint(&path_tbl[b].route_conflicts)
             })
+            .into_par_iter()
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
             .max_by_key(|&(revenue, _)| revenue);
 
