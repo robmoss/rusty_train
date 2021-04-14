@@ -1,4 +1,5 @@
 //! Generate combinations of, e.g., paths for trains to operate.
+use log::info;
 
 /// Iterate over *k*-combinations of a set of size *n*, for all *k* up to some
 /// limit *k_max*.
@@ -68,6 +69,7 @@ pub struct CombinationsFilter<F: Fn(usize, usize) -> bool> {
     items: Vec<usize>,
     current_ix: usize,
     item_filter: F,
+    filter_calls: usize,
 }
 
 impl<F: Fn(usize, usize) -> bool> CombinationsFilter<F> {
@@ -81,6 +83,7 @@ impl<F: Fn(usize, usize) -> bool> CombinationsFilter<F> {
             items: Vec::with_capacity(k_max),
             current_ix: 0,
             item_filter: ignore,
+            filter_calls: 0,
         }
     }
 }
@@ -377,6 +380,7 @@ impl<F: Fn(usize, usize) -> bool> Iterator for CombinationsFilter<F> {
             // NOTE: if we pass self.items in one go, the filter can also
             // prune combinations that no combination of trains is capable of
             // operating.
+            self.filter_calls += 1;
             if self
                 .items
                 .iter()
@@ -408,6 +412,7 @@ impl<F: Fn(usize, usize) -> bool> Iterator for CombinationsFilter<F> {
             self.next()
         } else {
             // Have iterated over all possible combinations.
+            info!("Made {} calls to filter fn", self.filter_calls);
             None
         }
     }
