@@ -216,11 +216,20 @@ impl ConflictRule {
                 }),
             },
             Face { face } => match self {
-                Hex => Some(Conflict::Hex { addr: *addr }),
-                _ => Some(Conflict::Face {
-                    addr: *addr,
-                    face: *face,
-                }),
+                // NOTE: since hex face conflicts are defined according to the
+                // map orientation, we always have an upper face and a lower
+                // face, and only need to record one of these two faces (but
+                // note that both faces will be passed to this function).
+                // Here, we choose to record the upper face.
+                _ => match face {
+                    HexFace::Top
+                    | HexFace::UpperLeft
+                    | HexFace::UpperRight => Some(Conflict::Face {
+                        addr: *addr,
+                        face: *face,
+                    }),
+                    _ => None,
+                },
             },
             Dit { ix } => match self {
                 Hex => Some(Conflict::Hex { addr: *addr }),

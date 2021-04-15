@@ -301,12 +301,27 @@ fn dfs_over(
                             conn: Connection::Face { face: new_face },
                         };
 
+                        // NOTE: record the hex face conflicts according to
+                        // the map orientation, so that we always have an
+                        // upper face and a lower face, and only need to
+                        // record one of these.
+                        let map_face_1 = map
+                            .map_face_from_tile_face(addr, *face)
+                            .expect("No map face for current tile");
+                        let map_face_2 = map
+                            .map_face_from_tile_face(new_addr, new_face)
+                            .expect("No map face for adjacent tile");
+                        let map_conn_1 =
+                            Connection::Face { face: map_face_1 };
+                        let map_conn_2 =
+                            Connection::Face { face: map_face_2 };
+
                         // Record the traversed hex faces if a single route
                         // cannot reuse them.
                         let conflict_1 = query
                             .criteria
                             .conflict_rule
-                            .maybe_conflict(&addr, &first_face.conn);
+                            .maybe_conflict(&addr, &map_conn_1);
                         if let Some(conflict) = conflict_1 {
                             if ctx.conflicts.contains(&conflict) {
                                 // Stop searching here.
@@ -317,7 +332,7 @@ fn dfs_over(
                         let conflict_2 = query
                             .criteria
                             .conflict_rule
-                            .maybe_conflict(&new_addr, &second_face.conn);
+                            .maybe_conflict(&new_addr, &map_conn_2);
                         if let Some(conflict) = conflict_2 {
                             if ctx.conflicts.contains(&conflict) {
                                 return;
@@ -330,14 +345,14 @@ fn dfs_over(
                         let route_conflict_1 = query
                             .criteria
                             .route_conflict_rule
-                            .maybe_conflict(&addr, &first_face.conn);
+                            .maybe_conflict(&addr, &map_conn_1);
                         if let Some(conflict) = route_conflict_1 {
                             ctx.route_conflicts.insert(conflict);
                         }
                         let route_conflict_2 = query
                             .criteria
                             .route_conflict_rule
-                            .maybe_conflict(&new_addr, &second_face.conn);
+                            .maybe_conflict(&new_addr, &map_conn_2);
                         if let Some(conflict) = route_conflict_2 {
                             ctx.route_conflicts.insert(conflict);
                         }

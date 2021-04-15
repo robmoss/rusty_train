@@ -101,7 +101,7 @@ impl Map {
 
     /// Returns the hex face **relative to the map** that corresponds to the
     /// the specified hex face **relative to the tile's orientation**.
-    fn map_face_from_tile_face(
+    pub fn map_face_from_tile_face(
         &self,
         addr: HexAddress,
         tile_face: HexFace,
@@ -121,7 +121,7 @@ impl Map {
 
     /// Returns the hex face **relative to the tile's orientation** that
     /// corresponds to the specified hex face **relative to the map**.
-    fn tile_face_from_map_face(
+    pub fn tile_face_from_map_face(
         &self,
         addr: HexAddress,
         tile_face: HexFace,
