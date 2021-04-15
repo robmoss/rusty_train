@@ -132,7 +132,7 @@ impl Context {
         Path {
             steps: self.path.clone(),
             conflicts: self.conflicts.clone(),
-            route_conflicts: self.route_conflicts.clone(),
+            route_conflicts: (&self.route_conflicts).into(),
             visits: self.visits.clone(),
             num_visits: self.visits.len(),
             num_cities: self.num_cities,

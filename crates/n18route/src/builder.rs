@@ -323,7 +323,7 @@ impl<'a> RouteBuilder<'a> {
         Path {
             steps: self.steps,
             conflicts: HashSet::new(),
-            route_conflicts: HashSet::new(),
+            route_conflicts: crate::conflict::RouteConflicts::new(),
             visits: self.visits,
             num_visits: self.num_visits,
             num_cities: self.num_cities,

@@ -10,6 +10,7 @@ use std::collections::HashSet;
 use n18map::HexAddress;
 use n18tile::Connection;
 
+use crate::conflict::RouteConflicts;
 use crate::Conflict;
 
 /// A single step in a path.
@@ -60,7 +61,7 @@ pub struct Visit {
 pub struct Path {
     pub steps: Vec<Step>,
     pub conflicts: HashSet<Conflict>,
-    pub route_conflicts: HashSet<Conflict>,
+    pub route_conflicts: RouteConflicts,
     pub visits: Vec<Visit>,
     pub num_visits: usize,
     pub num_cities: usize,
@@ -103,11 +104,8 @@ impl Path {
         visits.append(&mut other_visits);
         let conflicts: HashSet<_> =
             self.conflicts.union(&other.conflicts).map(|c| *c).collect();
-        let route_conflicts: HashSet<_> = self
-            .route_conflicts
-            .union(&other.route_conflicts)
-            .map(|c| *c)
-            .collect();
+        let route_conflicts =
+            self.route_conflicts.merge(&other.route_conflicts);
         let start_revenue = self.visits[0].revenue;
         let revenue = self.revenue + other.revenue - start_revenue;
         let num_visits = visits.len();
@@ -115,15 +113,15 @@ impl Path {
         let num_dits = self.num_dits + other.num_dits;
         let num_hexes = self.num_hexes + other.num_hexes - 1;
         Path {
-            steps: steps,
-            conflicts: conflicts,
-            route_conflicts: route_conflicts,
-            visits: visits,
-            num_visits: num_visits,
-            num_cities: num_cities,
-            num_dits: num_dits,
-            num_hexes: num_hexes,
-            revenue: revenue,
+            steps,
+            conflicts,
+            route_conflicts,
+            visits,
+            num_visits,
+            num_cities,
+            num_dits,
+            num_hexes,
+            revenue,
         }
     }
 }
