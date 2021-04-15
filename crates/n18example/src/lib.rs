@@ -127,6 +127,10 @@ impl Example {
         &self.map
     }
 
+    pub fn get_map_mut(&mut self) -> &mut Map {
+        &mut self.map
+    }
+
     pub fn get_hex(&self) -> &Hex {
         &self.hex
     }
