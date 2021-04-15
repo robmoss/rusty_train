@@ -20,6 +20,7 @@
   - [Maps]()
   - [Trains]()
   - [Finding optimal routes](./dev_guide/routes.md)
+  - [Performance](./dev_guide/performance.md)
   - [18xx games]()
   - [(De)serialisation]()
   - [GTK user interface](./dev_guide/rusty_train.md)

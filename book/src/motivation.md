@@ -25,10 +25,10 @@ However, currently takes up to **15 minutes** for complex situations such as com
 
 <!-- See https://spec.commonmark.org/0.29/#images -->
 
-![Map state](1867_simple.png "The map")
+![Map state](1867_bc.png "The map")
 
-![](1867_simple_best_D.png)
+![](1867_bc_D.png)
 
-![](1867_simple_best_C&O.png)
+![](1867_bc_C&O.png)
 
-![](1867_simple_best_CPR.png)
+![](1867_bc_CPR.png)
