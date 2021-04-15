@@ -330,6 +330,10 @@ impl<'a> Label<'a> {
         self.ctx.move_to(tx, ty);
         pangocairo::show_layout(&self.ctx, &self.layout);
     }
+
+    pub fn draw(&self) {
+        pangocairo::show_layout(&self.ctx, &self.layout);
+    }
 }
 
 pub struct LabelBuilder<'a> {
