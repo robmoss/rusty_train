@@ -17,8 +17,36 @@ pub struct Example {
 }
 
 impl Example {
-    pub fn new_game(game: &dyn Game, max_d: f64) -> Self {
-        let hex = Hex::new(max_d);
+    pub fn new<T: ToString, H: Into<Hex>>(
+        hex: H,
+        tokens: Vec<(T, Token)>,
+        tiles: Vec<PlacedTile>,
+    ) -> Self {
+        let hex = hex.into();
+        let all_tiles = n18catalogue::tile_catalogue(&hex);
+        let tokens = tokens
+            .into_iter()
+            .map(|(name, style)| (name.to_string(), style))
+            .collect();
+        let token_mgr = Tokens::new(tokens);
+        let hexes: Vec<HexAddress> =
+            tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
+        let map = Map::new(all_tiles, token_mgr, hexes);
+        let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
+            .expect("Can't create recording surface");
+        let rec_ctx = Context::new(&rec_surf);
+        let mut example = Example {
+            hex,
+            map,
+            rec_surf,
+            rec_ctx,
+        };
+        example.place_tiles(tiles);
+        example
+    }
+
+    pub fn new_game<H: Into<Hex>>(game: &dyn Game, hex: H) -> Self {
+        let hex = hex.into();
         let map = game.create_map(&hex);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
@@ -31,43 +59,20 @@ impl Example {
         }
     }
 
-    pub fn new<T: ToString>(
-        max_d: f64,
-        tokens: Vec<(T, Token)>,
-        tiles: Vec<PlacedTile>,
-    ) -> Self {
-        let hex = Hex::new(max_d);
-        let all_tiles = n18catalogue::tile_catalogue(&hex);
-        let tokens = tokens
-            .into_iter()
-            .map(|(name, style)| (name.to_string(), style))
-            .collect();
-        let token_mgr = Tokens::new(tokens);
-        let map_tokens = token_mgr.clone();
-        let hexes: Vec<HexAddress> =
-            tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
-        let mut map = Map::new(all_tiles, map_tokens, hexes);
+    pub fn place_tiles(&mut self, tiles: Vec<PlacedTile>) {
+        let token_mgr = self.map.tokens().clone();
         for tile in tiles {
             let addr = tile.addr.parse().unwrap();
-            assert!(map.place_tile(addr, tile.name, tile.rotn));
+            assert!(self.map.place_tile(addr, tile.name, tile.rotn));
             if !tile.toks.is_empty() {
-                let hex_tile = map.tile_at(addr).unwrap();
+                let hex_tile = self.map.tile_at(addr).unwrap();
                 let tok_spaces = hex_tile.token_spaces();
-                let map_hex = map.get_hex_mut(addr).unwrap();
+                let map_hex = self.map.get_hex_mut(addr).unwrap();
                 for tok in &tile.toks {
                     let token = token_mgr.get_token(tok.1).unwrap();
                     map_hex.set_token_at(&tok_spaces[tok.0], *token)
                 }
             }
-        }
-        let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
-            .expect("Can't create recording surface");
-        let rec_ctx = Context::new(&rec_surf);
-        Example {
-            hex,
-            map,
-            rec_surf,
-            rec_ctx,
         }
     }
 
