@@ -7,6 +7,6 @@ Once the trains have been selected, the optimal routes will be drawn on the map 
 
 | Key             | Action                                       |
 |-----------------|----------------------------------------------|
-| `Esc`, `Return` | Return to [**Default**](default.md) mode                       |
+| `Esc`, `Return` | Return to [**Default**](default.md) mode     |
 | `<Left>`        | Select the previous token on the active tile |
 | `<Right>`       | Select the next token on the active tile     |
