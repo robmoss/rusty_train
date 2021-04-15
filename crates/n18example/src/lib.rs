@@ -242,11 +242,6 @@ impl PlacedTile {
         }
     }
 
-    // pub fn rotate(mut self, rotn: RotateCW) -> Self {
-    //     self.rotn = rotn;
-    //     self
-    // }
-
     pub fn rotate<R: Into<RotateCW>>(mut self, rotn: R) -> Self {
         self.rotn = rotn.into();
         self
