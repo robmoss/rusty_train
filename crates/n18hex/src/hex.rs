@@ -393,6 +393,12 @@ pub struct Hex {
     context: cairo::Context,
 }
 
+impl From<f64> for Hex {
+    fn from(max_d: f64) -> Self {
+        Self::new(max_d)
+    }
+}
+
 impl Hex {
     pub fn new(max_d: f64) -> Self {
         let min_d = (3.0 as f64).sqrt() * max_d / 2.0;
