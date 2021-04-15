@@ -247,9 +247,49 @@ impl Game {
             ),
             (
                 "GT".to_string(),
-                Token::new(TokenStyle::TopArcs {
+                Token::new(TokenStyle::TripleTriangles {
+                    fg: (0, 143, 31).into(),
+                    bg: (223, 223, 0).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+            (
+                "A".to_string(),
+                Token::new(TokenStyle::TopSquares {
                     fg: (176, 0, 0).into(),
-                    bg: (0, 0, 66).into(),
+                    bg: (15, 15, 127).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+            (
+                "B".to_string(),
+                Token::new(TokenStyle::TopLines {
+                    fg: (0, 143, 31).into(),
+                    bg: (223, 223, 0).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+            (
+                "C".to_string(),
+                Token::new(TokenStyle::TopTriangles {
+                    fg: (0, 143, 31).into(),
+                    bg: (223, 223, 0).into(),
+                    text: (0, 0, 0).into(),
+                }),
+            ),
+            (
+                "D".to_string(),
+                Token::new(TokenStyle::TopArcs {
+                    fg: (176, 176, 176).into(),
+                    bg: (66, 0, 0).into(),
+                    text: (255, 255, 255).into(),
+                }),
+            ),
+            (
+                "E".to_string(),
+                Token::new(TokenStyle::TopTriangles {
+                    fg: (255, 255, 102).into(),
+                    bg: (204, 16, 16).into(),
                     text: (255, 255, 255).into(),
                 }),
             ),
