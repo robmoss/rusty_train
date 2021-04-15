@@ -208,12 +208,15 @@ impl ConflictRule {
 
         // NOTE: not trivial, need to return the most general conflict.
         match conn {
-            Track { ix, end: _ } => match self {
+            Track { end: _, .. } => match self {
                 Hex => Some(Conflict::Hex { addr: *addr }),
-                _ => Some(Conflict::Track {
-                    addr: *addr,
-                    ix: *ix,
-                }),
+                // NOTE: since every track segment connects to a hex face, and
+                // two track segments that connect to the same hex face are
+                // considered to share some track, we can ignore track segment
+                // conflicts and only record hex face conflicts.
+                // This will introduce errors if there are track segments that
+                // do not connect to a hex face.
+                _ => None,
             },
             Face { face } => match self {
                 // NOTE: since hex face conflicts are defined according to the
