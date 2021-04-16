@@ -51,7 +51,8 @@ fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Run this example and write the output images to the working directory.
-/// When run as an example, this will ignore any cached routes.
+/// When run as an example, this will always calculate the optimal routes, and
+/// ensure that they are identical to the cached routes (if they exist).
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
@@ -71,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .init();
     let working_dir = std::path::Path::new(".");
 
-    let examples_dir = std::path::Path::new("./examples");
+    let examples_dir = Path::new("./examples/output");
     let use_cached_routes = false;
     save_1867_bc_routes(&working_dir, &examples_dir, use_cached_routes)
 }
