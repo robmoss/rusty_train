@@ -38,3 +38,5 @@ The following optimisations have been introduced:
 | Sorted conflicts  |    0:12 |    1:42 |    4:58 |
 | Parallel iterator |    0:06 |    0:51 |    2:26 |
 | **Improvement:**  | **84%** | **84%** | **81%** |
+
+These times were obtained by running `cargo test --release 1867_bc`.

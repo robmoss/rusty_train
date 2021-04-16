@@ -1,5 +1,16 @@
 /// Find optimal routes for three major companies in the final operating round
 /// of the Bankruptcy Club's recorded game of 1867.
+///
+/// Run this as a test case to calculate the optimal routes and ensure that
+/// they match the cached results:
+///
+///     cargo test --release 1867_bc
+///
+/// Run this as an example to use the cached results (if they exist) and
+/// update the output images in the book directory:
+///
+///     cargo run --release --example 1867_bc
+///
 use chrono::Local;
 use log::info;
 use std::io::Write;
@@ -24,8 +35,9 @@ pub struct CompanyInfo {
 }
 
 #[test]
-/// Run this example and write the output images to the book directory.
-/// When run as a test, this will use the cached routes, when available.
+/// Run this example and write the output images to the working directory.
+/// This will always calculate the optimal routes, and ensure that they are
+/// identical to the cached routes (if they exist).
 fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
@@ -44,15 +56,14 @@ fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
     })
     .init();
 
-    let book_dir = Path::new("./book/src");
-    let examples_dir = Path::new("./examples/output");
-    let use_cached_routes = true;
-    save_1867_bc_routes(&book_dir, &examples_dir, use_cached_routes)
+    let image_dir = std::path::Path::new(".");
+    let json_dir = Path::new("./examples/output");
+    let use_cached_routes = false;
+    save_1867_bc_routes(&image_dir, &json_dir, use_cached_routes)
 }
 
-/// Run this example and write the output images to the working directory.
-/// When run as an example, this will always calculate the optimal routes, and
-/// ensure that they are identical to the cached routes (if they exist).
+/// Run this example and write the output images to the book directory.
+/// This will use the cached routes, if they exist.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
@@ -70,11 +81,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
     })
     .init();
-    let working_dir = std::path::Path::new(".");
-
-    let examples_dir = Path::new("./examples/output");
-    let use_cached_routes = false;
-    save_1867_bc_routes(&working_dir, &examples_dir, use_cached_routes)
+    let image_dir = Path::new("./book/src");
+    let json_dir = Path::new("./examples/output");
+    let use_cached_routes = true;
+    save_1867_bc_routes(&image_dir, &json_dir, use_cached_routes)
 }
 
 fn save_1867_bc_routes(
