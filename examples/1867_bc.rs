@@ -26,7 +26,7 @@ pub struct CompanyInfo {
 #[test]
 /// Run this example and write the output images to the book directory.
 /// When run as a test, this will use the cached routes, when available.
-fn run_test() -> Result<(), Box<dyn std::error::Error>> {
+fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
     let log_level = "info";
