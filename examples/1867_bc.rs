@@ -3,31 +3,30 @@
 use chrono::Local;
 use log::info;
 use std::io::Write;
+use std::path::Path;
 
 use navig18xx::game::_1867;
 use navig18xx::prelude::*;
 
-#[test]
-#[ignore]
-/// Run this example and write the output images to the book directory.
-/// Because this example takes minutes to run, it is ignored by default.
-/// Ignored tests can be run with:
-///
-///     cargo test [options] -- --ignored
-///
-/// To run all tests (normal and ignored):
-///
-///     cargo test [options] -- --include-ignored
-///
-fn run_test() -> Result<(), Box<dyn std::error::Error>> {
-    let book_dir = std::path::Path::new("./book/src");
-    // NOTE: this also affects where we will save/load best routes.
-    assert!(std::env::set_current_dir(&book_dir).is_ok());
-    main()
+/// The state of the 1867 game.
+pub struct GameState {
+    example: Example,
+    companies: Vec<CompanyInfo>,
 }
 
-/// Run this example and write the output images to the working directory.
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// The details of each company and their optimal routes.
+pub struct CompanyInfo {
+    token_name: &'static str,
+    trains: Trains,
+    train_desc: &'static str,
+    num_paths: usize,
+    net_revenue: usize,
+}
+
+#[test]
+/// Run this example and write the output images to the book directory.
+/// When run as a test, this will use the cached routes, when available.
+fn run_test() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
     let log_level = "info";
@@ -45,6 +44,109 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     })
     .init();
 
+    let book_dir = Path::new("./book/src");
+    let examples_dir = Path::new("./examples/output");
+    let use_cached_routes = true;
+    save_1867_bc_routes(&book_dir, &examples_dir, use_cached_routes)
+}
+
+/// Run this example and write the output images to the working directory.
+/// When run as an example, this will ignore any cached routes.
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Default to logging all messages up to ``log::Level::Info``, using a
+    // custom message format.
+    let log_level = "info";
+    env_logger::Builder::from_env(
+        env_logger::Env::default().default_filter_or(log_level),
+    )
+    .format(|buf, record| {
+        writeln!(
+            buf,
+            "{} [{}] {}",
+            chrono::Local::now().format("%Y-%m-%dT%H:%M:%S"),
+            record.level(),
+            record.args()
+        )
+    })
+    .init();
+    let working_dir = std::path::Path::new(".");
+
+    let examples_dir = std::path::Path::new("./examples");
+    let use_cached_routes = false;
+    save_1867_bc_routes(&working_dir, &examples_dir, use_cached_routes)
+}
+
+fn save_1867_bc_routes(
+    image_dir: &Path,
+    json_dir: &Path,
+    use_cached_routes: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut state = game_state();
+
+    // Save an image of the map prior to drawing any routes.
+    state.example.draw_map();
+    let out_file = image_dir.join("1867_bc.png");
+    save_png(&state.example, &out_file);
+
+    // Draw the best routes for each company in turn.
+    for company in &state.companies {
+        // Determine the output file name for the best routes.
+        let routes_basename = format!("1867_bc_{}.json", company.token_name);
+        let routes_file = json_dir.join(routes_basename);
+        // Determine the output file name for the best routes image.
+        let image_basename = format!("1867_bc_{}.png", company.token_name);
+        let image_file = image_dir.join(image_basename);
+
+        // Load the cached routes, if they exist.
+        let cached_opt = read_routes(&routes_file).ok();
+        // Determine whether to calculate and save the best routes.
+        let (routes, save_routes) = if let Some(routes) = cached_opt {
+            info!("Reading {}", (&routes_file).to_str().unwrap());
+            if use_cached_routes {
+                // Use the cached routes, no need to save them.
+                info!("Using cached routes for {}", company.token_name);
+                (routes, false)
+            } else {
+                info!("Calculating best routes for {}", company.token_name);
+                let new_routes = best_routes(&state.example, &company);
+                if new_routes == routes {
+                    // The calculated routes match the cached routes, no need
+                    // to save them.
+                    (routes, false)
+                } else {
+                    // The calculated routes differ from the cached routes.
+                    // Save the calculated routes and fail the test.
+                    info!(
+                        "Saving routes to {}",
+                        (&routes_file).to_str().unwrap()
+                    );
+                    let pretty = true;
+                    write_routes(routes_file, &new_routes, pretty).unwrap();
+                    panic!("Calculated routes differ from the cached routes")
+                }
+            }
+        } else {
+            // Calculate the best routes and save the results.
+            (best_routes(&state.example, &company), true)
+        };
+
+        // Draw the best routes and save the image to disk.
+        state.example.erase_all()?;
+        draw_routes(&mut state.example, &company, &routes)?;
+        save_png(&state.example, image_file);
+
+        // If the best routes were calculated, save them to disk.
+        if save_routes {
+            info!("Saving routes to {}", (&routes_file).to_str().unwrap());
+            let pretty = true;
+            write_routes(routes_file, &routes, pretty).unwrap();
+        }
+    }
+
+    Ok(())
+}
+
+fn game_state() -> GameState {
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
     let mut game = _1867::Game::new(&hex);
@@ -123,12 +225,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
     example.place_tiles(extra_tiles);
 
-    // Draw the entire the map.
-    example.draw_map();
-
-    // Save an image of the map prior to drawing any routes.
-    save_png(&example, "1867_bc.png");
-
     let green_trains =
         Trains::new(vec![Train::new_5_train(), Train::new_5p5e_train()]);
     let brown_trains =
@@ -137,28 +233,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Trains::new(vec![Train::new_6_train(), Train::new_8_train()]);
 
     let companies = vec![
-        (brown, brown_trains, "5-train, 8-train", 15_008, 840),
-        (blue, blue_trains, "6-train, 8-train", 46_176, 900),
-        (green, green_trains, "5-train, 5+5E-train", 67_948, 1130),
+        CompanyInfo {
+            token_name: brown,
+            trains: brown_trains,
+            train_desc: "5-train, 8-train",
+            num_paths: 15_008,
+            net_revenue: 840,
+        },
+        CompanyInfo {
+            token_name: blue,
+            trains: blue_trains,
+            train_desc: "6-train, 8-train",
+            num_paths: 46_176,
+            net_revenue: 900,
+        },
+        CompanyInfo {
+            token_name: green,
+            trains: green_trains,
+            train_desc: "5-train, 5+5E-train",
+            num_paths: 67_948,
+            net_revenue: 1130,
+        },
     ];
 
-    // Draw the best routes for each company in turn.
-    for (tok_name, trains, train_str, n, t) in companies.into_iter() {
-        draw_routes(&mut example, tok_name, trains, train_str, n, t)?
-    }
-
-    Ok(())
+    GameState { example, companies }
 }
 
-fn best_routes(
-    example: &Example,
-    token: Token,
-    trains: Trains,
-    bonuses: Vec<navig18xx::route::Bonus>,
-    num_paths: usize,
-    net_revenue: usize,
-) -> Routes {
-    let path_limit = trains.path_limit();
+fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
+    let bonuses = vec![];
+    let token = example
+        .get_map()
+        .tokens()
+        .get_token(company.token_name)
+        .unwrap();
+    let token = *token;
+    let path_limit = company.trains.path_limit();
     let criteria = Criteria {
         token,
         path_limit,
@@ -168,9 +277,10 @@ fn best_routes(
     let map = example.get_map();
     let start = Local::now();
     let paths = paths_for_token(&map, &criteria);
-    assert_eq!(paths.len(), num_paths);
+    assert_eq!(paths.len(), company.num_paths);
     let mid = Local::now() - start;
-    let routes = trains
+    let routes = company
+        .trains
         .select_routes(paths, bonuses)
         .expect("Could not find optimal routes");
     let durn = Local::now() - start;
@@ -191,29 +301,15 @@ fn best_routes(
         info!("    ${}", train_route.revenue);
     }
     info!("");
-    assert_eq!(routes.net_revenue, net_revenue);
+    assert_eq!(routes.net_revenue, company.net_revenue);
     routes
 }
 
 fn draw_routes(
     example: &mut Example,
-    tok_name: &str,
-    trains: Trains,
-    train_str: &str,
-    num_paths: usize,
-    net_revenue: usize,
+    company: &CompanyInfo,
+    routes: &Routes,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let token = example.get_map().tokens().get_token(tok_name).unwrap();
-    let best =
-        best_routes(&example, *token, trains, vec![], num_paths, net_revenue);
-
-    let routes_file = format!("1867_bc_{}.json", tok_name);
-    println!("Saving routes to {}", routes_file);
-    let pretty = true;
-    write_routes(routes_file, &best, pretty).unwrap();
-
-    example.erase_all()?;
-
     // Draw the relevant portion of the map.
     example.draw_map_subset(|addr| {
         let row = addr.row();
@@ -223,7 +319,7 @@ fn draw_routes(
 
     let first_rgba = (0.7, 0.1, 0.1, 1.0);
     let second_rgba = (0.1, 0.7, 0.1, 1.0);
-    for (pix, tr) in best.train_routes.iter().enumerate() {
+    for (pix, tr) in routes.train_routes.iter().enumerate() {
         if pix == 0 {
             example.draw_route(&tr.route, first_rgba)
         } else {
@@ -231,8 +327,10 @@ fn draw_routes(
         }
     }
 
-    let label_text =
-        format!("{}: {} = ${}", tok_name, train_str, best.net_revenue);
+    let label_text = format!(
+        "{}: {} = ${}",
+        company.token_name, company.train_desc, routes.net_revenue
+    );
     let label = example
         .new_label(label_text)
         .font_family("Serif")
@@ -257,20 +355,16 @@ fn draw_routes(
     label.draw();
     example.get_context().set_matrix(m);
 
-    // Save an image of the map, showing the best routes.
-    let output_file = format!("1867_bc_{}.png", tok_name);
-    save_png(example, output_file);
-
     Ok(())
 }
 
-fn save_png<S: AsRef<str>>(example: &Example, filename: S) {
+fn save_png<S: AsRef<Path>>(example: &Example, filename: S) {
     let filename = filename.as_ref();
     // NOTE: don't use a fully-transparent background (alpha = 0.0).
     // Otherwise the revenue label will not be visible in the book when using
     // a dark theme.
     let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
     let margin = 20;
-    info!("Writing {} ...", filename);
+    info!("Writing {} ...", filename.to_str().unwrap());
     example.write_png(margin, bg_rgba, filename);
 }
