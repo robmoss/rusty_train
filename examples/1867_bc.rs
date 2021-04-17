@@ -4,7 +4,7 @@
 /// Run this as a test case to calculate the optimal routes and ensure that
 /// they match the cached results:
 ///
-///     cargo test --release 1867_bc
+///     cargo test --release 1867_bc -- --ignored
 ///
 /// Run this as an example to use the cached results (if they exist) and
 /// update the output images in the book directory:
@@ -35,9 +35,16 @@ pub struct CompanyInfo {
 }
 
 #[test]
+#[ignore]
 /// Run this example and write the output images to the working directory.
 /// This will always calculate the optimal routes, and ensure that they are
 /// identical to the cached routes (if they exist).
+///
+/// Because this example takes minutes to run, it is ignored by default.
+/// Ignored tests can be run with:
+///
+///     cargo test [options] -- --ignored
+///
 fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
