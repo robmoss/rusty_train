@@ -55,6 +55,7 @@
 //!
 //! // Save this tile to a JSON file.
 //! let pretty_json = true;
+//! # std::env::set_current_dir("../../tests/output").unwrap();
 //! write_tile("tile_3.json", &tile, pretty_json);
 //! tile.save_png(&hex, "tile_3.png")
 //!     .expect("Could not save tile as a PNG");
@@ -106,6 +107,7 @@
 //! .label(Label::City("M".to_string()), HexCorner::BottomLeft)
 //! .label(Label::Revenue(0), HexCorner::Left.to_centre(0.1));
 //!
+//! # std::env::set_current_dir("../../tests/output").unwrap();
 //! tile_x5.save_png(&hex, "tile_x5.png")
 //!     .expect("Could not save tile X5 as a PNG");
 //! tile_x5.save_svg(&hex, "tile_x5.svg")

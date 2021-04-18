@@ -23,6 +23,9 @@ fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
 /// that it can make, to satisfy the connection bonus rather than targeting
 /// the intermediate locations with the highest base revenue.
 fn test_connection_bonus_between_two_dits() {
+    // Specify where to save the output images.
+    let output_dir = std::path::Path::new("./tests/output");
+
     let hex_width: i32 = 125;
     let margin = 20;
     let columns = 16;
@@ -89,7 +92,7 @@ fn test_connection_bonus_between_two_dits() {
     brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
     brush::draw_barriers(&hex, &ctx, &map);
 
-    let filename = "test-conn-bonus-map.png";
+    let filename = output_dir.join("test-conn-bonus-map.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)
@@ -148,7 +151,7 @@ fn test_connection_bonus_between_two_dits() {
             _ => (0.1, 0.1, 0.7, 1.0),
         }
     });
-    let filename = "test-conn-bonus-route-no-bonus.png";
+    let filename = output_dir.join("test-conn-bonus-route-no-bonus.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)
@@ -198,7 +201,7 @@ fn test_connection_bonus_between_two_dits() {
             _ => (0.1, 0.1, 0.7, 1.0),
         }
     });
-    let filename = "test-conn-bonus-route-with-bonus.png";
+    let filename = output_dir.join("test-conn-bonus-route-with-bonus.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)

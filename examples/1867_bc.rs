@@ -63,10 +63,9 @@ fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
     })
     .init();
 
-    let image_dir = std::path::Path::new(".");
-    let json_dir = Path::new("./examples/output");
+    let output_dir = Path::new("./examples/output");
     let use_cached_routes = false;
-    save_1867_bc_routes(&image_dir, &json_dir, use_cached_routes)
+    save_1867_bc_routes(&output_dir, &output_dir, use_cached_routes)
 }
 
 /// Run this example and write the output images to the book directory.

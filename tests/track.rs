@@ -35,6 +35,9 @@ fn no_escape(track: &Track, hex: &Hex, dt: f64, ctx: &Context) -> bool {
 
 #[test]
 fn track_contained_in_hex() {
+    // Specify where to save the output images.
+    let output_dir = std::path::Path::new("./tests/output");
+
     let dim = HEX_DIAMETER * 1.1;
     let (ctx, surf) = new_context(dim as i32, dim as i32);
     let hex = Hex::new(HEX_DIAMETER);
@@ -127,7 +130,8 @@ fn track_contained_in_hex() {
                     let name = format!("({:0.2}, {:0.2})", x0, x1);
                     hex.draw_tile_name(&name, &ctx);
 
-                    let filename = format!("test-tcih-{:04}.png", counter);
+                    let basename = format!("test-tcih-{:04}.png", counter);
+                    let filename = output_dir.join(basename);
                     let mut file = std::fs::File::create(filename)
                         .expect("Couldn't create output PNG file");
                     surf.write_to_png(&mut file)

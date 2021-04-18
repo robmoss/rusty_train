@@ -161,6 +161,12 @@ pub mod tests {
 
     static HEX_DIAMETER: f64 = 150.0;
 
+    static OUT_DIR: &'static str = "../../tests/output";
+
+    fn output_path(file: &'static str) -> std::path::PathBuf {
+        std::path::Path::new(OUT_DIR).join(file)
+    }
+
     fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
         let surface = ImageSurface::create(Format::ARgb32, width, height)
             .expect("Can't create surface");
@@ -360,7 +366,7 @@ pub mod tests {
         let dy = HEX_DIAMETER * 2.3;
         let (ctx, surf) = new_context(dx as i32, dy as i32);
         draw_tiles(&map, &hex, &ctx);
-        let filename = "test-map-descr-simple-2x2.png";
+        let filename = output_path("test-map-descr-simple-2x2.png");
         let mut file = std::fs::File::create(filename)
             .expect("Couldn't create output PNG file");
         surf.write_to_png(&mut file)
@@ -405,7 +411,8 @@ pub mod tests {
         let dy = HEX_DIAMETER * 2.3;
         let (ctx, surf) = new_context(dx as i32, dy as i32);
         draw_tiles(&map, &hex, &ctx);
-        let filename = "test-map-descr-simple-2x2_with_empty_hexes.png";
+        let filename =
+            output_path("test-map-descr-simple-2x2_with_empty_hexes.png");
         let mut file = std::fs::File::create(filename)
             .expect("Couldn't create output PNG file");
         surf.write_to_png(&mut file)

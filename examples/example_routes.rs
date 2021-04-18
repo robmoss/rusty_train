@@ -22,6 +22,9 @@ fn main() -> Result<()> {
     })
     .init();
 
+    // Specify where to save the output images.
+    let output_dir = std::path::Path::new("./examples/output");
+
     let hex_max_diameter = 125.0;
     let token_a = Token::new(TokenStyle::SideArcs {
         fg: (176, 176, 176).into(),
@@ -111,9 +114,9 @@ fn main() -> Result<()> {
 
     let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
     let margin = 20;
-    example.write_png(margin, bg_rgba, "example_routes.png");
-    example.write_svg(margin, bg_rgba, "example_routes.svg");
-    example.write_pdf(margin, bg_rgba, "example_routes.pdf");
+    example.write_png(margin, bg_rgba, output_dir.join("example_routes.png"));
+    example.write_svg(margin, bg_rgba, output_dir.join("example_routes.svg"));
+    example.write_pdf(margin, bg_rgba, output_dir.join("example_routes.pdf"));
 
     Ok(())
 }

@@ -14,6 +14,9 @@ fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
 /// token spaces on the same tile are correctly identified. This behaviour was
 /// fixed by commit 6635eae.
 fn test_dual_routes_from_montreal() {
+    // Specify where to save the output images.
+    let output_dir = std::path::Path::new("./tests/output");
+
     let hex_width: i32 = 125;
     let margin = 20;
     let columns = 16;
@@ -51,7 +54,7 @@ fn test_dual_routes_from_montreal() {
     brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
     brush::draw_barriers(&hex, &ctx, &map);
 
-    let filename = "test-dual-routes-montreal-map.png";
+    let filename = output_dir.join("test-dual-routes-montreal-map.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)
@@ -96,7 +99,7 @@ fn test_dual_routes_from_montreal() {
             _ => (0.1, 0.1, 0.7, 1.0),
         }
     });
-    let filename = "test-dual-routes-montreal-route.png";
+    let filename = output_dir.join("test-dual-routes-montreal-route.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)

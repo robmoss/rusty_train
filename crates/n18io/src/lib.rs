@@ -3532,6 +3532,12 @@ mod tests {
         Hex::new(hex_max_diameter)
     }
 
+    static OUT_DIR: &'static str = "../../tests/output";
+
+    fn output_path(file: &'static str) -> std::path::PathBuf {
+        std::path::Path::new(OUT_DIR).join(file)
+    }
+
     #[test]
     fn compare_catalogues() {
         let hex = init_hex();
@@ -3544,12 +3550,12 @@ mod tests {
 
     #[test]
     fn json_round_trip_1() {
-        let filename = "test-json_round_trip_1.json";
+        let filename = output_path("test-json_round_trip_1.json");
         let de_in = super::test_tiles();
-        let write_res = write(filename, &de_in);
-        assert!(write_res.is_ok(), "Could not write {}", filename);
-        let read_res = read(filename);
-        assert!(read_res.is_ok(), "Could not read {}", filename);
+        let write_res = write(&filename, &de_in);
+        assert!(write_res.is_ok(), "Could not write {}", filename.display());
+        let read_res = read(&filename);
+        assert!(read_res.is_ok(), "Could not read {}", filename.display());
         let de_out = read_res.unwrap();
         assert_eq!(de_in.tiles, de_out.tiles);
     }
@@ -3558,13 +3564,13 @@ mod tests {
     fn json_round_trip_2() {
         let hex = init_hex();
         let cat_in = n18catalogue::tile_catalogue(&hex);
-        let filename = "test-json_round_trip_2.json";
+        let filename = output_path("test-json_round_trip_2.json");
         let pretty = false;
 
-        let write_res = super::write_tiles(filename, &cat_in, pretty);
-        assert!(write_res.is_ok(), "Could not write {}", filename);
-        let read_res = super::read_tiles(filename, &hex);
-        assert!(read_res.is_ok(), "Could not read {}", filename);
+        let write_res = super::write_tiles(&filename, &cat_in, pretty);
+        assert!(write_res.is_ok(), "Could not write {}", filename.display());
+        let read_res = super::read_tiles(&filename, &hex);
+        assert!(read_res.is_ok(), "Could not read {}", filename.display());
         let cat_out = read_res.unwrap();
         assert_eq!(cat_in, cat_out);
     }

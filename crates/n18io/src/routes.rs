@@ -349,14 +349,20 @@ mod tests {
 
     use super::*;
 
+    static OUT_DIR: &'static str = "../../tests/output";
+
+    fn output_path(file: &'static str) -> std::path::PathBuf {
+        std::path::Path::new(OUT_DIR).join(file)
+    }
+
     #[test]
     fn json_hex_address_round_trip() {
-        let filename = "test-hex_address_round_trip.json";
+        let filename = output_path("test-hex_address_round_trip.json");
         let addr: n18map::HexAddress = "A5".parse().unwrap();
         let de_in = HexAddress { addr };
-        let file = File::create(filename).unwrap();
+        let file = File::create(&filename).unwrap();
         serde_json::to_writer(file, &de_in).unwrap();
-        let file = File::open(filename).unwrap();
+        let file = File::open(&filename).unwrap();
         let reader = BufReader::new(file);
         let de_out: HexAddress = serde_json::from_reader(reader).unwrap();
         assert_eq!(de_in.addr, de_out.addr);
@@ -364,7 +370,7 @@ mod tests {
 
     #[test]
     fn json_visit_round_trip() {
-        let filename = "test-visit_round_trip.json";
+        let filename = output_path("test-visit_round_trip.json");
         let addr: n18map::HexAddress = "A5".parse().unwrap();
         let visit_in = n18route::Visit {
             addr,
@@ -372,9 +378,9 @@ mod tests {
             visits: n18route::StopLocation::City { ix: 2 },
         };
         let de_in: Visit = visit_in.into();
-        let file = File::create(filename).unwrap();
+        let file = File::create(&filename).unwrap();
         serde_json::to_writer(file, &de_in).unwrap();
-        let file = File::open(filename).unwrap();
+        let file = File::open(&filename).unwrap();
         let reader = BufReader::new(file);
         let de_out: Visit = serde_json::from_reader(reader).unwrap();
         assert_eq!(de_in, de_out);
