@@ -1,6 +1,9 @@
 use navig18xx::prelude::*;
 
 fn main() {
+    // Specify where to save the output images.
+    let output_dir = std::path::Path::new("./examples/output");
+
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
 
@@ -27,6 +30,6 @@ fn main() {
     .label(Label::Revenue(0), HexCorner::Left.to_centre(0.1));
 
     tile_x5
-        .save_svg(&hex, "tile_x5.svg")
+        .save_svg(&hex, output_dir.join("tile_x5.svg"))
         .expect("Could not save tile X5 as an SVG");
 }

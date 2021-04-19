@@ -1,13 +1,19 @@
 use navig18xx::prelude::*;
 
+type Result = std::result::Result<(), Box<dyn std::error::Error>>;
+
 #[test]
-fn run_test() -> Result<(), Box<dyn std::error::Error>> {
-    let dev_guide_dir = std::path::Path::new("./book/src/dev_guide");
-    assert!(std::env::set_current_dir(&dev_guide_dir).is_ok());
-    main()
+fn test_optimal_routes_1() -> Result {
+    let output_dir = std::path::Path::new("./book/src/dev_guide");
+    optimal_routes_1(&output_dir)
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result {
+    let output_dir = std::path::Path::new("./examples/output");
+    optimal_routes_1(&output_dir)
+}
+
+fn optimal_routes_1(output_dir: &std::path::Path) -> Result {
     let hex_max_diameter = 125.0;
     let token_a = Token::new(TokenStyle::SideArcs {
         fg: (176, 176, 176).into(),
@@ -53,7 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Save the map (without any routes) to disk.
     example.draw_map();
-    example.write_png(margin, bg_rgba, "opt_r1.png");
+    example.write_png(margin, bg_rgba, output_dir.join("opt_r1.png"));
 
     for (suffix, trains) in &combinations {
         // Find the best route(s) for this train combination.
@@ -77,7 +83,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         // Save the image to disk.
-        example.write_png(margin, bg_rgba, format!("opt_r1_{}.png", suffix));
+        let basename = format!("opt_r1_{}.png", suffix);
+        example.write_png(margin, bg_rgba, output_dir.join(basename));
     }
 
     Ok(())
