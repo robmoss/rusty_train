@@ -352,7 +352,7 @@ fn draw_routes(
         .new_label(label_text)
         .font_family("Serif")
         .font_size(36.0)
-        .weight(pango::Weight::Bold)
+        .bold()
         .hjust(0.5)
         .vjust(0.0)
         .into_label()

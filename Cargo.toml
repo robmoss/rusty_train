@@ -39,9 +39,7 @@ log = "0.4"
 env_logger = "0.7"
 
 [dev-dependencies]
-# Use the minimum supported version of Pango (1.38).
-pango = { version = "0.9", features = ["v1_38"] }
-pangocairo = "0.10"
+# NOTE: list additional dependencies required by any of the examples here.
 
 [[example]]
 name = "example_routes"

@@ -390,6 +390,11 @@ impl<'a> LabelBuilder<'a> {
         self
     }
 
+    pub fn bold(mut self) -> Self {
+        self.weight = pango::Weight::Bold;
+        self
+    }
+
     pub fn hjust(mut self, hjust: f64) -> Self {
         self.hjust = hjust;
         self

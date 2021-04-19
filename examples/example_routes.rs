@@ -99,7 +99,7 @@ fn main() -> Result<()> {
         .new_label("navig18xx")
         .font_family("Serif")
         .font_size(36.0)
-        .weight(pango::Weight::Bold)
+        .bold()
         .hjust(hjust)
         .into_label()
         .expect("Could not create label");
