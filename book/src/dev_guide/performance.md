@@ -39,4 +39,4 @@ The following optimisations have been introduced:
 | Parallel iterator |    0:06 |    0:51 |    2:26 |
 | **Improvement:**  | **84%** | **84%** | **81%** |
 
-These times were obtained by running `cargo test --release 1867_bc`.
+These times were obtained by running `cargo test --release 1867_bc` using Rust 1.48.0 on Debian Buster (Linux kernel 5.10.28) with 8 GB RAM and an Intel Core i7-5600U CPU (2 cores, 4 MB cache).
