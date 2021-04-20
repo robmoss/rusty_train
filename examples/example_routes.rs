@@ -2,6 +2,9 @@ use navig18xx::prelude::*;
 use navig18xx::route::builder::{Result, RouteBuilder};
 use std::io::Write;
 
+mod output;
+use output::Dir;
+
 #[test]
 fn run_test() -> Result<()> {
     main()
@@ -23,7 +26,7 @@ fn main() -> Result<()> {
     .init();
 
     // Specify where to save the output images.
-    let output_dir = std::path::Path::new("./examples/output");
+    let output_dir = Dir::Examples;
 
     let hex_max_diameter = 125.0;
     let token_a = Token::new(TokenStyle::SideArcs {

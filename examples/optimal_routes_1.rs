@@ -1,19 +1,21 @@
 use navig18xx::prelude::*;
+mod output;
+use output::Dir;
 
 type Result = std::result::Result<(), Box<dyn std::error::Error>>;
 
 #[test]
 fn test_optimal_routes_1() -> Result {
-    let output_dir = std::path::Path::new("./book/src/dev_guide");
+    let output_dir = Dir::DevGuide;
     optimal_routes_1(&output_dir)
 }
 
 fn main() -> Result {
-    let output_dir = std::path::Path::new("./examples/output");
+    let output_dir = Dir::DevGuide;
     optimal_routes_1(&output_dir)
 }
 
-fn optimal_routes_1(output_dir: &std::path::Path) -> Result {
+fn optimal_routes_1(output_dir: &Dir) -> Result {
     let hex_max_diameter = 125.0;
     let token_a = Token::new(TokenStyle::SideArcs {
         fg: (176, 176, 176).into(),

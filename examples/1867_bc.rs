@@ -19,6 +19,9 @@ use std::path::Path;
 use navig18xx::game::_1867;
 use navig18xx::prelude::*;
 
+mod output;
+use output::Dir;
+
 /// The state of the 1867 game.
 pub struct GameState {
     example: Example,
@@ -46,33 +49,19 @@ pub struct CompanyInfo {
 ///     cargo test [options] -- --ignored
 ///
 fn test_1867_bc() -> Result<(), Box<dyn std::error::Error>> {
-    // Default to logging all messages up to ``log::Level::Info``, using a
-    // custom message format.
-    let log_level = "info";
-    env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or(log_level),
-    )
-    .format(|buf, record| {
-        writeln!(
-            buf,
-            "{} [{}] {}",
-            chrono::Local::now().format("%Y-%m-%dT%H:%M:%S"),
-            record.level(),
-            record.args()
-        )
-    })
-    .init();
-
-    let output_dir = Path::new("./examples/output");
     let use_cached_routes = false;
-    save_1867_bc_routes(&output_dir, &output_dir, use_cached_routes)
+    save_1867_bc_routes(use_cached_routes)
 }
 
 /// Run this example and write the output images to the book directory.
 /// This will use the cached routes, if they exist.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Default to logging all messages up to ``log::Level::Info``, using a
-    // custom message format.
+    let use_cached_routes = true;
+    save_1867_bc_routes(use_cached_routes)
+}
+
+/// Default to logging all messages up to ``log::Level::Info``.
+fn init_logging() {
     let log_level = "info";
     env_logger::Builder::from_env(
         env_logger::Env::default().default_filter_or(log_level),
@@ -87,17 +76,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
     })
     .init();
-    let image_dir = Path::new("./book/src");
-    let json_dir = Path::new("./examples/output");
-    let use_cached_routes = true;
-    save_1867_bc_routes(&image_dir, &json_dir, use_cached_routes)
 }
 
 fn save_1867_bc_routes(
-    image_dir: &Path,
-    json_dir: &Path,
     use_cached_routes: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let image_dir = Dir::BookRoot;
+    let json_dir = Dir::Examples;
+
+    init_logging();
+
     let mut state = game_state();
 
     // Save an image of the map prior to drawing any routes.

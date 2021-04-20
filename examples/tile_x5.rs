@@ -1,8 +1,11 @@
 use navig18xx::prelude::*;
 
+mod output;
+use output::Dir;
+
 fn main() {
     // Specify where to save the output images.
-    let output_dir = std::path::Path::new("./examples/output");
+    let output_dir = Dir::BookRoot;
 
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
