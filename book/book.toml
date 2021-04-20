@@ -14,3 +14,5 @@ preferred-dark-theme = "ayu"
 curly-quotes = true
 mathjax-support = true
 copy-fonts = false
+
+[output.linkcheck]
