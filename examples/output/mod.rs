@@ -33,3 +33,15 @@ impl Dir {
         Path::new(self.root()).join(filename)
     }
 }
+
+impl From<&Dir> for &'static Path {
+    fn from(src: &Dir) -> &'static Path {
+        Path::new(src.root())
+    }
+}
+
+impl From<Dir> for &'static Path {
+    fn from(src: Dir) -> &'static Path {
+        Path::new(src.root())
+    }
+}
