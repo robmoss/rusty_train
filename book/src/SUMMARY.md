@@ -10,6 +10,7 @@
   - [Selecting optimal routes](./user_guide/routes.md)
   - [Global keys](./user_guide/global.md)
 - [Developer guide](./dev_guide/index.md)
+  - [Overview](./dev_guide/overview.md)
   - [Crates](./dev_guide/crates.md)
   - [Cairo and drawing]()
   - [Hex geometry and styling]()
