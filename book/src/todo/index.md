@@ -98,8 +98,6 @@ Provide convenience methods that simplify the `State::draw()` methods for the UI
 
 ### n18ui
 
-Use native file-chooser dialogue windows (requires GTK 3.20)?
-
 Only allow a tile to be upgraded when the replacement tile preserves the original tile's connections.
 
 Record each action so that the full map history can be saved, and the user can walk backwards and forwards in time.
