@@ -2,6 +2,7 @@
 
 - [18xx introduction](./18xx_introduction.md)
   - [Motivation](./motivation.md)
+  - [The problem](./problem.md)
 - [User guide](./user_guide/index.md)
   - [Modal interface](./user_guide/modal.md)
   - [Default mode](./user_guide/default.md)
