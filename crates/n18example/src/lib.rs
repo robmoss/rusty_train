@@ -221,19 +221,19 @@ impl Example {
     }
 }
 
-pub fn tile_at(name: &'static str, addr: &'static str) -> PlacedTile {
+pub fn tile_at<'a>(name: &'a str, addr: &'a str) -> PlacedTile<'a> {
     PlacedTile::new(name, addr)
 }
 
-pub struct PlacedTile {
-    pub name: &'static str,
-    pub addr: &'static str,
+pub struct PlacedTile<'a> {
+    pub name: &'a str,
+    pub addr: &'a str,
     pub rotn: RotateCW,
-    pub toks: Vec<(usize, &'static str)>,
+    pub toks: Vec<(usize, &'a str)>,
 }
 
-impl PlacedTile {
-    pub fn new(name: &'static str, addr: &'static str) -> Self {
+impl<'a> PlacedTile<'a> {
+    pub fn new(name: &'a str, addr: &'a str) -> Self {
         PlacedTile {
             name,
             addr,
