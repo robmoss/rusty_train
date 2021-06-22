@@ -10,6 +10,7 @@ edition = "2018"
 [dependencies]
 n18hex = { path = "../n18hex" }
 n18token = { path = "../n18token" }
+n18tile = { path = "../n18tile" }
 n18catalogue = { path = "../n18catalogue" }
 n18map = { path = "../n18map" }
 n18route = { path = "../n18route" }

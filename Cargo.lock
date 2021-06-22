@@ -601,6 +601,7 @@ dependencies = [
  "n18hex",
  "n18map",
  "n18route",
+ "n18tile",
  "n18token",
  "pango",
  "pangocairo",

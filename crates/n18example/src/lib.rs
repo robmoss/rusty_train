@@ -6,6 +6,7 @@ use n18game::Game;
 use n18hex::Hex;
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Path, Route};
+use n18tile::Tile;
 use n18token::{Token, Tokens};
 use std::ops::Deref;
 
@@ -57,6 +58,34 @@ impl Example {
             rec_surf,
             rec_ctx,
         }
+    }
+
+    pub fn new_catalogue<T: ToString, H: Into<Hex>>(
+        hex: H,
+        tokens: Vec<(T, Token)>,
+        tiles: Vec<PlacedTile>,
+        catalogue: Vec<Tile>,
+    ) -> Self {
+        let hex = hex.into();
+        let tokens = tokens
+            .into_iter()
+            .map(|(name, style)| (name.to_string(), style))
+            .collect();
+        let token_mgr = Tokens::new(tokens);
+        let hexes: Vec<HexAddress> =
+            tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
+        let map = Map::new(catalogue, token_mgr, hexes);
+        let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
+            .expect("Can't create recording surface");
+        let rec_ctx = Context::new(&rec_surf);
+        let mut example = Example {
+            hex,
+            map,
+            rec_surf,
+            rec_ctx,
+        };
+        example.place_tiles(tiles);
+        example
     }
 
     pub fn place_tiles(&mut self, tiles: Vec<PlacedTile>) {

@@ -122,6 +122,7 @@ pub mod prelude;
 
 pub use n18brush as brush;
 pub use n18catalogue as catalogue;
+pub use n18example as example;
 pub use n18game as game;
 pub use n18hex as hex;
 pub use n18io as io;

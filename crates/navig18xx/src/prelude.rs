@@ -155,4 +155,7 @@ pub use n18ui::UI;
 pub use n18example::Example;
 
 #[doc(inline)]
+pub use n18example::PlacedTile;
+
+#[doc(inline)]
 pub use n18example::tile_at;

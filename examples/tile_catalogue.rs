@@ -10,16 +10,39 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let png_file = "tile_catalogue.png";
 
     let hex = Hex::new(hex_max_diameter);
-
-    // Build an iterator over tile names for the tile catalogue.
     let tiles = tile_catalogue(&hex);
-    let tokens: Vec<(String, _)> = vec![];
+    let example = place_tiles(hex, &tiles, num_rows, num_cols);
+    example.draw_map();
+    example.write_png(margin, bg_rgba, png_file);
+
+    let png_file = "tile_1867.png";
+    let num_rows = 8;
+    let num_cols = 16;
+
+    let hex = Hex::new(hex_max_diameter);
+    let game = navig18xx::game::_1867::Game::new(&hex);
+    // NOTE: this method currently returns special tiles too.
+    let tiles = game.player_tiles();
+    let example = place_tiles(hex, &tiles, num_rows, num_cols);
+    example.draw_map();
+    example.write_png(margin, bg_rgba, png_file);
+
+    Ok(())
+}
+
+fn place_tiles(
+    hex: Hex,
+    tiles: &[Tile],
+    rows: usize,
+    cols: usize,
+) -> Example {
+    // Build an iterator over tile names for the tile catalogue.
     let tile_names = tiles.iter().map(|t| &t.name).cycle();
 
     // Build an iterator over the map hexes.
     let mut tile_addrs: Vec<String> = vec![];
-    let rows: Vec<usize> = (0..num_rows).collect();
-    let cols: Vec<usize> = (0..num_cols).collect();
+    let rows: Vec<usize> = (0..rows).collect();
+    let cols: Vec<usize> = (0..cols).collect();
     for row in &rows {
         for col in &cols {
             let addr = HexAddress::new(*row, *col);
@@ -34,9 +57,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map(|(addr, name)| tile_at(name, addr))
         .collect();
 
-    // Draw the resulting map and save it as a PNG file.
-    let example = Example::new(hex, tokens, placed_tiles);
-    example.draw_map();
-    example.write_png(margin, bg_rgba, png_file);
-    Ok(())
+    let tokens: Vec<(String, _)> = vec![];
+    let example =
+        Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec());
+    example
 }
