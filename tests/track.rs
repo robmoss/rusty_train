@@ -128,7 +128,7 @@ fn track_contained_in_hex() {
                     ctx.set_line_cap(line_cap);
 
                     let name = format!("({:0.2}, {:0.2})", x0, x1);
-                    hex.draw_tile_name(&name, &ctx);
+                    Label::draw_custom_tile_name(&ctx, &hex, &name);
 
                     let basename = format!("test-tcih-{:04}.png", counter);
                     let filename = output_dir.join(basename);

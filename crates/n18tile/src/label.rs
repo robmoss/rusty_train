@@ -193,6 +193,31 @@ impl Label {
             }
         }
     }
+
+    /// Draw a tile name label with custom text, in the default position of
+    /// the bottom-right corner.
+    pub fn draw_custom_tile_name(ctx: &Context, hex: &Hex, name: &str) {
+        let layout = pangocairo::create_layout(ctx)
+            .expect("Could not create Pango layout");
+
+        // Select the appropriate font for this label.
+        let font_descr = Label::TileName.font_description(hex);
+        layout.set_font_description(Some(&font_descr));
+
+        layout.set_text(name);
+        layout.set_alignment(pango::Alignment::Center);
+        layout.set_wrap(pango::WrapMode::WordChar);
+        let label_type = LabelType::Text {
+            layout,
+            colour: (0.0, 0.0, 0.0),
+        };
+
+        let pos = HexPosition::Corner(HexCorner::BottomRight, None);
+        let origin = get_origin(hex, &pos, &label_type.size());
+        ctx.new_path();
+        label_type.draw(ctx, hex, origin);
+        ctx.new_path();
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
