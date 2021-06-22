@@ -1,6 +1,6 @@
 use crate::{City, Connection, Connections, Dit, Draw, Label, Track};
 use cairo::Context;
-use n18hex::{Hex, HexColour, HexPosition};
+use n18hex::{Hex, HexColour, HexCorner, HexPosition};
 use std::collections::HashMap;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -286,20 +286,8 @@ impl Tile {
         }
     }
 
-    fn label_text(&self, label: &Label) -> Option<String> {
-        match label {
-            Label::City(name) => Some(name.to_string()),
-            Label::Y => Some("Y".to_string()),
-            Label::TileName => Some(self.name.to_string()),
-            Label::MapLocation(name) => Some(name.to_string()),
-            Label::Revenue(ref ix) => {
-                self.revenues.get(*ix).map(|r| format!("{}", r))
-            }
-            Label::PhaseRevenue(ref revenues) => {
-                // TODO: what to do here? Concatenate? Return the first one?
-                revenues.get(0).map(|info| format!("{}", info.1))
-            }
-        }
+    pub fn get_revenues(self: &Self) -> &[usize] {
+        &self.revenues
     }
 
     pub fn draw(self: &Self, ctx: &Context, hex: &Hex) {
@@ -323,165 +311,14 @@ impl Tile {
         // Draw the tile name, except for special tiles such as those that are
         // part of the initial map and are not truly "tiles" as such.
         if self.show_tile_name {
-            Label::TileName.select_font(ctx, hex);
-            hex.draw_tile_name(&self.name, ctx);
+            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            let hex_pos = HexPosition::Corner(HexCorner::BottomRight, None);
+            Label::TileName.draw(ctx, hex, &hex_pos, &self);
         }
         // Draw other tile labels.
-        // NOTE: multi-phase revenue labels violate many of the assumptions
-        // used in the code below. This should be a Label method, so that each
-        // label type can draw itself.
-        // Label method so that the labels can draw themselves!
         for (label, pos) in &self.labels {
-            // TODO: can we avoid needing to pass ix for revenue labels?
-            if let Some(text) = self.label_text(label) {
-                label.select_font(ctx, hex);
-                if let &Label::Revenue(_ix) = label {
-                    hex.circ_text(text.as_ref(), *pos, ctx)
-                } else if let &Label::PhaseRevenue(ref revenues) = label {
-                    // Calculate the largest width and largest height of each
-                    // revenue string, and set this to the "box size" for each
-                    // of the revenue labels.
-                    // Then fill each box with the specified colour, draw a
-                    // thin black border, and draw the text in the middle.
-                    let pos: HexPosition = (*pos).into();
-                    let coord = pos.coord(hex);
-
-                    let scale = hex.max_d / 125.0;
-                    let mut font_descr = pango::FontDescription::new();
-                    font_descr.set_family("Sans");
-                    font_descr.set_absolute_size(
-                        10.0 * scale * pango::SCALE as f64,
-                    );
-                    font_descr.set_style(pango::Style::Normal);
-                    font_descr.set_weight(pango::Weight::Normal);
-
-                    let layout = pangocairo::create_layout(ctx)
-                        .expect("Could not create Pango layout");
-                    layout.set_font_description(Some(&font_descr));
-                    pangocairo::update_layout(ctx, &layout);
-
-                    let strings: Vec<String> = revenues
-                        .iter()
-                        .map(|info| format!("{}", info.1))
-                        .collect();
-                    let (max_w, max_h) = strings
-                        .iter()
-                        .map(|text| {
-                            layout.set_text(text);
-                            let (_ink_rect, logical_rect) =
-                                layout.get_pixel_extents();
-                            (logical_rect.width, logical_rect.height)
-                        })
-                        .fold((0, 0), |(curr_w, curr_h), (new_w, new_h)| {
-                            (curr_w.max(new_w), curr_h.max(new_h))
-                        });
-
-                    // Okay, now we know the maximum text size, we presumably
-                    // want some padding around that ...
-                    let num_boxes = strings.len();
-                    let margin_w = 2;
-                    let margin_h = 1;
-                    let box_w = (max_w + 2 * margin_w) as f64;
-                    let box_h = (max_h + 2 * margin_h) as f64;
-                    let net_w = num_boxes as f64 * box_w;
-                    let x0 = -0.5 * net_w;
-
-                    // Now we need to draw everything centred around coord.
-                    for ix in 0..num_boxes {
-                        ctx.new_path();
-                        let dy = -0.5 * box_h as f64;
-                        let dx = x0 + (ix as f64) * box_w;
-                        ctx.rectangle(
-                            coord.x + dx,
-                            coord.y + dy,
-                            box_w,
-                            box_h,
-                        );
-                        revenues[ix].0.set_source_rgb(ctx);
-                        ctx.fill();
-                        // Locate the centre of this box.
-                        let centre_x = coord.x + dx + 0.5 * box_w;
-                        let centre_y = coord.y + dy + 0.5 * box_h;
-                        layout.set_text(&strings[ix]);
-                        let (_ink_rect, r) = layout.get_pixel_extents();
-                        ctx.move_to(
-                            centre_x - 0.5 * (r.width as f64) - r.x as f64,
-                            centre_y - 0.5 * (r.height as f64) - r.y as f64,
-                        );
-                        ctx.set_source_rgb(0.0, 0.0, 0.0);
-                        pangocairo::update_layout(ctx, &layout);
-                        pangocairo::show_layout(ctx, &layout);
-                        ctx.new_path();
-                    }
-                    // Draw a darker border around the active revenue.
-                    for ix in 0..num_boxes {
-                        let is_active_box = revenues[ix].2;
-                        if is_active_box {
-                            ctx.new_path();
-                            let dy = -0.5 * box_h as f64;
-                            let dx = x0 + (ix as f64) * box_w;
-                            ctx.rectangle(
-                                coord.x + dx,
-                                coord.y + dy,
-                                box_w,
-                                box_h,
-                            );
-                            ctx.set_source_rgb(0.0, 0.0, 0.0);
-                            ctx.stroke();
-                        }
-                    }
-                } else if let &Label::MapLocation(ref name) = label {
-                    let pos: HexPosition = (*pos).into();
-                    let coord = pos.coord(hex);
-                    let exts = ctx.text_extents(&text);
-                    let nudge = hex.text_nudge(&pos, &exts);
-                    ctx.move_to(coord.x + nudge.x, coord.y + nudge.y);
-                    let layout = pangocairo::create_layout(ctx)
-                        .expect("Could not create Pango layout");
-                    layout.set_text(&name);
-                    let mut font_descr = pango::FontDescription::new();
-                    font_descr.set_family("Serif");
-                    let scale = hex.max_d / 125.0;
-                    // NOTE: font size in *points* is used by set_size(), while
-                    // *device units* as used by set_absolute_size().
-                    font_descr.set_absolute_size(
-                        12.0 * scale * pango::SCALE as f64,
-                    );
-                    font_descr.set_style(pango::Style::Normal);
-                    font_descr.set_weight(pango::Weight::Bold);
-                    layout.set_font_description(Some(&font_descr));
-                    layout.set_width((80.0 * scale) as i32 * pango::SCALE);
-                    layout.set_alignment(pango::Alignment::Center);
-                    layout.set_wrap(pango::WrapMode::WordChar);
-                    pangocairo::update_layout(ctx, &layout);
-                    // Note that both extents may have non-zero x and y, and
-                    // these should be used to offset where the text is drawn.
-                    let (_ink_rect, logical_rect) =
-                        layout.get_pixel_extents();
-                    let (dx, dy) = layout.get_pixel_size();
-                    let nudge_fac = 0.5;
-                    ctx.move_to(
-                        coord.x
-                            - nudge_fac * dx as f64
-                            - logical_rect.x as f64,
-                        coord.y
-                            - nudge_fac * dy as f64
-                            - logical_rect.y as f64,
-                    );
-                    if self.colour == HexColour::Red
-                        || self.colour == HexColour::Blue
-                    {
-                        ctx.set_source_rgb(1.0, 1.0, 1.0);
-                    } else {
-                        ctx.set_source_rgb(0.0, 0.0, 0.0);
-                    }
-                    pangocairo::update_layout(ctx, &layout);
-                    pangocairo::show_layout(ctx, &layout);
-                    ctx.new_path();
-                } else {
-                    hex.text(text.as_ref(), *pos, ctx)
-                }
-            }
+            let hex_pos: HexPosition = (*pos).into();
+            label.draw(ctx, hex, &hex_pos, &self);
         }
     }
 
