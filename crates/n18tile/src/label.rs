@@ -255,6 +255,121 @@ fn layout_size(layout: &pango::Layout) -> Size {
     rect.into()
 }
 
+/// The supported options for horizontal alignment.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AlignHoriz {
+    Left,
+    Centre,
+    Right,
+}
+
+/// The supported options for vertical alignment.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AlignVert {
+    Top,
+    Middle,
+    Bottom,
+}
+
+/// The alignment for a label, relative to its position coordinates.
+///
+/// Construct values of this type from [HexPosition] values:
+///
+/// ```
+/// # use n18hex::HexPosition;
+/// # use n18tile::label::{Alignment, AlignHoriz, AlignVert};
+/// let delta = None;
+/// let pos = HexPosition::Centre(delta);
+/// let alignment: Alignment = pos.into();
+/// assert!(alignment.horiz == AlignHoriz::Centre);
+/// assert!(alignment.vert == AlignVert::Middle);
+/// ```
+///
+/// # Horizontal alignment
+///
+/// - **Centre:** [HexPosition::Centre], and the top and bottom faces.
+/// - **Left:** corners and faces on the left half of the hex.
+/// - **Right:** corners and faces on the right half of the hex.
+///
+/// # Vertical alignment
+///
+/// - **Middle:** [HexPosition::Centre], and the left and right corners.
+/// - **Top:** corners and faces in the upper half of the hex.
+/// - **Bottom:** corners and faces in the lower half of the hex.
+///
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Alignment {
+    pub horiz: AlignHoriz,
+    pub vert: AlignVert,
+}
+
+impl Alignment {
+    /// Return the coordinates at which to draw a label of the given size, so
+    /// that it is aligned correctly with respect to the provided origin.
+    pub fn align_origin(&self, size: &Size, mut origin: Coord) -> Coord {
+        use AlignHoriz::*;
+        use AlignVert::*;
+        let shift_h = match self.horiz {
+            Left => 0.0,
+            Centre => -0.5,
+            Right => -1.0,
+        };
+        let shift_v = match self.vert {
+            Top => 0.0,
+            Middle => -0.5,
+            Bottom => -1.0,
+        };
+        origin.x += shift_h * size.width;
+        origin.y += shift_v * size.height;
+        origin
+    }
+}
+
+/// Define the alignment associated with each [HexPosition].
+impl From<HexPosition> for Alignment {
+    fn from(pos: HexPosition) -> Self {
+        (&pos).into()
+    }
+}
+
+/// Define the alignment associated with each [HexPosition].
+impl From<&HexPosition> for Alignment {
+    fn from(pos: &HexPosition) -> Self {
+        use HexCorner::*;
+        use HexFace::*;
+        use HexPosition::*;
+        let horiz = match *pos {
+            Centre(_) => AlignHoriz::Centre,
+            Face(Bottom, _) | Face(Top, _) => AlignHoriz::Centre,
+            Face(LowerLeft, _)
+            | Face(UpperLeft, _)
+            | Corner(BottomLeft, _)
+            | Corner(Left, _)
+            | Corner(TopLeft, _) => AlignHoriz::Left,
+            Face(LowerRight, _)
+            | Face(UpperRight, _)
+            | Corner(BottomRight, _)
+            | Corner(Right, _)
+            | Corner(TopRight, _) => AlignHoriz::Right,
+        };
+        let vert = match *pos {
+            Centre(_) => AlignVert::Middle,
+            Corner(Left, _) | Corner(Right, _) => AlignVert::Middle,
+            Face(UpperLeft, _)
+            | Face(Top, _)
+            | Face(UpperRight, _)
+            | Corner(TopLeft, _)
+            | Corner(TopRight, _) => AlignVert::Top,
+            Face(LowerLeft, _)
+            | Face(Bottom, _)
+            | Face(LowerRight, _)
+            | Corner(BottomLeft, _)
+            | Corner(BottomRight, _) => AlignVert::Bottom,
+        };
+        Alignment { horiz, vert }
+    }
+}
+
 /// Position the label with respect to an appropriate location on its bounding
 /// box, so that the label remains within the tile.
 /// This typically means select the point that is closest to the specified hex
@@ -264,82 +379,13 @@ pub fn get_origin(hex: &Hex, pos: &HexPosition, size: &Size) -> Coord {
     // anchor.
     // Note that this will include any "nudge" (delta) in pos.
     let mut coord = pos.coord(hex);
-    // Obtain the width and height of the label's bounding box.
-    let width = size.width;
-    let height = size.height;
     // Negate the dx and dy offsets.
     coord.x -= size.dx;
     coord.y -= size.dy;
 
     // Adjust the coordinates to align the label with the appropriate anchor.
-    match *pos {
-        HexPosition::Centre(_delta_opt) => {
-            // Centre of tile: anchor is the centre of the label.
-            coord.x -= 0.5 * width;
-            coord.y -= 0.5 * height;
-            coord
-        }
-        HexPosition::Corner(corner, _delta_opt) => {
-            match corner {
-                HexCorner::BottomLeft => {
-                    // Anchor to the bottom-left label corner.
-                    coord.y -= height;
-                }
-                HexCorner::Left => {
-                    // Anchor to the left label side.
-                    coord.y -= 0.5 * height;
-                }
-                HexCorner::TopLeft => {
-                    // Anchor to the top-left label corner.
-                }
-                HexCorner::BottomRight => {
-                    // Anchor to the bottom-right label corner.
-                    coord.x -= width;
-                    coord.y -= height;
-                }
-                HexCorner::Right => {
-                    // Anchor to the right label side.
-                    coord.x -= width;
-                    coord.y -= 0.5 * height;
-                }
-                HexCorner::TopRight => {
-                    // Anchor to the top-right label corner.
-                    coord.x -= width;
-                }
-            }
-            coord
-        }
-        HexPosition::Face(face, _delta_opt) => {
-            match face {
-                HexFace::Bottom => {
-                    // Anchor to the bottom label side.
-                    coord.x -= 0.5 * width;
-                    coord.y -= height;
-                }
-                HexFace::Top => {
-                    // Anchor to the top label side.
-                    coord.x -= 0.5 * width;
-                }
-                HexFace::LowerLeft => {
-                    // Anchor to the bottom-left corner.
-                    coord.y -= height;
-                }
-                HexFace::UpperLeft => {
-                    // Anchor to the top-left corner.
-                }
-                HexFace::LowerRight => {
-                    // Anchor to the bottom-right corner.
-                    coord.x -= width;
-                    coord.y -= height;
-                }
-                HexFace::UpperRight => {
-                    // Anchor to the top-right corner.
-                    coord.x -= width;
-                }
-            }
-            coord
-        }
-    }
+    let alignment: Alignment = pos.into();
+    alignment.align_origin(size, coord)
 }
 
 /// The different types of labels that may appear on a tile.
