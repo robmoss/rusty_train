@@ -346,17 +346,6 @@ impl Token {
         // NOTE: hard-coded example for use with 1867.
         let text = if text == "CNR" { "CN\nR" } else { text };
 
-        // Move to the appropriate starting location so that the text is
-        // centred at the desired location.
-        let exts = ctx.text_extents(text);
-        let dx = -0.5 * exts.width;
-        let dy = 0.5 * exts.height;
-
-        // Shift the text according to the values of `x_pcnt` and `y_pcnt`.
-        let radius = hex.max_d * 0.125;
-        let x = (radius + dx) * ((self.x_pcnt as f64 - 50.0) / 50.0);
-        let y = (radius - dy) * ((self.y_pcnt as f64 - 50.0) / 50.0);
-
         // NOTE: use pango to draw the label on tokens, so that we can specify
         // a maximum width and wrap the text, and support line breaks for
         // token names that are deliberately split over multiple lines.
@@ -370,6 +359,19 @@ impl Token {
             .expect("Could not create Pango layout");
         layout.set_font_description(Some(&font_descr));
         layout.set_text(text);
+
+        // Determine the logical extents of the token text.
+        let size = layout.get_pixel_extents().1;
+
+        // Move to the appropriate starting location so that the text is
+        // centred at the desired location.
+        let dx = -0.5 * size.width as f64 - size.x as f64;
+        let dy = -0.5 * size.height as f64 - size.y as f64;
+
+        // Shift the text according to the values of `x_pcnt` and `y_pcnt`.
+        let radius = hex.max_d * 0.125;
+        let x = (radius + dx) * ((self.x_pcnt as f64 - 50.0) / 50.0);
+        let y = (radius + dy) * ((self.y_pcnt as f64 - 50.0) / 50.0);
 
         // Draw the token label.
         self.style.text_colour().apply_to(ctx);
