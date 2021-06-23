@@ -62,15 +62,15 @@ Complications include: rusting, nationalisation, mergers, loans, buying private 
 
 ### n18hex
 
-Improve text positioning and drawing, make use of [pangocairo](https://gtk-rs.org/docs/pangocairo/).
+Nothing.
 
 ### n18tile
 
-Make `Label` handle label-specific drawing, rather than handling everything in `Tile::draw()`.
+Consider moving text-rendering code to a new crate, so that it can also be used by `n18tile` and `n18example`.
 
 ### n18token
 
-Defer text positioning and drawing to `n18hex`?
+Defer text positioning and drawing to `n18tile::Label`?
 
 ### n18catalogue
 
