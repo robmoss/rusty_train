@@ -12,26 +12,9 @@ The ``navig18xx`` crate is a wrapper that groups together a number of sub-crates
 - ``n18game`` defines the elements that are required to describe a specific 18xx game implementation, and currently provides an (incomplete) implementation of 1867.
 - ``n18brush`` defines common drawing operations, such as drawing the map background, drawing each map hex, and highlighting train routes.
 - ``n18ui`` defines a GTK user interface for creating and modifying 18xx map states, and calculating the optimal revenue for each company.
+- ``n18example`` provides convenience functions for building example figures of maps, routes, etc.
 
 The ``navig18xx`` crate exports the main public types, traits, values, and functions from these crates in the ``navig18xx::prelude`` module.
 
 It also exports each of these crates without the ``n18`` prefix.
 For example, ``n18hex`` is re-exported as ``navig18xx::hex``.
-
-## Features
-
-The `navig18xx` crate has one default feature: `ui`.
-Disabling this feature removes the dependency on `n18ui` and GTK.
-You can compile `navig18xx` without this feature with the following command:
-
-```shell
-cargo build --manifest-path crates/navig18xx/Cargo.toml -p navig18xx --no-default-features
-```
-
-Similarly, you can build the `navig18xx` documentation without this feature with the following command:
-
-```shell
-cargo doc --manifest-path crates/navig18xx/Cargo.toml -p navig18xx --no-default-features
-```
-
-Note that the `--manifest-path` arguments [are](https://github.com/rust-lang/cargo/issues/4753) [necessary](https://github.com/rust-lang/cargo/issues/5015) for now.

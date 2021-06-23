@@ -13,6 +13,8 @@
 - [Developer guide](./dev_guide/index.md)
   - [Overview](./dev_guide/overview.md)
   - [Crates](./dev_guide/crates.md)
+  - [Features](./dev_guide/features.md)
+  - [Testing](./dev_guide/testing.md)
   - [Cairo and drawing]()
   - [Hex geometry and styling]()
   - [Tile elements]()
