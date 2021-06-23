@@ -12,6 +12,9 @@ edition = "2018"
 # https://doc.rust-lang.org/stable/rustdoc/linking-to-items-by-name.html
 # Rust 1.48 also speeds up compile times, likely due to an async compilation
 # regression being fixed (https://github.com/rust-lang/rust/pull/78410).
+# Require Rust 1.51 for running all tests cases with `--include-ignored`,
+# and using the "version 2" resolver to enable/disable features for all crates
+# in the workspace.
 default-run = "rusty_train"
 
 [workspace]
