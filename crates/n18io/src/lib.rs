@@ -983,6 +983,12 @@ impl City {
                 .map(|r| r.into_rot())
                 .unwrap_or(n18tile::Rotation::Zero),
         );
+        // Apply the optional fill colour.
+        let city = if let Some(ref colour) = self.fill_colour {
+            city.with_fill(colour.into())
+        } else {
+            city
+        };
         city
     }
 }
