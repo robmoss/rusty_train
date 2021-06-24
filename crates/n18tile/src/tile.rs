@@ -169,9 +169,15 @@ impl Tile {
         }
     }
 
+    /// Do not display the tile name when drawing the tile.
     pub fn hide_tile_name(mut self) -> Self {
         self.show_tile_name = false;
         self
+    }
+
+    /// Returns whether the tile name is displayed when drawing the tile.
+    pub fn is_tile_name_visible(&self) -> bool {
+        self.show_tile_name
     }
 
     pub fn connections(&self, from: &Connection) -> Option<&[Connection]> {

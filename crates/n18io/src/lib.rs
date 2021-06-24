@@ -86,6 +86,21 @@ struct Tile {
     pub cities: Vec<City>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub labels: Vec<Label>,
+    #[serde(
+        default = "show_tile_name_default",
+        skip_serializing_if = "show_tile_name_skip"
+    )]
+    pub show_tile_name: bool,
+}
+
+/// By default, show tile names on the tile.
+fn show_tile_name_default() -> bool {
+    true
+}
+
+/// Only serialise 'show_tile_name' when its value is `false`.
+fn show_tile_name_skip(show: &bool) -> bool {
+    *show
 }
 
 impl std::convert::From<&n18tile::Tile> for Tile {
@@ -96,6 +111,7 @@ impl std::convert::From<&n18tile::Tile> for Tile {
             track: src.tracks().iter().map(|track| track.into()).collect(),
             cities: src.cities().iter().map(|city| city.into()).collect(),
             labels: src.labels().iter().map(|lnp| lnp.into()).collect(),
+            show_tile_name: src.is_tile_name_visible(),
         }
     }
 }
@@ -108,6 +124,7 @@ impl Default for Tile {
             track: vec![],
             cities: vec![],
             labels: vec![],
+            show_tile_name: true,
         }
     }
 }
@@ -731,6 +748,12 @@ impl Tile {
             let posn = label.position();
             tile.label((&label.label_type).into(), posn)
         });
+        // Hide the tile name label if it should not be displayed.
+        let tile = if !self.show_tile_name {
+            tile.hide_tile_name()
+        } else {
+            tile
+        };
         tile
     }
 }
@@ -998,6 +1021,7 @@ fn test_tiles() -> Tiles {
                     location: Location::Centre,
                     ..Default::default()
                 }],
+                ..Default::default()
             },
             Tile {
                 name: "4".to_string(),
