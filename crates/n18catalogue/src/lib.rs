@@ -10,8 +10,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
     use HexPosition::*;
     use TrackEnd::*;
 
-    // TODO: City/Y labels, revenue ...
-
     vec![
         Tile::new(
             Yellow,
@@ -25,7 +23,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        // TODO: label at centre
         .label(Label::Revenue(0), Centre(None)),
         Tile::new(
             Yellow,
@@ -39,7 +36,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        // TODO: nudge towards centre
         .label(Label::Revenue(0), LowerLeft.to_centre(0.3)),
         Tile::new(
             Yellow,
@@ -48,7 +44,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![City::single(20)],
             hex,
         )
-        // TODO: nudge towards centre
         .label(Label::Revenue(0), TopLeft.to_centre(0.3)),
         Tile::new(
             Yellow,
@@ -57,8 +52,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![City::single(20)],
             hex,
         )
-        // TODO: nudge towards centre
-        .label(Label::Revenue(0), Top.to_centre(0.3)),
+        .label(Label::Revenue(0), Top.to_centre(0.2)),
         Tile::new(Yellow, "7", vec![Track::hard_r(Bottom)], vec![], hex),
         Tile::new(Yellow, "8", vec![Track::gentle_r(Bottom)], vec![], hex),
         Tile::new(Yellow, "9", vec![Track::straight(Bottom)], vec![], hex),
@@ -311,7 +305,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![City::single(20)],
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.4)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.2)),
         Tile::new(
             Yellow,
             "58",
@@ -324,7 +318,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.7)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
         Tile::new(
             Brown,
             "63",
@@ -377,7 +371,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), UpperRight.to_centre(0.4)),
+        .label(Label::Revenue(0), UpperRight.to_centre(0.2)),
         Tile::new(
             Green,
             "120",
@@ -387,15 +381,17 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::hard_l(Top).with_span(0.0, 0.5),
                 Track::hard_l(Top).with_span(0.5, 1.0),
             ],
-            // TODO: Toronto label
             vec![
                 City::single_at_corner(60, &Left),
                 City::single_at_corner(60, &TopRight),
             ],
             hex,
         )
-        .label(Label::City("T".to_string()), LowerRight.to_centre(0.3))
-        .label(Label::Revenue(0), Bottom.to_centre(1.0)),
+        .label(
+            Label::City("T".to_string()),
+            LowerRight.nudge(Direction::W, 0.15),
+        )
+        .label(Label::Revenue(0), Centre(None)),
         Tile::new(
             Brown,
             "122",
@@ -405,7 +401,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::hard_l(Top).with_span(0.0, 0.5),
                 Track::hard_l(Top).with_span(0.5, 1.0),
             ],
-            // TODO: Toronto label
             vec![
                 City::double_at_corner(80, &Left),
                 City::double_at_corner(80, &TopRight),
@@ -416,44 +411,39 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             Label::City("T".to_string()),
             BottomRight.nudge(Direction::N, 0.2),
         )
-        .label(Label::Revenue(0), Bottom.to_centre(1.0)),
+        .label(Label::Revenue(0), Centre(None)),
         Tile::new(
             Grey,
             "124",
-            // NOTE: here we have a single track segment that *PASSES THROUGH*
-            // a city/token space ...
             vec![
                 Track::mid(LowerLeft),
                 Track::mid(UpperLeft),
                 Track::mid(Top),
                 Track::mid(UpperRight),
             ],
-            // TODO: Toronto label
             vec![City::quad(100)],
             hex,
         )
-        .label(Label::City("T".to_string()), TopRight)
-        .label(Label::Revenue(0), Right),
+        .label(Label::City("T".to_string()), TopRight.to_centre(0.05))
+        .label(Label::Revenue(0), Right.to_centre(0.08)),
         Tile::new(
             Yellow,
             "201",
             vec![Track::mid(Bottom), Track::mid(LowerRight)],
-            // TODO: Y label
             vec![City::single(30)],
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.3))
-        .label(Label::Y, LowerLeft.to_centre(0.4)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.25))
+        .label(Label::Y, LowerLeft.to_centre(0.2)),
         Tile::new(
             Yellow,
             "202",
             vec![Track::mid(Bottom), Track::mid(UpperRight)],
-            // TODO: Y label
             vec![City::single(30)],
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.3))
-        .label(Label::Y, LowerLeft.to_centre(0.4)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.25))
+        .label(Label::Y, LowerLeft.to_centre(0.2)),
         Tile::new(
             Green,
             "204",
@@ -466,7 +456,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), LowerLeft.to_centre(0.5)),
+        .label(Label::Revenue(0), LowerLeft.to_centre(0.25)),
         Tile::new(
             Green,
             "207",
@@ -476,12 +466,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(UpperLeft),
                 Track::mid(Top),
             ],
-            // TODO: Y label
             vec![City::double(40)],
             hex,
         )
         .label(Label::Revenue(0), TopLeft.to_centre(0.15))
-        .label(Label::Y, TopRight.to_centre(0.1)),
+        .label(Label::Y, TopRight.to_centre(0.15)),
         Tile::new(
             Green,
             "208",
@@ -491,12 +480,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(UpperRight),
                 Track::mid(Top),
             ],
-            // TODO: Y label
             vec![City::double(40)],
             hex,
         )
         .label(Label::Revenue(0), BottomLeft.to_centre(0.15))
-        .label(Label::Y, TopLeft.to_centre(0.1)),
+        .label(Label::Y, TopLeft.to_centre(0.15)),
         Tile::new(
             Brown,
             "611",
@@ -510,7 +498,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![City::double(40)],
             hex,
         )
-        .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
+        .label(Label::Revenue(0), TopLeft.to_centre(0.125)),
         Tile::new(
             Green,
             "619",
@@ -531,12 +519,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::straight(Bottom).with_span(0.0, 0.5),
                 Track::straight(Bottom).with_span(0.5, 1.0),
             ],
-            // TODO: Y label
             vec![City::single(30)],
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.3))
-        .label(Label::Y, LowerLeft.to_centre(0.4)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.1))
+        .label(Label::Y, LowerLeft.to_centre(0.2)),
         Tile::new(
             Green,
             "622",
@@ -546,7 +533,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(Top),
                 Track::mid(UpperRight),
             ],
-            // TODO: Y label
             vec![City::double(40)],
             hex,
         )
@@ -563,11 +549,10 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(UpperRight),
                 Track::mid(LowerRight),
             ],
-            // TODO: Y label
             vec![City::double(50)],
             hex,
         )
-        .label(Label::Y, TopRight.to_centre(0.1))
+        .label(Label::Y, TopRight.to_centre(0.15))
         .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Green,
@@ -601,7 +586,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::hard_l(UpperRight).with_span(0.0, 0.5),
                 Track::hard_l(UpperRight).with_span(0.5, 1.0),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_corner(50, &BottomLeft),
                 City::single_at_corner(50, &TopLeft),
@@ -609,13 +593,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), Left.to_centre(0.1))
+        .label(Label::City("M".to_string()), Left.to_centre(0.25))
         .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Grey,
             "639",
-            // NOTE: here we have a single track segment that *PASSES THROUGH*
-            // a city/token space ...
             vec![
                 Track::mid(Bottom),
                 Track::mid(LowerLeft),
@@ -624,12 +606,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(UpperRight),
                 Track::mid(LowerRight),
             ],
-            // TODO: Montreal label
             vec![City::quad(100)],
             hex,
         )
-        .label(Label::City("M".to_string()), TopRight)
-        .label(Label::Revenue(0), Right),
+        .label(Label::City("M".to_string()), TopRight.to_centre(0.05))
+        .label(Label::Revenue(0), Right.to_centre(0.08)),
         Tile::new(
             Brown,
             "801",
@@ -639,11 +620,10 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(UpperLeft),
                 Track::mid(Top),
             ],
-            // TODO: Y label
             vec![City::double(50)],
             hex,
         )
-        .label(Label::Y, Right.to_centre(0.1))
+        .label(Label::Y, Right.to_centre(0.2))
         .label(Label::Revenue(0), TopRight.to_centre(0.15)),
         Tile::new(
             Brown,
@@ -658,7 +638,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.25)),
         Tile::new(
             Green,
             "X1",
@@ -670,7 +650,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::straight(LowerRight).with_span(0.0, 0.1),
                 Track::straight(LowerRight).with_span(0.1, 1.0),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(50, &Top),
                 City::single_at_face(50, &LowerLeft),
@@ -678,9 +657,10 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), BottomLeft)
-        // TODO: nudge isn't doing anything!!!
-        // Need to scale by hex.max_d !!!
+        .label(
+            Label::City("M".to_string()),
+            BottomLeft.nudge(Direction::E, 0.05),
+        )
         .label(Label::Revenue(0), TopLeft.nudge(Direction::SSW, 0.16)),
         Tile::new(
             Green,
@@ -693,7 +673,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::straight(Bottom).with_span(0.0, 0.9),
                 Track::straight(Bottom).with_span(0.9, 1.0),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(50, &Top),
                 City::single_at_face(50, &UpperLeft),
@@ -701,8 +680,11 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), BottomLeft)
-        .label(Label::Revenue(0), Right.nudge(Direction::NW, 0.12)),
+        .label(
+            Label::City("M".to_string()),
+            BottomLeft.nudge(Direction::E, 0.05),
+        )
+        .label(Label::Revenue(0), Right.nudge(Direction::NWW, 0.15)),
         Tile::new(
             Green,
             "X3",
@@ -714,7 +696,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::hard_l(LowerLeft).with_span(0.0, 0.5),
                 Track::hard_l(LowerLeft).with_span(0.5, 1.0),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(50, &Top),
                 City::single_at_face(50, &Bottom),
@@ -724,10 +705,8 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::NW, 0.1),
+            BottomLeft.nudge(Direction::NNW, 0.1),
         )
-        // TODO: nudge isn't doing anything!!!
-        // Need to scale by hex.max_d !!!
         .label(Label::Revenue(0), TopLeft.nudge(Direction::SSW, 0.16)),
         Tile::new(
             Green,
@@ -740,7 +719,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::hard_r(LowerRight).with_span(0.0, 0.5),
                 Track::hard_r(LowerRight).with_span(0.5, 1.0),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(50, &Top),
                 City::single_at_corner(50, &Left),
@@ -766,14 +744,16 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(LowerRight),
                 Track::mid(UpperRight),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(70, &Top),
                 City::double(70).nudge(Direction::S, 0.1),
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), BottomLeft)
+        .label(
+            Label::City("M".to_string()),
+            BottomLeft.nudge(Direction::E, 0.05),
+        )
         .label(Label::Revenue(0), Left.to_centre(0.1)),
         Tile::new(
             Brown,
@@ -786,7 +766,6 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::mid(LowerRight),
                 Track::mid(UpperRight),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_corner(70, &Left),
                 City::double(70)
@@ -795,7 +774,10 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), BottomLeft)
+        .label(
+            Label::City("M".to_string()),
+            BottomLeft.nudge(Direction::E, 0.05),
+        )
         .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Brown,
@@ -808,14 +790,13 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 Track::straight(Top).with_span(0.0, 0.65),
                 Track::straight(Bottom).with_span(0.0, 0.35),
             ],
-            // TODO: Montreal label
             vec![
                 City::single_at_face(70, &UpperRight),
                 City::double(70).nudge(Direction::S, 0.3),
             ],
             hex,
         )
-        .label(Label::City("M".to_string()), Left)
+        .label(Label::City("M".to_string()), Left.to_centre(0.15))
         .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
             Grey,
@@ -831,15 +812,12 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             vec![City::triple(60).rotate(Rotation::HalfTurn)],
             hex,
         )
-        // NOTE: add city and revenue labels.
-        .label(Label::City("O".to_string()), Left)
+        .label(Label::City("O".to_string()), Left.to_centre(0.15))
         .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
         Tile::new(
             Yellow,
             "IN10",
             vec![
-                // TODO! dit is at the wrong location for gentle_l !!!
-                // FIXED! But how to test?!?
                 Track::gentle_l(Bottom)
                     .with_span(0.0, 0.85)
                     .with_dit(End, 30, Bar),

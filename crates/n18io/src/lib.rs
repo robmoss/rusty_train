@@ -1070,7 +1070,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::TopFace,
-                    to_centre: Some(0.3),
+                    to_centre: Some(0.2),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -1622,7 +1622,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperLeftFace,
-                    to_centre: Some(0.4),
+                    to_centre: Some(0.2),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -1646,7 +1646,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperLeftFace,
-                    to_centre: Some(0.7),
+                    to_centre: Some(0.5),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -1771,7 +1771,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperRightFace,
-                    to_centre: Some(0.4),
+                    to_centre: Some(0.2),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -1820,13 +1820,12 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("T".to_string()),
                         location: Location::LowerRightFace,
-                        to_centre: Some(0.3),
+                        nudge: Some((Direction::W, 0.15)),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
-                        location: Location::BottomFace,
-                        to_centre: Some(1.0),
+                        location: Location::Centre,
                         ..Default::default()
                     },
                 ],
@@ -1882,8 +1881,7 @@ fn test_tiles() -> Tiles {
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
-                        location: Location::BottomFace,
-                        to_centre: Some(1.0),
+                        location: Location::Centre,
                         ..Default::default()
                     },
                 ],
@@ -1919,11 +1917,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("T".to_string()),
                         location: Location::TopRightCorner,
+                        to_centre: Some(0.05),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::RightCorner,
+                        to_centre: Some(0.08),
                         ..Default::default()
                     },
                 ],
@@ -1951,13 +1951,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        to_centre: Some(0.3),
+                        to_centre: Some(0.25),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::LowerLeftFace,
-                        to_centre: Some(0.4),
+                        to_centre: Some(0.2),
                         ..Default::default()
                     },
                 ],
@@ -1985,13 +1985,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        to_centre: Some(0.3),
+                        to_centre: Some(0.25),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::LowerLeftFace,
-                        to_centre: Some(0.4),
+                        to_centre: Some(0.2),
                         ..Default::default()
                     },
                 ],
@@ -2022,7 +2022,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::LowerLeftFace,
-                    to_centre: Some(0.5),
+                    to_centre: Some(0.25),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -2063,7 +2063,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::TopRightCorner,
-                        to_centre: Some(0.1),
+                        to_centre: Some(0.15),
                         ..Default::default()
                     },
                 ],
@@ -2105,7 +2105,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::TopLeftCorner,
-                        to_centre: Some(0.1),
+                        to_centre: Some(0.15),
                         ..Default::default()
                     },
                 ],
@@ -2144,7 +2144,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::TopLeftCorner,
-                    to_centre: Some(0.1),
+                    to_centre: Some(0.125),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -2206,13 +2206,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::UpperLeftFace,
-                        to_centre: Some(0.3),
+                        to_centre: Some(0.1),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::LowerLeftFace,
-                        to_centre: Some(0.4),
+                        to_centre: Some(0.2),
                         ..Default::default()
                     },
                 ],
@@ -2298,7 +2298,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::TopRightCorner,
-                        to_centre: Some(0.1),
+                        to_centre: Some(0.15),
                         ..Default::default()
                     },
                     Label {
@@ -2413,7 +2413,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::LeftCorner,
-                        to_centre: Some(0.1),
+                        to_centre: Some(0.25),
                         ..Default::default()
                     },
                     Label {
@@ -2463,11 +2463,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::TopRightCorner,
+                        to_centre: Some(0.05),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::RightCorner,
+                        to_centre: Some(0.08),
                         ..Default::default()
                     },
                 ],
@@ -2503,7 +2505,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Y(()),
                         location: Location::RightCorner,
-                        to_centre: Some(0.1),
+                        to_centre: Some(0.2),
                         ..Default::default()
                     },
                     Label {
@@ -2544,7 +2546,7 @@ fn test_tiles() -> Tiles {
                 labels: vec![Label {
                     label_type: LabelType::Revenue(0),
                     location: Location::UpperLeftFace,
-                    to_centre: Some(0.5),
+                    to_centre: Some(0.25),
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -2605,6 +2607,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
+                        nudge: Some((Direction::E, 0.05)),
                         ..Default::default()
                     },
                     Label {
@@ -2672,12 +2675,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
+                        nudge: Some((Direction::E, 0.05)),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::RightCorner,
-                        nudge: Some((Direction::NW, 0.12)),
+                        nudge: Some((Direction::NWW, 0.15)),
                         ..Default::default()
                     },
                 ],
@@ -2739,7 +2743,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
-                        nudge: Some((Direction::NW, 0.1)),
+                        nudge: Some((Direction::NNW, 0.1)),
                         ..Default::default()
                     },
                     Label {
@@ -2868,6 +2872,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
+                        nudge: Some((Direction::E, 0.05)),
                         ..Default::default()
                     },
                     Label {
@@ -2928,6 +2933,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
+                        nudge: Some((Direction::E, 0.05)),
                         ..Default::default()
                     },
                     Label {
@@ -2991,6 +2997,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::LeftCorner,
+                        to_centre: Some(0.15),
                         ..Default::default()
                     },
                     Label {
@@ -3041,6 +3048,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("O".to_string()),
                         location: Location::LeftCorner,
+                        to_centre: Some(0.15),
                         ..Default::default()
                     },
                     Label {

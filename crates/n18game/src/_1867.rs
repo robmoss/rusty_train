@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use n18catalogue::tile_catalogue;
-use n18hex::{Hex, HexColour, HexFace};
+use n18hex::{Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Bonus, Train};
 use n18tile::{Label, Tile};
@@ -532,10 +532,25 @@ fn game_tiles(hex: &Hex) -> Vec<Tile> {
     all_tiles
 }
 
+/// Position labels relative to the tile centre.
+///
+/// This means the label will be centred horizontally and vertically, relative
+/// to its position coordinates.
+fn off_centre(dir: n18hex::Direction, frac: f64) -> HexPosition {
+    HexPosition::Centre(Some(n18hex::Delta::Nudge(dir, frac)))
+}
+
+/// Position labels above the bottom hex face.
+///
+/// The default nudge is 0.215 towards the tile centre.
+fn above_bottom_face<F: Into<Option<f64>>>(pos: F) -> HexPosition {
+    let frac = pos.into().unwrap_or(0.215);
+    HexFace::Bottom.to_centre(frac)
+}
+
 /// Tiles that are specific to 1867 and which cannot be placed by the player.
 fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
-    use n18hex::Direction::*;
-    use n18hex::*;
+    use n18hex::{Direction::*, *};
     use n18tile::*;
     use HexColour::*;
     use HexCorner::*;
@@ -552,6 +567,11 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         "Kingston",
         "London",
     ];
+
+    let city_label_pos = off_centre(N, 0.525);
+    let y_label_pos = off_centre(S, 0.525);
+    let oy_y_label_pos = off_centre(SWW, 0.625);
+    let oy_o_label_pos = off_centre(SEE, 0.625);
 
     let cities_y = vec!["Quebec", "Berlin", "Hamilton"];
     let cities_oy = vec!["Ottawa"];
@@ -570,8 +590,11 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         ],
         hex,
     )
-    .label(Label::City("M".to_string()), UpperLeft.to_centre(0.3))
-    .label(Label::Revenue(0), UpperRight.to_centre(0.3));
+    .label(
+        Label::City("M".to_string()),
+        UpperLeft.nudge(Direction::E, 0.1),
+    )
+    .label(Label::Revenue(0), UpperRight.nudge(Direction::W, 0.1));
 
     let toronto = Tile::new(
         Yellow,
@@ -586,7 +609,10 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         ],
         hex,
     )
-    .label(Label::City("T".to_string()), UpperLeft.to_centre(0.3))
+    .label(
+        Label::City("T".to_string()),
+        UpperLeft.nudge(Direction::E, 0.15),
+    )
     .label(Label::Revenue(0), BottomRight.to_centre(0.1));
 
     let timmins_yw = Tile::new(
@@ -604,7 +630,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
     .label(Label::Revenue(0), BottomRight.to_centre(0.1))
     .label(
         Label::MapLocation("Timmins".to_string()),
-        Top.to_centre(0.4),
+        HexPosition::Centre(None).nudge(Direction::N, 0.525),
     );
 
     let timmins_gr = Tile::new(
@@ -622,36 +648,25 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
     .label(Label::Revenue(0), BottomRight.to_centre(0.1))
     .label(
         Label::MapLocation("Timmins".to_string()),
-        Top.to_centre(0.4),
+        HexPosition::Centre(None).nudge(Direction::N, 0.525),
     );
 
     cities
         .into_iter()
         .map(|name| {
-            Tile::new(Empty, name, vec![], vec![City::single(0)], hex).label(
-                Label::MapLocation(name.to_string()),
-                Top.to_centre(0.4),
-            )
+            Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
+                .label(Label::MapLocation(name.to_string()), city_label_pos)
         })
         .chain(cities_y.into_iter().map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
-                .label(Label::Y, Bottom.to_centre(0.3))
-                .label(
-                    Label::MapLocation(name.to_string()),
-                    Top.to_centre(0.4),
-                )
+                .label(Label::Y, y_label_pos)
+                .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(cities_oy.into_iter().map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
-                .label(Label::Y, LowerLeft.to_centre(0.3))
-                .label(
-                    Label::City("O".to_string()),
-                    LowerRight.to_centre(0.3),
-                )
-                .label(
-                    Label::MapLocation(name.to_string()),
-                    Top.to_centre(0.4),
-                )
+                .label(Label::Y, oy_y_label_pos)
+                .label(Label::City("O".to_string()), oy_o_label_pos)
+                .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(vec![toronto, montreal, timmins_yw, timmins_gr].into_iter())
         .collect()
@@ -659,7 +674,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
 
 /// Tiles that are specific to 1867 and which cannot be placed by the player.
 fn starting_town_tiles(hex: &Hex) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, *};
     use n18tile::DitShape::*;
     use n18tile::*;
     use HexColour::*;
@@ -676,6 +691,8 @@ fn starting_town_tiles(hex: &Hex) -> Vec<Tile> {
         "Sarnia",
     ];
 
+    let town_label_pos = off_centre(N, 0.425);
+
     towns
         .into_iter()
         .map(|name| {
@@ -688,16 +705,14 @@ fn starting_town_tiles(hex: &Hex) -> Vec<Tile> {
                 vec![],
                 hex,
             )
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.5))
+            .label(Label::MapLocation(name.to_string()), town_label_pos)
         })
         .collect()
 }
 
 fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "Sault Ste Marie";
     vec![20, 30, 40, 40]
@@ -721,18 +736,16 @@ fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 40, ix == 2),
                     (HexColour::Grey, 40, ix == 3),
                 ]),
-                Bottom.to_centre(0.35),
+                above_bottom_face(None),
             )
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.35))
+            .label(Label::MapLocation(name.to_string()), off_centre(N, 0.575))
         })
         .collect()
 }
 
 fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "Maritime Provinces";
     vec![30, 30, 40, 40]
@@ -756,18 +769,16 @@ fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 40, ix == 2),
                     (HexColour::Grey, 40, ix == 3),
                 ]),
-                Bottom.to_centre(0.35),
+                above_bottom_face(None),
             )
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.3))
+            .label(Label::MapLocation(name.to_string()), off_centre(N, 0.6))
         })
         .collect()
 }
 
 fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "Maine";
     vec![20, 30, 40, 40]
@@ -791,21 +802,16 @@ fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 40, ix == 2),
                     (HexColour::Grey, 40, ix == 3),
                 ]),
-                Bottom.to_centre(0.35),
+                above_bottom_face(None),
             )
-            .label(
-                Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.75),
-            )
+            .label(Label::MapLocation(name.to_string()), off_centre(S, 0.22))
         })
         .collect()
 }
 
 fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "New England";
     vec![30, 40, 50, 60]
@@ -826,21 +832,16 @@ fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 50, ix == 2),
                     (HexColour::Grey, 60, ix == 3),
                 ]),
-                Bottom.to_centre(0.25),
+                above_bottom_face(0.115),
             )
-            .label(
-                Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.75),
-            )
+            .label(Label::MapLocation(name.to_string()), off_centre(S, 0.2))
         })
         .collect()
 }
 
 fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "Buffalo";
     vec![30, 40, 50, 60]
@@ -861,18 +862,16 @@ fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 50, ix == 2),
                     (HexColour::Grey, 60, ix == 3),
                 ]),
-                Bottom.to_centre(0.35),
+                above_bottom_face(None),
             )
-            .label(Label::MapLocation(name.to_string()), Top.to_centre(0.4))
+            .label(Label::MapLocation(name.to_string()), off_centre(N, 0.525))
         })
         .collect()
 }
 
 fn detroit(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
-    use n18hex::*;
+    use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
-    use HexColour::*;
-    use HexFace::*;
 
     let name = "Detroit";
     let mut tiles: Vec<Tile> = vec![30, 40, 50, 70]
@@ -896,12 +895,9 @@ fn detroit(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                     (HexColour::Brown, 50, ix == 2),
                     (HexColour::Grey, 70, ix == 3),
                 ]),
-                Bottom.to_centre(0.35),
+                above_bottom_face(None),
             )
-            .label(
-                Label::MapLocation(name.to_string()),
-                Bottom.to_centre(0.75),
-            )
+            .label(Label::MapLocation(name.to_string()), off_centre(S, 0.22))
         })
         .collect();
     tiles.push(Tile::new(
@@ -933,7 +929,7 @@ fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
+        .label(Label::Revenue(0), UpperLeft.to_centre(0.25)),
         Tile::new(
             Blue,
             "Port2",
@@ -946,7 +942,7 @@ fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
-        .label(Label::Revenue(0), Top.to_centre(0.5)),
+        .label(Label::Revenue(0), Top.to_centre(0.3)),
     ];
 
     let suffixes = vec!["Yw", "Gn", "Bn", "Gy"];

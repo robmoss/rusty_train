@@ -503,6 +503,9 @@ impl LabelType {
                 ctx.stroke();
 
                 // Draw the text in the centre of the circle.
+                // NOTE: positioning the text with respect to the ink extents
+                // improves the text location for some labels, but makes it
+                // worse for other labels. Neither option is a clear winner.
                 let text_size = layout_size(&layout);
                 ctx.move_to(
                     origin.x - text_size.dx
