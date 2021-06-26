@@ -102,6 +102,11 @@ Only allow a tile to be upgraded when the replacement tile preserves the origina
 
 Record each action so that the full map history can be saved, and the user can walk backwards and forwards in time.
 
+Make the **Select Routes** mode prompt the user to select one of the placed token types, rather than selecting a specific tile and being limited to the token types placed on that tile.
+This can be achieved with a simple dialogue window, which should return `Option<String>` or `Option<&str>`.
+
+Add bindings for `r` and `R` in the **Edit tokens** mode to jump straight to [**Select routes**](../user_guide/routes.md) mode for the current token.
+
 ### n18example
 
 Provide convenience methods to further simplify the examples in `./examples`.
