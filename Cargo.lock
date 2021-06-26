@@ -632,6 +632,7 @@ name = "n18io"
 version = "0.1.0"
 dependencies = [
  "n18catalogue",
+ "n18game",
  "n18hex",
  "n18map",
  "n18route",

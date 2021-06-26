@@ -3584,6 +3584,28 @@ mod tests {
     }
 
     #[test]
+    fn json_round_trip_1867() {
+        // The 1867 game includes starting tiles (part of the map) and
+        // off-board tiles, which make use of features such as hiding the tile
+        // names and marking unavailable token spaces with fill colours, that
+        // are not used by any of the tiles in n18catalogue.
+        // This test case ensures these features are correctly (de)serialised.
+        use n18game::Game;
+        let hex = init_hex();
+        let game = n18game::_1867::Game::new(&hex);
+        let cat_in = game.player_tiles();
+        let filename = output_path("test-json_round_trip_1867.json");
+        let pretty = false;
+
+        let write_res = super::write_tiles(&filename, &cat_in, pretty);
+        assert!(write_res.is_ok(), "Could not write {}", filename.display());
+        let read_res = super::read_tiles(&filename, &hex);
+        assert!(read_res.is_ok(), "Could not read {}", filename.display());
+        let cat_out = read_res.unwrap();
+        assert_eq!(cat_in, cat_out);
+    }
+
+    #[test]
     fn compare_to_catalogue_de() {
         let hex = init_hex();
         let catalogue = n18catalogue::tile_catalogue(&hex);
