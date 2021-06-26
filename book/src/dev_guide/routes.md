@@ -1,5 +1,7 @@
 # Identifying optimal routes
 
+**TODO:** define the terms "path" and "route".
+
 We divide the process of identifying the optimal routes for a company to
 operate into the following steps:
 
