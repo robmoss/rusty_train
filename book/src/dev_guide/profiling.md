@@ -12,10 +12,10 @@ This analysis can be reproduced with the following steps:
    cargo install flamegraph
    ```
 
-2. Delete the cached routes so that the `1867_bc` example will have to identify them:
+2. Delete the cached routes for one company so that the `1867_bc` example will have to identify them again:
 
    ```sh
-   rm ./examples/output/1867_bc_*.json
+   rm ./examples/output/1867_bc_D.json
    ```
 
 3. Profile the `1867_bc` example and generate a flamegraph:
@@ -23,6 +23,8 @@ This analysis can be reproduced with the following steps:
    ```sh
    cargo flamegraph --example 1867_bc --output flamegraph-1867_bc.svg
    ```
+
+**Note:** this can generate many gigabytes of performance data, particularly if you delete the cached routes for more than one company.
 
 ## Collecting profiling information
 
