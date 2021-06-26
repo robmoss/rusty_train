@@ -25,6 +25,7 @@ fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
 fn test_connection_bonus_between_two_dits() {
     // Specify where to save the output images.
     let output_dir = std::path::Path::new("./tests/output");
+    let book_dir = std::path::Path::new("./book/src");
 
     let hex_width: i32 = 125;
     let margin = 20;
@@ -152,6 +153,12 @@ fn test_connection_bonus_between_two_dits() {
         }
     });
     let filename = output_dir.join("test-conn-bonus-route-no-bonus.png");
+    let mut file = std::fs::File::create(filename)
+        .expect("Couldn't create output PNG file");
+    surf.write_to_png(&mut file)
+        .expect("Couldn't write to output PNG file");
+    // Also save this image to the book directory.
+    let filename = book_dir.join("test-conn-bonus-route-no-bonus.png");
     let mut file = std::fs::File::create(filename)
         .expect("Couldn't create output PNG file");
     surf.write_to_png(&mut file)
