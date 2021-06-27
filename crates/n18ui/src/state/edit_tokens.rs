@@ -91,7 +91,7 @@ impl State for EditTokens {
         match key {
             gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.
-                let restore = self.original_tokens.drain().collect();
+                let restore = self.original_tokens.into_iter().collect();
                 map.get_hex_mut(self.active_hex)
                     .map(|hex_state| hex_state.set_tokens(restore));
                 (

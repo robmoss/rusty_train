@@ -1,5 +1,5 @@
 use cairo::Context;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use n18hex::{Hex, HexColour, HexFace, PI};
 use n18tile::{Label, Tile, TokenSpace};
@@ -311,7 +311,7 @@ impl Map {
                 MapHex {
                     tile_ix: tile_ix,
                     rotation: rot,
-                    tokens: HashMap::new(),
+                    tokens: BTreeMap::new(),
                     replaceable: true,
                 },
             );
@@ -622,7 +622,7 @@ impl Map {
 }
 
 /// The state of each token space on a tile.
-pub type TokensTable = HashMap<TokenSpace, Token>;
+pub type TokensTable = BTreeMap<TokenSpace, Token>;
 
 /// The state of a tile on the map.
 pub type TileState<'a> = (&'a Tile, &'a TokensTable);

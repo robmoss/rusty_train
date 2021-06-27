@@ -495,7 +495,7 @@ impl Tile {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TokenSpace {
     city_ix: usize,
     token_ix: usize,
