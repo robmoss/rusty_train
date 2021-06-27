@@ -567,6 +567,7 @@ fn best_stop_ixs(
 }
 
 /// Pairings of trains to routes.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Routes {
     /// The total revenue earned from these routes.
     pub net_revenue: usize,
@@ -584,6 +585,7 @@ impl Routes {
 ///
 /// Note that the train may not earn revenue from every location along the
 /// path.
+#[derive(Debug, PartialEq, Eq)]
 pub struct TrainRoute {
     /// The train.
     pub train: Train,
@@ -600,6 +602,7 @@ impl AsRef<Route> for TrainRoute {
 }
 
 /// A route operated by a train.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Route {
     /// The steps that form the entire route.
     pub steps: Vec<Step>,
