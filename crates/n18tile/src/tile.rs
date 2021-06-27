@@ -107,9 +107,6 @@ impl Tile {
                     track_layers.insert(i, this_layer);
                     track_layers.insert(j, other_layer);
                 } else {
-                    if track.connected(&other, hex, ctx) {
-                        println!("WARNING: tracks {} and {} connect", i, j);
-                    }
                     track_layers.entry(i).or_insert(default_layer);
                 }
             }

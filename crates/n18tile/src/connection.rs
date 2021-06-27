@@ -166,6 +166,27 @@ impl Connections {
             }
         }
 
+        // Track segments are not connected to each other, their ends must
+        // only connect to other entities: hex faces, dits, and cities.
+        // Once all connections between each track segment and other entities
+        // (hex faces, dits, cities) have been recorded, check whether any
+        // track segment has an end with no connections, but is connected to
+        // another track segment, and print a warning message.
+        for i in 0..tracks.len() {
+            let track = tracks[i];
+            // Check whether each end of this track segment has connections.
+            let start_conns = track_conns.contains_key(&(i, TrackEnd::Start));
+            let end_conns = track_conns.contains_key(&(i, TrackEnd::End));
+            if !(start_conns && end_conns) {
+                for j in (i + 1)..tracks.len() {
+                    let other = tracks[j];
+                    if track.connected(&other, hex, ctx) {
+                        println!("WARNING: tracks {} and {} connect", i, j);
+                    }
+                }
+            }
+        }
+
         Connections {
             dits,
             track: track_conns,
