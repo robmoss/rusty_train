@@ -343,9 +343,6 @@ impl Token {
         let scale = hex.max_d / 125.0;
         ctx.set_font_size(10.0 * scale);
 
-        // NOTE: hard-coded example for use with 1867.
-        let text = if text == "CNR" { "CN\nR" } else { text };
-
         // NOTE: use pango to draw the label on tokens, so that we can specify
         // a maximum width and wrap the text, and support line breaks for
         // token names that are deliberately split over multiple lines.
@@ -389,6 +386,9 @@ impl Token {
         pangocairo::show_layout(ctx, &layout);
     }
 
+    /// Draws the token so that it fills the current path.
+    ///
+    /// Define the token boundary before calling this function.
     pub fn draw(&self, hex: &Hex, ctx: &Context, text: &str, rotn: f64) {
         // Locate the centre of the token.
         let (x0, y0, x1, y1) = ctx.fill_extents();
