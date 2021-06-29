@@ -11,6 +11,8 @@ edition = "2018"
 n18hex = { path = "../n18hex" }
 n18tile = { path = "../n18tile" }
 n18token = { path = "../n18token" }
-n18catalogue = { path = "../n18catalogue" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
+
+[dev-dependencies]
+n18catalogue = { path = "../n18catalogue" }
