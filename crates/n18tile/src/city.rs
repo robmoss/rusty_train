@@ -72,7 +72,7 @@ impl City {
     ) -> Coord {
         let radius = 0.5 * hex.max_d;
         match delta {
-            Some(Delta::Nudge(angle, frac)) => {
+            Some(Delta::InDir(angle, frac)) => {
                 let angle = angle.radians();
                 Coord {
                     x: frac * radius * angle.cos(),
@@ -140,8 +140,8 @@ impl City {
         ctx.translate(-coord.x, -coord.y);
     }
 
-    pub fn nudge(mut self, dir: Direction, frac: f64) -> Self {
-        self.position = self.position.nudge(dir, frac);
+    pub fn in_dir(mut self, dir: Direction, frac: f64) -> Self {
+        self.position = self.position.in_dir(dir, frac);
         self
     }
 

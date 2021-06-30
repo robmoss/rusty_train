@@ -389,7 +389,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("T".to_string()),
-            LowerRight.nudge(Direction::W, 0.15),
+            LowerRight.in_dir(Direction::W, 0.15),
         )
         .label(Label::Revenue(0), Centre(None)),
         Tile::new(
@@ -409,7 +409,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("T".to_string()),
-            BottomRight.nudge(Direction::N, 0.2),
+            BottomRight.in_dir(Direction::N, 0.2),
         )
         .label(Label::Revenue(0), Centre(None)),
         Tile::new(
@@ -659,9 +659,9 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::E, 0.05),
+            BottomLeft.in_dir(Direction::E, 0.05),
         )
-        .label(Label::Revenue(0), TopLeft.nudge(Direction::S30W, 0.16)),
+        .label(Label::Revenue(0), TopLeft.in_dir(Direction::S30W, 0.16)),
         Tile::new(
             Green,
             "X2",
@@ -682,9 +682,9 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::E, 0.05),
+            BottomLeft.in_dir(Direction::E, 0.05),
         )
-        .label(Label::Revenue(0), Right.nudge(Direction::N60W, 0.15)),
+        .label(Label::Revenue(0), Right.in_dir(Direction::N60W, 0.15)),
         Tile::new(
             Green,
             "X3",
@@ -705,9 +705,9 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::N30W, 0.1),
+            BottomLeft.in_dir(Direction::N30W, 0.1),
         )
-        .label(Label::Revenue(0), TopLeft.nudge(Direction::S30W, 0.16)),
+        .label(Label::Revenue(0), TopLeft.in_dir(Direction::S30W, 0.16)),
         Tile::new(
             Green,
             "X4",
@@ -728,7 +728,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
         )
         .label(
             Label::City("M".to_string()),
-            BottomRight.nudge(Direction::N, 0.2),
+            BottomRight.in_dir(Direction::N, 0.2),
         )
         .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
         Tile::new(
@@ -746,13 +746,13 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             vec![
                 City::single_at_face(70, &Top),
-                City::double(70).nudge(Direction::S, 0.1),
+                City::double(70).in_dir(Direction::S, 0.1),
             ],
             hex,
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::E, 0.05),
+            BottomLeft.in_dir(Direction::E, 0.05),
         )
         .label(Label::Revenue(0), Left.to_centre(0.1)),
         Tile::new(
@@ -770,13 +770,13 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
                 City::single_at_corner(70, &Left),
                 City::double(70)
                     .rotate(Rotation::Cw90)
-                    .nudge(Direction::E, 0.1),
+                    .in_dir(Direction::E, 0.1),
             ],
             hex,
         )
         .label(
             Label::City("M".to_string()),
-            BottomLeft.nudge(Direction::E, 0.05),
+            BottomLeft.in_dir(Direction::E, 0.05),
         )
         .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
         Tile::new(
@@ -792,7 +792,7 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             vec![
                 City::single_at_face(70, &UpperRight),
-                City::double(70).nudge(Direction::S, 0.3),
+                City::double(70).in_dir(Direction::S, 0.3),
             ],
             hex,
         )
@@ -846,9 +846,9 @@ pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
             ],
             vec![
                 City::single_at_face(30, &LowerLeft)
-                    .nudge(Direction::N60E, 0.2),
+                    .in_dir(Direction::N60E, 0.2),
                 City::single_at_face(30, &UpperRight)
-                    .nudge(Direction::S60W, 0.2),
+                    .in_dir(Direction::S60W, 0.2),
             ],
             hex,
         )

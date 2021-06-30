@@ -5,7 +5,7 @@ use crate::consts::{PI_1_4, PI_3_4};
 use crate::consts::{PI_1_6, PI_2_6, PI_3_6, PI_4_6, PI_5_6};
 use crate::coord::Coord;
 
-/// The tile background colours.
+/// The tile background colours for [Hex].
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum HexColour {
     Yellow,
@@ -18,6 +18,7 @@ pub enum HexColour {
 }
 
 impl HexColour {
+    /// Makes this colour the source pattern for the provided context.
     pub fn set_source_rgb(self: &Self, ctx: &Context) {
         match self {
             // #F3F013
@@ -38,6 +39,7 @@ impl HexColour {
         }
     }
 
+    /// Returns the colour associated with the next phase of tiles, if any.
     pub fn next_phase(self: &Self) -> Option<Self> {
         match self {
             HexColour::Empty => Some(HexColour::Yellow),
@@ -48,6 +50,8 @@ impl HexColour {
         }
     }
 
+    /// Returns the next colour, in the order that the enum variants are
+    ///defined, and cycling back to the start.
     pub fn next_colour(self: &Self) -> Self {
         match self {
             HexColour::Yellow => HexColour::Green,
@@ -73,16 +77,28 @@ pub enum HexFace {
 }
 
 impl HexFace {
+    /// Returns a [HexPosition] that corresponds to the middle of this hexagon
+    /// face, with an optional translation towards the hexagon centre.
+    /// The value of `frac` should be between `0` (the hexagon face) and `1`
+    /// (the hexagon centre), although values outside of this range are
+    /// accepted.
+    ///
+    /// See [HexPosition] and [Delta] for further details.
     pub fn to_centre(self, frac: f64) -> HexPosition {
-        let pos: HexPosition = self.into();
-        pos.to_centre(frac)
+        HexPosition::from(self).to_centre(frac)
     }
 
-    pub fn nudge(self, dir: Direction, frac: f64) -> HexPosition {
-        let pos: HexPosition = self.into();
-        pos.nudge(dir, frac)
+    /// Returns a [HexPosition] that corresponds to the middle of this hexagon
+    /// face, with an optional translation `frac` in some direction `dir`.
+    /// The unit of `frac` is the maximal radius (the length between the
+    /// hexagon corners and the hexagon centre).
+    ///
+    /// See [HexPosition] and [Delta] for further details.
+    pub fn in_dir(self, dir: Direction, frac: f64) -> HexPosition {
+        HexPosition::from(self).in_dir(dir, frac)
     }
 
+    /// Returns the next hexagon face in the clockwise direction.
     pub fn clockwise(&self) -> Self {
         match *self {
             HexFace::Top => HexFace::UpperRight,
@@ -94,6 +110,7 @@ impl HexFace {
         }
     }
 
+    /// Returns the next hexagon face in the anti-clockwise direction.
     pub fn anti_clockwise(&self) -> Self {
         match *self {
             HexFace::Top => HexFace::UpperLeft,
@@ -105,6 +122,7 @@ impl HexFace {
         }
     }
 
+    /// Returns the opposite hexagon face.
     pub fn opposite(self: &Self) -> Self {
         match *self {
             HexFace::Top => HexFace::Bottom,
@@ -116,6 +134,7 @@ impl HexFace {
         }
     }
 
+    /// Returns whether two faces are adjacent (i.e., share a corner).
     pub fn is_adjacent(self: &Self, other: &Self) -> bool {
         match *self {
             HexFace::Top => {
@@ -139,7 +158,7 @@ impl HexFace {
         }
     }
 
-    /// Return the two corners that are connected by this hexagon face.
+    /// Returns the two corners that are connected by this hexagon face.
     pub fn corners(&self) -> (HexCorner, HexCorner) {
         match *self {
             HexFace::Top => (HexCorner::TopLeft, HexCorner::TopRight),
@@ -166,16 +185,28 @@ pub enum HexCorner {
 }
 
 impl HexCorner {
+    /// Returns a [HexPosition] that corresponds to this hexagon corner, with
+    /// an optional translation towards the hexagon centre.
+    /// The value of `frac` should be between `0` (the hexagon corner) and `1`
+    /// (the hexagon centre), although values outside of this range are
+    /// accepted.
+    ///
+    /// See [HexPosition] and [Delta] for further details.
     pub fn to_centre(self, frac: f64) -> HexPosition {
-        let pos: HexPosition = self.into();
-        pos.to_centre(frac)
+        HexPosition::from(self).to_centre(frac)
     }
 
-    pub fn nudge(self, dir: Direction, frac: f64) -> HexPosition {
-        let pos: HexPosition = self.into();
-        pos.nudge(dir, frac)
+    /// Returns a [HexPosition] that corresponds to this hexagon corner, with
+    /// an optional translation `frac` in some direction `dir`.
+    /// The unit of `frac` is the maximal radius (the length between the
+    /// hexagon corners and the hexagon centre).
+    ///
+    /// See [HexPosition] and [Delta] for further details.
+    pub fn in_dir(self, dir: Direction, frac: f64) -> HexPosition {
+        HexPosition::from(self).in_dir(dir, frac)
     }
 
+    /// Returns the next hexagon corner in the clockwise direction.
     pub fn next(&self) -> Self {
         use HexCorner::*;
 
@@ -189,6 +220,7 @@ impl HexCorner {
         }
     }
 
+    /// Returns the previous hexagon corner in the clockwise direction.
     pub fn prev(&self) -> Self {
         use HexCorner::*;
 
@@ -204,7 +236,7 @@ impl HexCorner {
 }
 
 /// The different **absolute** directions in which a [HexPosition] can be
-/// "nudged".
+/// translated.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Direction {
     /// Up; from the hexagon centre, towards the top face.
@@ -242,6 +274,13 @@ pub enum Direction {
 }
 
 impl Direction {
+    /// Returns the value of this direction in radians.
+    ///
+    /// East is defined to have an angle of `0`, and angles increase in the
+    /// clockwise direction.
+    ///
+    /// This function returns values between  `-π` (exclusive) to `π`
+    /// (inclusive).
     pub fn radians(&self) -> f64 {
         use Direction::*;
 
@@ -266,21 +305,21 @@ impl Direction {
     }
 }
 
-/// The direction and distance in which to "nudge" a [HexPosition], relative
+/// The direction and distance in which to translate a [HexPosition], relative
 /// to a reference point.
 ///
 /// Distances are represented as multiples of the hexagon's maximum radius
 /// (which is one half of the hexagon's maximum diameter, `hex.max_d`).
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Delta {
-    /// Nudge towards the centre of the hexagon.
+    /// Translate towards the centre of the hexagon.
     ToCentre(f64),
-    /// Nudge in an absolute direction.
-    Nudge(Direction, f64),
+    /// Translate in an absolute direction.
+    InDir(Direction, f64),
 }
 
 /// Define specific positions within a hexagon, based on a reference point
-/// and an optional "nudge" in some direction.
+/// and an optional translation in some direction.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum HexPosition {
     /// Define positions relative to the centre of the hexagon.
@@ -303,6 +342,7 @@ impl std::convert::From<HexCorner> for HexPosition {
     }
 }
 
+/// The default position is the hexagon centre.
 impl std::default::Default for HexPosition {
     fn default() -> Self {
         Self::Centre(None)
@@ -310,10 +350,14 @@ impl std::default::Default for HexPosition {
 }
 
 impl HexPosition {
-    pub fn nudge(self, dir: Direction, frac: f64) -> Self {
+    /// Replaces the existing translation, if any, with a translation `frac`
+    /// in some direction `dir`.
+    /// The unit of `frac` is the maximal radius (the length between the
+    /// hexagon corners and the hexagon centre).
+    pub fn in_dir(self, dir: Direction, frac: f64) -> Self {
         use HexPosition::*;
 
-        let delta = Some(Delta::Nudge(dir, frac));
+        let delta = Some(Delta::InDir(dir, frac));
         match self {
             Centre(_) => Centre(delta),
             Face(face, _) => Face(face, delta),
@@ -321,6 +365,12 @@ impl HexPosition {
         }
     }
 
+    /// Replaces the existing translation, if any, with a translation `frac`
+    /// towards the hexagon centre.
+    /// The unit of `frac` is the distance between the reference point and the
+    /// hexagon centre.
+    /// Accordingly, a value of `0` corresponds to the reference point, and a
+    /// value of `1` corresponds to the hexagon centre.
     pub fn to_centre(self, frac: f64) -> Self {
         use HexPosition::*;
 
@@ -331,6 +381,8 @@ impl HexPosition {
         }
     }
 
+    /// Returns the Cartesian coordinates that correspond to this position,
+    /// according to the geometry of the provided hexagon `hex`.
     pub fn coord(&self, hex: &Hex) -> Coord {
         use HexPosition::*;
 
@@ -338,20 +390,22 @@ impl HexPosition {
 
         match self {
             Centre(delta) => {
-                if let Some(Delta::Nudge(angle, frac)) = delta {
+                if let Some(Delta::InDir(angle, frac)) = delta {
                     let angle = angle.radians();
                     Coord {
                         x: frac * radius * angle.cos(),
                         y: frac * radius * angle.sin(),
                     }
                 } else {
+                    // NOTE: can ignore Delta::ToCentre, the result will
+                    // always be the same.
                     (0.0, 0.0).into()
                 }
             }
             Face(face, delta) => {
                 let coord = &hex.midpoint(&face);
                 let shift = match delta {
-                    Some(Delta::Nudge(angle, frac)) => {
+                    Some(Delta::InDir(angle, frac)) => {
                         let angle = angle.radians();
                         Coord {
                             x: frac * radius * angle.cos(),
@@ -366,7 +420,7 @@ impl HexPosition {
             Corner(corner, delta) => {
                 let coord = hex.corner_coord(&corner);
                 let shift = match delta {
-                    Some(Delta::Nudge(angle, frac)) => {
+                    Some(Delta::InDir(angle, frac)) => {
                         let angle = angle.radians();
                         Coord {
                             x: frac * radius * angle.cos(),
@@ -381,48 +435,59 @@ impl HexPosition {
         }
     }
 
+    /// Returns the hexagon corner associated with this position, if the
+    /// position is defined relative to a corner.
     pub fn get_corner(&self) -> Option<HexCorner> {
         match self {
-            Self::Corner(corner, _nudge) => Some(*corner),
+            Self::Corner(corner, _delta) => Some(*corner),
             _ => None,
         }
     }
 
+    /// Returns the hexagon face associated with this position, if the
+    /// position is defined relative to a face.
     pub fn get_face(&self) -> Option<HexFace> {
         match self {
-            Self::Face(face, _nudge) => Some(*face),
+            Self::Face(face, _delta) => Some(*face),
             _ => None,
         }
     }
 
+    /// Returns whether this position is defined relative to the hexagon
+    /// centre.
     pub fn is_centre(&self) -> bool {
         match self {
-            Self::Centre(_nudge) => true,
+            Self::Centre(_delta) => true,
             _ => false,
         }
     }
 
+    /// Returns whether this position is defined relative to a hexagon corner.
     pub fn is_corner(&self) -> bool {
         self.get_corner().is_some()
     }
 
+    /// Returns whether this position is defined relative to a hexagon face.
     pub fn is_face(&self) -> bool {
         self.get_face().is_some()
     }
 }
 
 /// The geometry of hexagonal tiles.
+///
+/// The origin is defined to be the centre of the hexagon.
 pub struct Hex {
+    /// The maximal diameter (the length between opposite corners).
     pub max_d: f64,
+    /// The minimal diameter (the length between opposite faces).
     pub min_d: f64,
-    // alpha: f64,
-    // beta: f64,
     corners: Vec<Coord>,
     #[allow(dead_code)]
     surface: cairo::ImageSurface,
     context: cairo::Context,
 }
 
+/// Constructs a hexagon for the given maximal diameter.
 impl From<f64> for Hex {
     fn from(max_d: f64) -> Self {
         Self::new(max_d)
@@ -430,6 +495,7 @@ impl From<f64> for Hex {
 }
 
 impl Hex {
+    /// Constructs a hexagon for the given maximal diameter.
     pub fn new(max_d: f64) -> Self {
         let min_d = (3.0 as f64).sqrt() * max_d / 2.0;
         let alpha = max_d / 4.0;
@@ -454,20 +520,38 @@ impl Hex {
         context.translate(max_d, max_d);
 
         Self {
-            max_d: max_d,
-            min_d: min_d,
-            // alpha: alpha,
-            // beta: beta,
+            max_d,
+            min_d,
             corners: corner_coords,
             surface,
             context,
         }
     }
 
+    /// Returns the ratio of the minimal diameter to the maximal diameter:
+    /// `sqrt(3) / 2`.
+    pub fn ratio_min_d() -> f64 {
+        (3.0 as f64).sqrt() / 2.0
+    }
+
+    /// Returns the ratio of the maximal diameter to the minimal diameter:
+    /// `2 / sqrt(3)`.
+    pub fn ratio_max_d() -> f64 {
+        2.0 / (3.0 as f64).sqrt()
+    }
+
+    /// Returns the context associated with a private surface with sufficient
+    /// dimensions for drawing the hexagon.
+    ///
+    /// This context is intended for checking properties such as whether a
+    /// specific coordinate is inside an area that would be affected by a
+    /// stroke or fill operation.
     pub fn context(&self) -> &cairo::Context {
         &self.context
     }
 
+    /// Returns the Cartesian coordinates for the given hexagon corner, where
+    /// the origin is the hexagon centre.
     pub fn corner_coord(self: &Self, corner: &HexCorner) -> &Coord {
         use HexCorner::*;
 
@@ -481,6 +565,7 @@ impl Hex {
         }
     }
 
+    /// Defines the hexagon boundary as a path on the provided context.
     pub fn define_boundary(&self, ctx: &Context) {
         ctx.set_line_cap(LineCap::Butt);
         ctx.set_line_join(LineJoin::Round);
@@ -493,6 +578,7 @@ impl Hex {
         ctx.close_path();
     }
 
+    /// Fills the hexagon with a specific colour on the provided context.
     pub fn draw_background(self: &Self, colour: HexColour, ctx: &Context) {
         self.define_boundary(ctx);
         colour.set_source_rgb(ctx);
@@ -502,6 +588,8 @@ impl Hex {
         ctx.stroke();
     }
 
+    /// Returns the Cartesian coordinates for the middle of the given hexagon
+    /// face, where the origin is the hexagon centre.
     pub fn midpoint(self: &Self, face: &HexFace) -> Coord {
         match face {
             HexFace::UpperLeft => self.corners[5].average(&self.corners[0]),
@@ -511,5 +599,41 @@ impl Hex {
             HexFace::Bottom => self.corners[1].average(&self.corners[2]),
             HexFace::LowerLeft => self.corners[0].average(&self.corners[1]),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    /// Tests that adding a translation to a HexPosition has the intended
+    /// behaviour, and that scaling by Hex::ratio_min_d() behaves as expected.
+    fn translate_to_boundary() {
+        // The threshold for coordinates to be considered equal.
+        let epsilon = 1e-10;
+        let hex = Hex::new(125.0);
+
+        // Translate from the centre to the top-left corner, and check that
+        // the result is consistent with the top-left corner.
+        let expect = HexPosition::from(HexCorner::TopLeft).coord(&hex);
+        let result = HexPosition::Centre(None)
+            .in_dir(Direction::N30W, 1.0)
+            .coord(&hex);
+        let diff = (&expect - &result).magnitude();
+        assert!(diff < epsilon);
+
+        // Translate from the centre to the top face, and check that the
+        // result is consistent with the top face.
+        // NOTE: faces are closer to the centre than are corners, so we must
+        // use a smaller translation; Hex::ratio_min_d() provides the
+        // appropriate scaling factor.
+        let expect = HexPosition::from(HexFace::Top).coord(&hex);
+        let result = HexPosition::Centre(None)
+            .in_dir(Direction::N, Hex::ratio_min_d())
+            .coord(&hex);
+        let diff = (&expect - &result).magnitude();
+        assert!(diff < epsilon);
     }
 }

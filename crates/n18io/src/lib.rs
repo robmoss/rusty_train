@@ -401,8 +401,8 @@ struct City {
     #[serde(flatten)]
     pub city_type: CityType,
     pub revenue: usize,
-    /// An optional nudge `(angle, frac)` where `frac` is relative to the
-    /// maximal radius of the tile (i.e., from the centre to any corner).
+    /// An optional translation `(angle, frac)` where `frac` is relative to
+    /// the maximal radius of the tile (i.e., from the centre to any corner).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -427,7 +427,7 @@ impl std::convert::From<&n18tile::City> for City {
         };
         let nudge = match position {
             Centre(delta) | Face(_, delta) | Corner(_, delta) => {
-                if let Some(Delta::Nudge(angle, frac)) = delta {
+                if let Some(Delta::InDir(angle, frac)) = delta {
                     Some((angle.into(), *frac))
                 } else {
                     None
@@ -513,21 +513,21 @@ impl std::convert::From<&n18tile::LabelAndPos> for Label {
         let posn = &src.1;
         let nudge = match posn {
             Centre(delta) => {
-                if let Some(Nudge(angle, frac)) = delta {
+                if let Some(InDir(angle, frac)) = delta {
                     Some((angle.into(), *frac))
                 } else {
                     None
                 }
             }
             Face(_face, delta) => {
-                if let Some(Nudge(angle, frac)) = delta {
+                if let Some(InDir(angle, frac)) = delta {
                     Some((angle.into(), *frac))
                 } else {
                     None
                 }
             }
             Corner(_corner, delta) => {
-                if let Some(Nudge(angle, frac)) = delta {
+                if let Some(InDir(angle, frac)) = delta {
                     Some((angle.into(), *frac))
                 } else {
                     None
@@ -822,7 +822,7 @@ impl Label {
         let position: n18hex::HexPosition = (&self.location).into();
         let position = if let Some((ref angle, frac)) = self.nudge {
             // NOTE: retain fractional unit of distance.
-            position.nudge(angle.into(), frac)
+            position.in_dir(angle.into(), frac)
         } else {
             position
         };
@@ -973,7 +973,7 @@ impl City {
     pub fn build(&self) -> n18tile::City {
         let city = self.city_type.build(self.revenue);
         let city = if let Some((ref angle, radius)) = self.nudge {
-            city.nudge(angle.into(), radius)
+            city.in_dir(angle.into(), radius)
         } else {
             city
         };

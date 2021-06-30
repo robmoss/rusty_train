@@ -25,7 +25,7 @@ fn main() {
         ],
         vec![
             City::single_at_face(70, &HexFace::Top),
-            City::double(70).nudge(Direction::S, 0.1),
+            City::double(70).in_dir(Direction::S, 0.1),
         ],
         &hex,
     )

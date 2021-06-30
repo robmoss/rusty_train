@@ -1,3 +1,4 @@
+/// Represents Cartesian coordinates as a struct with named fields.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Coord {
     pub x: f64,
@@ -49,6 +50,7 @@ impl std::ops::Mul<f64> for &Coord {
 }
 
 impl Coord {
+    /// Returns the midpoint of this point and the `other` point.
     pub fn average(self: &Self, other: &Self) -> Self {
         Coord {
             x: 0.5 * (self.x + other.x),
@@ -56,6 +58,7 @@ impl Coord {
         }
     }
 
+    /// Multiplies the `x` and `y` values by `scale`.
     pub fn scale_by(self: &Self, scale: f64) -> Self {
         Coord {
             x: scale * self.x,
@@ -63,6 +66,8 @@ impl Coord {
         }
     }
 
+    /// Returns the point at some fraction between this point (`frac = 0`) and
+    /// the `other` point (`frac = 1`).
     pub fn interpolate(self: &Self, other: &Self, frac: f64) -> Self {
         Coord {
             x: self.x + frac * (other.x - self.x),
@@ -70,14 +75,18 @@ impl Coord {
         }
     }
 
+    /// Returns the magnitude (Euclidean norm) of this coordinate.
     pub fn magnitude(self: &Self) -> f64 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
 
+    /// Returns a scaled version of the point that has a magnitude of `1`
+    /// (i.e., a unit vector).
     pub fn normalise(self: &Self) -> Self {
         self / self.magnitude()
     }
 
+    /// Returns a unit vector parallel to the line between `from` and `to`.
     pub fn unit_normal(from: &Self, to: &Self) -> Self {
         let vec = (to - from).normalise();
         Self { x: vec.y, y: vec.x }

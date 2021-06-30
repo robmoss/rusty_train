@@ -537,7 +537,7 @@ fn game_tiles(hex: &Hex) -> Vec<Tile> {
 /// This means the label will be centred horizontally and vertically, relative
 /// to its position coordinates.
 fn off_centre(dir: n18hex::Direction, frac: f64) -> HexPosition {
-    HexPosition::Centre(Some(n18hex::Delta::Nudge(dir, frac)))
+    HexPosition::Centre(Some(n18hex::Delta::InDir(dir, frac)))
 }
 
 /// Position labels above the bottom hex face.
@@ -584,17 +584,17 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
             Track::straight(Top).with_span(0.0, 0.3),
         ],
         vec![
-            City::single(40).nudge(S60W, 0.4),
-            City::single(40).nudge(N, 0.4),
-            City::single(40).nudge(S60E, 0.4),
+            City::single(40).in_dir(S60W, 0.4),
+            City::single(40).in_dir(N, 0.4),
+            City::single(40).in_dir(S60E, 0.4),
         ],
         hex,
     )
     .label(
         Label::City("M".to_string()),
-        UpperLeft.nudge(Direction::E, 0.1),
+        UpperLeft.in_dir(Direction::E, 0.1),
     )
-    .label(Label::Revenue(0), UpperRight.nudge(Direction::W, 0.1));
+    .label(Label::Revenue(0), UpperRight.in_dir(Direction::W, 0.1));
 
     let toronto = Tile::new(
         Yellow,
@@ -604,14 +604,14 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
             Track::straight(UpperRight).with_span(0.0, 0.3),
         ],
         vec![
-            City::single(30).nudge(S60W, 0.4),
-            City::single(30).nudge(N60E, 0.4),
+            City::single(30).in_dir(S60W, 0.4),
+            City::single(30).in_dir(N60E, 0.4),
         ],
         hex,
     )
     .label(
         Label::City("T".to_string()),
-        UpperLeft.nudge(Direction::E, 0.15),
+        UpperLeft.in_dir(Direction::E, 0.15),
     )
     .label(Label::Revenue(0), BottomRight.to_centre(0.1));
 
@@ -630,7 +630,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
     .label(Label::Revenue(0), BottomRight.to_centre(0.1))
     .label(
         Label::MapLocation("Timmins".to_string()),
-        HexPosition::Centre(None).nudge(Direction::N, 0.525),
+        HexPosition::Centre(None).in_dir(Direction::N, 0.525),
     );
 
     let timmins_gr = Tile::new(
@@ -648,7 +648,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
     .label(Label::Revenue(0), BottomRight.to_centre(0.1))
     .label(
         Label::MapLocation("Timmins".to_string()),
-        HexPosition::Centre(None).nudge(Direction::N, 0.525),
+        HexPosition::Centre(None).in_dir(Direction::N, 0.525),
     );
 
     cities
@@ -822,7 +822,7 @@ fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
                 Red,
                 format!("{} {}", name, suffixes[ix]),
                 vec![Track::straight(Top).with_span(0.0, 0.25)],
-                vec![City::single(revenue).nudge(Direction::N, 0.4)],
+                vec![City::single(revenue).in_dir(Direction::N, 0.4)],
                 hex,
             )
             .label(
