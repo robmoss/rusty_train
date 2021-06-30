@@ -570,8 +570,8 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
 
     let city_label_pos = off_centre(N, 0.525);
     let y_label_pos = off_centre(S, 0.525);
-    let oy_y_label_pos = off_centre(SWW, 0.625);
-    let oy_o_label_pos = off_centre(SEE, 0.625);
+    let oy_y_label_pos = off_centre(S60W, 0.625);
+    let oy_o_label_pos = off_centre(S60E, 0.625);
 
     let cities_y = vec!["Quebec", "Berlin", "Hamilton"];
     let cities_oy = vec!["Ottawa"];
@@ -584,9 +584,9 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
             Track::straight(Top).with_span(0.0, 0.3),
         ],
         vec![
-            City::single(40).nudge(SWW, 0.4),
+            City::single(40).nudge(S60W, 0.4),
             City::single(40).nudge(N, 0.4),
-            City::single(40).nudge(SEE, 0.4),
+            City::single(40).nudge(S60E, 0.4),
         ],
         hex,
     )
@@ -604,8 +604,8 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
             Track::straight(UpperRight).with_span(0.0, 0.3),
         ],
         vec![
-            City::single(30).nudge(SWW, 0.4),
-            City::single(30).nudge(NEE, 0.4),
+            City::single(30).nudge(S60W, 0.4),
+            City::single(30).nudge(N60E, 0.4),
         ],
         hex,
     )

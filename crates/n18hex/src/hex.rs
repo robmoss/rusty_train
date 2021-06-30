@@ -203,24 +203,42 @@ impl HexCorner {
     }
 }
 
+/// The different **absolute** directions in which a [HexPosition] can be
+/// "nudged".
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Direction {
+    /// Up; from the hexagon centre, towards the top face.
     N,
-    NNE,
-    NE,
-    NEE,
+    /// From the hexagon centre, towards the top-right corner.
+    N30E,
+    /// From the hexagon centre, towards the upper-right face.
+    N60E,
+    /// Right; from the hexagon centre, towards the right corner.
     E,
-    SEE,
-    SE,
-    SSE,
+    /// From the hexagon centre, towards the lower-right face.
+    S60E,
+    /// From the hexagon centre, towards the bottom-right corner.
+    S30E,
+    /// Down; from the hexagon centre, towards the bottom face.
     S,
-    SSW,
-    SW,
-    SWW,
+    /// From the hexagon centre, towards the bottom-left corner.
+    S30W,
+    /// From the hexagon centre, towards the lower-left face.
+    S60W,
+    /// Left; from the hexagon centre, towards the left corner.
     W,
-    NWW,
+    /// From the hexagon centre, towards the upper-left face.
+    N60W,
+    /// From the hexagon centre, towards the top-left corner.
+    N30W,
+    /// Up and right (45° clockwise of north).
+    NE,
+    /// Down and right (135° clockwise of north).
+    SE,
+    /// Down and left (225° clockwise of north).
+    SW,
+    /// Up and left (315° clockwise of north).
     NW,
-    NNW,
 }
 
 impl Direction {
@@ -228,36 +246,48 @@ impl Direction {
         use Direction::*;
 
         match self {
-            N => -PI_3_6,   // - PI / 2
-            NNE => -PI_2_6, // - 2 PI / 6
-            NE => -PI_1_4,  // - PI / 4
-            NEE => -PI_1_6, // - PI / 6
-            E => 0.0,       //   0 radians
-            SEE => PI_1_6,  //   PI / 6
-            SE => PI_1_4,   //   PI / 4
-            SSE => PI_2_6,  //   2 PI / 6
-            S => PI_3_6,    //   PI / 2
-            SSW => PI_4_6,  //   4 PI / 6
-            SW => PI_3_4,   //   3 PI / 4
-            SWW => PI_5_6,  //   5 PI / 6
-            W => PI,        //   PI
-            NWW => -PI_5_6, // - 5 PI / 6
-            NW => -PI_3_4,  // - 3 PI / 4
-            NNW => -PI_4_6, // - 4 PI / 6
+            N => -PI_3_6,    // - PI / 2     Top face
+            N30E => -PI_2_6, // - 2 PI / 6   Top-right corner
+            NE => -PI_1_4,   // - PI / 4     North-east
+            N60E => -PI_1_6, // - PI / 6     Upper-right face
+            E => 0.0,        //   0 radians  Right corner
+            S60E => PI_1_6,  //   PI / 6     Lower-right face
+            SE => PI_1_4,    //   PI / 4     South-east
+            S30E => PI_2_6,  //   2 PI / 6   Bottom-right corner
+            S => PI_3_6,     //   PI / 2     Bottom face
+            S30W => PI_4_6,  //   4 PI / 6   Bottom-left corner
+            SW => PI_3_4,    //   3 PI / 4   South-west
+            S60W => PI_5_6,  //   5 PI / 6   Lower-left face
+            W => PI,         //   PI         Left corner
+            N60W => -PI_5_6, // - 5 PI / 6   Upper-left face
+            NW => -PI_3_4,   // - 3 PI / 4   North-west
+            N30W => -PI_4_6, // - 4 PI / 6   Top-left corner
         }
     }
 }
 
+/// The direction and distance in which to "nudge" a [HexPosition], relative
+/// to a reference point.
+///
+/// Distances are represented as multiples of the hexagon's maximum radius
+/// (which is one half of the hexagon's maximum diameter, `hex.max_d`).
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Delta {
+    /// Nudge towards the centre of the hexagon.
     ToCentre(f64),
+    /// Nudge in an absolute direction.
     Nudge(Direction, f64),
 }
 
+/// Define specific positions within a hexagon, based on a reference point
+/// and an optional "nudge" in some direction.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum HexPosition {
+    /// Define positions relative to the centre of the hexagon.
     Centre(Option<Delta>),
+    /// Define positions relative to a specific hexagon face.
     Face(HexFace, Option<Delta>),
+    /// Define positions relative to a specific hexagon corner.
     Corner(HexCorner, Option<Delta>),
 }
 

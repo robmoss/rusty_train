@@ -580,21 +580,21 @@ impl Default for Label {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 enum Direction {
     N,
-    NNE,
+    N30E,
     NE,
-    NEE,
+    N60E,
     E,
-    SEE,
+    S60E,
     SE,
-    SSE,
+    S30E,
     S,
-    SSW,
+    S30W,
     SW,
-    SWW,
+    S60W,
     W,
-    NWW,
+    N60W,
     NW,
-    NNW,
+    N30W,
 }
 
 impl std::convert::From<&n18hex::Direction> for Direction {
@@ -603,21 +603,21 @@ impl std::convert::From<&n18hex::Direction> for Direction {
 
         match src {
             N => Self::N,
-            NNE => Self::NNE,
+            N30E => Self::N30E,
             NE => Self::NE,
-            NEE => Self::NEE,
+            N60E => Self::N60E,
             E => Self::E,
-            SEE => Self::SEE,
+            S60E => Self::S60E,
             SE => Self::SE,
-            SSE => Self::SSE,
+            S30E => Self::S30E,
             S => Self::S,
-            SSW => Self::SSW,
+            S30W => Self::S30W,
             SW => Self::SW,
-            SWW => Self::SWW,
+            S60W => Self::S60W,
             W => Self::W,
-            NWW => Self::NWW,
+            N60W => Self::N60W,
             NW => Self::NW,
-            NNW => Self::NNW,
+            N30W => Self::N30W,
         }
     }
 }
@@ -628,21 +628,21 @@ impl std::convert::From<&Direction> for n18hex::Direction {
 
         match src {
             Direction::N => N,
-            Direction::NNE => NNE,
+            Direction::N30E => N30E,
             Direction::NE => NE,
-            Direction::NEE => NEE,
+            Direction::N60E => N60E,
             Direction::E => E,
-            Direction::SEE => SEE,
+            Direction::S60E => S60E,
             Direction::SE => SE,
-            Direction::SSE => SSE,
+            Direction::S30E => S30E,
             Direction::S => S,
-            Direction::SSW => SSW,
+            Direction::S30W => S30W,
             Direction::SW => SW,
-            Direction::SWW => SWW,
+            Direction::S60W => S60W,
             Direction::W => W,
-            Direction::NWW => NWW,
+            Direction::N60W => N60W,
             Direction::NW => NW,
-            Direction::NNW => NNW,
+            Direction::N30W => N30W,
         }
     }
 }
@@ -2643,7 +2643,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        nudge: Some((Direction::SSW, 0.16)),
+                        nudge: Some((Direction::S30W, 0.16)),
                         ..Default::default()
                     },
                 ],
@@ -2711,7 +2711,7 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::RightCorner,
-                        nudge: Some((Direction::NWW, 0.15)),
+                        nudge: Some((Direction::N60W, 0.15)),
                         ..Default::default()
                     },
                 ],
@@ -2773,13 +2773,13 @@ fn test_tiles() -> Tiles {
                     Label {
                         label_type: LabelType::City("M".to_string()),
                         location: Location::BottomLeftCorner,
-                        nudge: Some((Direction::NNW, 0.1)),
+                        nudge: Some((Direction::N30W, 0.1)),
                         ..Default::default()
                     },
                     Label {
                         label_type: LabelType::Revenue(0),
                         location: Location::TopLeftCorner,
-                        nudge: Some((Direction::SSW, 0.16)),
+                        nudge: Some((Direction::S30W, 0.16)),
                         ..Default::default()
                     },
                 ],
@@ -3171,13 +3171,13 @@ fn test_tiles() -> Tiles {
                     City {
                         city_type: CityType::Single(Location::LowerLeftFace),
                         revenue: 30,
-                        nudge: Some((Direction::NEE, 0.2)),
+                        nudge: Some((Direction::N60E, 0.2)),
                         ..Default::default()
                     },
                     City {
                         city_type: CityType::Single(Location::UpperRightFace),
                         revenue: 30,
-                        nudge: Some((Direction::SWW, 0.2)),
+                        nudge: Some((Direction::S60W, 0.2)),
                         ..Default::default()
                     },
                 ],
