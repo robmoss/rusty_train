@@ -18,3 +18,11 @@ The ``navig18xx`` crate exports the main public types, traits, values, and funct
 
 It also exports each of these crates without the ``n18`` prefix.
 For example, ``n18hex`` is re-exported as ``navig18xx::hex``.
+
+## Crate dependency graph
+
+![The crate dependency graph](dependencies.png)
+
+Everything related to individual tiles, including their layout and contents, is provided by the `n18hex` and `n18tile` crates.
+The `n18token` and `n18map` crates provide the building blocks for defining and working with 18xx game maps, and the `n18route` crate implements the route-finding algorithms.
+This forms the foundation for the higher-level features provided by the remaining crates.
