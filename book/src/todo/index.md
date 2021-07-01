@@ -68,6 +68,8 @@ Nothing.
 
 Consider moving text-rendering code to a new crate, so that it can also be used by `n18tile` and `n18example`.
 
+Collect theme properties, such as the stroke widths for various entities, into a new module in this crate.
+
 ### n18token
 
 Defer text positioning and drawing to `n18tile::Label`?
