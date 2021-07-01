@@ -30,5 +30,6 @@
   - [(De)serialisation]()
   - [GTK user interface](./dev_guide/rusty_train.md)
 - [To-do list](./todo/index.md)
+  - [Rust and Cargo features](./todo/rust.md)
 - [About this book](./about.md)
 - [References]()
