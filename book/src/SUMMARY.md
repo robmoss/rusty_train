@@ -20,7 +20,7 @@
   - [Tile elements]()
   - [Tile catalogue]()
   - [Connectivity]()
-  - [Tokens]()
+  - [Tokens](./dev_guide/tokens.md)
   - [Maps]()
   - [Trains]()
   - [Finding optimal routes](./dev_guide/routes.md)

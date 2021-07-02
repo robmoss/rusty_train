@@ -1,4 +1,13 @@
 //! Draw a range of token styles.
+//!
+//! Run this as a test case to update the output image in the book directory:
+//!
+//!     cargo test --example draw_tokens
+//!
+//! Alternatively, run all examples as test cases:
+//!
+//!     cargo test --examples
+//!
 
 use cairo::{Context, Format, ImageSurface};
 use navig18xx::prelude::*;
@@ -14,14 +23,29 @@ static TOKEN_RADIUS: f64 = 20.0;
 /// The radius of the space reserved for each token, including a margin.
 static TOKEN_RADIUS_MARGIN: f64 = TOKEN_RADIUS * 1.125;
 
+type Result = std::result::Result<(), Box<dyn std::error::Error>>;
+
+#[test]
+fn test_draw_tokens() -> Result {
+    let output_dir = output::Dir::DevGuide;
+    draw_tokens(&output_dir)
+}
+
+fn main() -> Result {
+    let output_dir = output::Dir::DevGuide;
+    draw_tokens(&output_dir)
+}
+
+// NOTE: define an "anchor" for mdBook to include in the dev guide.
+// ANCHOR: example
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
     let surface = ImageSurface::create(Format::ARgb32, width, height)
         .expect("Can't create surface");
     (Context::new(&surface), surface)
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let output_file = output::Dir::Examples.join("draw_tokens.png");
+fn draw_tokens(output_dir: &output::Dir) -> Result {
+    let output_file = output_dir.join("draw_tokens.png");
 
     let rows = 3;
     let cols = 8;
@@ -104,3 +128,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+// ANCHOR_END: example

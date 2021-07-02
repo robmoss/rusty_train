@@ -55,3 +55,7 @@ test = true
 [[example]]
 name = "1867_bc"
 test = true
+
+[[example]]
+name = "draw_tokens"
+test = true
