@@ -14,8 +14,8 @@ pub struct TrainDialog<'a> {
 impl<'a> TrainDialog<'a> {
     pub fn new(
         parent: &gtk::ApplicationWindow,
-        train_types: &'a Vec<Train>,
-        train_names: &'a HashMap<Train, &str>,
+        train_types: &'a Vec<&Train>,
+        train_names: &'a HashMap<&Train, &str>,
         option_names: &'a Vec<&str>,
         name: &str,
     ) -> Self {
@@ -220,7 +220,7 @@ pub fn select_phase(
     let pd = PhaseDialog::new(
         parent,
         game.phase_names(),
-        game.get_phase(),
+        game.get_phase_ix(),
         "Select Game Phase",
     );
     pd.run()

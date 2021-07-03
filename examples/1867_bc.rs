@@ -172,12 +172,12 @@ fn game_state() -> GameState {
     // Set the game phase to "8" (which has index 6, being the 7th phase).
     game.set_phase(example.get_map_mut(), 6);
 
-    // Define the five token colours by name.
-    let green = "CPR";
-    let brown = "D";
-    let red = "E";
+    // Define the five tokens by company name.
+    let green = "CNR";
+    let brown = "GW";
+    let red = "CPR";
     let blue = "C&O";
-    let yellow = "C";
+    let beige = "NTR";
 
     // Place tiles and tokens.
     let tiles = vec![
@@ -208,12 +208,12 @@ fn game_state() -> GameState {
         tile_at("57", "M9").rotate_cw(1),
         tile_at("9", "N8").rotate_cw(1),
         // Third diagonal row, Kingston to Montreal.
-        tile_at("15", "I15").rotate_cw(1).token(0, yellow),
+        tile_at("15", "I15").rotate_cw(1).token(0, beige),
         tile_at("24", "J14").rotate_cw(1),
         tile_at("911", "K13").rotate_acw(2),
         tile_at("639", "L12")
             .token(0, red)
-            .token(1, yellow)
+            .token(1, beige)
             .token(2, brown),
         // Fourth diagonal row, connects Montreal to New England.
         tile_at("58", "M13").rotate_cw(2),

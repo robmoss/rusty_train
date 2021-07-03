@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     write_tiles("tile_catalogue.json", &tiles, pretty_json)?;
 
     let game = navig18xx::game::_1867::Game::new(&hex);
-    let tiles = game.player_tiles();
+    let tiles = game.all_tiles();
     write_tiles("tile_1867.json", tiles, pretty_json)?;
 
     Ok(())

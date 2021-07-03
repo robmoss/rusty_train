@@ -30,7 +30,7 @@ However, it can currently take around **2 minutes** for complex situations such 
 
 ## Optimal routes for the Great Western Railway
 
-![](1867_bc_D.png)
+![](1867_bc_GW.png)
 
 ## Optimal routes for the Chesapeake and Ohio Railway
 
@@ -38,4 +38,4 @@ However, it can currently take around **2 minutes** for complex situations such 
 
 ## Optimal routes for the Canadian Northern Railway
 
-![](1867_bc_CPR.png)
+![](1867_bc_CNR.png)

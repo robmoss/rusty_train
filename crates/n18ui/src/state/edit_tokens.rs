@@ -129,13 +129,13 @@ impl State for EditTokens {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
-                let tokens = content.game.company_tokens();
+                let game = &content.game;
                 map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next: Token = hex_state
+                    let next: &Token = hex_state
                         .get_token_at(token_space)
-                        .and_then(|t| tokens.next_token(t))
-                        .unwrap_or(tokens.first_token());
-                    hex_state.set_token_at(token_space, next);
+                        .and_then(|t| game.next_token(t))
+                        .unwrap_or(game.first_token());
+                    hex_state.set_token_at(token_space, *next);
                 });
                 (self, Inhibit(false), Action::Redraw)
             }
@@ -143,13 +143,13 @@ impl State for EditTokens {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
-                let tokens = content.game.company_tokens();
+                let game = &content.game;
                 map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next: Token = hex_state
+                    let next: &Token = hex_state
                         .get_token_at(token_space)
-                        .and_then(|t| tokens.prev_token(t))
-                        .unwrap_or(tokens.last_token());
-                    hex_state.set_token_at(token_space, next);
+                        .and_then(|t| game.prev_token(t))
+                        .unwrap_or(game.last_token());
+                    hex_state.set_token_at(token_space, *next);
                 });
                 (self, Inhibit(false), Action::Redraw)
             }

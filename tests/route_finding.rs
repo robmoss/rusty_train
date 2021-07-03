@@ -28,7 +28,7 @@ fn test_dual_routes_from_montreal() {
     let hex = Hex::new(hex_width as f64);
     let game = n18game::_1867::Game::new(&hex);
     let mut map = game.create_map(&hex);
-    let company_token = game.company_tokens().first_token();
+    let company_token = *game.first_token();
 
     // Upgrade the Montreal tile and place two tokens.
     let addr_montreal = "L12".parse().unwrap();
@@ -64,7 +64,7 @@ fn test_dual_routes_from_montreal() {
     let all_trains: HashMap<&str, Train> = game
         .train_types()
         .into_iter()
-        .map(|t| (game.train_name(&t).unwrap(), t))
+        .map(|t| (game.train_name(t).unwrap(), *t))
         .collect();
     let company_trains: Trains =
         vec![*all_trains.get("4").unwrap(), *all_trains.get("4").unwrap()]

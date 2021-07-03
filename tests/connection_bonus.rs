@@ -38,7 +38,7 @@ fn test_connection_bonus_between_two_dits() {
     let hex = Hex::new(hex_width as f64);
     let game = n18game::_1867::Game::new(&hex);
     let mut map = game.create_map(&hex);
-    let company_token = game.company_tokens().first_token();
+    let company_token = *game.first_token();
 
     // Define the map state. Note that all 1861/67 dit tiles earn 10 revenue.
     // We first calculate the optimal route in the absence of any connection
@@ -103,7 +103,7 @@ fn test_connection_bonus_between_two_dits() {
     let all_trains: HashMap<&str, Train> = game
         .train_types()
         .into_iter()
-        .map(|t| (game.train_name(&t).unwrap(), t))
+        .map(|t| (game.train_name(t).unwrap(), *t))
         .collect();
     let company_trains: Trains = vec![*all_trains.get("4").unwrap()].into();
     let limit = company_trains.path_limit();

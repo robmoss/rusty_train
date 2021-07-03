@@ -5,12 +5,13 @@
 
 use std::collections::HashMap;
 
+use super::Company;
 use n18catalogue::tile_catalogue;
 use n18hex::{Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Bonus, Train};
 use n18tile::{Label, Tile};
-use n18token::{Token, TokenStyle, Tokens};
+use n18token::{Colour, Token, TokenStyle};
 
 fn addrs() -> Vec<(usize, usize)> {
     vec![
@@ -196,10 +197,10 @@ fn hex_labels() -> Vec<(HexAddress, Label)> {
 
 /// Defines the trains, tiles, and map for 1867: The Railways Of Canada.
 pub struct Game {
-    trains: Vec<Train>,
-    names: Vec<&'static str>,
+    companies: Vec<Company>,
+    trains: Vec<(&'static str, Train)>,
     all_tiles: Vec<Tile>,
-    tokens: Tokens,
+    num_player_tiles: usize,
     barriers: Vec<(HexAddress, HexFace)>,
     phase: usize,
     phase_names: Vec<&'static str>,
@@ -208,93 +209,93 @@ pub struct Game {
 impl Game {
     pub fn new(hex: &Hex) -> Self {
         let trains = vec![
-            Train::new_2_train(),
-            Train::new_3_train(),
-            Train::new_4_train(),
-            Train::new_5_train(),
-            Train::new_6_train(),
-            Train::new_7_train(),
-            Train::new_8_train(),
-            Train::new_2p2_train(),
-            Train::new_5p5e_train(),
+            ("2", Train::new_2_train()),
+            ("3", Train::new_3_train()),
+            ("4", Train::new_4_train()),
+            ("5", Train::new_5_train()),
+            ("6", Train::new_6_train()),
+            ("7", Train::new_7_train()),
+            ("8", Train::new_8_train()),
+            ("2+2", Train::new_2p2_train()),
+            ("5+5E", Train::new_5p5e_train()),
         ];
-        let names = vec!["2", "3", "4", "5", "6", "7", "8", "2+2", "5+5E"];
         let all_tiles = game_tiles(&hex);
-        let tokens = vec![
-            (
-                "CNR".to_string(),
-                Token::new(TokenStyle::SideArcs {
-                    fg: (176, 176, 176).into(),
-                    bg: (66, 0, 0).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-            (
-                "CPR".to_string(),
-                Token::new(TokenStyle::TopArcs {
-                    fg: (176, 176, 176).into(),
-                    bg: (0, 66, 0).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-            (
-                "C&O".to_string(),
-                Token::new(TokenStyle::SideArcs {
-                    fg: (176, 176, 176).into(),
-                    bg: (0, 0, 66).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-            (
-                "GT".to_string(),
-                Token::new(TokenStyle::TripleTriangles {
-                    fg: (0, 143, 31).into(),
-                    bg: (223, 223, 0).into(),
-                    text: (0, 0, 0).into(),
-                }),
-            ),
-            (
-                "A".to_string(),
-                Token::new(TokenStyle::TopSquares {
-                    fg: (176, 0, 0).into(),
-                    bg: (15, 15, 127).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-            (
-                "B".to_string(),
-                Token::new(TokenStyle::TopLines {
-                    fg: (0, 143, 31).into(),
-                    bg: (223, 223, 0).into(),
-                    text: (0, 0, 0).into(),
-                }),
-            ),
-            (
-                "C".to_string(),
-                Token::new(TokenStyle::TopTriangles {
-                    fg: (0, 143, 31).into(),
-                    bg: (223, 223, 0).into(),
-                    text: (0, 0, 0).into(),
-                }),
-            ),
-            (
-                "D".to_string(),
-                Token::new(TokenStyle::TopArcs {
-                    fg: (176, 176, 176).into(),
-                    bg: (66, 0, 0).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-            (
-                "E".to_string(),
-                Token::new(TokenStyle::TopTriangles {
-                    fg: (255, 255, 102).into(),
-                    bg: (204, 16, 16).into(),
-                    text: (255, 255, 255).into(),
-                }),
-            ),
-        ]
-        .into();
+        let num_player_tiles = tile_catalogue(&hex).len();
+        // Define 24 tokens for the 16 minor and 8 major companies, as per the
+        // `draw_tokens` example.
+        // - Distinguish between minor and major companies with yellow and
+        //   green background colours.
+        // - Combine four different token styles with four different secondary
+        //   colours to make unique tokens for each company.
+        let company_names: Vec<(&str, &str)> = vec![
+            ("BBG", "Buffalo, Brantford and Goderich Railway"),
+            ("BO", "Brockville and Ottawa Railway"),
+            ("CS", "Canada Southern Railway"),
+            ("CV", "Credit Valley Railway"),
+            ("KP", "Kingston and Pembroke Railway"),
+            ("LPS", "London and Port Stanley Railway"),
+            ("OP", "Ottawa and Prescott Railway"),
+            ("SLA", "St. Lawrence and Atlantic Railroad"),
+            ("TGB", "Toronto, Grey and Bruce Railway"),
+            ("TN", "Toronto and Nipissing Railway"),
+            ("AE", "Algoma Eastern Railway"),
+            ("CA", "Canada Atlantic Railway"),
+            ("NYO", "New York and Ottawa Railway"),
+            ("PM", "Pere Marquette Railway"),
+            ("QLS", "Quebec and Lake St. John Railway"),
+            ("THB", "Toronto, Hamilton and Buffalo Railway"),
+            ("CNR", "Canadian Northern Railway"),
+            ("CPR", "Canadian Pacific Railway"),
+            ("C&O", "Chesapeake and Ohio Railway"),
+            ("GT", "Grand Trunk Railway"),
+            ("GW", "Great Western Railway"),
+            ("IRC", "Intercolonial Railway of Canada"),
+            ("NTR", "National Transcontinental Railway"),
+            ("NYC", "New York Central Railroad"),
+        ];
+
+        // Background colours for minor (yellow) and major (green) companies.
+        let bg_yellow = Colour::from((223, 223, 0));
+        let bg_green = Colour::from((0, 153, 63));
+        let bg_iter = std::iter::repeat(bg_yellow)
+            .take(16)
+            .chain(std::iter::repeat(bg_green).take(8));
+
+        let fg_colours = vec![
+            Colour::from((0, 204, 204)), // Aqua
+            Colour::from((0, 63, 204)),  // Blue
+            Colour::from((223, 0, 0)),   // Red
+            Colour::from((127, 0, 223)), // Purple
+        ];
+        let fg_count = fg_colours.len();
+        let fg_iter = fg_colours.into_iter().cycle();
+
+        let companies: Vec<Company> = bg_iter
+            .zip(fg_iter)
+            .enumerate()
+            .map(|(ix, (bg, fg))| {
+                // Use black text on yellow, and white text on green.
+                let text = if bg == bg_yellow {
+                    Colour::from((0, 0, 0))
+                } else {
+                    Colour::from((255, 255, 255))
+                };
+                let style = match ix / fg_count {
+                    0 => TokenStyle::TopLines { bg, fg, text },
+                    1 => TokenStyle::TopTriangles { bg, fg, text },
+                    2 => TokenStyle::TopArcs { bg, fg, text },
+                    3 => TokenStyle::TripleTriangles { bg, fg, text },
+                    4 => TokenStyle::TopLines { bg, fg, text },
+                    _ => TokenStyle::TopTriangles { bg, fg, text },
+                };
+                Company {
+                    abbrev: company_names[ix].0.to_string(),
+                    full_name: company_names[ix].1.to_string(),
+                    token: Token::new(style),
+                }
+            })
+            .collect();
+
         let barriers = vec![
             // The two ports.
             ("E19".parse().unwrap(), n18hex::HexFace::UpperLeft),
@@ -318,10 +319,10 @@ impl Game {
         let phase = 0;
         let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
         Game {
+            companies,
             trains,
-            names,
             all_tiles,
-            tokens,
+            num_player_tiles,
             barriers,
             phase,
             phase_names,
@@ -335,18 +336,15 @@ impl super::Game for Game {
         "1867: The Railways of Canada"
     }
 
-    /// The train types that companies can purchase and operate.
-    fn train_types(&self) -> Vec<Train> {
-        self.trains.clone()
+    /// Returns the companies in this game.
+    fn companies(&self) -> &[Company] {
+        &self.companies
     }
 
-    fn train_name(&self, train: &Train) -> Option<&str> {
-        for i in 0..self.trains.len() {
-            if self.trains[i] == *train {
-                return Some(self.names[i]);
-            }
-        }
-        return None;
+    /// Returns the named train types in this game, in the order that they
+    /// become available (where applicable).
+    fn trains(&self) -> &[(&str, Train)] {
+        &self.trains
     }
 
     /// Optional route bonuses that a company may hold.
@@ -415,7 +413,7 @@ impl super::Game for Game {
 
     /// Create the initial map for 1867.
     fn create_map(&self, _hex: &Hex) -> Map {
-        let tokens = self.company_tokens().clone();
+        let tokens = self.create_tokens();
         let hexes: Vec<HexAddress> =
             addrs().iter().map(|coords| coords.into()).collect();
         let mut map = Map::new(self.all_tiles.clone(), tokens, hexes);
@@ -436,29 +434,24 @@ impl super::Game for Game {
 
     /// Return the tiles that players are allowed to place on the map.
     fn player_tiles(&self) -> &[Tile] {
-        // TODO: this currently also returns special map tiles.
+        &self.all_tiles[0..self.num_player_tiles]
+    }
+
+    /// Returns all game tiles, including special tiles that players cannot
+    /// place on the map.
+    fn all_tiles(&self) -> &[Tile] {
         &self.all_tiles
     }
 
-    /// Return the unique tokens (one per company).
-    fn company_tokens(&self) -> &Tokens {
-        &self.tokens
-    }
-
-    /// Return the number of game phases.
-    fn phase_count(&self) -> usize {
-        7
-    }
-
-    /// Return the current game phase.
-    fn get_phase(&self) -> usize {
+    /// Returns the index of the current game phase.
+    fn get_phase_ix(&self) -> usize {
         self.phase
     }
 
-    /// Change the current game phase, which may update the map.
-    fn set_phase(&mut self, map: &mut Map, phase: usize) {
-        if phase > 6 {
-            return;
+    /// Changes the current game phase, which may update the map.
+    fn set_phase(&mut self, map: &mut Map, phase: usize) -> bool {
+        if phase >= self.phase_names.len() {
+            return false;
         }
         self.phase = phase;
         let red_cities: Vec<(HexAddress, &str)> = vec![
@@ -493,11 +486,7 @@ impl super::Game for Game {
                 timmins_tile, timmins_addr
             )
         }
-    }
-
-    /// Return the name of a game phase.
-    fn phase_name(&self, phase: usize) -> Option<&str> {
-        self.phase_names.get(phase).map(|s| *s)
+        true
     }
 
     /// Return the name of each game phase.
