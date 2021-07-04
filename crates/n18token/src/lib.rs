@@ -189,13 +189,25 @@ pub enum TokenStyle {
         text: Colour,
     },
     TribandV {
-        bg: Colour,
-        fg: Colour,
+        sides: Colour,
+        middle: Colour,
         text: Colour,
     },
     TribandH {
-        bg: Colour,
-        fg: Colour,
+        sides: Colour,
+        middle: Colour,
+        text: Colour,
+    },
+    TricolourV {
+        left: Colour,
+        middle: Colour,
+        right: Colour,
+        text: Colour,
+    },
+    TricolourH {
+        top: Colour,
+        middle: Colour,
+        bottom: Colour,
         text: Colour,
     },
 }
@@ -204,13 +216,16 @@ impl TokenStyle {
     fn draw_background(&self, hex: &Hex, ctx: &Context) {
         use TokenStyle::*;
 
+        let radius = hex.max_d * 0.125;
+        let rmax = 1.1 * radius;
+        let dx = 0.45 * radius;
+
         match self {
             SideArcs { fg, bg, .. } => {
                 bg.apply_to(ctx);
                 ctx.fill_preserve();
 
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
                 ctx.arc(-1.5 * radius, 0.0, 1.0 * radius, 0.0, 2.0 * PI);
                 ctx.arc(1.5 * radius, 0.0, 1.0 * radius, 0.0, 2.0 * PI);
@@ -223,7 +238,6 @@ impl TokenStyle {
                 ctx.fill_preserve();
 
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
                 ctx.arc(0.0, -1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
                 ctx.arc(0.0, 1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
@@ -235,19 +249,18 @@ impl TokenStyle {
                 bg.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.move_to(-0.4 * radius, -0.45 * radius);
-                ctx.line_to(0.4 * radius, -0.45 * radius);
-                ctx.line_to(0.4 * radius, -1.1 * radius);
-                ctx.line_to(-0.4 * radius, -1.1 * radius);
+                ctx.move_to(-0.4 * radius, -dx);
+                ctx.line_to(0.4 * radius, -dx);
+                ctx.line_to(0.4 * radius, -rmax);
+                ctx.line_to(-0.4 * radius, -rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
                 ctx.new_path();
-                ctx.move_to(-0.4 * radius, 0.45 * radius);
-                ctx.line_to(0.4 * radius, 0.45 * radius);
-                ctx.line_to(0.4 * radius, 1.1 * radius);
-                ctx.line_to(-0.4 * radius, 1.1 * radius);
+                ctx.move_to(-0.4 * radius, dx);
+                ctx.line_to(0.4 * radius, dx);
+                ctx.line_to(0.4 * radius, rmax);
+                ctx.line_to(-0.4 * radius, rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
             }
@@ -255,35 +268,34 @@ impl TokenStyle {
                 bg.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.move_to(-0.5 * radius, -0.45 * radius);
-                ctx.line_to(-0.3 * radius, -0.45 * radius);
-                ctx.line_to(-0.3 * radius, -1.1 * radius);
-                ctx.line_to(-0.5 * radius, -1.1 * radius);
-                ctx.move_to(-0.1 * radius, -0.45 * radius);
-                ctx.line_to(0.1 * radius, -0.45 * radius);
-                ctx.line_to(0.1 * radius, -1.1 * radius);
-                ctx.line_to(-0.1 * radius, -1.1 * radius);
-                ctx.move_to(0.5 * radius, -0.45 * radius);
-                ctx.line_to(0.3 * radius, -0.45 * radius);
-                ctx.line_to(0.3 * radius, -1.1 * radius);
-                ctx.line_to(0.5 * radius, -1.1 * radius);
+                ctx.move_to(-0.5 * radius, -dx);
+                ctx.line_to(-0.3 * radius, -dx);
+                ctx.line_to(-0.3 * radius, -rmax);
+                ctx.line_to(-0.5 * radius, -rmax);
+                ctx.move_to(-0.1 * radius, -dx);
+                ctx.line_to(0.1 * radius, -dx);
+                ctx.line_to(0.1 * radius, -rmax);
+                ctx.line_to(-0.1 * radius, -rmax);
+                ctx.move_to(0.5 * radius, -dx);
+                ctx.line_to(0.3 * radius, -dx);
+                ctx.line_to(0.3 * radius, -rmax);
+                ctx.line_to(0.5 * radius, -rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
                 ctx.new_path();
-                ctx.move_to(-0.5 * radius, 0.45 * radius);
-                ctx.line_to(-0.3 * radius, 0.45 * radius);
-                ctx.line_to(-0.3 * radius, 1.1 * radius);
-                ctx.line_to(-0.5 * radius, 1.1 * radius);
-                ctx.move_to(-0.1 * radius, 0.45 * radius);
-                ctx.line_to(0.1 * radius, 0.45 * radius);
-                ctx.line_to(0.1 * radius, 1.1 * radius);
-                ctx.line_to(-0.1 * radius, 1.1 * radius);
-                ctx.move_to(0.5 * radius, 0.45 * radius);
-                ctx.line_to(0.3 * radius, 0.45 * radius);
-                ctx.line_to(0.3 * radius, 1.1 * radius);
-                ctx.line_to(0.5 * radius, 1.1 * radius);
+                ctx.move_to(-0.5 * radius, dx);
+                ctx.line_to(-0.3 * radius, dx);
+                ctx.line_to(-0.3 * radius, rmax);
+                ctx.line_to(-0.5 * radius, rmax);
+                ctx.move_to(-0.1 * radius, dx);
+                ctx.line_to(0.1 * radius, dx);
+                ctx.line_to(0.1 * radius, rmax);
+                ctx.line_to(-0.1 * radius, rmax);
+                ctx.move_to(0.5 * radius, dx);
+                ctx.line_to(0.3 * radius, dx);
+                ctx.line_to(0.3 * radius, rmax);
+                ctx.line_to(0.5 * radius, rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
             }
@@ -291,17 +303,16 @@ impl TokenStyle {
                 bg.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.move_to(-0.45 * radius, -1.0 * radius);
-                ctx.line_to(0.0, -0.45 * radius);
-                ctx.line_to(0.45 * radius, -1.0 * radius);
+                ctx.move_to(-dx, -rmax);
+                ctx.line_to(0.0, -dx);
+                ctx.line_to(dx, -rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
                 ctx.new_path();
-                ctx.move_to(-0.45 * radius, 1.0 * radius);
-                ctx.line_to(0.0, 0.45 * radius);
-                ctx.line_to(0.45 * radius, 1.0 * radius);
+                ctx.move_to(-dx, rmax);
+                ctx.line_to(0.0, dx);
+                ctx.line_to(dx, rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
             }
@@ -309,56 +320,105 @@ impl TokenStyle {
                 bg.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
                 ctx.new_path();
-                ctx.move_to(-1.5 * radius, -1.0 * radius);
-                ctx.line_to(-0.3 * radius, -0.45 * radius);
-                ctx.line_to(-0.3 * radius, -1.0 * radius);
+                ctx.move_to(-1.5 * radius, -rmax);
+                ctx.line_to(-0.3 * radius, -dx);
+                ctx.line_to(-0.3 * radius, -rmax);
                 ctx.line_to(0.0, -0.5 * radius);
-                ctx.line_to(0.3 * radius, -1.0 * radius);
-                ctx.line_to(0.3 * radius, -0.45 * radius);
-                ctx.line_to(1.5 * radius, -1.0 * radius);
+                ctx.line_to(0.3 * radius, -rmax);
+                ctx.line_to(0.3 * radius, -dx);
+                ctx.line_to(1.5 * radius, -rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
                 ctx.new_path();
-                ctx.move_to(-1.5 * radius, 1.0 * radius);
-                ctx.line_to(-0.3 * radius, 0.45 * radius);
-                ctx.line_to(-0.3 * radius, 1.0 * radius);
+                ctx.move_to(-1.5 * radius, rmax);
+                ctx.line_to(-0.3 * radius, dx);
+                ctx.line_to(-0.3 * radius, rmax);
                 ctx.line_to(0.0, 0.5 * radius);
-                ctx.line_to(0.3 * radius, 1.0 * radius);
-                ctx.line_to(0.3 * radius, 0.45 * radius);
-                ctx.line_to(1.5 * radius, 1.0 * radius);
+                ctx.line_to(0.3 * radius, rmax);
+                ctx.line_to(0.3 * radius, dx);
+                ctx.line_to(1.5 * radius, rmax);
                 fg.apply_to(ctx);
                 ctx.fill();
             }
-            TribandV { fg, bg, .. } => {
-                bg.apply_to(ctx);
+            TribandV { sides, middle, .. } => {
+                sides.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
-                let dx = 0.45 * radius;
                 ctx.new_path();
-                ctx.move_to(-dx, 1.0 * radius);
-                ctx.line_to(-dx, -1.0 * radius);
-                ctx.line_to(dx, -1.0 * radius);
-                ctx.line_to(dx, 1.0 * radius);
-                ctx.line_to(-dx, 1.0 * radius);
-                fg.apply_to(ctx);
+                ctx.move_to(-dx, rmax);
+                ctx.line_to(-dx, -rmax);
+                ctx.line_to(dx, -rmax);
+                ctx.line_to(dx, rmax);
+                ctx.line_to(-dx, rmax);
+                middle.apply_to(ctx);
                 ctx.fill();
             }
-            TribandH { fg, bg, .. } => {
-                bg.apply_to(ctx);
+            TribandH { sides, middle, .. } => {
+                sides.apply_to(ctx);
                 ctx.fill_preserve();
                 ctx.clip_preserve();
-                let radius = hex.max_d * 0.125;
-                let dy = 0.45 * radius;
                 ctx.new_path();
-                ctx.move_to(1.0 * radius, -dy);
-                ctx.line_to(-1.0 * radius, -dy);
-                ctx.line_to(-1.0 * radius, dy);
-                ctx.line_to(1.0 * radius, dy);
-                ctx.line_to(1.0 * radius, -dy);
-                fg.apply_to(ctx);
+                ctx.move_to(rmax, -dx);
+                ctx.line_to(-rmax, -dx);
+                ctx.line_to(-rmax, dx);
+                ctx.line_to(rmax, dx);
+                ctx.line_to(rmax, -dx);
+                middle.apply_to(ctx);
+                ctx.fill();
+            }
+            TricolourV {
+                left,
+                middle,
+                right,
+                ..
+            } => {
+                // Fill the entire region with the middle colour.
+                middle.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                // Define the left region and fill with the left colour.
+                ctx.new_path();
+                ctx.move_to(-rmax, -rmax);
+                ctx.line_to(-rmax, rmax);
+                ctx.line_to(-dx, rmax);
+                ctx.line_to(-dx, -rmax);
+                left.apply_to(ctx);
+                ctx.fill();
+                // Define the right region and fill with the right colour.
+                ctx.new_path();
+                ctx.move_to(rmax, -rmax);
+                ctx.line_to(rmax, rmax);
+                ctx.line_to(dx, rmax);
+                ctx.line_to(dx, -rmax);
+                right.apply_to(ctx);
+                ctx.fill();
+            }
+            TricolourH {
+                top,
+                middle,
+                bottom,
+                ..
+            } => {
+                // Fill the entire region with the middle colour.
+                middle.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                // Define the top region and fill with the top colour.
+                ctx.new_path();
+                ctx.move_to(-rmax, -dx);
+                ctx.line_to(-rmax, -rmax);
+                ctx.line_to(rmax, -rmax);
+                ctx.line_to(rmax, -dx);
+                top.apply_to(ctx);
+                ctx.fill();
+                // Define the bottom region and fill with the bottom colour.
+                ctx.new_path();
+                ctx.move_to(-rmax, dx);
+                ctx.line_to(-rmax, rmax);
+                ctx.line_to(rmax, rmax);
+                ctx.line_to(rmax, dx);
+                bottom.apply_to(ctx);
                 ctx.fill();
             }
         }
@@ -376,6 +436,8 @@ impl TokenStyle {
             TripleTriangles { text, .. } => &text,
             TribandV { text, .. } => &text,
             TribandH { text, .. } => &text,
+            TricolourV { text, .. } => &text,
+            TricolourH { text, .. } => &text,
         }
     }
 }

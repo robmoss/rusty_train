@@ -3255,13 +3255,25 @@ pub enum TokenStyle {
         text: TokenColour,
     },
     TribandV {
-        bg: TokenColour,
-        fg: TokenColour,
+        sides: TokenColour,
+        middle: TokenColour,
         text: TokenColour,
     },
     TribandH {
-        bg: TokenColour,
-        fg: TokenColour,
+        sides: TokenColour,
+        middle: TokenColour,
+        text: TokenColour,
+    },
+    TricolourV {
+        left: TokenColour,
+        middle: TokenColour,
+        right: TokenColour,
+        text: TokenColour,
+    },
+    TricolourH {
+        top: TokenColour,
+        middle: TokenColour,
+        bottom: TokenColour,
         text: TokenColour,
     },
 }
@@ -3391,14 +3403,44 @@ impl std::convert::From<&n18token::TokenStyle> for TokenStyle {
                 fg: fg.into(),
                 text: text.into(),
             },
-            TribandV { bg, fg, text } => Self::TribandV {
-                bg: bg.into(),
-                fg: fg.into(),
+            TribandV {
+                sides,
+                middle,
+                text,
+            } => Self::TribandV {
+                sides: sides.into(),
+                middle: middle.into(),
                 text: text.into(),
             },
-            TribandH { bg, fg, text } => Self::TribandH {
-                bg: bg.into(),
-                fg: fg.into(),
+            TribandH {
+                sides,
+                middle,
+                text,
+            } => Self::TribandH {
+                sides: sides.into(),
+                middle: middle.into(),
+                text: text.into(),
+            },
+            TricolourV {
+                left,
+                middle,
+                right,
+                text,
+            } => Self::TricolourV {
+                left: left.into(),
+                middle: middle.into(),
+                right: right.into(),
+                text: text.into(),
+            },
+            TricolourH {
+                top,
+                middle,
+                bottom,
+                text,
+            } => Self::TricolourH {
+                top: top.into(),
+                middle: middle.into(),
+                bottom: bottom.into(),
                 text: text.into(),
             },
         }
@@ -3440,14 +3482,44 @@ impl std::convert::From<&TokenStyle> for n18token::TokenStyle {
                 fg: fg.into(),
                 text: text.into(),
             },
-            TribandV { bg, fg, text } => Self::TribandV {
-                bg: bg.into(),
-                fg: fg.into(),
+            TribandV {
+                sides,
+                middle,
+                text,
+            } => Self::TribandV {
+                sides: sides.into(),
+                middle: middle.into(),
                 text: text.into(),
             },
-            TribandH { bg, fg, text } => Self::TribandH {
-                bg: bg.into(),
-                fg: fg.into(),
+            TribandH {
+                sides,
+                middle,
+                text,
+            } => Self::TribandH {
+                sides: sides.into(),
+                middle: middle.into(),
+                text: text.into(),
+            },
+            TricolourV {
+                left,
+                middle,
+                right,
+                text,
+            } => Self::TricolourV {
+                left: left.into(),
+                middle: middle.into(),
+                right: right.into(),
+                text: text.into(),
+            },
+            TricolourH {
+                top,
+                middle,
+                bottom,
+                text,
+            } => Self::TricolourH {
+                top: top.into(),
+                middle: middle.into(),
+                bottom: bottom.into(),
                 text: text.into(),
             },
         }

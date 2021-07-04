@@ -47,7 +47,7 @@ fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
 fn draw_tokens(output_dir: &output::Dir) -> Result {
     let output_file = output_dir.join("draw_tokens.png");
 
-    let rows = 3;
+    let rows = 5;
     let cols = 8;
 
     let width = cols as f64 * 2.0 * TOKEN_RADIUS_MARGIN;
@@ -57,9 +57,11 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
     // Background colours for minor (yellow) and major (green) companies.
     let bg_yellow = Colour::from((223, 223, 0));
     let bg_green = Colour::from((0, 153, 63));
+    let bg_dark_green = Colour::from((0, 77, 31));
     let bg_iter = std::iter::repeat(bg_yellow)
         .take(16)
-        .chain(std::iter::repeat(bg_green).take(8));
+        .chain(std::iter::repeat(bg_green).take(8))
+        .chain(std::iter::repeat(bg_dark_green).take(16));
 
     // Foreground colours.
     let aqua = Colour::from((0, 204, 204));
@@ -89,7 +91,33 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
                 2 => TokenStyle::TopArcs { bg, fg, text },
                 3 => TokenStyle::TripleTriangles { bg, fg, text },
                 4 => TokenStyle::TopLines { bg, fg, text },
-                _ => TokenStyle::TopTriangles { bg, fg, text },
+                5 => TokenStyle::TopTriangles { bg, fg, text },
+                6 => TokenStyle::TribandH {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                7 => TokenStyle::TribandV {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                8 => TokenStyle::TricolourH {
+                    top: bg,
+                    middle: fg,
+                    bottom: if bg == bg_yellow {
+                        bg_green
+                    } else {
+                        bg_yellow
+                    },
+                    text,
+                },
+                _ => TokenStyle::TricolourV {
+                    left: bg,
+                    middle: fg,
+                    right: if bg == bg_yellow { bg_green } else { bg_yellow },
+                    text,
+                },
             }
         })
         .map(|style| Token::new(style))
@@ -100,6 +128,9 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
         "BBG", "BO", "CV", "CS", "KP", "LPS", "OP", "SLA", "TGB", "TN", "AE",
         "CA", "NYO", "PM", "QLS", "THB", "CNR", "CPR", "C&O", "GT", "GW",
         "IRC", "NTR", "NYC",
+        // Repeat the first 16 names to demonstrate the banded styles.
+        "BBG", "BO", "CV", "CS", "KP", "LPS", "OP", "SLA", "TGB", "TN", "AE",
+        "CA", "NYO", "PM", "QLS", "THB",
     ];
 
     let hex = Hex::new(HEX_DIAMETER);
