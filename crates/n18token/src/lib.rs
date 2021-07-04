@@ -124,6 +124,11 @@ impl Colour {
             None => ctx.set_source_rgb(r, g, b),
         }
     }
+
+    pub fn with_alpha(mut self, alpha: usize) -> Self {
+        self.alpha = Some(alpha);
+        self
+    }
 }
 
 impl From<(usize, usize, usize)> for Colour {
@@ -133,6 +138,17 @@ impl From<(usize, usize, usize)> for Colour {
             green: src.1,
             blue: src.2,
             alpha: None,
+        }
+    }
+}
+
+impl From<(usize, usize, usize, usize)> for Colour {
+    fn from(src: (usize, usize, usize, usize)) -> Self {
+        Colour {
+            red: src.0,
+            green: src.1,
+            blue: src.2,
+            alpha: Some(src.3),
         }
     }
 }
