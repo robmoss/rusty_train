@@ -172,6 +172,16 @@ pub enum TokenStyle {
         fg: Colour,
         text: Colour,
     },
+    TribandV {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
+    TribandH {
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
+    },
 }
 
 impl TokenStyle {
@@ -305,6 +315,36 @@ impl TokenStyle {
                 fg.apply_to(ctx);
                 ctx.fill();
             }
+            TribandV { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                let dx = 0.45 * radius;
+                ctx.new_path();
+                ctx.move_to(-dx, 1.0 * radius);
+                ctx.line_to(-dx, -1.0 * radius);
+                ctx.line_to(dx, -1.0 * radius);
+                ctx.line_to(dx, 1.0 * radius);
+                ctx.line_to(-dx, 1.0 * radius);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
+            TribandH { fg, bg, .. } => {
+                bg.apply_to(ctx);
+                ctx.fill_preserve();
+                ctx.clip_preserve();
+                let radius = hex.max_d * 0.125;
+                let dy = 0.45 * radius;
+                ctx.new_path();
+                ctx.move_to(1.0 * radius, -dy);
+                ctx.line_to(-1.0 * radius, -dy);
+                ctx.line_to(-1.0 * radius, dy);
+                ctx.line_to(1.0 * radius, dy);
+                ctx.line_to(1.0 * radius, -dy);
+                fg.apply_to(ctx);
+                ctx.fill();
+            }
         }
     }
 
@@ -318,6 +358,8 @@ impl TokenStyle {
             TopLines { text, .. } => &text,
             TopTriangles { text, .. } => &text,
             TripleTriangles { text, .. } => &text,
+            TribandV { text, .. } => &text,
+            TribandH { text, .. } => &text,
         }
     }
 }

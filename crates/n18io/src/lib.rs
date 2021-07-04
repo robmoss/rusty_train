@@ -3254,6 +3254,16 @@ pub enum TokenStyle {
         fg: TokenColour,
         text: TokenColour,
     },
+    TribandV {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
+    TribandH {
+        bg: TokenColour,
+        fg: TokenColour,
+        text: TokenColour,
+    },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -3381,6 +3391,16 @@ impl std::convert::From<&n18token::TokenStyle> for TokenStyle {
                 fg: fg.into(),
                 text: text.into(),
             },
+            TribandV { bg, fg, text } => Self::TribandV {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TribandH { bg, fg, text } => Self::TribandH {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
         }
     }
 }
@@ -3416,6 +3436,16 @@ impl std::convert::From<&TokenStyle> for n18token::TokenStyle {
                 text: text.into(),
             },
             TripleTriangles { bg, fg, text } => Self::TripleTriangles {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TribandV { bg, fg, text } => Self::TribandV {
+                bg: bg.into(),
+                fg: fg.into(),
+                text: text.into(),
+            },
+            TribandH { bg, fg, text } => Self::TribandH {
                 bg: bg.into(),
                 fg: fg.into(),
                 text: text.into(),
