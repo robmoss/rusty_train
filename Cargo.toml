@@ -59,3 +59,11 @@ test = true
 [[example]]
 name = "draw_tokens"
 test = true
+
+[[example]]
+name = "draw_tiles"
+test = true
+
+[[example]]
+name = "save_tiles"
+test = true

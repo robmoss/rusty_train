@@ -14,6 +14,8 @@ pub enum Dir {
     UserGuide,
     /// The directory for outputs that are not included in the book or guides.
     Examples,
+    /// The working directory (the repository root).
+    Root,
 }
 
 impl Dir {
@@ -21,6 +23,7 @@ impl Dir {
     pub fn root(&self) -> &'static str {
         use Dir::*;
         match self {
+            Root => ".",
             Examples => "./examples/output",
             BookRoot => "./book/src",
             DevGuide => "./book/src/dev_guide",
