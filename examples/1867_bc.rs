@@ -173,19 +173,19 @@ fn game_state() -> GameState {
     game.set_phase(example.get_map_mut(), 6);
 
     // Define the five tokens by company name.
-    let green = "CNR";
-    let brown = "GW";
-    let red = "CPR";
-    let blue = "C&O";
-    let beige = "NTR";
+    let cnr = "CNR";
+    let gw = "GW";
+    let cno = "C&O";
+    let cpr = "CPR";
+    let ntr = "NTR";
 
     // Place tiles and tokens.
     let tiles = vec![
         // Top-most diagonal row, starting from Sarnia.
         tile_at("87", "B18").rotate_cw(1),
-        tile_at("63", "C17").token(0, blue),
-        tile_at("63", "D16").token(0, green),
-        tile_at("63", "E15").token(0, brown),
+        tile_at("63", "C17").token(0, cno),
+        tile_at("63", "D16").token(0, cnr),
+        tile_at("63", "E15").token(0, gw),
         tile_at("42", "F14").rotate_acw(2),
         tile_at("23", "G13").rotate_cw(1),
         tile_at("27", "H12").rotate_acw(2),
@@ -194,67 +194,67 @@ fn game_state() -> GameState {
         tile_at("8", "K9").rotate_cw(1),
         // Second diagonal row, spanning Hamilton to Trois-Rivières.
         tile_at("8", "D18").rotate_acw(2),
-        tile_at("623", "E17").token(0, blue).token(1, green),
+        tile_at("623", "E17").token(0, cno).token(1, cnr),
         tile_at("124", "F16")
-            .token(0, blue)
-            .token(1, green)
-            .token(2, red),
-        tile_at("611", "G15").rotate_cw(1).token(0, red),
+            .token(0, cno)
+            .token(1, cnr)
+            .token(2, cpr),
+        tile_at("611", "G15").rotate_cw(1).token(0, cpr),
         tile_at("204", "H14").rotate_acw(1),
         tile_at("8", "I13").rotate_cw(2),
-        tile_at("X8", "J12").token(0, brown),
+        tile_at("X8", "J12").token(0, gw),
         tile_at("31", "K11").rotate_acw(1),
         tile_at("204", "L10").rotate_acw(2),
         tile_at("57", "M9").rotate_cw(1),
         tile_at("9", "N8").rotate_cw(1),
         // Third diagonal row, Kingston to Montreal.
-        tile_at("15", "I15").rotate_cw(1).token(0, beige),
+        tile_at("15", "I15").rotate_cw(1).token(0, ntr),
         tile_at("24", "J14").rotate_cw(1),
         tile_at("911", "K13").rotate_acw(2),
         tile_at("639", "L12")
-            .token(0, red)
-            .token(1, beige)
-            .token(2, brown),
+            .token(0, cpr)
+            .token(1, ntr)
+            .token(2, gw),
         // Fourth diagonal row, connects Montreal to New England.
         tile_at("58", "M13").rotate_cw(2),
     ];
     example.place_tiles(tiles);
 
-    // NOTE: these tiles were placed after CNoR (green) and GW (brown) ran,
-    // and before C&O (blue) ran, but placing them does not affect the optimal
-    // routes for CNoR and GW, so it's simplest to place them now and use the
-    // same map configuration for all three companies.
+    // NOTE: these tiles were placed after CNR and GW ran, and before C&O ran,
+    // but placing them does not affect the optimal routes for CNR and GW, so
+    // it's simplest to place them now and use the same map configuration for
+    // all three companies.
     let extra_tiles = vec![
         tile_at("16", "D18").rotate_acw(3),
         tile_at("7", "C19").rotate_acw(2),
     ];
     example.place_tiles(extra_tiles);
 
-    let green_trains =
-        Trains::new(vec![Train::new_5_train(), Train::new_5p5e_train()]);
-    let brown_trains =
-        Trains::new(vec![Train::new_5_train(), Train::new_8_train()]);
-    let blue_trains =
-        Trains::new(vec![Train::new_6_train(), Train::new_8_train()]);
+    let cnr_trains =
+        Trains::new(vec![*game.get_train("5"), *game.get_train("5+5E")]);
+    let gw_trains =
+        Trains::new(vec![*game.get_train("5"), *game.get_train("8")]);
+    let cno_trains =
+        Trains::new(vec![*game.get_train("6"), *game.get_train("8")]);
 
     let companies = vec![
         CompanyInfo {
-            token_name: brown,
-            trains: brown_trains,
+            token_name: gw,
+            trains: gw_trains,
             train_desc: "5-train, 8-train",
             num_paths: 15_008,
             net_revenue: 840,
         },
         CompanyInfo {
-            token_name: blue,
-            trains: blue_trains,
+            token_name: cno,
+            trains: cno_trains,
             train_desc: "6-train, 8-train",
             num_paths: 46_176,
             net_revenue: 900,
         },
         CompanyInfo {
-            token_name: green,
-            trains: green_trains,
+            token_name: cnr,
+            trains: cnr_trains,
             train_desc: "5-train, 5+5E-train",
             num_paths: 67_948,
             net_revenue: 1130,
