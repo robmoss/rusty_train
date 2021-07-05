@@ -4,6 +4,494 @@
     {
       "train": {
         "train_type": "SkipTowns",
+        "max_stops": 5,
+        "revenue_multiplier": 1
+      },
+      "revenue": 330,
+      "route": {
+        "steps": [
+          {
+            "addr": "J12",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "J12",
+            "conn": {
+              "Track": {
+                "ix": 3,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "J12",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "J10",
+            "conn": {
+              "Face": {
+                "face": "UpperLeft"
+              }
+            }
+          },
+          {
+            "addr": "J10",
+            "conn": {
+              "Track": {
+                "ix": 1,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "J10",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "K9",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "K9",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "K9",
+            "conn": {
+              "Face": {
+                "face": "UpperRight"
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "conn": {
+              "Face": {
+                "face": "UpperRight"
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "conn": {
+              "Track": {
+                "ix": 3,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "conn": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "conn": {
+              "Track": {
+                "ix": 1,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "conn": {
+              "Face": {
+                "face": "UpperLeft"
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "conn": {
+              "Track": {
+                "ix": 3,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "L14",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "L14",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "L14",
+            "conn": {
+              "Face": {
+                "face": "LowerRight"
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Face": {
+                "face": "LowerLeft"
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Track": {
+                "ix": 1,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Track": {
+                "ix": 2,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "J14",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "J14",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "J14",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "conn": {
+              "Track": {
+                "ix": 1,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "conn": {
+              "Track": {
+                "ix": 2,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "conn": {
+              "Face": {
+                "face": "LowerLeft"
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "conn": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "conn": {
+              "Track": {
+                "ix": 1,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "conn": {
+              "Face": {
+                "face": "UpperLeft"
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "conn": {
+              "Face": {
+                "face": "Top"
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "conn": {
+              "Track": {
+                "ix": 3,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "F16",
+            "conn": {
+              "Face": {
+                "face": "UpperRight"
+              }
+            }
+          },
+          {
+            "addr": "F16",
+            "conn": {
+              "Track": {
+                "ix": 3,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "F16",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          }
+        ],
+        "visits": [
+          {
+            "addr": "J12",
+            "revenue": 60,
+            "visits": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "L10",
+            "revenue": 0,
+            "visits": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "L12",
+            "revenue": 100,
+            "visits": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "revenue": 0,
+            "visits": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "I15",
+            "revenue": 30,
+            "visits": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "H14",
+            "revenue": 0,
+            "visits": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "G15",
+            "revenue": 40,
+            "visits": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "F16",
+            "revenue": 100,
+            "visits": {
+              "City": {
+                "ix": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "train": {
+        "train_type": "SkipTowns",
         "max_stops": 8,
         "revenue_multiplier": 1
       },
@@ -248,7 +736,7 @@
             "addr": "D16",
             "conn": {
               "Track": {
-                "ix": 1,
+                "ix": 0,
                 "end": "End"
               }
             }
@@ -257,12 +745,29 @@
             "addr": "D16",
             "conn": {
               "Face": {
-                "face": "LowerLeft"
+                "face": "Bottom"
               }
             }
           },
           {
-            "addr": "C17",
+            "addr": "D18",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "D18",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "D18",
             "conn": {
               "Face": {
                 "face": "UpperRight"
@@ -270,10 +775,43 @@
             }
           },
           {
+            "addr": "C19",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
+            "addr": "C19",
+            "conn": {
+              "Track": {
+                "ix": 0,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "C19",
+            "conn": {
+              "Face": {
+                "face": "LowerRight"
+              }
+            }
+          },
+          {
+            "addr": "C17",
+            "conn": {
+              "Face": {
+                "face": "Bottom"
+              }
+            }
+          },
+          {
             "addr": "C17",
             "conn": {
               "Track": {
-                "ix": 4,
+                "ix": 0,
                 "end": "Start"
               }
             }
@@ -290,7 +828,7 @@
             "addr": "C17",
             "conn": {
               "Track": {
-                "ix": 2,
+                "ix": 1,
                 "end": "End"
               }
             }
@@ -299,32 +837,7 @@
             "addr": "C17",
             "conn": {
               "Face": {
-                "face": "UpperLeft"
-              }
-            }
-          },
-          {
-            "addr": "B16",
-            "conn": {
-              "Face": {
-                "face": "LowerRight"
-              }
-            }
-          },
-          {
-            "addr": "B16",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "B16",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
+                "face": "LowerLeft"
               }
             }
           },
@@ -332,7 +845,7 @@
             "addr": "B18",
             "conn": {
               "Face": {
-                "face": "UpperLeft"
+                "face": "Top"
               }
             }
           },
@@ -340,7 +853,7 @@
             "addr": "B18",
             "conn": {
               "Track": {
-                "ix": 2,
+                "ix": 3,
                 "end": "Start"
               }
             }
@@ -357,38 +870,13 @@
             "addr": "B18",
             "conn": {
               "Track": {
-                "ix": 1,
+                "ix": 0,
                 "end": "End"
               }
             }
           },
           {
             "addr": "B18",
-            "conn": {
-              "Face": {
-                "face": "LowerLeft"
-              }
-            }
-          },
-          {
-            "addr": "A17",
-            "conn": {
-              "Face": {
-                "face": "LowerRight"
-              }
-            }
-          },
-          {
-            "addr": "A17",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "A17",
             "conn": {
               "Face": {
                 "face": "Bottom"
@@ -399,7 +887,7 @@
             "addr": "A19",
             "conn": {
               "Face": {
-                "face": "Top"
+                "face": "UpperRight"
               }
             }
           },
@@ -407,7 +895,7 @@
             "addr": "A19",
             "conn": {
               "Track": {
-                "ix": 1,
+                "ix": 0,
                 "end": "Start"
               }
             }
@@ -424,7 +912,7 @@
             "addr": "J12",
             "conn": {
               "Track": {
-                "ix": 5,
+                "ix": 4,
                 "end": "End"
               }
             }
@@ -433,29 +921,46 @@
             "addr": "J12",
             "conn": {
               "Face": {
+                "face": "LowerRight"
+              }
+            }
+          },
+          {
+            "addr": "K13",
+            "conn": {
+              "Face": {
                 "face": "UpperRight"
               }
             }
           },
           {
-            "addr": "K11",
+            "addr": "K13",
             "conn": {
-              "Face": {
-                "face": "UpperLeft"
+              "Track": {
+                "ix": 3,
+                "end": "Start"
               }
             }
           },
           {
-            "addr": "K11",
+            "addr": "K13",
+            "conn": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "K13",
             "conn": {
               "Track": {
-                "ix": 1,
+                "ix": 0,
                 "end": "End"
               }
             }
           },
           {
-            "addr": "K11",
+            "addr": "K13",
             "conn": {
               "Face": {
                 "face": "Bottom"
@@ -466,7 +971,7 @@
             "addr": "L12",
             "conn": {
               "Face": {
-                "face": "UpperLeft"
+                "face": "LowerLeft"
               }
             }
           },
@@ -474,7 +979,7 @@
             "addr": "L12",
             "conn": {
               "Track": {
-                "ix": 2,
+                "ix": 1,
                 "end": "Start"
               }
             }
@@ -637,6 +1142,15 @@
             }
           },
           {
+            "addr": "K13",
+            "revenue": 0,
+            "visits": {
+              "Dit": {
+                "ix": 0
+              }
+            }
+          },
+          {
             "addr": "L12",
             "revenue": 100,
             "visits": {
@@ -657,469 +1171,6 @@
           {
             "addr": "M15",
             "revenue": 60,
-            "visits": {
-              "City": {
-                "ix": 0
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "train": {
-        "train_type": "SkipTowns",
-        "max_stops": 5,
-        "revenue_multiplier": 1
-      },
-      "revenue": 330,
-      "route": {
-        "steps": [
-          {
-            "addr": "J12",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "J12",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "J12",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "J10",
-            "conn": {
-              "Face": {
-                "face": "UpperLeft"
-              }
-            }
-          },
-          {
-            "addr": "J10",
-            "conn": {
-              "Track": {
-                "ix": 1,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "J10",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "K9",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "K9",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "K9",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "conn": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "conn": {
-              "Track": {
-                "ix": 1,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "conn": {
-              "Face": {
-                "face": "UpperLeft"
-              }
-            }
-          },
-          {
-            "addr": "L12",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "L12",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "L12",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "J12",
-            "conn": {
-              "Track": {
-                "ix": 4,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "J12",
-            "conn": {
-              "Face": {
-                "face": "LowerRight"
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "conn": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "conn": {
-              "Track": {
-                "ix": 2,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "J14",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "J14",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "J14",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "conn": {
-              "Track": {
-                "ix": 1,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "conn": {
-              "Track": {
-                "ix": 2,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "conn": {
-              "Face": {
-                "face": "LowerLeft"
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "conn": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "conn": {
-              "Track": {
-                "ix": 1,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "conn": {
-              "Face": {
-                "face": "UpperLeft"
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "conn": {
-              "Track": {
-                "ix": 0,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "F16",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "F16",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "F16",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          }
-        ],
-        "visits": [
-          {
-            "addr": "L12",
-            "revenue": 100,
-            "visits": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "L10",
-            "revenue": 0,
-            "visits": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "J12",
-            "revenue": 60,
-            "visits": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "K13",
-            "revenue": 0,
-            "visits": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "I15",
-            "revenue": 30,
-            "visits": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "H14",
-            "revenue": 0,
-            "visits": {
-              "Dit": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "G15",
-            "revenue": 40,
-            "visits": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "F16",
-            "revenue": 100,
             "visits": {
               "City": {
                 "ix": 0
