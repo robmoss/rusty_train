@@ -751,24 +751,21 @@ impl Trains {
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
         info!("Building path/train revenue table");
-        let rev: BTreeMap<_, BTreeMap<Train, (usize, Vec<TrainStop>)>> = (0
+        let rev: Vec<BTreeMap<Train, (usize, Vec<TrainStop>)>> = (0
             ..num_paths)
             .map(|path_ix| {
-                (
-                    path_ix,
-                    self.trains
-                        .keys()
-                        .filter_map(|train| {
-                            train
-                                .revenue_for(
-                                    &path_tbl[path_ix],
-                                    &visit_bonuses,
-                                    &connect_bonuses,
-                                )
-                                .map(|revenue| (*train, revenue))
-                        })
-                        .collect(),
-                )
+                self.trains
+                    .keys()
+                    .filter_map(|train| {
+                        train
+                            .revenue_for(
+                                &path_tbl[path_ix],
+                                &visit_bonuses,
+                                &connect_bonuses,
+                            )
+                            .map(|revenue| (*train, revenue))
+                    })
+                    .collect()
             })
             .collect();
 
@@ -838,7 +835,7 @@ impl Trains {
 
     fn best_pairing_for(
         &self,
-        revenue: &BTreeMap<usize, BTreeMap<Train, (usize, Vec<TrainStop>)>>,
+        revenue: &Vec<BTreeMap<Train, (usize, Vec<TrainStop>)>>,
         path_ixs: &Vec<usize>,
     ) -> Option<(usize, Vec<(Train, usize, usize, Vec<TrainStop>)>)> {
         let num_paths = path_ixs.len();
@@ -856,10 +853,9 @@ impl Trains {
                     .iter()
                     .enumerate()
                     .filter_map(|(path_ixs_ix, train_ix)| {
-                        revenue.get(&path_ixs[path_ixs_ix]).and_then(|tbl| {
-                            tbl.get(&self.train_vec[*train_ix])
-                                .map(|revenue| revenue.clone())
-                        })
+                        revenue[path_ixs[path_ixs_ix]]
+                            .get(&self.train_vec[*train_ix])
+                            .map(|revenue| revenue.clone())
                     })
                     .collect();
                 let net_revenue: usize =
