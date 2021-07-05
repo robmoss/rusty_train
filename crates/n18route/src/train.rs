@@ -97,6 +97,28 @@ pub enum TrainType {
     SkipAny,
 }
 
+impl TrainType {
+    /// Returns a train of this train type, which has a limit on the number of
+    /// stops it can make, and has a revenue multiplier of 1.
+    pub fn with_max_stops(self, stops: usize) -> Train {
+        Train {
+            train_type: self,
+            max_stops: Some(stops),
+            ..Default::default()
+        }
+    }
+
+    /// Returns a train of this train type, which has no limit on the number
+    /// of stops it can make, and has a revenue multiplier of 1.
+    pub fn with_unlimited_stops(self) -> Train {
+        Train {
+            train_type: self,
+            max_stops: None,
+            ..Default::default()
+        }
+    }
+}
+
 impl Default for Train {
     fn default() -> Self {
         Train {
