@@ -780,7 +780,42 @@ impl Trains {
             // NOTE: best_pairing_for iterates over a
             // KPermutationsFilter to match trains to paths.
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
-            .max_by_key(|&(revenue, _)| revenue);
+            // NOTE: instead of simply returning the first pairing that earns
+            // the most revenue, also count how many pairings earn this much.
+            // .max_by_key(|&(revenue, _)| revenue);
+            .fold_with(None, |best_opt, (revenue, routes)| match best_opt {
+                None => Some((revenue, routes, 1)),
+                Some(best) => {
+                    if revenue < best.0 {
+                        Some(best)
+                    } else if revenue == best.0 {
+                        Some((best.0, best.1, best.2 + 1))
+                    } else {
+                        Some((revenue, routes, 1))
+                    }
+                }
+            })
+            .reduce(
+                || None,
+                |a_opt, b_opt| match (a_opt, b_opt) {
+                    (Some(a), Some(b)) => {
+                        if a.0 > b.0 {
+                            Some(a)
+                        } else if a.0 < b.0 {
+                            Some(b)
+                        } else {
+                            Some((a.0, a.1, a.2 + b.2))
+                        }
+                    }
+                    (Some(a), None) => Some(a),
+                    (None, Some(b)) => Some(b),
+                    (None, None) => None,
+                },
+            )
+            .map(|best| {
+                info!("Number of solutions: {}", best.2);
+                (best.0, best.1)
+            });
 
         // Remove the paths from `path_tbl` and replace the path index in each
         // pairing with the corresponding path itself.
