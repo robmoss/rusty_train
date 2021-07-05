@@ -119,6 +119,39 @@ pub struct TrainStop {
 }
 
 impl Train {
+    /// Returns the default train:
+    ///
+    /// - Can skip towns (dits), but cannot skip cities;
+    /// - A maximum of 2 stops; and
+    /// - A revenue multiplier of 1.
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    /// Changes the type of this train.
+    pub fn with_train_type(mut self, train_type: TrainType) -> Self {
+        self.train_type = train_type;
+        self
+    }
+
+    /// Changes the maximum number of stops this train can make.
+    pub fn with_max_stops(mut self, stops: usize) -> Self {
+        self.max_stops = Some(stops);
+        self
+    }
+
+    /// Changes this train so that it can make an arbitrary number of stops.
+    pub fn with_unlimited_stops(mut self) -> Self {
+        self.max_stops = None;
+        self
+    }
+
+    /// Changes the revenue multiplier of this train.
+    pub fn with_multiplier(mut self, multiplier: usize) -> Self {
+        self.revenue_multiplier = multiplier;
+        self
+    }
+
     fn new_n_train(n: usize) -> Self {
         Train {
             max_stops: Some(n),
@@ -126,7 +159,7 @@ impl Train {
         }
     }
 
-    /// Return true if this train can operate a route of arbitrary length, as
+    /// Returns true if this train can operate a route of arbitrary length, as
     /// a result of being able to (a) make an unlimited number of stops; or
     /// (b) skip any number of towns and cities.
     pub fn is_express(&self) -> bool {
@@ -520,6 +553,7 @@ fn best_stop_ixs(
         let num_to_skip = new_stop_ixs.len();
         if num_to_skip > num_to_keep {
             // NOTE: cannot skip enough visits to satisfy this bonus.
+            // NOTE: I am unsure whether this condition can occur.
             info!(
                 "num_to_skip = {} > num_to_keep = {}",
                 num_to_skip, num_to_keep
