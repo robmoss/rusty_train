@@ -136,6 +136,9 @@ pub use n18route::Criteria;
 pub use n18route::paths_for_token;
 
 #[doc(inline)]
+pub use n18route::TrainType;
+
+#[doc(inline)]
 pub use n18route::Train;
 
 #[doc(inline)]

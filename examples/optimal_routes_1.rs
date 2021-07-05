@@ -34,7 +34,10 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
     let mut example = Example::new(hex_max_diameter, tokens, tiles);
 
     // The different train combinations.
-    let (t8, t2p2) = (Train::new_8_train(), Train::new_2p2_train());
+    let (t8, t2p2) = (
+        TrainType::SkipTowns.with_max_stops(8),
+        TrainType::SkipTowns.with_max_stops(2).with_multiplier(2),
+    );
     let trains_8 = Trains::new(vec![t8]);
     let trains_2p2 = Trains::new(vec![t2p2]);
     let trains_both = Trains::new(vec![t2p2, t8]);

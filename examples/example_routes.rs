@@ -84,8 +84,7 @@ fn main() -> Result<()> {
         route_conflict_rule: ConflictRule::TrackOnly,
     };
     let paths = paths_for_token(&map, &criteria);
-    // TODO: need a more flexible way to define train types.
-    let trains = Trains::new(vec![Train::new_8_train()]);
+    let trains = Trains::new(vec![TrainType::SkipTowns.with_max_stops(8)]);
     let best_routes = trains.select_routes(paths, vec![]);
     let best_route = &best_routes.unwrap().train_routes[0].route;
 

@@ -9,7 +9,7 @@ use super::Company;
 use n18catalogue::tile_catalogue;
 use n18hex::{Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
-use n18route::{Bonus, Train};
+use n18route::{Bonus, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Colour, Token, TokenStyle};
 
@@ -209,15 +209,21 @@ pub struct Game {
 impl Game {
     pub fn new(hex: &Hex) -> Self {
         let trains = vec![
-            ("2", Train::new_2_train()),
-            ("3", Train::new_3_train()),
-            ("4", Train::new_4_train()),
-            ("5", Train::new_5_train()),
-            ("6", Train::new_6_train()),
-            ("7", Train::new_7_train()),
-            ("8", Train::new_8_train()),
-            ("2+2", Train::new_2p2_train()),
-            ("5+5E", Train::new_5p5e_train()),
+            ("2", TrainType::SkipTowns.with_max_stops(2)),
+            ("3", TrainType::SkipTowns.with_max_stops(3)),
+            ("4", TrainType::SkipTowns.with_max_stops(4)),
+            ("5", TrainType::SkipTowns.with_max_stops(5)),
+            ("6", TrainType::SkipTowns.with_max_stops(6)),
+            ("7", TrainType::SkipTowns.with_max_stops(7)),
+            ("8", TrainType::SkipTowns.with_max_stops(8)),
+            (
+                "2+2",
+                TrainType::SkipTowns.with_max_stops(2).with_multiplier(2),
+            ),
+            (
+                "5+5E",
+                TrainType::SkipAny.with_max_stops(5).with_multiplier(2),
+            ),
         ];
         let all_tiles = game_tiles(&hex);
         let num_player_tiles = tile_catalogue(&hex).len();

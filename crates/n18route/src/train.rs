@@ -174,62 +174,11 @@ impl Train {
         self
     }
 
-    fn new_n_train(n: usize) -> Self {
-        Train {
-            max_stops: Some(n),
-            ..Default::default()
-        }
-    }
-
     /// Returns true if this train can operate a route of arbitrary length, as
     /// a result of being able to (a) make an unlimited number of stops; or
     /// (b) skip any number of towns and cities.
     pub fn is_express(&self) -> bool {
         self.max_stops.is_none() || self.train_type == TrainType::SkipAny
-    }
-
-    pub fn new_2_train() -> Self {
-        Self::new_n_train(2)
-    }
-
-    pub fn new_3_train() -> Self {
-        Self::new_n_train(3)
-    }
-
-    pub fn new_4_train() -> Self {
-        Self::new_n_train(4)
-    }
-
-    pub fn new_5_train() -> Self {
-        Self::new_n_train(5)
-    }
-
-    pub fn new_6_train() -> Self {
-        Self::new_n_train(6)
-    }
-
-    pub fn new_7_train() -> Self {
-        Self::new_n_train(7)
-    }
-
-    pub fn new_8_train() -> Self {
-        Self::new_n_train(8)
-    }
-
-    pub fn new_2p2_train() -> Self {
-        Train {
-            max_stops: Some(2),
-            train_type: TrainType::SkipTowns,
-            revenue_multiplier: 2,
-        }
-    }
-
-    pub fn new_5p5e_train() -> Self {
-        Train {
-            max_stops: Some(5),
-            train_type: TrainType::SkipAny,
-            revenue_multiplier: 2,
-        }
     }
 
     /// Determine the revenue earned and stops made when the train operates
