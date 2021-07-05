@@ -777,6 +777,8 @@ impl Trains {
                     .is_disjoint(&path_tbl[b].route_conflicts)
             })
             .into_par_iter()
+            // NOTE: best_pairing_for iterates over a
+            // KPermutationsFilter to match trains to paths.
             .filter_map(|path_ixs| self.best_pairing_for(&rev, &path_ixs))
             .max_by_key(|&(revenue, _)| revenue);
 
