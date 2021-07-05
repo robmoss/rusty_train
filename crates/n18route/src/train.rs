@@ -72,7 +72,7 @@ use super::{Path, Step, Visit};
 use log::info;
 use n18map::HexAddress;
 use rayon::prelude::*;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::iter::FromIterator;
 
 /// The types of trains that can operate routes to earn revenue.
@@ -636,14 +636,14 @@ impl From<&Path> for Route {
 
 /// The trains owned by a single company, which may operate routes.
 pub struct Trains {
-    trains: HashMap<Train, usize>,
+    trains: BTreeMap<Train, usize>,
     train_vec: Vec<Train>,
     train_classes: Vec<usize>,
 }
 
 impl From<Vec<Train>> for Trains {
     fn from(src: Vec<Train>) -> Self {
-        let mut trains = HashMap::new();
+        let mut trains = BTreeMap::new();
         let mut seen_trains = vec![];
         let mut train_classes = Vec::with_capacity(src.len());
         for train in &src {
@@ -751,7 +751,7 @@ impl Trains {
         // Build a table that maps each path (identified by index) to a
         // train-revenue table.
         info!("Building path/train revenue table");
-        let rev: HashMap<usize, HashMap<Train, (usize, Vec<TrainStop>)>> = (0
+        let rev: BTreeMap<_, BTreeMap<Train, (usize, Vec<TrainStop>)>> = (0
             ..num_paths)
             .map(|path_ix| {
                 (
@@ -789,7 +789,7 @@ impl Trains {
             // Build a table that maps path indices to paths, retaining only
             // those paths that are paired with a train.
             let ixs: Vec<usize> = pairings.iter().map(|p| p.1).collect();
-            let mut path_map: HashMap<usize, Path> = path_tbl
+            let mut path_map: BTreeMap<usize, Path> = path_tbl
                 .into_iter()
                 .enumerate()
                 .filter_map(|(ix, path)| {
@@ -838,7 +838,7 @@ impl Trains {
 
     fn best_pairing_for(
         &self,
-        revenue: &HashMap<usize, HashMap<Train, (usize, Vec<TrainStop>)>>,
+        revenue: &BTreeMap<usize, BTreeMap<Train, (usize, Vec<TrainStop>)>>,
         path_ixs: &Vec<usize>,
     ) -> Option<(usize, Vec<(Train, usize, usize, Vec<TrainStop>)>)> {
         let num_paths = path_ixs.len();
