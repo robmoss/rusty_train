@@ -455,7 +455,7 @@ impl super::Game for Game {
     }
 
     /// Changes the current game phase, which may update the map.
-    fn set_phase(&mut self, map: &mut Map, phase: usize) -> bool {
+    fn set_phase_ix(&mut self, map: &mut Map, phase: usize) -> bool {
         if phase >= self.phase_names.len() {
             return false;
         }

@@ -31,11 +31,13 @@ pub struct Company {
 /// [Game::train_names], [Game::train_types], and [Game::phase_names], are
 /// returned as slices `&[T]` so that they retain their game-specific order.
 ///
-/// While game phases are identified by name (`&str`), [Game::set_phase]
+/// While game phases are identified by name (`&str`), [Game::set_phase_ix]
 /// instead uses an index (`usize`), because this avoids issues with having
 /// concurrent mutable and immutable borrows of [Game] values in order to
 /// retrieve the phase name (via, e.g., [Game::phase_names]) and to change the
-/// game phase with [Game::set_phase].
+/// game phase with [Game::set_phase_ix].
+/// Alternatively, the caller can clone the phase names and use
+/// [Game::set_phase_name].
 pub trait Game {
     /// Returns the name of this game.
     fn name(&self) -> &str;
@@ -205,7 +207,7 @@ pub trait Game {
     }
 
     /// Returns the name of the current game phase.
-    fn get_phase_name(&self) -> &str {
+    fn current_phase_name(&self) -> &str {
         self.phase_names()[self.get_phase_ix()]
     }
 
@@ -215,16 +217,32 @@ pub trait Game {
     /// Changes the current game phase, which may update the map.
     ///
     /// Note that this uses the phase index (`usize`) instead of the phase
-    /// name, because using names results in situations where we need both
+    /// name, because using names can result in situations where we need both
     /// an immutable borrow (to get the phase names with [Game::phase_names])
     /// and a mutable borrow of the [Game] to change the game phase.
-    fn set_phase(&mut self, map: &mut Map, phase: usize) -> bool;
+    fn set_phase_ix(&mut self, map: &mut Map, phase: usize) -> bool;
+
+    /// Changes the current game phase, which may update the map.
+    ///
+    /// Note that that caller will almost certainly need to own the phase name
+    /// string in order to call this method, rather than using the `&str`
+    /// values returned by [Game::phase_names].
+    fn set_phase_name(&mut self, map: &mut Map, phase: &str) -> bool {
+        let ix_opt =
+            self.phase_names()
+                .iter()
+                .enumerate()
+                .find_map(
+                    |(ix, name)| if *name == phase { Some(ix) } else { None },
+                );
+        ix_opt.map(|ix| self.set_phase_ix(map, ix)).unwrap_or(false)
+    }
 
     /// Advance to the next game phase, if it exists.
     fn next_phase(&mut self, map: &mut Map) -> bool {
         let curr = self.get_phase_ix();
         if curr < usize::MAX {
-            self.set_phase(map, curr + 1)
+            self.set_phase_ix(map, curr + 1)
         } else {
             false
         }
@@ -234,7 +252,7 @@ pub trait Game {
     fn prev_phase(&mut self, map: &mut Map) -> bool {
         let curr = self.get_phase_ix();
         if curr > 0 {
-            self.set_phase(map, curr - 1)
+            self.set_phase_ix(map, curr - 1)
         } else {
             false
         }

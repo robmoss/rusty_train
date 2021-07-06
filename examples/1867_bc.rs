@@ -169,8 +169,8 @@ fn game_state() -> GameState {
     // Yellow: Intercolonial Railway of Canada (IRC)
     // Black:  New York Central Railroad (NYC)
 
-    // Set the game phase to "8" (which has index 6, being the 7th phase).
-    game.set_phase(example.get_map_mut(), 6);
+    // Set the game phase to "8".
+    game.set_phase_name(example.get_map_mut(), "8");
 
     // Define the five tokens by company name.
     let cnr = "CNR";
