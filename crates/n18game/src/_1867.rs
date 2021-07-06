@@ -367,7 +367,7 @@ impl super::Game for Game {
         ]
     }
 
-    fn get_bonuses(&self, bonus_options: &Vec<bool>) -> Vec<Bonus> {
+    fn get_bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus> {
         let timmins = Bonus::ConnectionBonus {
             from: (0, 3).into(),
             to_any: vec![
@@ -705,7 +705,7 @@ fn starting_town_tiles(hex: &Hex) -> Vec<Tile> {
         .collect()
 }
 
-fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn sault_ste_marie(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 
@@ -738,7 +738,7 @@ fn sault_ste_marie(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
         .collect()
 }
 
-fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn maritime_provinces(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 
@@ -771,7 +771,7 @@ fn maritime_provinces(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
         .collect()
 }
 
-fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn maine(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 
@@ -804,7 +804,7 @@ fn maine(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
         .collect()
 }
 
-fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn new_england(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 
@@ -834,7 +834,7 @@ fn new_england(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
         .collect()
 }
 
-fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn buffalo(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 
@@ -864,7 +864,7 @@ fn buffalo(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
         .collect()
 }
 
-fn detroit(hex: &Hex, suffixes: &Vec<&str>) -> Vec<Tile> {
+fn detroit(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18hex::{Direction::*, HexColour::*, HexFace::*, *};
     use n18tile::*;
 

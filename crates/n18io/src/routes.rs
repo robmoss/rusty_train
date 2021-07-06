@@ -349,7 +349,7 @@ mod tests {
 
     use super::*;
 
-    static OUT_DIR: &'static str = "../../tests/output";
+    static OUT_DIR: &str = "../../tests/output";
 
     fn output_path(file: &'static str) -> std::path::PathBuf {
         std::path::Path::new(OUT_DIR).join(file)

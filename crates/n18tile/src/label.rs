@@ -16,10 +16,7 @@ pub enum Label {
 
 impl Label {
     /// Describe the ideal font for this label.
-    pub fn font_description(
-        self: &Self,
-        hex: &Hex,
-    ) -> pango::FontDescription {
+    pub fn font_description(&self, hex: &Hex) -> pango::FontDescription {
         // NOTE: scale font size relative to hex diameter.
         let scale = hex.max_d / 125.0;
         let mut font_descr = pango::FontDescription::new();
@@ -51,7 +48,7 @@ impl Label {
 
     /// Draw this label on a tile, using the current source pattern.
     pub fn draw(
-        self: &Self,
+        &self,
         ctx: &Context,
         hex: &Hex,
         pos: &HexPosition,
@@ -75,7 +72,7 @@ impl Label {
 
     /// Construct a LabelType value for this label.
     fn label_type(
-        self: &Self,
+        &self,
         hex: &Hex,
         tile: &Tile,
         layout: pango::Layout,
@@ -444,7 +441,7 @@ fn define_ellipse(ctx: &Context, radius: f64, ratio: f64, centre: Coord) {
 
 impl LabelType {
     /// Return the width and height of label's contents.
-    pub fn size(self: &Self) -> Size {
+    pub fn size(&self) -> Size {
         match self {
             LabelType::Text { layout, .. } => layout_size(layout),
             LabelType::CircledText { radius, ratio, .. } => {
@@ -476,7 +473,7 @@ impl LabelType {
     }
 
     /// Draw the label from the specified origin.
-    pub fn draw(self: &Self, ctx: &Context, hex: &Hex, origin: Coord) {
+    pub fn draw(&self, ctx: &Context, hex: &Hex, origin: Coord) {
         match self {
             LabelType::Text { layout, colour } => {
                 ctx.move_to(origin.x, origin.y);

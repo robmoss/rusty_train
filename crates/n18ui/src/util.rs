@@ -73,7 +73,7 @@ pub fn open_file_dialog(
 
 /// Prompt the user to save a screenshot.
 pub fn save_screenshot<S: State + ?Sized>(
-    state: &Box<S>,
+    state: &S,
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,
     content: &Content,
@@ -113,7 +113,7 @@ pub fn save_screenshot<S: State + ?Sized>(
     // Then draw the current map content.
     state.draw(content, &icx);
     let mut file = std::fs::File::create(dest_file)
-        .expect(&format!("Couldn't create '{}'", dest_str));
+        .unwrap_or_else(|_| panic!("Couldn't create '{}'", dest_str));
     surface.write_to_png(&mut file)?;
     Ok(Action::Redraw)
 }

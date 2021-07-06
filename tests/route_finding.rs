@@ -79,7 +79,7 @@ fn test_dual_routes_from_montreal() {
 
     let paths = paths_for_token(&map, &criteria);
     let no_bonus = vec![];
-    let best_opt = company_trains.select_routes(paths.clone(), no_bonus);
+    let best_opt = company_trains.select_routes(paths, no_bonus);
     assert!(best_opt.is_some());
     let best = best_opt.unwrap();
     assert!(best.train_routes.len() == 2);

@@ -29,19 +29,11 @@ pub enum StopLocation {
 
 impl StopLocation {
     pub fn is_city(&self) -> bool {
-        if let StopLocation::City { ix: _ } = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, StopLocation::City { .. })
     }
 
     pub fn is_dit(&self) -> bool {
-        if let StopLocation::Dit { ix: _ } = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, StopLocation::Dit { .. })
     }
 }
 
@@ -92,18 +84,18 @@ impl Path {
         }
         let mut steps = self.steps.clone();
         let mut other_steps: Vec<_> =
-            other.steps[1..].iter().map(|s| *s).collect();
+            other.steps[1..].iter().copied().collect();
         steps.append(&mut other_steps);
         let mut visits = self.visits.clone();
         let mut other_visits: Vec<_> =
-            other.visits[1..].iter().map(|s| *s).collect();
+            other.visits[1..].iter().copied().collect();
         // NOTE: ensure the visits are in order, so start from the end of
         // self's path and travel to the self's start, which is also other's
         // start, and continue on to other's end.
         visits.reverse();
         visits.append(&mut other_visits);
         let conflicts: HashSet<_> =
-            self.conflicts.union(&other.conflicts).map(|c| *c).collect();
+            self.conflicts.union(&other.conflicts).copied().collect();
         let route_conflicts =
             self.route_conflicts.merge(&other.route_conflicts);
         let start_revenue = self.visits[0].revenue;

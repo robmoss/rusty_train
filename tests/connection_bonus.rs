@@ -122,18 +122,16 @@ fn test_connection_bonus_between_two_dits() {
     assert!(best.train_routes.len() == 1);
     let best_route = &best.train_routes[0].route;
     // NOTE: it picks L10 and M13 --- the two dits closest to Montreal.
+    let l_10 = "L10".parse().unwrap();
+    let m_13 = "M13".parse().unwrap();
+    let k_13 = "K13".parse().unwrap();
+    let h_10 = "H10".parse().unwrap();
     for visit in &best_route.visits {
-        if visit.addr == "L10".parse().unwrap() {
-            // Verify that this route stops at L10.
+        if visit.addr == l_10 || visit.addr == m_13 {
+            // Verify that this route stops at L10 and M13.
             assert!(visit.revenue > 0)
-        } else if visit.addr == "M13".parse().unwrap() {
-            // Verify that this route stops at M13.
-            assert!(visit.revenue > 0)
-        } else if visit.addr == "K13".parse().unwrap() {
-            // Verify that this route skips K13.
-            assert!(visit.revenue == 0)
-        } else if visit.addr == "H10".parse().unwrap() {
-            // Verify that this route skips H10.
+        } else if visit.addr == k_13 || visit.addr == h_10 {
+            // Verify that this route skips K13 and H10.
             assert!(visit.revenue == 0)
         }
     }
@@ -179,17 +177,11 @@ fn test_connection_bonus_between_two_dits() {
     assert!(new_best.train_routes.len() == 1);
     let new_best_path = &new_best.train_routes[0].route;
     for visit in &new_best_path.visits {
-        if visit.addr == "L10".parse().unwrap() {
-            // Verify that this route skips L10.
+        if visit.addr == l_10 || visit.addr == m_13 {
+            // Verify that this route skips L10 and M13.
             assert!(visit.revenue == 0)
-        } else if visit.addr == "M13".parse().unwrap() {
-            // Verify that this route skips M13.
-            assert!(visit.revenue == 0)
-        } else if visit.addr == "K13".parse().unwrap() {
-            // Verify that this route stops at K13.
-            assert!(visit.revenue > 0)
-        } else if visit.addr == "H10".parse().unwrap() {
-            // Verify that this route stops at H10.
+        } else if visit.addr == k_13 || visit.addr == h_10 {
+            // Verify that this route stops at K13 and H10.
             assert!(visit.revenue > 0)
         }
     }

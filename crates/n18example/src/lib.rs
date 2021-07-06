@@ -144,7 +144,7 @@ impl Example {
         brush::highlight_route(hex, ctx, &self.map, route);
     }
 
-    pub fn new_label<'a, T: ToString>(&'a self, text: T) -> LabelBuilder<'a> {
+    pub fn new_label<T: ToString>(&self, text: T) -> LabelBuilder<'_> {
         LabelBuilder::new(&self.rec_ctx, &self.hex, text)
     }
 

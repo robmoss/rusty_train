@@ -58,25 +58,25 @@ fn track_contained_in_hex() {
 
     let mut counter = 0;
 
-    for face in vec![Top]
+    for face in &[Top]
     //, UpperRight, LowerRight, Bottom, LowerLeft, UpperLeft]
     {
-        for curve in vec![Straight, GentleL, HardL, GentleR, HardR] {
-            for x0 in vec![0.0, 0.25] {
+        for curve in &[Straight, GentleL, HardL, GentleR, HardR] {
+            for x0 in &[0.0, 0.25] {
                 //, 0.5, 0.75] {
-                for x1 in vec![
+                for x1 in &[
                     1.0,
                     1.0 - 0.25 * (1.0 - x0),
                     // 1.0 - 0.5 * (1.0 - x0),
                     // 1.0 - 0.75 * (1.0 - x0),
                 ] {
-                    let t = Track::new(face, curve, x0, x1, None, None);
+                    let t = Track::new(*face, *curve, *x0, *x1, None, None);
                     assert!(no_escape(&t, &hex, dt, &ctx));
 
                     // TODO: check that track intersects hex boundary if
                     // x0 is 0.0 and that it doesn't if x0 is not 0.0.
                     let start = t.start(&hex);
-                    if x0 == 0.0 {
+                    if *x0 == 0.0 {
                         assert!(ctx.in_stroke(start.x, start.y));
                         // NOTE: this check causes the invalid clockwise
                         // setting to fail!
@@ -87,7 +87,7 @@ fn track_contained_in_hex() {
                         assert!(!ctx.in_stroke(start.x, start.y));
                     }
                     let end = t.end(&hex);
-                    if x1 == 1.0 {
+                    if (*x1 - 1.0).abs() < std::f64::EPSILON {
                         assert!(ctx.in_stroke(end.x, end.y));
                     // TODO: check that it intersects the correct face!
                     } else {
@@ -164,18 +164,13 @@ fn coords_contained_in_track() {
     use HexFace::*;
     use TrackCurve::*;
 
-    for face in
-        vec![Top, UpperRight, LowerRight, Bottom, LowerLeft, UpperLeft]
-    {
-        for curve in vec![Straight, GentleL, HardL, GentleR, HardR] {
-            for x0 in vec![0.0, 0.25, 0.5, 0.75] {
-                for x1 in vec![
-                    1.0,
-                    1.0 - 0.25 * x0,
-                    1.0 - 0.5 * x0,
-                    1.0 - 0.75 * x0,
-                ] {
-                    let t = Track::new(face, curve, x0, x1, None, None);
+    for face in &[Top, UpperRight, LowerRight, Bottom, LowerLeft, UpperLeft] {
+        for curve in &[Straight, GentleL, HardL, GentleR, HardR] {
+            for x0 in &[0.0, 0.25, 0.5, 0.75] {
+                for x1 in
+                    &[1.0, 1.0 - 0.25 * x0, 1.0 - 0.5 * x0, 1.0 - 0.75 * x0]
+                {
+                    let t = Track::new(*face, *curve, *x0, *x1, None, None);
                     t.define_boundary(&hex, &ctx);
                     assert!(t
                         .coords(&hex, dt)

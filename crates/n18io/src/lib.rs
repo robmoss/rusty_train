@@ -211,7 +211,8 @@ impl std::convert::From<&n18tile::Track> for Track {
     fn from(src: &n18tile::Track) -> Self {
         use n18tile::TrackCurve::*;
 
-        let span = if src.x0 == 0.0 && src.x1 == 1.0 {
+        let eps = std::f64::EPSILON;
+        let span = if src.x0 == 0.0 && (src.x1 - 1.0).abs() < eps {
             None
         } else if src.x0 >= 0.0 && src.x1 <= 1.0 {
             Some((src.x0, src.x1))
@@ -221,7 +222,7 @@ impl std::convert::From<&n18tile::Track> for Track {
 
         let (track_type, span) = match src.curve {
             Straight => {
-                if src.x0 == 0.0 && src.x1 == 0.5 {
+                if src.x0 == 0.0 && (src.x1 - 0.5).abs() < eps {
                     (TrackType::Mid(src.face.into()), None)
                 } else {
                     (TrackType::Straight(src.face.into()), span)
@@ -233,12 +234,12 @@ impl std::convert::From<&n18tile::Track> for Track {
             HardR => (TrackType::HardR(src.face.into()), span),
         };
         Self {
-            track_type: track_type,
+            track_type,
             dit: src.dit.map(|(end, revenue, shape)| {
                 (end.into(), revenue, shape.into())
             }),
             clip: src.clip,
-            span: span,
+            span,
         }
     }
 }
@@ -384,7 +385,7 @@ impl CityRotation {
         }
     }
 
-    fn into_rot(&self) -> n18tile::Rotation {
+    fn to_rot(&self) -> n18tile::Rotation {
         use n18tile::Rotation::*;
 
         match self {
@@ -560,8 +561,8 @@ impl std::convert::From<&n18tile::LabelAndPos> for Label {
         Self {
             label_type: label.into(),
             location: posn.into(),
-            nudge: nudge,
-            to_centre: to_centre,
+            nudge,
+            to_centre,
         }
     }
 }
@@ -749,12 +750,11 @@ impl Tile {
             tile.label((&label.label_type).into(), posn)
         });
         // Hide the tile name label if it should not be displayed.
-        let tile = if !self.show_tile_name {
+        if !self.show_tile_name {
             tile.hide_tile_name()
         } else {
             tile
-        };
-        tile
+        }
     }
 }
 
@@ -826,12 +826,11 @@ impl Label {
         } else {
             position
         };
-        let position = if let Some(frac) = self.to_centre {
+        if let Some(frac) = self.to_centre {
             position.to_centre(frac)
         } else {
             position
-        };
-        position
+        }
     }
 }
 
@@ -888,12 +887,11 @@ impl From<&Track> for n18tile::Track {
         } else {
             track
         };
-        let track = if let Some((x0, x1)) = t.span {
+        if let Some((x0, x1)) = t.span {
             track.with_span(x0, x1)
         } else {
             track
-        };
-        track
+        }
     }
 }
 
@@ -980,16 +978,15 @@ impl City {
         let city = city.rotate(
             self.rotate
                 .as_ref()
-                .map(|r| r.into_rot())
+                .map(|r| r.to_rot())
                 .unwrap_or(n18tile::Rotation::Zero),
         );
         // Apply the optional fill colour.
-        let city = if let Some(ref colour) = self.fill_colour {
+        if let Some(ref colour) = self.fill_colour {
             city.with_fill(colour.into())
         } else {
             city
-        };
-        city
+        }
     }
 }
 
@@ -3550,8 +3547,8 @@ impl std::convert::From<&n18map::HexAddress> for HexAddress {
     fn from(src: &n18map::HexAddress) -> Self {
         let (row, col) = src.into();
         HexAddress {
-            row: row,
-            col: col,
+            row,
+            col,
             tile: None,
         }
     }
@@ -3601,7 +3598,7 @@ impl std::convert::From<&n18map::descr::Descr> for Descr {
                 HexAddress::from(k).with_tile(v.as_ref().map(|td| td.into()))
             })
             .collect();
-        Descr { tiles: tiles }
+        Descr { tiles }
     }
 }
 
@@ -3672,7 +3669,7 @@ mod tests {
         Hex::new(hex_max_diameter)
     }
 
-    static OUT_DIR: &'static str = "../../tests/output";
+    static OUT_DIR: &str = "../../tests/output";
 
     fn output_path(file: &'static str) -> std::path::PathBuf {
         std::path::Path::new(OUT_DIR).join(file)

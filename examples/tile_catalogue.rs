@@ -58,7 +58,5 @@ fn place_tiles(
         .collect();
 
     let tokens: Vec<(String, _)> = vec![];
-    let example =
-        Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec());
-    example
+    Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec())
 }

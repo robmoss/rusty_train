@@ -123,7 +123,7 @@ pub mod par {
         fn into_par_iter(self) -> Self::Iter {
             if self.current_ix != 0 {
                 panic!("CombinationsFilter.current_ix != 0")
-            } else if self.items.len() > 0 {
+            } else if !self.items.is_empty() {
                 panic!("CombinationsFilter.items is not empty")
             }
             CombFilt {
@@ -194,17 +194,18 @@ pub mod par {
         /// ```
         ///
         pub fn split_at(&self) -> Option<usize> {
-            if self.ix0_max - self.current_ix <= 1 {
-                // We cannot split this interval, there's only a single valid
-                // value for the first element.
-                return None;
-            } else if self.items.len() > 0 {
-                return None;
+            // We cannot split this interval if there's only a single valid
+            // value for the first element.
+            let too_narrow = self.ix0_max - self.current_ix <= 1;
+            // Perhaps we can split this if we clone self.items?
+            let not_empty = !self.items.is_empty();
+            if too_narrow || not_empty {
+                None
             } else {
                 // NOTE: the second half starts at the value split_at.
                 let split_at =
                     self.current_ix + (self.ix0_max - self.current_ix) / 2;
-                return Some(split_at);
+                Some(split_at)
             }
         }
     }
@@ -215,7 +216,7 @@ pub mod par {
         type Item = Vec<usize>;
 
         fn next(&mut self) -> Option<Self::Item> {
-            let ix_ub = if self.items.len() == 0 {
+            let ix_ub = if self.items.is_empty() {
                 // Use a different upper limit for the first element.
                 self.ix0_max
             } else {
@@ -280,9 +281,9 @@ pub mod par {
                     item_filter: self.item_filter,
                     ix0_max: self.ix0_max,
                 };
-                return (low, Some(high));
+                (low, Some(high))
             } else {
-                return (self, None);
+                (self, None)
             }
         }
 
@@ -536,9 +537,7 @@ mod tests {
             let combs: Vec<_> = comb.collect();
             if *k == 1 {
                 assert_eq!(5, combs.len())
-            } else if *k == 2 {
-                assert_eq!(10, combs.len())
-            } else if *k == 3 {
+            } else if *k == 2 || *k == 3 {
                 assert_eq!(10, combs.len())
             } else {
                 unreachable!("k should be in [1, 2, 2]")

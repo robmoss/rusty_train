@@ -119,9 +119,8 @@ pub fn run(
     drawing_area.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
 
     // Let the UI handle keyboard events.
-    let tx_ = tx.clone();
     window.connect_key_press_event(move |_widget, event| {
-        tx_.send(UiEvent::KeyPress {
+        tx.send(UiEvent::KeyPress {
             event: event.clone(),
         })
         .expect("Could not send KeyPress event");

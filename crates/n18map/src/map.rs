@@ -277,17 +277,17 @@ impl Map {
 
         Map {
             tokens,
-            tiles,
             barriers,
+            tiles,
             catalogue,
             state,
             hexes,
             hexes_tbl,
             labels_tbl,
-            min_col,
-            max_col,
             min_row,
             max_row,
+            min_col,
+            max_col,
             flat_top,
         }
     }
@@ -320,7 +320,7 @@ impl Map {
             self.state.insert(
                 hex,
                 MapHex {
-                    tile_ix: tile_ix,
+                    tile_ix,
                     rotation: rot,
                     tokens: BTreeMap::new(),
                     replaceable: true,
@@ -335,7 +335,10 @@ impl Map {
     }
 
     pub fn add_label_at(&mut self, addr: HexAddress, label: Label) {
-        self.labels_tbl.entry(addr).or_insert(vec![]).push(label)
+        self.labels_tbl
+            .entry(addr)
+            .or_insert_with(Vec::new)
+            .push(label)
     }
 
     pub fn labels_at(&self, addr: HexAddress) -> Option<&Vec<Label>> {
@@ -368,20 +371,16 @@ impl Map {
             // Check that the tile has one label in common with this hex.
             tile.labels()
                 .iter()
-                .filter(|(label, _posn)| match label {
-                    Label::City(_) => true,
-                    Label::Y => true,
-                    _ => false,
+                .filter(|(label, _posn)| {
+                    matches!(label, Label::City(_) | Label::Y)
                 })
                 .any(|(label, _posn)| hex_labels.contains(label))
         } else {
             // Check that this tile has no City or Y labels.
             tile.labels()
                 .iter()
-                .filter(|(label, _posn)| match label {
-                    Label::City(_) => true,
-                    Label::Y => true,
-                    _ => false,
+                .filter(|(label, _posn)| {
+                    matches!(label, Label::City(_) | Label::Y)
                 })
                 .count()
                 == 0
@@ -444,7 +443,7 @@ impl Map {
 
         let (x, y) = self
             .hex_centre(addr.row, addr.col, x0, y0, hex)
-            .expect(&format!("Invalid hex: {}", addr));
+            .unwrap_or_else(|| panic!("Invalid hex: {}", addr));
 
         let m = ctx.get_matrix();
         ctx.translate(x, y);
@@ -1039,8 +1038,8 @@ impl std::str::FromStr for HexAddress {
         let col: usize = (b'A'..=b'Z')
             .enumerate()
             .find_map(|(ix, byte)| {
-                s.bytes().nth(0).and_then(|b| {
-                    if b == byte {
+                s.as_bytes().get(0).and_then(|b| {
+                    if b == &byte {
                         Some(ix)
                     } else {
                         None
@@ -1054,21 +1053,21 @@ impl std::str::FromStr for HexAddress {
         // be even or odd, respectively.
         let row = if col % 2 == 0 {
             if row < 1 {
-                Err(ParseHexAddressError {})?
+                return Err(ParseHexAddressError {});
             }
             if row % 2 == 1 {
                 (row - 1) / 2
             } else {
-                Err(ParseHexAddressError {})?
+                return Err(ParseHexAddressError {});
             }
         } else {
             if row < 2 {
-                Err(ParseHexAddressError {})?
+                return Err(ParseHexAddressError {});
             }
             if row % 2 == 0 {
                 (row - 2) / 2
             } else {
-                Err(ParseHexAddressError {})?
+                return Err(ParseHexAddressError {});
             }
         };
         Ok(HexAddress { row, col })
@@ -1190,9 +1189,7 @@ mod tests {
             let conns = conns.unwrap();
 
             // Check that each city has the expected number of connections.
-            if ix == 0 {
-                assert_eq!(conns.len(), 2);
-            } else if ix == 1 {
+            if ix == 0 || ix == 1 {
                 assert_eq!(conns.len(), 2);
             } else if ix == 2 {
                 assert_eq!(conns.len(), 6);
@@ -1201,14 +1198,11 @@ mod tests {
             // Check that each city is connected to the end of a different
             // track segment.
             for j in 0..conns.len() {
-                assert!(conns
-                    .iter()
-                    .find(|&&c| c
-                        == Connection::Track {
-                            ix: j,
-                            end: TrackEnd::End
-                        })
-                    .is_some());
+                assert!(conns.iter().any(|&c| c
+                    == Connection::Track {
+                        ix: j,
+                        end: TrackEnd::End
+                    }));
             }
 
             // Check that the other end of each track segment is connected to

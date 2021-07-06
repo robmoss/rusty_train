@@ -266,7 +266,7 @@ impl Train {
                 }
             }
         };
-        return Some((revenue, stops));
+        Some((revenue, stops))
     }
 }
 
@@ -275,7 +275,7 @@ fn visit_bonus(
     addr: &HexAddress,
     visit_bonuses: &HashMap<HexAddress, usize>,
 ) -> usize {
-    visit_bonuses.get(addr).map(|b| *b).unwrap_or(0)
+    visit_bonuses.get(addr).copied().unwrap_or(0)
 }
 
 /// Return true if the selected path stops include at least one of the
@@ -283,7 +283,7 @@ fn visit_bonus(
 fn stops_at_any(
     path: &Path,
     stop_ixs: &[usize],
-    dests: &Vec<HexAddress>,
+    dests: &[HexAddress],
 ) -> bool {
     dests.iter().any(|addr| {
         // NOTE: the train must stop at one of the connecting locations.
@@ -348,7 +348,7 @@ fn addr_ix_and_base_revenue(
         )
         .unwrap();
     let revenue =
-        revenue_for_stop(path, &vec![], ix, visit_bonuses, conn_bonuses);
+        revenue_for_stop(path, &[], ix, visit_bonuses, conn_bonuses);
     (ix, revenue)
 }
 
@@ -372,7 +372,7 @@ fn best_ix_and_base_revenue(
 fn revenue_for_stops(
     path: &Path,
     train: &Train,
-    stop_ixs: &Vec<usize>,
+    stop_ixs: &[usize],
     visit_bonuses: &HashMap<HexAddress, usize>,
     conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> (usize, Vec<TrainStop>) {
@@ -467,7 +467,7 @@ fn best_stop_ixs(
     let default_ixs: Vec<usize> = must_stop_ixs
         .iter()
         .chain(extra_stop_ixs.iter())
-        .map(|ix| *ix)
+        .copied()
         .collect();
     let (default_revenue, default_stops) = revenue_for_stops(
         path,
@@ -499,7 +499,7 @@ fn best_stop_ixs(
         let candidate_dests: Vec<HexAddress> = dests
             .iter()
             .filter(|addr| visit_addrs.contains(addr))
-            .map(|addr| *addr)
+            .copied()
             .collect();
         let skipped_dests = candidate_dests
             .iter()
@@ -544,7 +544,7 @@ fn best_stop_ixs(
         let new_ixs: Vec<usize> = must_stop_ixs
             .iter()
             .chain(new_extra_stop_ixs.iter())
-            .map(|ix| *ix)
+            .copied()
             .collect();
         let (new_revenue, new_stops) = revenue_for_stops(
             path,
@@ -560,7 +560,7 @@ fn best_stop_ixs(
         if new_revenue > default_revenue {
             return (new_revenue, new_stops);
         }
-    } else if maybe_conn.len() > 0 {
+    } else if !maybe_conn.is_empty() {
         info!(
             "Found {} relevant connection bonuses, ignoring",
             maybe_conn.len()
@@ -655,8 +655,8 @@ impl From<Vec<Train>> for Trains {
             let count = trains.entry(*train).or_insert(0);
             *count += 1;
             let mut found = false;
-            for ix in 0..seen_trains.len() {
-                if seen_trains[ix] == train {
+            for (ix, seen_train) in seen_trains.iter().enumerate() {
+                if seen_train == &train {
                     train_classes.push(ix);
                     found = true;
                     break;
@@ -681,6 +681,12 @@ impl FromIterator<Train> for Trains {
         train_vec.into()
     }
 }
+
+/// Characterises a train route.
+///
+/// This comprises a train, and index into the path table, the net revenue,
+/// and the stops made by the train.
+type TrainStops = (Train, usize, usize, Vec<TrainStop>);
 
 impl Trains {
     /// Creates a new collection of trains.
@@ -727,6 +733,8 @@ impl Trains {
         path_tbl: Vec<Path>,
         bonuses: Vec<Bonus>,
     ) -> Option<Routes> {
+        use std::cmp::Ordering;
+
         let num_paths = path_tbl.len();
         let num_trains = self.train_count();
 
@@ -790,28 +798,20 @@ impl Trains {
             // .max_by_key(|&(revenue, _)| revenue);
             .fold_with(None, |best_opt, (revenue, routes)| match best_opt {
                 None => Some((revenue, routes, 1)),
-                Some(best) => {
-                    if revenue < best.0 {
-                        Some(best)
-                    } else if revenue == best.0 {
-                        Some((best.0, best.1, best.2 + 1))
-                    } else {
-                        Some((revenue, routes, 1))
-                    }
-                }
+                Some(best) => match revenue.cmp(&best.0) {
+                    Ordering::Less => Some(best),
+                    Ordering::Equal => Some((best.0, best.1, best.2 + 1)),
+                    Ordering::Greater => Some((revenue, routes, 1)),
+                },
             })
             .reduce(
                 || None,
                 |a_opt, b_opt| match (a_opt, b_opt) {
-                    (Some(a), Some(b)) => {
-                        if a.0 > b.0 {
-                            Some(a)
-                        } else if a.0 < b.0 {
-                            Some(b)
-                        } else {
-                            Some((a.0, a.1, a.2 + b.2))
-                        }
-                    }
+                    (Some(a), Some(b)) => match a.0.cmp(&b.0) {
+                        Ordering::Greater => Some(a),
+                        Ordering::Less => Some(b),
+                        Ordering::Equal => Some((a.0, a.1, a.2 + b.2)),
+                    },
                     (Some(a), None) => Some(a),
                     (None, Some(b)) => Some(b),
                     (None, None) => None,
@@ -877,9 +877,9 @@ impl Trains {
 
     fn best_pairing_for(
         &self,
-        revenue: &Vec<BTreeMap<Train, (usize, Vec<TrainStop>)>>,
-        path_ixs: &Vec<usize>,
-    ) -> Option<(usize, Vec<(Train, usize, usize, Vec<TrainStop>)>)> {
+        revenue: &[BTreeMap<Train, (usize, Vec<TrainStop>)>],
+        path_ixs: &[usize],
+    ) -> Option<(usize, Vec<TrainStops>)> {
         let num_paths = path_ixs.len();
         // NOTE: we only need to consider pairings that allocate a train to
         // each path, we can can ignore smaller combinations.
@@ -897,7 +897,7 @@ impl Trains {
                     .filter_map(|(path_ixs_ix, train_ix)| {
                         revenue[path_ixs[path_ixs_ix]]
                             .get(&self.train_vec[*train_ix])
-                            .map(|revenue| revenue.clone())
+                            .cloned()
                     })
                     .collect();
                 let net_revenue: usize =

@@ -50,35 +50,31 @@ fn main() -> Result {
     let mut args = std::env::args();
     args.next();
 
-    loop {
-        if let Some(arg) = args.next() {
-            match arg.as_str() {
-                "-h" | "--help" => {
-                    print_usage();
-                    return Ok(());
-                }
-                "-r" => {
-                    if let Some(row_str) = args.next() {
-                        rows = row_str.parse::<usize>()?
-                    } else {
-                        panic!("Missing argument for {}", arg)
-                    }
-                }
-                "-c" => {
-                    if let Some(row_str) = args.next() {
-                        cols = row_str.parse::<usize>()?
-                    } else {
-                        panic!("Missing argument for {}", arg)
-                    }
-                }
-                _ => json_files.push(arg),
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-h" | "--help" => {
+                print_usage();
+                return Ok(());
             }
-        } else {
-            break;
+            "-r" => {
+                if let Some(row_str) = args.next() {
+                    rows = row_str.parse::<usize>()?
+                } else {
+                    panic!("Missing argument for {}", arg)
+                }
+            }
+            "-c" => {
+                if let Some(row_str) = args.next() {
+                    cols = row_str.parse::<usize>()?
+                } else {
+                    panic!("Missing argument for {}", arg)
+                }
+            }
+            _ => json_files.push(arg),
         }
     }
 
-    if json_files.len() == 0 {
+    if json_files.is_empty() {
         println!("ERROR: No input files given");
         print_usage();
         return Ok(());
@@ -119,13 +115,13 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
 }
 
 fn print_usage() {
-    println!("");
+    println!();
     println!("draw_tiles [-c COLS] [-r ROWS] JSON_FILES");
-    println!("");
+    println!();
     println!("    -c COLS       The number of tile columns");
     println!("    -r ROWS       The number of tile rows");
     println!("    JSON_FILES    The tile JSON file(s) to draw");
-    println!("");
+    println!();
 }
 
 fn place_tiles(
@@ -156,7 +152,5 @@ fn place_tiles(
         .collect();
 
     let tokens: Vec<(String, _)> = vec![];
-    let example =
-        Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec());
-    example
+    Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec())
 }

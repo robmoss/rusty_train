@@ -84,9 +84,9 @@ pub struct TrainDialog<'a> {
 impl<'a> TrainDialog<'a> {
     pub fn new(
         parent: &gtk::ApplicationWindow,
-        train_types: &'a Vec<&Train>,
+        train_types: &'a [&Train],
         train_names: &'a HashMap<&Train, &str>,
-        option_names: &'a Vec<&str>,
+        option_names: &'a [&str],
         name: &str,
     ) -> Self {
         let buttons = [
@@ -195,7 +195,7 @@ fn add_spinner<'a>(
 /// bonuses.
 pub fn select_trains(
     parent: &gtk::ApplicationWindow,
-    game: &Box<dyn Game>,
+    game: &dyn Game,
     name: &str,
 ) -> Option<(Trains, Vec<bool>)> {
     let train_types = game.train_types();
@@ -249,7 +249,7 @@ impl<'a> PhaseDialog<'a> {
         phase_names
             .iter()
             .for_each(|name| combo.append(Some(name), name));
-        combo.set_active_id(phase_names.get(current_phase).map(|s| *s));
+        combo.set_active_id(phase_names.get(current_phase).copied());
         content.pack_start(&combo, true, false, padding);
         dialog.show_all();
 
@@ -285,7 +285,7 @@ impl<'a> PhaseDialog<'a> {
 /// Display a phase-selection dialog and return the selected game phase.
 pub fn select_phase(
     parent: &gtk::ApplicationWindow,
-    game: &Box<dyn Game>,
+    game: &dyn Game,
 ) -> Option<usize> {
     let pd = PhaseDialog::new(
         parent,

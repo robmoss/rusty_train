@@ -243,6 +243,9 @@ impl<'a> RouteBuilder<'a> {
     /// Extend the path to the edge of the current tile, where `face` is
     /// specified with respect to the tile's innate orientation, and on to the
     /// edge of the adjacent tile (if any).
+    // Note: allow this function to consume self, because we're using the "to"
+    // prefix to refer to route connectivity, not type conversion.
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tile_face(mut self, face: HexFace) -> Result<Self> {
         // NOTE: this does not account for the tile rotation, it refers to the
         // tile's orientation as defined.
@@ -258,6 +261,9 @@ impl<'a> RouteBuilder<'a> {
     /// Extend the path to the edge of the current tile, where `face` is
     /// specified with respect to the tile's rotation on the map, and on to
     /// the edge of the adjacent tile (if any).
+    // Note: allow this function to consume self, because we're using the "to"
+    // prefix to refer to route connectivity, not type conversion.
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_edge(self, face: HexFace) -> Result<Self> {
         // Account for the tile rotation!
         let curr = self.steps.last().unwrap();
@@ -269,6 +275,9 @@ impl<'a> RouteBuilder<'a> {
     /// Extend the path to the city space `ix` and, optionally, record this as
     /// a "stop" (i.e., earning revenue) so that it will be drawn as such by,
     /// e.g., `n18brush` functions.
+    // Note: allow this function to consume self, because we're using the "to"
+    // prefix to refer to route connectivity, not type conversion.
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_city(mut self, ix: usize, stop: bool) -> Result<Self> {
         let curr = self.steps.last().unwrap();
         // NOTE: need to copy the address for the visit in order to add new
@@ -294,6 +303,9 @@ impl<'a> RouteBuilder<'a> {
     /// Extend the path to the dit `ix` and, optionally, record this as a
     /// "stop" (i.e., earning revenue) so that it will be drawn as such by,
     /// e.g., `n18brush` functions.
+    // Note: allow this function to consume self, because we're using the "to"
+    // prefix to refer to route connectivity, not type conversion.
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_dit(mut self, ix: usize, stop: bool) -> Result<Self> {
         let curr = self.steps.last().unwrap();
         // NOTE: need to copy the address for the visit in order to add new

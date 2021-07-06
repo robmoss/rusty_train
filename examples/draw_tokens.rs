@@ -120,7 +120,7 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
                 },
             }
         })
-        .map(|style| Token::new(style))
+        .map(Token::new)
         .collect();
 
     // Define the token names

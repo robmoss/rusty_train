@@ -51,7 +51,7 @@ impl std::ops::Mul<f64> for &Coord {
 
 impl Coord {
     /// Returns the midpoint of this point and the `other` point.
-    pub fn average(self: &Self, other: &Self) -> Self {
+    pub fn average(&self, other: &Self) -> Self {
         Coord {
             x: 0.5 * (self.x + other.x),
             y: 0.5 * (self.y + other.y),
@@ -59,7 +59,7 @@ impl Coord {
     }
 
     /// Multiplies the `x` and `y` values by `scale`.
-    pub fn scale_by(self: &Self, scale: f64) -> Self {
+    pub fn scale_by(&self, scale: f64) -> Self {
         Coord {
             x: scale * self.x,
             y: scale * self.y,
@@ -68,7 +68,7 @@ impl Coord {
 
     /// Returns the point at some fraction between this point (`frac = 0`) and
     /// the `other` point (`frac = 1`).
-    pub fn interpolate(self: &Self, other: &Self, frac: f64) -> Self {
+    pub fn interpolate(&self, other: &Self, frac: f64) -> Self {
         Coord {
             x: self.x + frac * (other.x - self.x),
             y: self.y + frac * (other.y - self.y),
@@ -76,13 +76,13 @@ impl Coord {
     }
 
     /// Returns the magnitude (Euclidean norm) of this coordinate.
-    pub fn magnitude(self: &Self) -> f64 {
+    pub fn magnitude(&self) -> f64 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
 
     /// Returns a scaled version of the point that has a magnitude of `1`
     /// (i.e., a unit vector).
-    pub fn normalise(self: &Self) -> Self {
+    pub fn normalise(&self) -> Self {
         self / self.magnitude()
     }
 

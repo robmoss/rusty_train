@@ -74,7 +74,7 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
             col: addr.col,
             tile: tile.name.clone(),
             rotation: *map_hex.rotation(),
-            tokens: tokens,
+            tokens,
         }
     }
 }
@@ -98,11 +98,7 @@ impl From<&Map> for Descr {
 impl Descr {
     /// Constructs a map whose state reflects the tile configurations.
     pub fn build_map(&self, tiles: Vec<Tile>, tokens: Tokens) -> Map {
-        let addrs = self
-            .tiles
-            .keys()
-            .map(|addr| addr.clone())
-            .collect::<Vec<_>>();
+        let addrs = self.tiles.keys().copied().collect::<Vec<_>>();
         let mut map = Map::new(tiles, tokens, addrs);
         self.update_map(&mut map);
         map
@@ -132,7 +128,7 @@ impl Descr {
                             space_ix,
                             map.tokens()
                                 .get_token(token_name)
-                                .map(|x| *x)
+                                .copied()
                                 .unwrap(),
                         )
                     })
@@ -161,7 +157,7 @@ pub mod tests {
 
     static HEX_DIAMETER: f64 = 150.0;
 
-    static OUT_DIR: &'static str = "../../tests/output";
+    static OUT_DIR: &str = "../../tests/output";
 
     fn output_path(file: &'static str) -> std::path::PathBuf {
         std::path::Path::new(OUT_DIR).join(file)
@@ -175,8 +171,8 @@ pub mod tests {
 
     fn draw_tiles(map: &Map, hex: &Hex, ctx: &Context) {
         for hex_state in map.hex_iter(hex, ctx) {
-            match &hex_state.tile_state {
-                &Some((tile, tokens_table)) => {
+            match hex_state.tile_state {
+                Some((tile, tokens_table)) => {
                     tile.draw(ctx, hex);
                     for (token_space, token) in tokens_table.iter() {
                         tile.define_token_space(&token_space, &hex, &ctx);
@@ -186,7 +182,7 @@ pub mod tests {
                         token.draw(hex, ctx, token_name, rotn);
                     }
                 }
-                &None => {
+                None => {
                     // Draw a border around this hex.
                     ctx.set_source_rgb(0.7, 0.7, 0.7);
                     hex.define_boundary(ctx);
@@ -237,8 +233,7 @@ pub mod tests {
         let tiles = n18catalogue::tile_catalogue(hex);
         let tokens = define_tokens();
         let descr = descr_2x2_tiles_5_6_58_63();
-        let map = descr.build_map(tiles, tokens);
-        map
+        descr.build_map(tiles, tokens)
     }
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
@@ -306,15 +301,12 @@ pub mod tests {
             let (tile, tok_mgr) = hex_state.tile_state.unwrap();
             let tile_hex_state = TileHexState {
                 addr: hex_state.addr,
-                tile: tile,
+                tile,
                 tile_tokens: tok_mgr,
                 available_tokens: hex_state.available_tokens,
                 tile_rotation: hex_state.tile_rotation,
             };
-            assert!(tile_hexes
-                .iter()
-                .find(|&th| th == &tile_hex_state)
-                .is_some())
+            assert!(tile_hexes.iter().any(|th| th == &tile_hex_state))
         }
 
         // Check the hex location, rotation, and tokens for each tile.

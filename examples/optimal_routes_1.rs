@@ -70,7 +70,9 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         // Find the best route(s) for this train combination.
         let best_routes = trains
             .select_routes(paths.clone(), bonuses.clone())
-            .expect(&format!("Could not find optimal routes for {}", suffix));
+            .unwrap_or_else(|| {
+                panic!("Could not find optimal routes for {}", suffix)
+            });
 
         // Clear the image buffer.
         example

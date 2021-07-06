@@ -42,7 +42,7 @@ pub mod rc_hash {
     use super::Conflict;
     use std::collections::HashSet;
 
-    #[derive(Clone, Debug, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq)]
     pub struct RouteConflicts {
         rc: HashSet<Conflict>,
     }
@@ -58,12 +58,16 @@ pub mod rc_hash {
 
         pub fn merge(&self, other: &Self) -> Self {
             RouteConflicts {
-                rc: self.rc.union(&other.rc).map(|c| *c).collect(),
+                rc: self.rc.union(&other.rc).copied().collect(),
             }
         }
 
         pub fn len(&self) -> usize {
             self.rc.len()
+        }
+
+        pub fn is_empty(&self) -> bool {
+            self.rc.is_empty()
         }
 
         pub fn iter(&self) -> impl Iterator<Item = &Conflict> {
@@ -79,7 +83,7 @@ pub mod rc_hash {
 
     impl From<&HashSet<Conflict>> for RouteConflicts {
         fn from(set: &HashSet<Conflict>) -> Self {
-            let rc = set.iter().map(|c| *c).collect();
+            let rc = set.iter().copied().collect();
             RouteConflicts { rc }
         }
     }
@@ -90,7 +94,7 @@ pub mod rc_vec {
     use super::Conflict;
     use std::collections::HashSet;
 
-    #[derive(Clone, Debug, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq)]
     pub struct RouteConflicts {
         rc: Vec<Conflict>,
     }
@@ -101,6 +105,7 @@ pub mod rc_vec {
         }
 
         pub fn is_disjoint(&self, other: &Self) -> bool {
+            use std::cmp::Ordering;
             let a = &self.rc;
             let b = &other.rc;
             let la = a.len();
@@ -111,12 +116,10 @@ pub mod rc_vec {
                 if ixa >= la || ixb >= lb {
                     return true;
                 }
-                if a[ixa] < b[ixb] {
-                    ixa += 1;
-                } else if a[ixa] > b[ixb] {
-                    ixb += 1;
-                } else {
-                    return false;
+                match a[ixa].cmp(&b[ixb]) {
+                    Ordering::Less => ixa += 1,
+                    Ordering::Greater => ixb += 1,
+                    Ordering::Equal => return false,
                 }
             }
         }
@@ -133,6 +136,7 @@ pub mod rc_vec {
 
         pub fn merge(&self, other: &Self) -> Self {
             // NOTE: both slices are already sorted.
+            use std::cmp::Ordering;
             let a = &self.rc;
             let b = &other.rc;
             let la = a.len();
@@ -154,17 +158,21 @@ pub mod rc_vec {
                     }
                     break;
                 }
-                if a[ixa] < b[ixb] {
-                    rc.push(a[ixa]);
-                    ixa += 1;
-                } else if a[ixa] > b[ixb] {
-                    rc.push(b[ixb]);
-                    ixb += 1;
-                } else {
-                    // We know that a[ixa] == b[ixb].
-                    rc.push(a[ixa]);
-                    ixa += 1;
-                    ixb += 1;
+                match a[ixa].cmp(&b[ixb]) {
+                    Ordering::Less => {
+                        rc.push(a[ixa]);
+                        ixa += 1
+                    }
+                    Ordering::Greater => {
+                        rc.push(b[ixb]);
+                        ixb += 1
+                    }
+                    Ordering::Equal => {
+                        // We know that a[ixa] == b[ixb].
+                        rc.push(a[ixa]);
+                        ixa += 1;
+                        ixb += 1;
+                    }
                 }
             }
             RouteConflicts { rc }
@@ -174,6 +182,10 @@ pub mod rc_vec {
             self.rc.len()
         }
 
+        pub fn is_empty(&self) -> bool {
+            self.rc.is_empty()
+        }
+
         pub fn iter(&self) -> impl Iterator<Item = &Conflict> {
             self.rc.iter()
         }
@@ -181,7 +193,7 @@ pub mod rc_vec {
 
     impl From<HashSet<Conflict>> for RouteConflicts {
         fn from(set: HashSet<Conflict>) -> Self {
-            let mut rc: Vec<_> = set.iter().map(|c| *c).collect();
+            let mut rc: Vec<_> = set.iter().copied().collect();
             rc.sort();
             RouteConflicts { rc }
         }
@@ -189,7 +201,7 @@ pub mod rc_vec {
 
     impl From<&HashSet<Conflict>> for RouteConflicts {
         fn from(set: &HashSet<Conflict>) -> Self {
-            let mut rc: Vec<_> = set.iter().map(|c| *c).collect();
+            let mut rc: Vec<_> = set.iter().copied().collect();
             rc.sort();
             RouteConflicts { rc }
         }
@@ -218,21 +230,19 @@ impl ConflictRule {
                 // do not connect to a hex face.
                 _ => None,
             },
-            Face { face } => match self {
+            Face { face } => match face {
                 // NOTE: since hex face conflicts are defined according to the
                 // map orientation, we always have an upper face and a lower
                 // face, and only need to record one of these two faces (but
                 // note that both faces will be passed to this function).
                 // Here, we choose to record the upper face.
-                _ => match face {
-                    HexFace::Top
-                    | HexFace::UpperLeft
-                    | HexFace::UpperRight => Some(Conflict::Face {
+                HexFace::Top | HexFace::UpperLeft | HexFace::UpperRight => {
+                    Some(Conflict::Face {
                         addr: *addr,
                         face: *face,
-                    }),
-                    _ => None,
-                },
+                    })
+                }
+                _ => None,
             },
             Dit { ix } => match self {
                 Hex => Some(Conflict::Hex { addr: *addr }),

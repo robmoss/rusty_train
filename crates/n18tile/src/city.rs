@@ -153,7 +153,7 @@ impl City {
     pub fn single(revenue: usize) -> City {
         City {
             tokens: Tokens::Single,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -163,7 +163,7 @@ impl City {
     pub fn single_at_face(revenue: usize, face: &HexFace) -> City {
         City {
             tokens: Tokens::Single,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Face(*face, None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -173,7 +173,7 @@ impl City {
     pub fn single_at_corner(revenue: usize, corner: &HexCorner) -> City {
         City {
             tokens: Tokens::Single,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -183,7 +183,7 @@ impl City {
     pub fn double(revenue: usize) -> City {
         City {
             tokens: Tokens::Double,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -193,7 +193,7 @@ impl City {
     pub fn double_at_corner(revenue: usize, corner: &HexCorner) -> City {
         City {
             tokens: Tokens::Double,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Corner(*corner, None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -204,7 +204,7 @@ impl City {
     pub fn triple(revenue: usize) -> City {
         City {
             tokens: Tokens::Triple,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -214,7 +214,7 @@ impl City {
     pub fn quad(revenue: usize) -> City {
         City {
             tokens: Tokens::Quadruple,
-            revenue: revenue,
+            revenue,
             position: HexPosition::Centre(None),
             angle: Rotation::Zero,
             fill_colour: None,
@@ -233,15 +233,15 @@ impl City {
             Tokens::Single => {}
             Tokens::Double => {
                 // Define each token space.
-                for x in vec![radius, -radius] {
+                for x in &[radius, -radius] {
                     ctx.new_sub_path();
-                    ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
+                    ctx.arc(*x, 0.0, radius, 0.0, 2.0 * PI);
                 }
             }
             Tokens::Triple => {
                 // Each circle is centred at the tip of an equilateral triangle
                 // with side length 2 * radius; it has height radius * sqrt(3).
-                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let half_height = radius * (3.0_f64).sqrt() / 2.0;
                 let centres = vec![
                     (-radius, half_height),
                     (radius, half_height),
@@ -255,10 +255,10 @@ impl City {
             }
             Tokens::Quadruple => {
                 // Define each token space.
-                for x in vec![radius, -radius] {
-                    for y in vec![radius, -radius] {
+                for x in &[radius, -radius] {
+                    for y in &[radius, -radius] {
                         ctx.new_sub_path();
-                        ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                        ctx.arc(*x, *y, radius, 0.0, 2.0 * PI);
                     }
                 }
             }
@@ -287,7 +287,7 @@ impl City {
             Tokens::Triple => {
                 // Each circle is centred at the tip of an equilateral triangle
                 // with side length 2 * radius; it has height radius * sqrt(3).
-                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let half_height = radius * (3.0_f64).sqrt() / 2.0;
                 let centres = vec![
                     (-radius, half_height),
                     (radius, half_height),
@@ -296,7 +296,7 @@ impl City {
                 // Define the containing box.
                 // Want the middle half of each edge of an equilateral triangle
                 // that is larger than that described by the circle centres.
-                let scale = 2.0 / ((3.0 as f64).sqrt() - 1.0);
+                let scale = 2.0 / ((3.0_f64).sqrt() - 1.0);
                 let translate_y = -0.5 * radius;
                 let pts: Vec<(f64, f64)> = centres
                     .iter()
@@ -394,7 +394,7 @@ impl City {
                 ctx.arc(x, 0.0, radius, 0.0, 2.0 * PI);
             }
             Tokens::Triple => {
-                let half_height = radius * (3.0 as f64).sqrt() / 2.0;
+                let half_height = radius * (3.0_f64).sqrt() / 2.0;
                 let (x, y) = vec![
                     (-radius, half_height),
                     (radius, half_height),
@@ -415,7 +415,7 @@ impl City {
 
         self.translate_end(hex, ctx);
 
-        return true;
+        true
     }
 }
 

@@ -105,7 +105,7 @@ impl Track {
     /// A straight track segments that crosses the tile.
     pub fn straight(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::Straight,
             x0: 0.0,
             x1: 1.0,
@@ -117,7 +117,7 @@ impl Track {
     /// A straight track segment that runs to the centre of the tile.
     pub fn mid(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::Straight,
             x0: 0.0,
             x1: 0.5,
@@ -128,7 +128,7 @@ impl Track {
 
     pub fn gentle_l(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::GentleL,
             x0: 0.0,
             x1: 1.0,
@@ -139,7 +139,7 @@ impl Track {
 
     pub fn gentle_r(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::GentleR,
             x0: 0.0,
             x1: 1.0,
@@ -150,7 +150,7 @@ impl Track {
 
     pub fn hard_l(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::HardL,
             x0: 0.0,
             x1: 1.0,
@@ -161,7 +161,7 @@ impl Track {
 
     pub fn hard_r(face: HexFace) -> Self {
         Self {
-            face: face,
+            face,
             curve: TrackCurve::HardR,
             x0: 0.0,
             x1: 1.0,
@@ -197,11 +197,7 @@ impl Track {
     /// Check whether a point along this path is clipped.
     fn clipped(self, dt: f64) -> bool {
         if let Some((x0, x1)) = self.clip {
-            if dt >= x0 && dt <= x1 {
-                true
-            } else {
-                false
-            }
+            dt >= x0 && dt <= x1
         } else {
             false
         }
@@ -237,7 +233,7 @@ impl Track {
                     UpperRight => (2.0 * PI / 3.0, 4.0 * PI / 3.0),
                     LowerRight => (3.0 * PI / 3.0, 5.0 * PI / 3.0),
                 };
-                let centre = hex.corner_coord(&corner).clone();
+                let centre = *hex.corner_coord(&corner);
                 let radius = hex.max_d * 0.25;
                 TrackPath::Curve {
                     centre,
@@ -265,13 +261,13 @@ impl Track {
                     UpperRight => (1.0 * PI / 3.0, 3.0 * PI / 3.0),
                     LowerRight => (2.0 * PI / 3.0, 4.0 * PI / 3.0),
                 };
-                let centre = hex.corner_coord(&corner).clone();
+                let centre = *hex.corner_coord(&corner);
                 let radius = hex.max_d * 0.25;
                 TrackPath::Curve {
-                    centre: centre,
-                    radius: radius,
-                    angle_0: angle_0,
-                    angle_1: angle_1,
+                    centre,
+                    radius,
+                    angle_0,
+                    angle_1,
                     clockwise: true,
                     // TODO: why doesn't make this false cause a test to fail?!?
                     // clockwise: false,
@@ -303,10 +299,10 @@ impl Track {
                 };
                 let radius = hex.max_d * 0.75;
                 TrackPath::Curve {
-                    centre: centre,
-                    radius: radius,
-                    angle_0: angle_0,
-                    angle_1: angle_1,
+                    centre,
+                    radius,
+                    angle_0,
+                    angle_1,
                     clockwise: false,
                     // TODO: why doesn't make this false cause a test to fail?!?
                     // clockwise: true,
@@ -337,10 +333,10 @@ impl Track {
                 };
                 let radius = hex.max_d * 0.75;
                 TrackPath::Curve {
-                    centre: centre,
-                    radius: radius,
-                    angle_0: angle_0,
-                    angle_1: angle_1,
+                    centre,
+                    radius,
+                    angle_0,
+                    angle_1,
                     clockwise: true,
                     // TODO: why doesn't make this false cause a test to fail?!?
                     // clockwise: false,
@@ -551,12 +547,10 @@ impl Track {
                             centre.x, centre.y, radius, a1_start, a1,
                         );
                     }
+                } else if clockwise {
+                    ctx.arc(centre.x, centre.y, radius, a0, a1);
                 } else {
-                    if clockwise {
-                        ctx.arc(centre.x, centre.y, radius, a0, a1);
-                    } else {
-                        ctx.arc_negative(centre.x, centre.y, radius, a0, a1);
-                    }
+                    ctx.arc_negative(centre.x, centre.y, radius, a0, a1);
                 }
                 if let Some((dit_end, _revenue, shape)) = self.dit {
                     // NOTE: line needs to be perpendicular
@@ -735,7 +729,7 @@ impl Track {
         if self.x0 == 0.0 {
             faces.push((TrackEnd::Start, self.face))
         }
-        if self.x1 == 1.0 {
+        if (self.x1 - 1.0).abs() < f64::EPSILON {
             let end_face = match self.curve {
                 Straight => self.face.opposite(),
                 HardL => self.face.clockwise(),

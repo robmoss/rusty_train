@@ -19,7 +19,7 @@ pub enum HexColour {
 
 impl HexColour {
     /// Makes this colour the source pattern for the provided context.
-    pub fn set_source_rgb(self: &Self, ctx: &Context) {
+    pub fn set_source_rgb(&self, ctx: &Context) {
         match self {
             // #F3F013
             // HexColour::Yellow => ctx.set_source_rgb(0.953, 0.941, 0.075),
@@ -40,7 +40,7 @@ impl HexColour {
     }
 
     /// Returns the colour associated with the next phase of tiles, if any.
-    pub fn next_phase(self: &Self) -> Option<Self> {
+    pub fn next_phase(&self) -> Option<Self> {
         match self {
             HexColour::Empty => Some(HexColour::Yellow),
             HexColour::Yellow => Some(HexColour::Green),
@@ -52,7 +52,7 @@ impl HexColour {
 
     /// Returns the next colour, in the order that the enum variants are
     ///defined, and cycling back to the start.
-    pub fn next_colour(self: &Self) -> Self {
+    pub fn next_colour(&self) -> Self {
         match self {
             HexColour::Yellow => HexColour::Green,
             HexColour::Green => HexColour::Brown,
@@ -123,7 +123,7 @@ impl HexFace {
     }
 
     /// Returns the opposite hexagon face.
-    pub fn opposite(self: &Self) -> Self {
+    pub fn opposite(&self) -> Self {
         match *self {
             HexFace::Top => HexFace::Bottom,
             HexFace::UpperRight => HexFace::LowerLeft,
@@ -135,7 +135,7 @@ impl HexFace {
     }
 
     /// Returns whether two faces are adjacent (i.e., share a corner).
-    pub fn is_adjacent(self: &Self, other: &Self) -> bool {
+    pub fn is_adjacent(&self, other: &Self) -> bool {
         match *self {
             HexFace::Top => {
                 other == &HexFace::UpperLeft || other == &HexFace::UpperRight
@@ -456,10 +456,7 @@ impl HexPosition {
     /// Returns whether this position is defined relative to the hexagon
     /// centre.
     pub fn is_centre(&self) -> bool {
-        match self {
-            Self::Centre(_delta) => true,
-            _ => false,
-        }
+        matches!(self, Self::Centre(_delta))
     }
 
     /// Returns whether this position is defined relative to a hexagon corner.
@@ -497,9 +494,9 @@ impl From<f64> for Hex {
 impl Hex {
     /// Constructs a hexagon for the given maximal diameter.
     pub fn new(max_d: f64) -> Self {
-        let min_d = (3.0 as f64).sqrt() * max_d / 2.0;
+        let min_d = (3.0_f64).sqrt() * max_d / 2.0;
         let alpha = max_d / 4.0;
-        let beta = alpha * (3.0 as f64).sqrt();
+        let beta = alpha * (3.0_f64).sqrt();
         let corners = vec![
             (-2.0 * alpha, 0.0), // Middle left
             (-alpha, beta),      // Upper left
@@ -531,13 +528,13 @@ impl Hex {
     /// Returns the ratio of the minimal diameter to the maximal diameter:
     /// `sqrt(3) / 2`.
     pub fn ratio_min_d() -> f64 {
-        (3.0 as f64).sqrt() / 2.0
+        (3.0_f64).sqrt() / 2.0
     }
 
     /// Returns the ratio of the maximal diameter to the minimal diameter:
     /// `2 / sqrt(3)`.
     pub fn ratio_max_d() -> f64 {
-        2.0 / (3.0 as f64).sqrt()
+        2.0 / (3.0_f64).sqrt()
     }
 
     /// Returns the context associated with a private surface with sufficient
@@ -552,7 +549,7 @@ impl Hex {
 
     /// Returns the Cartesian coordinates for the given hexagon corner, where
     /// the origin is the hexagon centre.
-    pub fn corner_coord(self: &Self, corner: &HexCorner) -> &Coord {
+    pub fn corner_coord(&self, corner: &HexCorner) -> &Coord {
         use HexCorner::*;
 
         match corner {
@@ -579,7 +576,7 @@ impl Hex {
     }
 
     /// Fills the hexagon with a specific colour on the provided context.
-    pub fn draw_background(self: &Self, colour: HexColour, ctx: &Context) {
+    pub fn draw_background(&self, colour: HexColour, ctx: &Context) {
         self.define_boundary(ctx);
         colour.set_source_rgb(ctx);
         ctx.set_line_width(self.max_d * 0.01);
@@ -590,7 +587,7 @@ impl Hex {
 
     /// Returns the Cartesian coordinates for the middle of the given hexagon
     /// face, where the origin is the hexagon centre.
-    pub fn midpoint(self: &Self, face: &HexFace) -> Coord {
+    pub fn midpoint(&self, face: &HexFace) -> Coord {
         match face {
             HexFace::UpperLeft => self.corners[5].average(&self.corners[0]),
             HexFace::Top => self.corners[4].average(&self.corners[5]),

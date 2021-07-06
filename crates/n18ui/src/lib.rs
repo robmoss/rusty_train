@@ -62,7 +62,7 @@ impl UI {
     pub fn new(hex: Hex, game: Box<dyn Game>, map: Map) -> Self {
         let b: Box<dyn State> = Box::new(state::default::Default::new(&map));
         let state = Some(b);
-        let content = Content { hex, game, map };
+        let content = Content { hex, map, game };
         UI { content, state }
     }
 
@@ -141,8 +141,10 @@ impl UI {
     ) -> (Inhibit, Action) {
         let state_opt = self.state.take();
         if let Some(curr_state) = state_opt {
+            // Note: use &* because Box<T> implements Deref<Target = T>.
+            // So &*curr_state converts from Box<dyn State> to &dyn State.
             let action = global_keymap(
-                &curr_state,
+                &*curr_state,
                 &mut self.content,
                 window,
                 area,
@@ -242,8 +244,8 @@ pub enum ResetState {
 /// - `s`, `S`: save a screenshot of the current map;
 /// - `Ctrl+o`, `Ctrl+O`: load a map from disk.
 /// - `Ctrl+s`, `Ctrl+S`: save the current map to disk.
-pub fn global_keymap<S: State + ?Sized>(
-    state: &Box<S>,
+pub fn global_keymap(
+    state: &dyn State,
     content: &mut Content,
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,

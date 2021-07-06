@@ -7,7 +7,6 @@ use log::info;
 
 use crate::dialog::{select_company, select_trains};
 use crate::Content;
-use n18brush;
 use n18game::Company;
 use n18map::HexAddress;
 use n18route::{paths_for_token, ConflictRule, Criteria, Routes, Trains};
@@ -36,7 +35,10 @@ impl FindRoutes {
         let token = content.map.tokens().get_token(abbrev)?;
 
         // Select the company trains and bonuses.
-        let (trains, bonuses) = select_trains(window, &content.game, abbrev)?;
+        // Note: use &* because Box<T> implements Deref<Target = T>.
+        // So &*content.game converts from Box<dyn Game> to &dyn Game.
+        let (trains, bonuses) =
+            select_trains(window, &*content.game, abbrev)?;
 
         // Find the best routes.
         let best_routes = best_routes_for(content, token, trains, bonuses);
@@ -47,7 +49,7 @@ impl FindRoutes {
         update_title(window, abbrev, &best_routes);
 
         Some(FindRoutes {
-            active_hex: active_hex.map(|addr| *addr),
+            active_hex: active_hex.copied(),
             abbrev: abbrev.clone(),
             best_routes,
             original_window_title,
@@ -65,12 +67,7 @@ fn valid_companies(content: &Content) -> Vec<&Company> {
         .collect();
     let companies: Vec<&Company> = companies
         .iter()
-        .filter(|c| {
-            placed_names
-                .iter()
-                .find(|name| c.abbrev == **name)
-                .is_some()
-        })
+        .filter(|c| placed_names.iter().any(|name| c.abbrev == *name))
         .collect();
     companies
 }

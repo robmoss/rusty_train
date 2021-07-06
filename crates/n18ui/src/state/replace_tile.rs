@@ -4,7 +4,6 @@ use cairo::Context;
 use gtk::Inhibit;
 
 use crate::Content;
-use n18brush;
 use n18map::{HexAddress, Map, RotateCW};
 
 /// Replacing one tile with another.

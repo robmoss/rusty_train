@@ -86,10 +86,8 @@ impl Tile {
         if verbose {
             println!("Inspecting tile {} ...", name);
         }
-        for i in 0..tracks.len() {
-            let track = tracks[i];
-            for j in (i + 1)..tracks.len() {
-                let other = tracks[j];
+        for (i, track) in tracks.iter().enumerate() {
+            for (j, other) in tracks.iter().enumerate().skip(i + 1) {
                 if track.crosses(&other, hex, dt, ctx) {
                     if verbose {
                         println!("    Tracks {} and {} cross", i, j);
@@ -124,7 +122,7 @@ impl Tile {
             .filter_map(|t| t.dit.map(|(_, revenue, _)| revenue))
             .chain(cities.iter().map(|c| c.revenue))
             .collect();
-        revenues.sort();
+        revenues.sort_unstable();
         revenues.dedup();
         for (cx, city) in cities.iter().enumerate() {
             let mut layer = DrawLayer::Under;
@@ -145,11 +143,11 @@ impl Tile {
             if verbose {
                 println!("    City #{} in layer {:?}", cx, layer);
             }
-            cities_tbl.entry(layer).or_insert(vec![]).push(cx)
+            cities_tbl.entry(layer).or_insert_with(Vec::new).push(cx)
         }
         for (i, _track) in tracks.iter().enumerate() {
             let layer = track_layers.get(&i).unwrap();
-            tracks_tbl.entry(*layer).or_insert(vec![]).push(i)
+            tracks_tbl.entry(*layer).or_insert_with(Vec::new).push(i)
         }
         let conns = Connections::new(&tracks, &cities, hex);
         Self {
@@ -249,7 +247,7 @@ impl Tile {
         use DrawLayer::*;
 
         // Draw the centre of each dit on a track segment as a red dot.
-        for layer in vec![&Under, &Normal, &Over, &Topmost] {
+        for layer in &[Under, Normal, Over, Topmost] {
             let empty = vec![];
             ctx.set_source_rgb(1.0, 0.0, 0.0);
             let line_cap = ctx.get_line_cap();
@@ -289,11 +287,11 @@ impl Tile {
         }
     }
 
-    pub fn get_revenues(self: &Self) -> &[usize] {
+    pub fn get_revenues(&self) -> &[usize] {
         &self.revenues
     }
 
-    pub fn draw(self: &Self, ctx: &Context, hex: &Hex) {
+    pub fn draw(&self, ctx: &Context, hex: &Hex) {
         use DrawLayer::*;
 
         // Draw the tile background.
@@ -320,8 +318,7 @@ impl Tile {
         }
         // Draw other tile labels.
         for (label, pos) in &self.labels {
-            let hex_pos: HexPosition = (*pos).into();
-            label.draw(ctx, hex, &hex_pos, &self);
+            label.draw(ctx, hex, pos, &self);
         }
     }
 
@@ -395,7 +392,7 @@ impl Tile {
         // TODO: other checks, such as preserving track connectivity?
         // That would require having access to the map, so this would have to
         // be an additional layer of filtering provided by the map itself.
-        return true;
+        true
     }
 
     /// Determines the surface size for this tile, which includes a small

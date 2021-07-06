@@ -4,7 +4,6 @@ use cairo::Context;
 use gtk::Inhibit;
 
 use crate::Content;
-use n18brush;
 use n18hex::HexColour;
 use n18map::{HexAddress, Map, TokensTable};
 use n18tile::TokenSpace;
@@ -20,16 +19,8 @@ pub struct EditTokens {
 
 impl EditTokens {
     pub(super) fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
-        let hex_state = if let Some(hex_state) = map.get_hex(addr) {
-            hex_state
-        } else {
-            return None;
-        };
-        let tile = if let Some(tile) = map.tile_at(addr) {
-            tile
-        } else {
-            return None;
-        };
+        let hex_state = map.get_hex(addr)?;
+        let tile = map.tile_at(addr)?;
         if tile.colour == HexColour::Red {
             return None;
         }
@@ -40,9 +31,9 @@ impl EditTokens {
         let original_tokens = hex_state.get_tokens().clone();
         Some(EditTokens {
             active_hex: addr,
-            token_spaces: token_spaces,
+            token_spaces,
             selected: 0,
-            original_tokens: original_tokens,
+            original_tokens,
         })
     }
 }
@@ -92,8 +83,9 @@ impl State for EditTokens {
             gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.
                 let restore = self.original_tokens.into_iter().collect();
-                map.get_hex_mut(self.active_hex)
-                    .map(|hex_state| hex_state.set_tokens(restore));
+                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                    hs.set_tokens(restore)
+                }
                 (
                     Box::new(super::default::Default::at_hex(Some(
                         self.active_hex,
@@ -130,13 +122,13 @@ impl State for EditTokens {
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
                 let game = &content.game;
-                map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next: &Token = hex_state
+                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                    let next: &Token = hs
                         .get_token_at(token_space)
                         .and_then(|t| game.next_token(t))
-                        .unwrap_or(game.first_token());
-                    hex_state.set_token_at(token_space, *next);
-                });
+                        .unwrap_or_else(|| game.first_token());
+                    hs.set_token_at(token_space, *next);
+                }
                 (self, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Down => {
@@ -144,13 +136,13 @@ impl State for EditTokens {
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
                 let game = &content.game;
-                map.get_hex_mut(self.active_hex).map(|hex_state| {
-                    let next: &Token = hex_state
+                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                    let next: &Token = hs
                         .get_token_at(token_space)
                         .and_then(|t| game.prev_token(t))
-                        .unwrap_or(game.last_token());
-                    hex_state.set_token_at(token_space, *next);
-                });
+                        .unwrap_or_else(|| game.last_token());
+                    hs.set_token_at(token_space, *next);
+                };
                 (self, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::_0
@@ -158,8 +150,9 @@ impl State for EditTokens {
             | gdk::keys::constants::BackSpace
             | gdk::keys::constants::Delete => {
                 let token_space = &self.token_spaces[self.selected];
-                map.get_hex_mut(self.active_hex)
-                    .map(|hex_state| hex_state.remove_token_at(token_space));
+                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                    hs.remove_token_at(token_space)
+                }
                 (self, Inhibit(false), Action::Redraw)
             }
             _ => (self, Inhibit(false), Action::None),

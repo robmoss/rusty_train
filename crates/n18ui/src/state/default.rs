@@ -4,7 +4,6 @@ use log::info;
 
 use super::{Action, State};
 use crate::Content;
-use n18brush;
 use n18map::{HexAddress, Map};
 
 /// The default state: selecting a tile.
@@ -66,8 +65,10 @@ impl State for Default {
                 }
             }
             gdk::keys::constants::p | gdk::keys::constants::P => {
+                // Note: use &* because Box<T> implements Deref<Target = T>.
+                // So &*content.game converts from Box<dyn Game> to &dyn Game.
                 let phase_opt =
-                    crate::dialog::select_phase(window, &content.game);
+                    crate::dialog::select_phase(window, &*content.game);
                 if let Some(phase) = phase_opt {
                     content.game.set_phase_ix(&mut content.map, phase);
                     (self, Inhibit(false), Action::Redraw)
@@ -88,7 +89,7 @@ impl State for Default {
                             })
                             .map(|(ix, _t)| ix)
                             .collect();
-                        if candidates.len() > 0 {
+                        if !candidates.is_empty() {
                             let state = Box::new(
                                 super::replace_tile::ReplaceTile::with_candidates(
                                     addr, candidates,
@@ -110,7 +111,7 @@ impl State for Default {
                             })
                             .map(|(ix, _t)| ix)
                             .collect();
-                        if candidates.len() > 0 {
+                        if !candidates.is_empty() {
                             let state = Box::new(
                                 super::replace_tile::ReplaceTile::with_candidates(
                                     addr, candidates,
@@ -208,7 +209,9 @@ impl State for Default {
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
                 if let Some(addr) = self.active_hex {
-                    map.get_hex_mut(addr).map(|hs| hs.rotate_anti_cw());
+                    if let Some(hs) = map.get_hex_mut(addr) {
+                        hs.rotate_anti_cw()
+                    }
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -216,7 +219,9 @@ impl State for Default {
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
                 if let Some(addr) = self.active_hex {
-                    map.get_hex_mut(addr).map(|hs| hs.rotate_cw());
+                    if let Some(hs) = map.get_hex_mut(addr) {
+                        hs.rotate_cw()
+                    }
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -257,9 +262,9 @@ impl State for Default {
         });
         if let Some(a) = addr {
             self.active_hex = Some(*a);
-            return (self, Inhibit(false), Action::Redraw);
+            (self, Inhibit(false), Action::Redraw)
         } else {
-            return (self, Inhibit(false), Action::None);
+            (self, Inhibit(false), Action::None)
         }
     }
 }

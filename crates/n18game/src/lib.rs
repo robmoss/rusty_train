@@ -129,7 +129,7 @@ pub trait Game {
     /// Panics if there is no company with the given name.
     fn get_company(&self, abbrev: &str) -> &Company {
         self.try_company(abbrev)
-            .expect(&format!("No company named '{}'", abbrev))
+            .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
     }
 
     /// Returns the token with the given abbreviated name, if it exists.
@@ -144,7 +144,7 @@ pub trait Game {
     /// Panics if there is no token with the given name.
     fn get_token(&self, abbrev: &str) -> &Token {
         self.try_token(abbrev)
-            .expect(&format!("No company named '{}'", abbrev))
+            .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
     }
 
     /// Returns the named train types in this game, in the order that they
@@ -170,7 +170,7 @@ pub trait Game {
     /// Panics if there is no train with the given name.
     fn get_train(&self, name: &str) -> &Train {
         self.try_train(name)
-            .expect(&format!("No train named '{}'", name))
+            .unwrap_or_else(|| panic!("No train named '{}'", name))
     }
 
     /// Returns the train with the given name, if the train exists.
@@ -190,7 +190,7 @@ pub trait Game {
     /// Return the bonuses that may apply to the routes being operated by a
     /// company, given the bonus options (e.g., private company bonuses) that
     /// the company currently owns.
-    fn get_bonuses(&self, bonus_options: &Vec<bool>) -> Vec<Bonus>;
+    fn get_bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus>;
 
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.

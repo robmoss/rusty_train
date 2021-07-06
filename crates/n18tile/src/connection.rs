@@ -80,7 +80,7 @@ impl Connections {
     // together when serialising? Could be really messy and inconsistent
     // though. But the round-tripping would be nice!
 
-    pub fn new(tracks: &Vec<Track>, cities: &Vec<City>, hex: &Hex) -> Self {
+    pub fn new(tracks: &[Track], cities: &[City], hex: &Hex) -> Self {
         let mut dits = vec![];
         let mut track_conns = HashMap::new();
         let mut face_conns = HashMap::new();
@@ -96,11 +96,11 @@ impl Connections {
             for (end, face) in track.connected_to_faces() {
                 face_conns
                     .entry(face)
-                    .or_insert(vec![])
+                    .or_insert_with(Vec::new)
                     .push(Connection::Track { ix: i, end });
                 track_conns
                     .entry((i, end))
-                    .or_insert(vec![])
+                    .or_insert_with(Vec::new)
                     .push(Connection::Face { face });
             }
 
@@ -113,7 +113,7 @@ impl Connections {
                     end: dit_end,
                     revenue,
                 });
-                dit_conns.entry(dit_ix).or_insert(vec![]).push(
+                dit_conns.entry(dit_ix).or_insert_with(Vec::new).push(
                     Connection::Track {
                         ix: i,
                         end: dit_end,
@@ -121,28 +121,28 @@ impl Connections {
                 );
                 track_conns
                     .entry((i, dit_end))
-                    .or_insert(vec![])
+                    .or_insert_with(Vec::new)
                     .push(Connection::Dit { ix: dit_ix });
 
                 // NOTE: Also connect this dit to any track segments that are
                 // connected to this end of the track.
-                for j in 0..tracks.len() {
+                for (j, other) in tracks.iter().enumerate() {
                     if j == i {
                         continue;
                     }
-                    let other = tracks[j];
                     let conn_opt = track.connected_at(&other, hex, ctx);
                     if let Some((conn_end, other_end)) = conn_opt {
                         if conn_end == dit_end {
-                            dit_conns.entry(dit_ix).or_insert(vec![]).push(
-                                Connection::Track {
+                            dit_conns
+                                .entry(dit_ix)
+                                .or_insert_with(Vec::new)
+                                .push(Connection::Track {
                                     ix: j,
                                     end: other_end,
-                                },
-                            );
+                                });
                             track_conns
                                 .entry((j, other_end))
-                                .or_insert(vec![])
+                                .or_insert_with(Vec::new)
                                 .push(Connection::Dit { ix: dit_ix });
                         }
                     }
@@ -156,11 +156,11 @@ impl Connections {
                 if let Some(end) = end_opt {
                     city_conns
                         .entry(cx)
-                        .or_insert(vec![])
+                        .or_insert_with(Vec::new)
                         .push(Connection::Track { ix: i, end });
                     track_conns
                         .entry((i, end))
-                        .or_insert(vec![])
+                        .or_insert_with(Vec::new)
                         .push(Connection::City { ix: cx });
                 }
             }
@@ -178,8 +178,7 @@ impl Connections {
             let start_conns = track_conns.contains_key(&(i, TrackEnd::Start));
             let end_conns = track_conns.contains_key(&(i, TrackEnd::End));
             if !(start_conns && end_conns) {
-                for j in (i + 1)..tracks.len() {
-                    let other = tracks[j];
+                for (j, other) in tracks.iter().enumerate().skip(i + 1) {
                     if track.connected(&other, hex, ctx) {
                         println!("WARNING: tracks {} and {} connect", i, j);
                     }

@@ -219,20 +219,16 @@ pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
 
 /// Returns all valid combination of path pairs, which must all start from the
 /// same location.
-fn path_combinations(query: &Query, paths: &Vec<Path>) -> Vec<Path> {
+fn path_combinations(query: &Query, paths: &[Path]) -> Vec<Path> {
     // NOTE: all of the paths start from the same token space.
     // If more than 2 stops are allowed, and/or if cities can be skipped
     // (including the token space itself), then we also need to consider
     // joining pairs of paths together.
-    let num_paths = paths.len();
     let mut new_paths: Vec<Path> = vec![];
 
     // Loop over each pair of paths.
-    for i in 0..num_paths {
-        let path_i = &paths[i];
-        for j in (i + 1)..num_paths {
-            let path_j = &paths[j];
-
+    for (i, path_i) in paths.iter().enumerate() {
+        for path_j in paths.iter().skip(i + 1) {
             // First, check that these paths don't conflict with each other.
             let conflicts: HashSet<_> =
                 path_i.conflicts.intersection(&path_j.conflicts).collect();
@@ -501,7 +497,7 @@ fn depth_first_search(
                     .iter()
                     .filter(|(&space, &_tok)| space.city_ix() == city_ix)
                     .collect();
-                let can_continue = token_spaces.len() == 0
+                let can_continue = token_spaces.is_empty()
                     || (city_tokens.len() < token_spaces.len())
                     || city_tokens
                         .iter()
@@ -581,8 +577,7 @@ mod tests {
     pub fn map_2x2_tiles_5_6_58_63(hex: &Hex, tokens: Tokens) -> Map {
         let tiles = n18catalogue::tile_catalogue(hex);
         let descr = descr_2x2_tiles_5_6_58_63();
-        let map = descr.build_map(tiles, tokens);
-        map
+        descr.build_map(tiles, tokens)
     }
 
     /// Define the tokens used in the following test cases.
@@ -663,7 +658,7 @@ mod tests {
         let hex = Hex::new(HEX_DIAMETER);
         let tokens = define_tokens();
         let token_lp = *tokens.get_token("LP").unwrap();
-        let map = map_2x2_tiles_5_6_58_63(&hex, tokens.clone());
+        let map = map_2x2_tiles_5_6_58_63(&hex, tokens);
 
         let query = Query {
             addr: HexAddress::new(0, 0),

@@ -111,7 +111,7 @@ impl KPermutationsFilter {
     pub fn new(classes: Vec<usize>, k: usize) -> Self {
         let n = classes.len();
         KPermutationsFilter {
-            classes: classes,
+            classes,
             yielded: HashSet::new(),
             perms: KPermutations::new(n, k),
         }
@@ -119,7 +119,7 @@ impl KPermutationsFilter {
 
     /// Check whether a permutation duplicates the class ordering of a
     /// previous permutation.
-    fn unique_class_permutation(&mut self, item: &Vec<usize>) -> bool {
+    fn unique_class_permutation(&mut self, item: &[usize]) -> bool {
         let class_perm: Vec<_> =
             item.iter().map(|ix| self.classes[*ix]).collect();
         // NOTE: insert() returns true if the set *did* *not* already contain
