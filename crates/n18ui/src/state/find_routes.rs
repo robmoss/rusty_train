@@ -56,22 +56,21 @@ impl FindRoutes {
 }
 
 /// Returns the companies that have placed tokens on the map.
-fn valid_companies(content: &Content) -> Vec<Company> {
+fn valid_companies(content: &Content) -> Vec<&Company> {
     let companies = content.game.companies();
     let placed = content.map.unique_placed_tokens();
     let placed_names: Vec<&str> = placed
         .iter()
         .filter_map(|token| content.map.tokens().get_name(token))
         .collect();
-    let companies: Vec<n18game::Company> = companies
-        .into_iter()
+    let companies: Vec<&Company> = companies
+        .iter()
         .filter(|c| {
             placed_names
                 .iter()
                 .find(|name| c.abbrev == **name)
                 .is_some()
         })
-        .map(|c| c.clone())
         .collect();
     companies
 }

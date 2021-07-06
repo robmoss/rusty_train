@@ -7,14 +7,14 @@ use n18route::{Train, Trains};
 /// A dialog for selecting a company.
 pub struct CompanyDialog<'a> {
     pub dialog: gtk::Dialog,
-    companies: &'a [Company],
+    companies: &'a [&'a Company],
     combo: gtk::ComboBoxText,
 }
 
 impl<'a> CompanyDialog<'a> {
     pub fn new(
         parent: &gtk::ApplicationWindow,
-        companies: &'a [Company],
+        companies: &'a [&'a Company],
         title: &'a str,
     ) -> Self {
         let buttons = [
@@ -68,7 +68,7 @@ impl<'a> CompanyDialog<'a> {
 /// Display a company-selection dialog and return the selected company.
 pub fn select_company<'a>(
     parent: &gtk::ApplicationWindow,
-    companies: &'a [Company],
+    companies: &'a [&'a Company],
 ) -> Option<usize> {
     let cd = CompanyDialog::new(parent, companies, "Select Company");
     cd.run()
