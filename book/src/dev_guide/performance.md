@@ -2,9 +2,9 @@
 
 We will use the final operating round of the Bankruptcy Club's recorded game of 1867 as an example, and consider the following three companies:
 
-- Canadian Northern Railway (green tokens), which has a 5-train and a 5+5E-train, and runs for $102 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=13365));
-- Great Western Railway (brown tokens), which has a 5-train and an 8-train, and runs for $76 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=13580)); and
-- Chesapeake and Ohio Railway (blue tokens), which has a 6-train and an 8-train, and runs for $89 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=14010), [final decision](https://youtu.be/vE0UNDA4qQQ?t=14470)).
+- Canadian Northern Railway (CNR), which has a 5-train and a 5+5E-train, and runs for $102 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=13365));
+- Great Western Railway (GW), which has a 5-train and an 8-train, and runs for $76 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=13580)); and
+- Chesapeake and Ohio Railway (C&O), which has a 6-train and an 8-train, and runs for $89 per share ([link](https://youtu.be/vE0UNDA4qQQ?t=14010), [final decision](https://youtu.be/vE0UNDA4qQQ?t=14470)).
 
 For all three companies, the ``navig18xx`` crate allows us to find better routes that earn more revenue.
 
@@ -17,9 +17,9 @@ They can operate tens of thousands of paths, and with 2 trains this results in h
 
 | Company | Number of paths | Number of path combinations |
 |---------|----------------:|----------------------------:|
-| CNR     |          15,008 |                 112,612,528 |
-| GWR     |          46,176 |               1,066,088,400 |
-| C&O     |          67,948 |               2,308,431,378 |
+| GW      |          15,008 |                 112,612,528 |
+| C&O     |          46,176 |               1,066,088,400 |
+| CNR     |          67,948 |               2,308,431,378 |
 
 Profiling revealed that the overwhelming majority of time was being spent determining whether each combination of paths could be operated together (i.e., checking for route conflicts).
 
@@ -31,7 +31,7 @@ The following optimisations have been introduced:
 - **Sort conflicts:** store route conflicts in sorted vectors, to minimise the number of comparisons required to identify whether two paths conflict.
 - **Parallel iterator:** iterate over the huge numbers of path combinations in parallel using [rayon](https://github.com/rayon-rs/rayon).
 
-|                   |     CNR |     GWR |     C&O |
+|                   |      GW |     C&O |     CNR |
 |-------------------|--------:|--------:|--------:|
 | Initial           |    0:37 |    5:23 |   13:02 |
 | Fewer conflicts   |    0:22 |    4:08 |    9:35 |
