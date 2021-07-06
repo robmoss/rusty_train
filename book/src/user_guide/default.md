@@ -7,7 +7,7 @@ Use this mode to select a tile or hex space, and switch to other modes to place 
 | `e`, `E`         | Switch to [**Replace tile**](tile.md) mode, select **any** tile        |
 | `u`, `U`         | Switch to [**Replace tile**](tile.md) mode, select an **upgrade** tile |
 | `t`, `T`         | Switch to [**Edit tokens**](tokens.md) mode                               |
-| `r`, `R`         | Switch to [**Select routes**](routes.md) mode                            |
+| `r`, `R`         | Switch to [**Find routes**](routes.md) mode                            |
 | `<Left>`         | Select the hex on the left of the current hex                                  |
 | `<Right>`        | Select the hex on the left of the current hex                                  |
 | `<Up>`           | Select the hex above the current hex                                           |

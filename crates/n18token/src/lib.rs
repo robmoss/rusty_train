@@ -94,7 +94,7 @@ impl Tokens {
 }
 
 /// A token that may occupy a token space on a `Tile`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Token {
     pub style: TokenStyle,
     pub x_pcnt: usize,
@@ -102,7 +102,7 @@ pub struct Token {
 }
 
 /// Define the colour palette for each token.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Colour {
     /// The amount of red, must be between 0 and 255 (inclusive).
     pub red: usize,
@@ -154,7 +154,7 @@ impl From<(usize, usize, usize, usize)> for Colour {
 }
 
 /// Define the appearance of each token.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TokenStyle {
     // TODO: add TopArcs, SideSquares, TopSquares, SideLines, TopLines, etc.
     // See https://boardgamegeek.com/image/5033873/18611867 for ideas.

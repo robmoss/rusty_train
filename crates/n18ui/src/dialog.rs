@@ -1,8 +1,78 @@
 use gtk::prelude::*;
 use std::collections::HashMap;
 
-use n18game::Game;
+use n18game::{Company, Game};
 use n18route::{Train, Trains};
+
+/// A dialog for selecting a company.
+pub struct CompanyDialog<'a> {
+    pub dialog: gtk::Dialog,
+    companies: &'a [Company],
+    combo: gtk::ComboBoxText,
+}
+
+impl<'a> CompanyDialog<'a> {
+    pub fn new(
+        parent: &gtk::ApplicationWindow,
+        companies: &'a [Company],
+        title: &'a str,
+    ) -> Self {
+        let buttons = [
+            ("OK", gtk::ResponseType::Accept),
+            // ("Cancel", gtk::ResponseType::Reject),
+        ];
+        let flags = gtk::DialogFlags::all();
+        let dialog = gtk::Dialog::with_buttons(
+            Some(&title),
+            Some(parent),
+            flags,
+            &buttons,
+        );
+
+        let padding = 4;
+        let content = dialog.get_content_area();
+
+        let combo = gtk::ComboBoxText::new();
+        companies
+            .iter()
+            .for_each(|c| combo.append(Some(&c.abbrev), &c.full_name));
+        combo.set_active_id(companies.get(0).map(|c| c.abbrev.as_str()));
+        content.pack_start(&combo, true, false, padding);
+        dialog.show_all();
+
+        CompanyDialog {
+            dialog,
+            companies,
+            combo,
+        }
+    }
+
+    fn get_selected_ix(&self) -> Option<usize> {
+        self.combo.get_active().and_then(|ix| {
+            let ix = ix as usize;
+            self.companies.get(ix).map(|_| ix)
+        })
+    }
+
+    pub fn run(&self) -> Option<usize> {
+        let response = self.dialog.run();
+        self.dialog.hide();
+        if response == gtk::ResponseType::Accept {
+            self.get_selected_ix()
+        } else {
+            None
+        }
+    }
+}
+
+/// Display a company-selection dialog and return the selected company.
+pub fn select_company<'a>(
+    parent: &gtk::ApplicationWindow,
+    companies: &'a [Company],
+) -> Option<usize> {
+    let cd = CompanyDialog::new(parent, companies, "Select Company");
+    cd.run()
+}
 
 /// A dialog for selecting trains and options that provide route bonuses.
 pub struct TrainDialog<'a> {

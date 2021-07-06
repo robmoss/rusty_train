@@ -1,12 +1,14 @@
-# Select routes mode
+# Find routes mode
 
-Use this mode to select a token on the active tile and identify the optimal routes and revenue for the company that owns this token.
+Use this mode to select a company and find the optimal routes and revenue for this company.
 
-Whenever a token is select, the user will be prompted to choose the trains owned by the associated company.
-Once the trains have been selected, the optimal routes will be drawn on the map and the optimal revenue will be displayed.
+The user will be prompted to select one of the companies that has placed tokens on the map.
+They will then be prompted to select the trains available to this company, and any relevant bonuses.
+
+This will initiate the route-finding process; depending on the number of potential routes, **this may take several minutes to complete**.
+
+The optimal routes will then be drawn on the map and the optimal revenue will be displayed.
 
 | Key             | Action                                       |
 |-----------------|----------------------------------------------|
 | `Esc`, `Return` | Return to [**Default**](default.md) mode     |
-| `<Left>`        | Select the previous token on the active tile |
-| `<Right>`       | Select the next token on the active tile     |

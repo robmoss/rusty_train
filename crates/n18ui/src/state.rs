@@ -5,8 +5,8 @@ use super::{Action, Content};
 
 pub mod default;
 pub mod edit_tokens;
+pub mod find_routes;
 pub mod replace_tile;
-pub mod select_token;
 
 /// The methods that are required in order to manipulate the user interface.
 pub trait State {

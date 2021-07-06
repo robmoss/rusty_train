@@ -7,6 +7,7 @@ use n18token::{Token, Tokens};
 pub mod _1867;
 
 /// The details that characterise a company that can operate trains.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Company {
     /// The abbreviated company name, which must be unique for each company in
     /// the game, and which will appear on the company tokens.

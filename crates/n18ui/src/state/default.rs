@@ -69,7 +69,7 @@ impl State for Default {
                 let phase_opt =
                     crate::dialog::select_phase(window, &content.game);
                 if let Some(phase) = phase_opt {
-                    content.game.set_phase(&mut content.map, phase);
+                    content.game.set_phase_ix(&mut content.map, phase);
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
@@ -140,18 +140,15 @@ impl State for Default {
                 }
             }
             gdk::keys::constants::r | gdk::keys::constants::R => {
-                // Allow the user to select tokens, and highlight all matching
-                // tokens on the map.
-                if let Some(addr) = self.active_hex {
-                    if let Some(state) =
-                        super::select_token::SelectToken::try_new(
-                            content, addr, window,
-                        )
-                    {
-                        (Box::new(state), Inhibit(false), Action::Redraw)
-                    } else {
-                        (self, Inhibit(false), Action::None)
-                    }
+                // Allow the user to select a company and trains, and find the
+                // routes that earn the most revenue.
+                let state_opt = super::find_routes::FindRoutes::try_new(
+                    content,
+                    self.active_hex.as_ref(),
+                    window,
+                );
+                if let Some(state) = state_opt {
+                    (Box::new(state), Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
                 }

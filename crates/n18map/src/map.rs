@@ -1,5 +1,5 @@
 use cairo::Context;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use n18hex::{Hex, HexColour, HexFace, PI};
 use n18tile::{Label, Tile, TokenSpace};
@@ -94,6 +94,17 @@ impl Map {
                 if t == token {
                     placed.push((addr, token_space))
                 }
+            })
+        });
+        placed
+    }
+
+    /// Returns the set of unique tokens that are currently placed on the map.
+    pub fn unique_placed_tokens(&self) -> BTreeSet<&Token> {
+        let mut placed: BTreeSet<&Token> = BTreeSet::new();
+        self.state.iter().for_each(|(_addr, state)| {
+            state.tokens.iter().for_each(|(_space, token)| {
+                let _ = placed.insert(token);
             })
         });
         placed
