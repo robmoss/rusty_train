@@ -135,6 +135,44 @@ pub fn draw_barriers(hex: &Hex, ctx: &Context, map: &Map) {
     ctx.set_line_cap(cap);
 }
 
+/// Highlights map hexes that satisfy a predicate by covering all other hexes
+/// with a partially-transparent layer.
+///
+/// This also draws a coloured border around the highlighted hexes if `border`
+/// is not `None`.
+pub fn highlight_hexes<P>(
+    hex: &Hex,
+    ctx: &Context,
+    mut hex_iter: &mut HexIter<'_>,
+    mut predicate: P,
+    border: Option<n18token::Colour>,
+) where
+    P: FnMut(&HexAddress) -> bool,
+{
+    hex_iter.restart();
+    for hex_state in &mut hex_iter {
+        let highlight = predicate(&hex_state.addr);
+        if highlight {
+            // Draw the active hex with a coloured border.
+            if let Some(colour) = border {
+                colour.apply_to(ctx);
+                ctx.set_line_width(hex.max_d * 0.02);
+                hex.define_boundary(ctx);
+                ctx.stroke();
+            }
+        } else {
+            // Cover all other tiles with a partially-transparent layer.
+            ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
+            hex.define_boundary(ctx);
+            ctx.fill();
+        }
+    }
+}
+
+/// Highlights the active map hex by covering all other hexes with a
+/// partially-transparent layer.
+///
+/// This also draws a coloured border around the active map hex.
 pub fn highlight_active_hex(
     hex: &Hex,
     ctx: &Context,

@@ -144,6 +144,21 @@ impl State for FindRoutes {
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
         n18brush::draw_barriers(hex, ctx, map);
+        // Slightly fade hexes that are not part of any route.
+        if let Some((_token, routes)) = &self.best_routes {
+            let hexes: std::collections::HashSet<&HexAddress> = routes
+                .routes()
+                .iter()
+                .flat_map(|route| route.steps.iter().map(|step| &step.addr))
+                .collect();
+            n18brush::highlight_hexes(
+                hex,
+                ctx,
+                &mut hex_iter,
+                |addr| hexes.contains(addr),
+                None,
+            );
+        }
 
         // Highlight all matching token spaces on the map, before drawing each
         // route. Note that the routes may pass through these token spaces
