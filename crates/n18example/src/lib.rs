@@ -98,7 +98,12 @@ impl Example {
                 let tok_spaces = hex_tile.token_spaces();
                 let map_hex = self.map.get_hex_mut(addr).unwrap();
                 for tok in &tile.toks {
-                    let token = token_mgr.get_token(tok.1).unwrap();
+                    let token_opt = token_mgr.get_token(tok.1);
+                    if token_opt.is_none() {
+                        eprintln!("No token for '{}'", tok.1);
+                        eprintln!("Token names: {:?}", token_mgr.names());
+                    }
+                    let token = token_opt.unwrap();
                     map_hex.set_token_at(&tok_spaces[tok.0], *token)
                 }
             }

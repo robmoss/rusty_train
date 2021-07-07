@@ -124,13 +124,16 @@ impl Descr {
                     .tokens
                     .iter()
                     .map(|(space_ix, token_name)| {
-                        (
-                            space_ix,
-                            map.tokens()
-                                .get_token(token_name)
-                                .copied()
-                                .unwrap(),
-                        )
+                        let token_opt = map.tokens().get_token(token_name);
+                        if token_opt.is_none() {
+                            eprintln!("No token for '{}'", token_name);
+                            eprintln!(
+                                "Token names: {:?}",
+                                map.tokens().names()
+                            );
+                        }
+                        let token = token_opt.copied().unwrap();
+                        (space_ix, token)
                     })
                     .collect();
                 let hex_state = map.get_hex_mut(*addr).expect("No hex state");
