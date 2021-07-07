@@ -89,8 +89,9 @@ fn save_1867_bc_routes(
     let mut state = game_state();
 
     // Save the map state.
-    let dest_file = "1867_bc.map";
+    let dest_file = json_dir.join("1867_bc.map");
     let descr: navig18xx::map::Descr = state.example.get_map().into();
+    info!("Writing {} ...", dest_file.to_str().unwrap());
     navig18xx::io::write_map_descr(dest_file, &descr, true)?;
 
     // Save an image of the map prior to drawing any routes.
