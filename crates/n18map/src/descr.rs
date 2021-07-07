@@ -1,6 +1,6 @@
 //! Describe and create map configurations.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::map::{HexAddress, Map, MapHex, RotateCW};
 use n18tile::Tile;
@@ -23,17 +23,17 @@ pub struct TileDescr {
 
 /// A description of each tile's configuration on a map.
 pub struct Descr {
-    tiles: HashMap<HexAddress, Option<TileDescr>>,
+    tiles: BTreeMap<HexAddress, Option<TileDescr>>,
 }
 
-impl<'a> From<&'a Descr> for &'a HashMap<HexAddress, Option<TileDescr>> {
+impl<'a> From<&'a Descr> for &'a BTreeMap<HexAddress, Option<TileDescr>> {
     fn from(src: &'a Descr) -> Self {
         &src.tiles
     }
 }
 
-impl<'a> From<HashMap<HexAddress, Option<TileDescr>>> for Descr {
-    fn from(src: HashMap<HexAddress, Option<TileDescr>>) -> Self {
+impl<'a> From<BTreeMap<HexAddress, Option<TileDescr>>> for Descr {
+    fn from(src: BTreeMap<HexAddress, Option<TileDescr>>) -> Self {
         Self { tiles: src }
     }
 }

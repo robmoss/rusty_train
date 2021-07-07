@@ -3,7 +3,7 @@ use n18hex::Hex;
 
 use serde::{Deserialize, Serialize};
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -3591,7 +3591,7 @@ fn tile_descr(addr: &HexAddress, descr: &TileDescr) -> n18map::TileDescr {
 
 impl std::convert::From<&n18map::descr::Descr> for Descr {
     fn from(src: &n18map::descr::Descr) -> Self {
-        let tiles: &HashMap<_, _> = src.into();
+        let tiles: &BTreeMap<_, _> = src.into();
         let tiles: Vec<HexAddress> = tiles
             .iter()
             .map(|(k, v)| {
@@ -3604,7 +3604,7 @@ impl std::convert::From<&n18map::descr::Descr> for Descr {
 
 impl std::convert::From<&Descr> for n18map::descr::Descr {
     fn from(src: &Descr) -> Self {
-        let tiles: HashMap<_, _> = src
+        let tiles: BTreeMap<_, _> = src
             .tiles
             .iter()
             .map(|addr| {
