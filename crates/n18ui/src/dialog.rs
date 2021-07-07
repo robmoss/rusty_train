@@ -8,7 +8,7 @@ use n18route::{Train, Trains};
 pub struct CompanyDialog<'a> {
     pub dialog: gtk::Dialog,
     companies: &'a [&'a Company],
-    combo: gtk::ComboBoxText,
+    list: gtk::ListBox,
 }
 
 impl<'a> CompanyDialog<'a> {
@@ -32,24 +32,36 @@ impl<'a> CompanyDialog<'a> {
         let padding = 4;
         let content = dialog.get_content_area();
 
-        let combo = gtk::ComboBoxText::new();
-        companies
-            .iter()
-            .for_each(|c| combo.append(Some(&c.abbrev), &c.full_name));
-        combo.set_active_id(companies.get(0).map(|c| c.abbrev.as_str()));
-        content.pack_start(&combo, true, false, padding);
+        // Display the companies as a list.
+        let list = gtk::ListBoxBuilder::new()
+            .selection_mode(gtk::SelectionMode::Browse)
+            .activate_on_single_click(false)
+            .margin(4)
+            .build();
+        companies.iter().for_each(|c| {
+            let company_label = gtk::Label::new(Some(&c.full_name));
+            list.add(&company_label);
+        });
+        // Select the first company.
+        list.select_row(list.get_row_at_index(0).as_ref());
+        // Make activating a row pick the active company and close the dialog.
+        let dlg = dialog.clone();
+        list.connect_row_activated(move |_, _| {
+            dlg.response(gtk::ResponseType::Accept)
+        });
+        content.pack_start(&list, true, false, padding);
         dialog.show_all();
 
         CompanyDialog {
             dialog,
             companies,
-            combo,
+            list,
         }
     }
 
     fn get_selected_ix(&self) -> Option<usize> {
-        self.combo.get_active().and_then(|ix| {
-            let ix = ix as usize;
+        self.list.get_selected_row().and_then(|row| {
+            let ix = row.get_index() as usize;
             self.companies.get(ix).map(|_| ix)
         })
     }
