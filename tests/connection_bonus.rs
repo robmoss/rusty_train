@@ -2,7 +2,6 @@ use cairo::{Context, Format, ImageSurface};
 use navig18xx::brush;
 use navig18xx::prelude::*;
 use navig18xx::route::Bonus;
-use std::collections::HashMap;
 
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
     let surface = ImageSurface::create(Format::ARgb32, width, height)
@@ -100,12 +99,7 @@ fn test_connection_bonus_between_two_dits() {
         .expect("Couldn't write to output PNG file");
 
     println!("Creating trains");
-    let all_trains: HashMap<&str, Train> = game
-        .train_types()
-        .into_iter()
-        .map(|t| (game.train_name(t).unwrap(), *t))
-        .collect();
-    let company_trains: Trains = vec![*all_trains.get("4").unwrap()].into();
+    let company_trains: Trains = vec![*game.get_train("4")].into();
     let limit = company_trains.path_limit();
     let criteria = Criteria {
         token: company_token,
