@@ -160,30 +160,8 @@ impl State for FindRoutes {
             );
         }
 
-        // Highlight all matching token spaces on the map, before drawing each
-        // route. Note that the routes may pass through these token spaces
-        // without stopping at them.
-        hex_iter.restart();
-        for hex_state in &mut hex_iter {
-            if let Some((tile, tokens)) = hex_state.tile_state {
-                for (token_space, token) in tokens {
-                    if let Some(name) = map.tokens().get_name(&token) {
-                        if name == self.abbrev {
-                            // Highlight this matching token space.
-                            let (r, g, b, a) = (0.9, 0.1, 0.1, 0.25);
-                            tile.define_token_space(&token_space, hex, ctx);
-                            ctx.set_source_rgb(r, g, b);
-                            ctx.set_line_width(hex.max_d * 0.025);
-                            ctx.stroke_preserve();
-                            ctx.set_source_rgba(r, g, b, a);
-                            ctx.fill_preserve();
-                        }
-                    }
-                }
-            }
-        }
-
         // Draw each route.
+        // Note that this also redraws the token spaces at each visit.
         if let Some((_token, routes)) = &self.best_routes {
             n18brush::highlight_routes(
                 &hex,
@@ -197,6 +175,25 @@ impl State for FindRoutes {
                 },
             );
         }
+
+        // Highlight all matching token spaces on the map.
+        // We do this after highlighting each route, because the routes will
+        // redraw all of the token spaces that they pass through.
+        // Note that the routes may pass through these token spaces
+        // without stopping at them.
+        n18brush::highlight_tokens(
+            hex,
+            ctx,
+            &mut hex_iter,
+            |_addr, _tile, _token_space, token| {
+                map.tokens()
+                    .get_name(&token)
+                    .map(|name| name == self.abbrev)
+                    .unwrap_or(false)
+            },
+            (230, 25, 25).into(),
+            Some((230, 25, 25, 31).into()),
+        );
     }
 
     fn key_press(

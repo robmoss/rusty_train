@@ -3,9 +3,8 @@ use cairo::Context;
 use n18hex::Hex;
 use n18map::{HexAddress, HexIter, Map};
 use n18route::{Path, Route, Step, StopLocation, Visit};
-use n18tile::connection::Connection;
-use n18tile::draw::Draw;
-use n18tile::track::DitShape;
+use n18tile::{Connection, DitShape, Draw, Tile, TokenSpace};
+use n18token::Token;
 
 pub fn draw_hex_backgrounds(
     hex: &Hex,
@@ -133,6 +132,58 @@ pub fn draw_barriers(hex: &Hex, ctx: &Context, map: &Map) {
         ctx.set_matrix(m);
     }
     ctx.set_line_cap(cap);
+}
+
+/// Highlights tokens that satisfy a predicate by drawing borders around them
+/// and optionally filling the token space with, e.g., a semi-transparent
+/// colour.
+pub fn highlight_tokens<P>(
+    hex: &Hex,
+    ctx: &Context,
+    mut hex_iter: &mut HexIter<'_>,
+    mut predicate: P,
+    border: n18token::Colour,
+    fill: Option<n18token::Colour>,
+) where
+    P: FnMut(&HexAddress, &Tile, &TokenSpace, &Token) -> bool,
+{
+    hex_iter.restart();
+    for hex_state in &mut hex_iter {
+        let hex_addr = &hex_state.addr;
+        if let Some((tile, tokens)) = hex_state.tile_state {
+            for (token_space, token) in tokens {
+                if predicate(hex_addr, tile, token_space, token) {
+                    tile.define_token_space(token_space, hex, ctx);
+                    if let Some(fill_colour) = fill {
+                        fill_colour.apply_to(ctx);
+                        ctx.fill_preserve();
+                    }
+                    border.apply_to(ctx);
+                    ctx.set_line_width(hex.max_d * 0.025);
+                    ctx.stroke_preserve();
+                }
+            }
+        }
+    }
+}
+
+/// Highlights a token space by drawing a border around it.
+pub fn highlight_token_space(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    hex_addr: HexAddress,
+    token_space: &TokenSpace,
+    border: n18token::Colour,
+) {
+    if let Some(tile) = map.tile_at(hex_addr) {
+        let m = map.prepare_to_draw(hex_addr, hex, ctx);
+        tile.define_token_space(token_space, hex, ctx);
+        border.apply_to(ctx);
+        ctx.set_line_width(hex.max_d * 0.025);
+        ctx.stroke_preserve();
+        ctx.set_matrix(m);
+    }
 }
 
 /// Highlights map hexes that satisfy a predicate by covering all other hexes

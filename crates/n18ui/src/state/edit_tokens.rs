@@ -48,15 +48,15 @@ impl State for EditTokens {
         n18brush::draw_barriers(hex, ctx, map);
 
         // Highlight the active token space.
-        if let Some(tile) = map.tile_at(self.active_hex) {
-            let m = map.prepare_to_draw(self.active_hex, hex, ctx);
-            let token_space = &self.token_spaces[self.selected];
-            tile.define_token_space(token_space, hex, ctx);
-            ctx.set_source_rgb(0.8, 0.2, 0.2);
-            ctx.set_line_width(hex.max_d * 0.025);
-            ctx.stroke_preserve();
-            ctx.set_matrix(m);
-        }
+        let token_space = &self.token_spaces[self.selected];
+        n18brush::highlight_token_space(
+            hex,
+            ctx,
+            map,
+            self.active_hex,
+            token_space,
+            (204, 51, 51).into(),
+        );
 
         // Draw the active hex with a grey border.
         n18brush::highlight_active_hex(
