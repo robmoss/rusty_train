@@ -48,64 +48,51 @@ impl State for ReplaceTile {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
+        n18brush::draw_tiles(hex, ctx, &mut hex_iter);
 
-        for hex_state in &mut hex_iter {
-            if hex_state.addr == self.active_hex && !self.show_original {
-                // Draw the currently-selected replacement tile.
-                // NOTE: must account for the current tile's rotation.
-                let extra_angle =
-                    if let Some(hs) = map.get_hex(hex_state.addr) {
-                        -hs.radians()
-                    } else {
-                        0.0
-                    };
-                let rotn = self.rotation.radians() + extra_angle;
-                ctx.rotate(rotn);
-                let tile_ix = self.candidates[self.selected];
-                let tile = &map.tiles()[tile_ix];
-                tile.draw(ctx, hex);
-                if let Some((_tile, token_spaces)) = hex_state.tile_state {
-                    // Draw any tokens that have been placed.
-                    // NOTE: the replacement tile may not have a matching
-                    // token space; when editing a tile there may be fewer
-                    // token spaces, and when upgrading there may be fewer
-                    // cities --- and the token_space is linked to the city
-                    // index. So we really need to identify an appropriate
-                    // "equivalent" token space, if one exists. For now, this
-                    // only draws the token if there is a matching space
-                    // (i.e., matching city index and token index).
-                    for (token_space, map_token) in token_spaces.iter() {
-                        // Determine if the tile has a matching token space.
-                        if tile.define_token_space(&token_space, &hex, ctx) {
-                            let tok_name = content
-                                .map
-                                .tokens()
-                                .get_name(map_token)
-                                .unwrap();
-                            map_token.draw(&hex, ctx, &tok_name, rotn);
-                        } else {
-                            println!("Could not define token space.")
-                        }
-                    }
-                }
-                ctx.rotate(-self.rotation.radians() - extra_angle);
-            } else if let Some((tile, token_spaces)) = hex_state.tile_state {
-                // Draw the tile and any tokens.
-                tile.draw(ctx, hex);
-                let rotn = hex_state.tile_rotation;
-                for (token_space, map_token) in token_spaces.iter() {
+        // Draw the replacement tile over the current tile.
+        if !self.show_original {
+            let map_hex = map.get_hex(self.active_hex);
+            let m = map.prepare_to_draw(self.active_hex, hex, ctx);
+
+            // Apply the appropriate tile rotation.
+            let extra_angle = map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
+            let rotn = self.rotation.radians() + extra_angle;
+            ctx.rotate(rotn);
+
+            // Draw the replacement tile.
+            let tile_ix = self.candidates[self.selected];
+            let tile = &map.tiles()[tile_ix];
+            tile.draw(ctx, hex);
+
+            // Draw any tokens that have been placed.
+            // NOTE: the replacement tile may not have a matching token space;
+            // when editing a tile there may be fewer token spaces, and when
+            // upgrading there may be fewer cities --- and the token_space is
+            // linked to the city index.
+            //
+            // So we really need to identify an appropriate "equivalent" token
+            // space, if one exists.
+            //
+            // For now, this only draws the token if there is a matching space
+            // (i.e., matching city index and token index).
+            if let Some(hs) = map_hex {
+                for (token_space, token) in hs.get_tokens() {
+                    // Determine if the tile has a matching token space.
                     if tile.define_token_space(&token_space, &hex, ctx) {
-                        let tok_name =
-                            content.map.tokens().get_name(map_token).unwrap();
-                        map_token.draw(&hex, ctx, &tok_name, rotn);
+                        let tok_name = map.tokens().get_name(token);
+                        if let Some(name) = tok_name {
+                            token.draw(&hex, ctx, &name, rotn);
+                        } else {
+                            println!("Could not get token name.")
+                        }
                     } else {
                         println!("Could not define token space.")
                     }
                 }
-            } else {
-                // Draw an empty hex.
-                n18brush::draw_empty_hex(hex, ctx);
-            }
+            };
+
+            ctx.set_matrix(m);
         }
 
         n18brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
