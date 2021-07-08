@@ -5,10 +5,10 @@ use n18hex::{Hex, HexColour, HexFace, PI};
 use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
 
-/// A grid of hexes, each of which may contain a `Tile`.
+/// A grid of hexes, each of which may contain a [Tile].
 #[derive(Debug, PartialEq)]
 pub struct Map {
-    /// The tokens that might be placed on the map.
+    /// The tokens that can be placed on the map.
     tokens: Tokens,
     /// Barriers across which track cannot be built, or for which there is an
     /// additional cost (e.g., rivers).
@@ -46,10 +46,18 @@ impl Map {
         &self.tokens
     }
 
+    /// Returns the barriers across which track cannot be built, or for which
+    /// there is an additional cost (e.g., rivers).
+    ///
+    /// # Limitations
+    ///
+    /// Note that these barriers are currently cosmetic --- they are drawn but
+    /// do not prevent a route from being laid across them.
     pub fn barriers(&self) -> &[(HexAddress, HexFace)] {
         self.barriers.as_slice()
     }
 
+    /// Adds a new barrier to a single face of a specific map hex.
     pub fn add_barrier(&mut self, addr: HexAddress, face: HexFace) {
         self.barriers.push((addr, face))
     }
@@ -334,6 +342,17 @@ impl Map {
         self.state.remove(&addr);
     }
 
+    /// Defines labels for a specific map hex, such as [Label::Y] or
+    /// [Label::City], which are used to identify valid upgrade tiles.
+    ///
+    /// # Multiple labels
+    ///
+    /// If a hex has multiple labels, a tile is considered valid if it has at
+    /// least one label in common with the hex.
+    /// This allows, e.g., for both "O" tiles and "Y" tiles to be placed on
+    /// the Ottawa tile in 1867, regardless of the labels on the current tile
+    /// (i.e., you can place an "O" tile on top of a "Y" tile, if the hex has
+    /// both "O" and "Y" labels).
     pub fn add_label_at(&mut self, addr: HexAddress, label: Label) {
         self.labels_tbl
             .entry(addr)
@@ -341,10 +360,12 @@ impl Map {
             .push(label)
     }
 
-    pub fn labels_at(&self, addr: HexAddress) -> Option<&Vec<Label>> {
-        // TODO: these need to be drawn!?!
-        // Or will there always be a tile on this hex?
-        self.labels_tbl.get(&addr)
+    /// Returns the labels associated with the specified map hex.
+    pub fn labels_at(&self, addr: HexAddress) -> &[Label] {
+        self.labels_tbl
+            .get(&addr)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 
     /// Check whether a tile can be placed on an empty hex.
