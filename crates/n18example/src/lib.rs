@@ -103,7 +103,9 @@ impl Example {
                         eprintln!("No token for '{}'", tok.1);
                         eprintln!("Token names: {:?}", token_mgr.names());
                     }
-                    let token = token_opt.unwrap();
+                    let token = token_opt.unwrap_or_else(|| {
+                        panic!("No token for '{}'", tok.1)
+                    });
                     map_hex.set_token_at(&tok_spaces[tok.0], *token)
                 }
             }

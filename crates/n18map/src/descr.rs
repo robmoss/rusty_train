@@ -132,7 +132,9 @@ impl Descr {
                                 map.tokens().names()
                             );
                         }
-                        let token = token_opt.copied().unwrap();
+                        let token = token_opt.copied().unwrap_or_else(|| {
+                            panic!("No token for '{}'", token_name)
+                        });
                         (space_ix, token)
                     })
                     .collect();
