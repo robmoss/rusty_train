@@ -6,6 +6,7 @@ These keys perform the same action in any mode.
 |--------------------|--------------------------------------|
 | `q`, `Q`           | Quit                                 |
 | `s`, `S`           | Save a screenshot of the current map |
+| `Ctrl+n`, `Ctrl+N` | Load the starting map                |
 | `Ctrl+o`, `Ctrl+O` | Load a map from disk                 |
 | `Ctrl+s`, `Ctrl+S` | Save the current map to disk         |
 | `+`                | Zoom in                              |

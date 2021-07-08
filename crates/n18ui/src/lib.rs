@@ -242,6 +242,7 @@ pub enum ResetState {
 ///
 /// - `q`, `Q`: quit;
 /// - `s`, `S`: save a screenshot of the current map;
+/// - `Ctrl+n`, `Ctrl+N`: load the starting map.
 /// - `Ctrl+o`, `Ctrl+O`: load a map from disk.
 /// - `Ctrl+s`, `Ctrl+S`: save the current map to disk.
 pub fn global_keymap(
@@ -258,6 +259,11 @@ pub fn global_keymap(
         (gdk::keys::constants::q, false)
         | (gdk::keys::constants::Q, false) => {
             Some((ResetState::No, Inhibit(false), Action::Quit))
+        }
+        (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
+            // Revert to the starting map for this game.
+            content.map = content.game.create_map(&content.hex);
+            Some((ResetState::Yes, Inhibit(false), Action::Redraw))
         }
         (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
             match util::load_map(window, &mut content.map) {
