@@ -42,8 +42,53 @@ impl Map {
         self.tiles.as_slice()
     }
 
-    pub fn tokens(&self) -> &Tokens {
-        &self.tokens
+    /// Returns the abbreviated names associated with each token.
+    pub fn token_names(&self) -> &[String] {
+        self.tokens.names()
+    }
+
+    /// Returns the token with the given abbreviated name, if it exists.
+    pub fn try_token(&self, name: &str) -> Option<Token> {
+        self.tokens.get_token(name).copied()
+    }
+
+    /// Returns the token with the given abbreviated name.
+    ///
+    /// # Panics
+    ///
+    /// Panics if there is no token with the given name.
+    pub fn get_token(&self, name: &str) -> Token {
+        self.tokens.get_token(name).copied().unwrap_or_else(|| {
+            let valid_names = self.tokens.names();
+            if valid_names.is_empty() {
+                panic!(
+                    "Invalid token name '{}'; this map has no tokens",
+                    name
+                )
+            } else {
+                panic!(
+                    "No token with name '{}'; valid names are: '{}'",
+                    name,
+                    self.tokens.names().join("', '")
+                )
+            }
+        })
+    }
+
+    /// Returns the abbreviated name of the given token, if it exists.
+    pub fn try_token_name(&self, token: &Token) -> Option<&str> {
+        self.tokens.get_name(token)
+    }
+
+    /// Returns the abbreviated name of the given token.
+    ///
+    /// # Panics
+    ///
+    /// Panics if there is no such token.
+    pub fn get_token_name(&self, token: &Token) -> &str {
+        self.tokens
+            .get_name(token)
+            .unwrap_or_else(|| panic!("Unknown token {:?}", token))
     }
 
     /// Returns the barriers across which track cannot be built, or for which
@@ -765,14 +810,14 @@ impl<'a> Iterator for HexIter<'a> {
             Some(HexState {
                 addr,
                 tile_state,
-                available_tokens: &self.map.tokens(),
+                available_tokens: &self.map.tokens,
                 tile_rotation: hex_state.rotation.radians(),
             })
         } else {
             Some(HexState {
                 addr,
                 tile_state: None,
-                available_tokens: &self.map.tokens(),
+                available_tokens: &self.map.tokens,
                 tile_rotation: 0.0,
             })
         }

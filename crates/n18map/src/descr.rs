@@ -61,7 +61,7 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
         let tokens: Vec<_> = token_table
             .iter()
             .map(|(token_space, token)| {
-                let name = map.tokens().get_name(token).unwrap();
+                let name = map.get_token_name(token);
                 let ix = token_spaces
                     .iter()
                     .position(|ts| ts == token_space)
@@ -124,15 +124,12 @@ impl Descr {
                     .tokens
                     .iter()
                     .map(|(space_ix, token_name)| {
-                        let token_opt = map.tokens().get_token(token_name);
+                        let token_opt = map.try_token(token_name);
                         if token_opt.is_none() {
                             eprintln!("No token for '{}'", token_name);
-                            eprintln!(
-                                "Token names: {:?}",
-                                map.tokens().names()
-                            );
+                            eprintln!("Token names: {:?}", map.token_names());
                         }
-                        let token = token_opt.copied().unwrap_or_else(|| {
+                        let token = token_opt.unwrap_or_else(|| {
                             panic!("No token for '{}'", token_name)
                         });
                         (space_ix, token)
@@ -182,8 +179,7 @@ pub mod tests {
                     for (token_space, token) in tokens_table.iter() {
                         tile.define_token_space(&token_space, &hex, &ctx);
                         let rotn = hex_state.tile_rotation;
-                        let token_name =
-                            map.tokens().get_name(token).unwrap();
+                        let token_name = map.get_token_name(token);
                         token.draw(hex, ctx, token_name, rotn);
                     }
                 }

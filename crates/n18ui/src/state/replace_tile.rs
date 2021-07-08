@@ -105,7 +105,7 @@ impl State for ReplaceTile {
             if let Some(hs) = map_hex {
                 for (token_space, token) in hs.get_tokens() {
                     if tile.define_token_space(&token_space, &hex, ctx) {
-                        let tok_name = map.tokens().get_name(token);
+                        let tok_name = map.try_token_name(token);
                         if let Some(name) = tok_name {
                             token.draw(&hex, ctx, &name, rotn);
                         } else {

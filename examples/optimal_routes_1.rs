@@ -22,12 +22,13 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         bg: (66, 0, 0).into(),
         text: (255, 255, 255).into(),
     });
-    let tokens = vec![("A", token_a)];
+    let name_a = "A";
+    let tokens = vec![(name_a, token_a)];
 
     // $70 --- $100 (token) --- $100 --- $50
     let tiles = vec![
         tile_at("X6", "B2"),
-        tile_at("124", "C3").token(0, "A").rotate_acw(1),
+        tile_at("124", "C3").token(0, name_a).rotate_acw(1),
         tile_at("124", "C1").rotate_cw(2),
         tile_at("801", "D2"),
     ];
@@ -46,7 +47,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
 
     // Find all available routes, ignoring limits on the number of stops.
     let map = example.get_map();
-    let token = map.tokens().first_token();
+    let token = map.get_token(name_a);
     let criteria = Criteria {
         token,
         path_limit: None,

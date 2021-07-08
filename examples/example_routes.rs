@@ -34,27 +34,28 @@ fn main() -> Result<()> {
         bg: (66, 0, 0).into(),
         text: (255, 255, 255).into(),
     });
-    let tokens = vec![("A", token_a)];
+    let name_a = "A";
+    let tokens = vec![(name_a, token_a)];
     let tiles = vec![
-        tile_at("5", "A1").tokens(&[(0, "A")]),
+        tile_at("5", "A1").tokens(&[(0, name_a)]),
         tile_at("8", "B2").rotate_cw(4),
         tile_at("8", "C1").rotate_cw(1),
-        tile_at("6", "D2").rotate_cw(2).token(0, "A"),
+        tile_at("6", "D2").rotate_cw(2).token(0, name_a),
         tile_at("9", "A3"),
-        tile_at("6", "A5").rotate_cw(5).token(0, "A"),
+        tile_at("6", "A5").rotate_cw(5).token(0, name_a),
         tile_at("8", "B6").rotate_cw(4),
         tile_at("8", "C5").rotate_cw(1),
-        tile_at("6", "D6").rotate_cw(2).token(0, "A"),
+        tile_at("6", "D6").rotate_cw(2).token(0, name_a),
         tile_at("9", "D8"),
-        tile_at("5", "A9").token(0, "A"),
+        tile_at("5", "A9").token(0, name_a),
         tile_at("8", "B10").rotate_cw(4),
         tile_at("8", "C9").rotate_cw(1),
-        tile_at("5", "D10").rotate_cw(3).token(0, "A"),
+        tile_at("5", "D10").rotate_cw(3).token(0, name_a),
         tile_at("9", "A11"),
-        tile_at("6", "A13").rotate_cw(5).token(0, "A"),
+        tile_at("6", "A13").rotate_cw(5).token(0, name_a),
         tile_at("8", "B14").rotate_cw(4),
         tile_at("8", "C13").rotate_cw(1),
-        tile_at("6", "D14").rotate_cw(2).token(0, "A"),
+        tile_at("6", "D14").rotate_cw(2).token(0, name_a),
     ];
     let example = Example::new(hex_max_diameter, tokens, tiles);
 
@@ -76,7 +77,7 @@ fn main() -> Result<()> {
         .into_route();
 
     // Find the best route for an 8-train.
-    let token = map.tokens().first_token();
+    let token = map.get_token(name_a);
     let criteria = Criteria {
         token,
         path_limit: None,

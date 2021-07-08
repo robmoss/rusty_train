@@ -323,8 +323,7 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                     let tokens_table = hex_state.get_tokens();
                     for (token_space, map_token) in tokens_table.iter() {
                         if tile.define_token_space(&token_space, &hex, &ctx) {
-                            let name =
-                                map.tokens().get_name(&map_token).unwrap();
+                            let name = map.get_token_name(&map_token);
                             map_token.draw(&hex, &ctx, name, rotn);
                         } else {
                             println!("Could not define token space.")

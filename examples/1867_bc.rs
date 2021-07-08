@@ -272,12 +272,7 @@ fn game_state() -> GameState {
 
 fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
     let bonuses = vec![];
-    let token = example
-        .get_map()
-        .tokens()
-        .get_token(company.token_name)
-        .unwrap();
-    let token = *token;
+    let token = example.get_map().get_token(company.token_name);
     let path_limit = company.trains.path_limit();
     let criteria = Criteria {
         token,

@@ -89,24 +89,20 @@ impl Example {
     }
 
     pub fn place_tiles(&mut self, tiles: Vec<PlacedTile>) {
-        let token_mgr = self.map.tokens().clone();
         for tile in tiles {
             let addr = tile.addr.parse().unwrap();
             assert!(self.map.place_tile(addr, tile.name, tile.rotn));
             if !tile.toks.is_empty() {
                 let hex_tile = self.map.tile_at(addr).unwrap();
                 let tok_spaces = hex_tile.token_spaces();
+                let place_toks: Vec<(usize, Token)> = tile
+                    .toks
+                    .iter()
+                    .map(|(ix, name)| (*ix, self.map.get_token(name)))
+                    .collect();
                 let map_hex = self.map.get_hex_mut(addr).unwrap();
-                for tok in &tile.toks {
-                    let token_opt = token_mgr.get_token(tok.1);
-                    if token_opt.is_none() {
-                        eprintln!("No token for '{}'", tok.1);
-                        eprintln!("Token names: {:?}", token_mgr.names());
-                    }
-                    let token = token_opt.unwrap_or_else(|| {
-                        panic!("No token for '{}'", tok.1)
-                    });
-                    map_hex.set_token_at(&tok_spaces[tok.0], *token)
+                for (ix, token) in place_toks.into_iter() {
+                    map_hex.set_token_at(&tok_spaces[ix], token)
                 }
             }
         }
@@ -318,28 +314,6 @@ impl<'a> PlacedTile<'a> {
         }
         self
     }
-}
-
-pub fn create_map(hex: &Hex, tiles: &[PlacedTile], tokens: Tokens) -> Map {
-    let catalogue = n18catalogue::tile_catalogue(hex);
-    let hexes: Vec<HexAddress> =
-        tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
-    let map_tokens = tokens.clone();
-    let mut map = Map::new(catalogue, map_tokens, hexes);
-    for tile in tiles {
-        let addr = tile.addr.parse().unwrap();
-        assert!(map.place_tile(addr, tile.name, tile.rotn));
-        if !tile.toks.is_empty() {
-            let hex_tile = map.tile_at(addr).unwrap();
-            let tok_spaces = hex_tile.token_spaces();
-            let map_hex = map.get_hex_mut(addr).unwrap();
-            for tok in &tile.toks {
-                let token = tokens.get_token(tok.1).unwrap();
-                map_hex.set_token_at(&tok_spaces[tok.0], *token)
-            }
-        }
-    }
-    map
 }
 
 pub struct Label<'a> {

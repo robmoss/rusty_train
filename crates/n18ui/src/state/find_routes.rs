@@ -33,7 +33,7 @@ impl FindRoutes {
 
         // Identify the company name and token.
         let abbrev = &companies[ix].abbrev;
-        let token = content.map.tokens().get_token(abbrev)?;
+        let token = content.map.try_token(abbrev)?;
 
         // Select the company trains and bonuses.
         // Note: use &* because Box<T> implements Deref<Target = T>.
@@ -42,7 +42,7 @@ impl FindRoutes {
             select_trains(window, &*content.game, abbrev)?;
 
         // Find the best routes.
-        let best_routes = best_routes_for(content, token, trains, bonuses);
+        let best_routes = best_routes_for(content, &token, trains, bonuses);
 
         // Update the window title.
         let original_window_title =
@@ -64,7 +64,7 @@ fn valid_companies(content: &Content) -> Vec<&Company> {
     let placed = content.map.unique_placed_tokens();
     let placed_names: Vec<&str> = placed
         .iter()
-        .filter_map(|token| content.map.tokens().get_name(token))
+        .filter_map(|token| content.map.try_token_name(token))
         .collect();
     let companies: Vec<&Company> = companies
         .iter()
@@ -187,8 +187,7 @@ impl State for FindRoutes {
             ctx,
             &mut hex_iter,
             |_addr, _tile, _token_space, token| {
-                map.tokens()
-                    .get_name(&token)
+                map.try_token_name(&token)
                     .map(|name| name == self.abbrev)
                     .unwrap_or(false)
             },
