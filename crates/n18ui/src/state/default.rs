@@ -1,3 +1,4 @@
+//! Selects tiles and switches to editing and route-finding modes.
 use cairo::Context;
 use gtk::Inhibit;
 use log::info;

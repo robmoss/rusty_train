@@ -1,3 +1,37 @@
+//! Replaces the current tile in a hex (if any) with another tile.
+//!
+//! This mode allows the user to step through available tiles and select one
+//! to replace the current tile.
+//!
+//! # Placed tokens
+//!
+//! This mode attempts to draw all of the tokens placed on the original tile.
+//! Replacement tiles may not have a token space to match each token space on
+//! the original tile, and so not all of the placed tokens may be drawn.
+//! Note that each token space is identified by two indices: one for the city
+//! and one for the token space in that city.
+//! So even if the replacement tile has a sufficient number of token spaces,
+//! it isn't clear how to identify an appropriate "equivalent" token space.
+//!
+//! For now, this mode only draws tokens for which there is a matching token
+//! space (i.e., a matching city index and a matching token index).
+//!
+//! Once a replacement tile has been selected, the user may need to manually
+//! place tokens on this tile.
+//!
+//! # Upgrading tiles
+//!
+//! This mode allows the user to replace a tile with any available tile, and
+//! does not enforce any criteria for upgrade tiles.
+//! Note that 18xx games may involve one of three
+//! [different criteria](https://www.railsonboards.com/2020/12/26/permissive-restrictive-semi-restrictive-what-it-means/):
+//! permissive, semi-restrictive, and restrictive.
+//!
+//! To support any or all of these criteria, this mode would need to record
+//! the current tile's connections (including tokens) and only accept a
+//! replacement tile if it satisfies all of these connections with its chosen
+//! rotation.
+
 use super::{Action, State};
 
 use cairo::Context;
@@ -65,20 +99,11 @@ impl State for ReplaceTile {
             let tile = &map.tiles()[tile_ix];
             tile.draw(ctx, hex);
 
-            // Draw any tokens that have been placed.
-            // NOTE: the replacement tile may not have a matching token space;
-            // when editing a tile there may be fewer token spaces, and when
-            // upgrading there may be fewer cities --- and the token_space is
-            // linked to the city index.
-            //
-            // So we really need to identify an appropriate "equivalent" token
-            // space, if one exists.
-            //
-            // For now, this only draws the token if there is a matching space
-            // (i.e., matching city index and token index).
+            // Draw any tokens that have been placed, if there is a matching
+            // token space (i.e., matching city index and token index).
+            // See the module doc comment, above, for details.
             if let Some(hs) = map_hex {
                 for (token_space, token) in hs.get_tokens() {
-                    // Determine if the tile has a matching token space.
                     if tile.define_token_space(&token_space, &hex, ctx) {
                         let tok_name = map.tokens().get_name(token);
                         if let Some(name) = tok_name {

@@ -1,3 +1,4 @@
+//! Searches for the best routes that a company can operate.
 use super::{Action, State};
 
 use cairo::Context;

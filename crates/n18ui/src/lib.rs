@@ -1,7 +1,7 @@
-//! The `UI` struct encapsulates event handling, and draws the map on a
+//! The [UI] struct encapsulates event handling, and draws the map on a
 //! `gtk::DrawingArea` widget.
 //!
-//! See the `rusty_train` code for an example of how to use the `UI` struct.
+//! See the `rusty_train` code for an example of how to use the [UI] struct.
 //!
 use cairo::Context;
 use gtk::{GtkWindowExt, Inhibit, WidgetExt};

@@ -1,3 +1,4 @@
+//! Adds and removes tokens from the current tile.
 use super::{Action, State};
 
 use cairo::Context;
