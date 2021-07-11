@@ -6,7 +6,7 @@ use gtk::{GtkWindowExt, Inhibit};
 
 use log::info;
 
-use crate::dialog::{select_company, select_trains};
+use crate::dialog::{select_item, select_trains};
 use crate::Content;
 use n18game::Company;
 use n18map::HexAddress;
@@ -29,7 +29,9 @@ impl FindRoutes {
     ) -> Option<Self> {
         // Select a company from those that have placed tokens on the map.
         let companies = valid_companies(content);
-        let ix = select_company(window, &companies)?;
+        let company_names: Vec<&str> =
+            companies.iter().map(|c| c.full_name.as_str()).collect();
+        let ix = select_item(window, "Select a company", &company_names)?;
 
         // Identify the company name and token.
         let abbrev = &companies[ix].abbrev;

@@ -1,21 +1,20 @@
 use gtk::prelude::*;
 use std::collections::HashMap;
 
-use n18game::{Company, Game};
+use n18game::Game;
 use n18route::{Train, Trains};
 
-/// A dialog for selecting a company.
-pub struct CompanyDialog<'a> {
+/// A dialog for selecting one item from a list.
+pub struct SelectItemDialog {
     pub dialog: gtk::Dialog,
-    companies: &'a [&'a Company],
     list: gtk::ListBox,
 }
 
-impl<'a> CompanyDialog<'a> {
+impl SelectItemDialog {
     pub fn new(
         parent: &gtk::ApplicationWindow,
-        companies: &'a [&'a Company],
-        title: &'a str,
+        title: &str,
+        items: &[&str],
     ) -> Self {
         let buttons = [
             ("OK", gtk::ResponseType::Accept),
@@ -32,38 +31,36 @@ impl<'a> CompanyDialog<'a> {
         let padding = 4;
         let content = dialog.get_content_area();
 
+        let title_label = gtk::Label::new(Some(title));
+
         // Display the companies as a list.
         let list = gtk::ListBoxBuilder::new()
             .selection_mode(gtk::SelectionMode::Browse)
             .activate_on_single_click(false)
             .margin(4)
             .build();
-        companies.iter().for_each(|c| {
-            let company_label = gtk::Label::new(Some(&c.full_name));
-            list.add(&company_label);
+        items.iter().for_each(|item| {
+            let item_label = gtk::Label::new(Some(item));
+            list.add(&item_label);
         });
-        // Select the first company.
+        // Select the first item.
         list.select_row(list.get_row_at_index(0).as_ref());
-        // Make activating a row pick the active company and close the dialog.
+        // Make activating a row pick the active item and close the dialog.
         let dlg = dialog.clone();
         list.connect_row_activated(move |_, _| {
             dlg.response(gtk::ResponseType::Accept)
         });
+        content.pack_start(&title_label, true, false, padding);
         content.pack_start(&list, true, false, padding);
         dialog.show_all();
 
-        CompanyDialog {
-            dialog,
-            companies,
-            list,
-        }
+        SelectItemDialog { dialog, list }
     }
 
     fn get_selected_ix(&self) -> Option<usize> {
-        self.list.get_selected_row().and_then(|row| {
-            let ix = row.get_index() as usize;
-            self.companies.get(ix).map(|_| ix)
-        })
+        self.list
+            .get_selected_row()
+            .map(|row| row.get_index() as usize)
     }
 
     pub fn run(&self) -> Option<usize> {
@@ -77,13 +74,17 @@ impl<'a> CompanyDialog<'a> {
     }
 }
 
-/// Display a company-selection dialog and return the selected company.
-pub fn select_company<'a>(
+/// Display an item-selection dialog and return the selected item index.
+pub fn select_item<'a>(
     parent: &gtk::ApplicationWindow,
-    companies: &'a [&'a Company],
+    title: &str,
+    items: &'a [&'a str],
 ) -> Option<usize> {
-    let cd = CompanyDialog::new(parent, companies, "Select Company");
-    cd.run()
+    if items.is_empty() {
+        return None;
+    }
+    let dlg = SelectItemDialog::new(parent, title, items);
+    dlg.run()
 }
 
 /// A dialog for selecting trains and options that provide route bonuses.
