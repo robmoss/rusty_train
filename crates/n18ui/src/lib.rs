@@ -19,11 +19,55 @@ pub mod util;
 
 use state::State;
 
+/// Ordered collections of available games.
+pub struct Games {
+    games: Vec<Box<dyn Game>>,
+    game_ix: usize,
+}
+
+impl Games {
+    /// Creates a collection of games.
+    pub fn new(games: Vec<Box<dyn Game>>) -> Self {
+        Games { games, game_ix: 0 }
+    }
+
+    /// Returns a reference to the active game.
+    pub fn active(&self) -> &dyn Game {
+        &*self.games[self.game_ix]
+    }
+
+    /// Returns a mutable reference to the active game.
+    pub fn active_mut(&mut self) -> &mut dyn Game {
+        &mut *self.games[self.game_ix]
+    }
+
+    /// Returns the name of each game in the collection.
+    pub fn names(&self) -> Vec<&str> {
+        self.games.iter().map(|g| g.name()).collect()
+    }
+
+    /// Returns an iterator over the games in the collection.
+    pub fn iter(&self) -> impl Iterator<Item = &dyn Game> {
+        // Note: de-reference &Box twice to obtain a dyn Game value.
+        self.games.iter().map(|g| &**g)
+    }
+
+    /// Changes the active game.
+    pub fn set_active(&mut self, ix: usize) -> bool {
+        if ix < self.games.len() {
+            self.game_ix = ix;
+            true
+        } else {
+            false
+        }
+    }
+}
+
 /// Defines the non-UI game state components.
 pub struct Content {
     hex: Hex,
     map: Map,
-    game: Box<dyn Game>,
+    games: Games,
 }
 
 /// Defines the current state of the user interface.
@@ -59,10 +103,11 @@ pub enum Action {
 
 impl UI {
     /// Creates the initial user interface state.
-    pub fn new(hex: Hex, game: Box<dyn Game>, map: Map) -> Self {
+    pub fn new(hex: Hex, games: Vec<Box<dyn Game>>, map: Map) -> Self {
         let b: Box<dyn State> = Box::new(state::default::Default::new(&map));
         let state = Some(b);
-        let content = Content { hex, map, game };
+        let games = Games::new(games);
+        let content = Content { hex, map, games };
         UI { content, state }
     }
 
@@ -261,9 +306,22 @@ pub fn global_keymap(
             Some((ResetState::No, Inhibit(false), Action::Quit))
         }
         (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
-            // Revert to the starting map for this game.
-            content.map = content.game.create_map(&content.hex);
-            Some((ResetState::Yes, Inhibit(false), Action::Redraw))
+            // Prompt the user to select a game, and load its starting map.
+            let game_names: Vec<&str> = content.games.names();
+            let ix_opt =
+                dialog::select_item(window, "Select a game", &game_names);
+            if let Some(ix) = ix_opt {
+                if content.games.set_active(ix) {
+                    content.map =
+                        content.games.active().create_map(&content.hex);
+                    return Some((
+                        ResetState::Yes,
+                        Inhibit(false),
+                        Action::Redraw,
+                    ));
+                }
+            }
+            Some((ResetState::No, Inhibit(false), Action::None))
         }
         (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
             match util::load_map(window, &mut content.map) {

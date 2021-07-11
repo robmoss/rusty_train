@@ -41,7 +41,7 @@ impl FindRoutes {
         // Note: use &* because Box<T> implements Deref<Target = T>.
         // So &*content.game converts from Box<dyn Game> to &dyn Game.
         let (trains, bonuses) =
-            select_trains(window, &*content.game, abbrev)?;
+            select_trains(window, content.games.active(), abbrev)?;
 
         // Find the best routes.
         let best_routes = best_routes_for(content, &token, trains, bonuses);
@@ -62,7 +62,7 @@ impl FindRoutes {
 
 /// Returns the companies that have placed tokens on the map.
 fn valid_companies(content: &Content) -> Vec<&Company> {
-    let companies = content.game.companies();
+    let companies = content.games.active().companies();
     let placed = content.map.unique_placed_tokens();
     let placed_names: Vec<&str> = placed
         .iter()
@@ -125,7 +125,7 @@ fn best_routes_for(
     );
     let now = std::time::Instant::now();
     // Determine the route bonuses that may apply.
-    let bonuses = content.game.get_bonuses(&bonus_options);
+    let bonuses = content.games.active().get_bonuses(&bonus_options);
     let best_routes = trains.select_routes(paths, bonuses);
     info!(
         "Calculated (train, path) revenues in {}",

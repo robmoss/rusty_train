@@ -122,7 +122,7 @@ impl State for EditTokens {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
-                let game = &content.game;
+                let game = content.games.active();
                 if let Some(hs) = map.get_hex_mut(self.active_hex) {
                     let next: &Token = hs
                         .get_token_at(token_space)
@@ -136,7 +136,7 @@ impl State for EditTokens {
                 let token_space = &self.token_spaces[self.selected];
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
-                let game = &content.game;
+                let game = content.games.active();
                 if let Some(hs) = map.get_hex_mut(self.active_hex) {
                     let next: &Token = hs
                         .get_token_at(token_space)

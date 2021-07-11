@@ -21,11 +21,12 @@ pub fn build_ui(application: &gtk::Application) {
     let sh = (num_rows as i32) * hex_width;
 
     let game_box = Box::new(game);
+    let games: Vec<Box<dyn Game>> = vec![game_box];
 
     // NOTE: instead of using Rc<RefCell<UI>> to share a mutable UI value, use
     // channels to send messages to a single event-handler that owns and
     // mutates the UI state.
-    let state = UI::new(hex, game_box, map);
+    let state = UI::new(hex, games, map);
     run(application, state, sw, sh);
 }
 

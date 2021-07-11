@@ -68,10 +68,15 @@ impl State for Default {
             gdk::keys::constants::p | gdk::keys::constants::P => {
                 // Note: use &* because Box<T> implements Deref<Target = T>.
                 // So &*content.game converts from Box<dyn Game> to &dyn Game.
-                let phase_opt =
-                    crate::dialog::select_phase(window, &*content.game);
+                let phase_opt = crate::dialog::select_phase(
+                    window,
+                    content.games.active(),
+                );
                 if let Some(phase) = phase_opt {
-                    content.game.set_phase_ix(&mut content.map, phase);
+                    content
+                        .games
+                        .active_mut()
+                        .set_phase_ix(&mut content.map, phase);
                     (self, Inhibit(false), Action::Redraw)
                 } else {
                     (self, Inhibit(false), Action::None)
