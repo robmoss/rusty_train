@@ -701,6 +701,7 @@ dependencies = [
  "gtk",
  "log",
  "n18brush",
+ "n18example",
  "n18game",
  "n18hex",
  "n18io",

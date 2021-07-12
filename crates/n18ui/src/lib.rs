@@ -85,6 +85,8 @@ pub enum Action {
     Quit,
     /// Redraw the surface.
     Redraw,
+    /// Resize the drawing area and redraw the surface.
+    Resize,
     /// Increase the hex size.
     ZoomIn,
     /// Decrease the hex size.
@@ -103,12 +105,31 @@ pub enum Action {
 
 impl UI {
     /// Creates the initial user interface state.
-    pub fn new(hex: Hex, games: Vec<Box<dyn Game>>, map: Map) -> Self {
-        let b: Box<dyn State> = Box::new(state::default::Default::new(&map));
+    pub fn new(hex: Hex, games: Vec<Box<dyn Game>>) -> Self {
+        let init_state = state::start::Start::new();
+        let map = init_state.dummy_map();
+        let b: Box<dyn State> = Box::new(init_state);
         let state = Some(b);
         let games = Games::new(games);
         let content = Content { hex, map, games };
         UI { content, state }
+    }
+
+    /// Returns the dimensions of the current game map, in pixels.
+    pub fn map_size(&self) -> (f64, f64) {
+        // NOTE: margin is defined in Map::prepare_to_draw().
+        let margin = 10.0;
+        let num_rows =
+            self.content.map.max_row - self.content.map.min_row + 1;
+        let num_cols =
+            self.content.map.max_col - self.content.map.min_col + 1;
+        // After the first column, each column contributes 0.75 * max_d.
+        let width =
+            self.content.hex.max_d * (1.0 + ((num_cols - 1) as f64) * 0.75);
+        // Each row is 1.5 * min_d in height, if it contains hexes with both
+        // odd and even column numbers.
+        let height = (num_rows as f64 + 0.5) * self.content.hex.min_d;
+        (width + 2.0 * margin, height + 2.0 * margin)
     }
 
     /// Draws the current state of the user interface.
@@ -121,6 +142,18 @@ impl UI {
             ctx.fill();
             state.draw(&self.content, ctx);
         }
+    }
+
+    /// Requests the drawing area to update its size, and redraws the current
+    /// game state.
+    fn resize_and_redraw(&self, area: &gtk::DrawingArea, ctx: &Context) {
+        let dims = self.map_size();
+        let width = dims.0 as i32;
+        let height = dims.1 as i32;
+        area.set_size_request(width, height);
+        // NOTE: must redraw to the backing surface.
+        self.draw(ctx);
+        area.queue_draw();
     }
 
     pub fn handle_action(
@@ -136,16 +169,7 @@ impl UI {
                     // NOTE: may need to increase surface, draw area size?
                     self.content.hex =
                         Hex::new(self.content.hex.max_d + 10.0);
-                    let surf_w = ((self.content.map.max_col as f64)
-                        * self.content.hex.min_d)
-                        as i32;
-                    let surf_h = ((self.content.map.max_row as f64)
-                        * self.content.hex.max_d)
-                        as i32;
-                    area.set_size_request(surf_w, surf_h);
-                    // NOTE: must redraw to the backing surface.
-                    self.draw(ctx);
-                    area.queue_draw();
+                    self.resize_and_redraw(area, ctx);
                 }
             }
             Action::ZoomOut => {
@@ -153,22 +177,19 @@ impl UI {
                     // NOTE: may need to decrease surface, draw area size?
                     self.content.hex =
                         Hex::new(self.content.hex.max_d - 10.0);
-                    let surf_w = ((self.content.map.max_col as f64)
-                        * self.content.hex.min_d)
-                        as i32;
-                    let surf_h = ((self.content.map.max_row as f64)
-                        * self.content.hex.max_d)
-                        as i32;
-                    area.set_size_request(surf_w, surf_h);
-                    // NOTE: must redraw to the backing surface.
-                    self.draw(ctx);
-                    area.queue_draw();
+                    self.resize_and_redraw(area, ctx);
                 }
             }
             Action::Redraw => {
                 // NOTE: must redraw to the backing surface.
                 self.draw(ctx);
                 area.queue_draw();
+            }
+            Action::Resize => {
+                // NOTE: request this size request is only required when the
+                // game map has been replaced (e.g., by starting a new game or
+                // by loading a saved game).
+                self.resize_and_redraw(area, ctx);
             }
             Action::Quit => {
                 window.close();
@@ -318,7 +339,7 @@ pub fn global_keymap(
                     return Some((
                         ResetState::Yes,
                         Inhibit(false),
-                        Action::Redraw,
+                        Action::Resize,
                     ));
                 }
             }

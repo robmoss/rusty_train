@@ -13,12 +13,6 @@ pub fn build_ui(application: &gtk::Application) {
     let hex_width: i32 = 125;
     let hex = Hex::new(hex_width as f64);
     let game = n18game::_1867::Game::new(&hex);
-    let map = game.create_map(&hex);
-
-    let num_rows = map.max_row;
-    let num_cols = map.max_col;
-    let sw = ((num_cols as f64) * hex.min_d) as i32;
-    let sh = (num_rows as i32) * hex_width;
 
     let game_box = Box::new(game);
     let games: Vec<Box<dyn Game>> = vec![game_box];
@@ -26,8 +20,8 @@ pub fn build_ui(application: &gtk::Application) {
     // NOTE: instead of using Rc<RefCell<UI>> to share a mutable UI value, use
     // channels to send messages to a single event-handler that owns and
     // mutates the UI state.
-    let state = UI::new(hex, games, map);
-    run(application, state, sw, sh);
+    let state = UI::new(hex, games);
+    run(application, state);
 }
 
 pub fn main() {
@@ -63,18 +57,19 @@ pub enum UiEvent {
     KeyPress { event: gdk::EventKey },
 }
 
-pub fn run(
-    application: &gtk::Application,
-    mut state: UI,
-    width: i32,
-    height: i32,
-) {
+pub fn run(application: &gtk::Application, mut state: UI) {
     let window = gtk::ApplicationWindow::new(application);
     let bar = gtk::HeaderBar::new();
     let adj: Option<&gtk::Adjustment> = None;
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
 
+    let dims = state.map_size();
+    let width = dims.0 as i32;
+    let height = dims.1 as i32;
+
+    // NOTE: this image surface, which has fixed dimensions, will be used to
+    // draw all game maps.
     let surf = cairo::ImageSurface::create(
         cairo::Format::ARgb32,
         width * 2,
@@ -84,7 +79,7 @@ pub fn run(
     let state_ctx = cairo::Context::new(&surf);
 
     state_ctx.set_source_rgb(1.0, 1.0, 1.0);
-    state_ctx.rectangle(0.0, 0.0, 2.0 * width as f64, 2.0 * height as f64);
+    state_ctx.rectangle(0.0, 0.0, 2.0 * dims.0, 2.0 * dims.1);
     state_ctx.fill();
     state.draw(&state_ctx);
 
