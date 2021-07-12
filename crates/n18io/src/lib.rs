@@ -3644,6 +3644,62 @@ pub fn write_map_descr<P: AsRef<Path>>(
     Ok(())
 }
 
+#[derive(Serialize, Deserialize)]
+struct GameState {
+    /// A unique identifier for the game.
+    game: String,
+    /// The current game phase.
+    phase: String,
+    /// The current map state.
+    map: Descr,
+}
+
+impl From<GameState> for n18game::GameState {
+    fn from(src: GameState) -> Self {
+        n18game::GameState {
+            game: src.game,
+            phase: src.phase,
+            map: (&src.map).into(),
+        }
+    }
+}
+
+impl From<n18game::GameState> for GameState {
+    fn from(src: n18game::GameState) -> Self {
+        GameState {
+            game: src.game,
+            phase: src.phase,
+            map: (&src.map).into(),
+        }
+    }
+}
+
+/// Reads a game state from disk.
+pub fn read_game_state<P: AsRef<Path>>(
+    path: P,
+) -> Result<n18game::GameState, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let game_state: GameState = serde_json::from_reader(reader)?;
+    Ok(game_state.into())
+}
+
+/// Writes a game state to disk.
+pub fn write_game_state<P: AsRef<Path>>(
+    path: P,
+    game_state: n18game::GameState,
+    pretty: bool,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(path)?;
+    let game_state: GameState = game_state.into();
+    if pretty {
+        serde_json::to_writer_pretty(file, &game_state)?;
+    } else {
+        serde_json::to_writer(file, &game_state)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

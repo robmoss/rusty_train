@@ -258,4 +258,38 @@ pub trait Game {
             false
         }
     }
+
+    /// Returns a snapshot of the game state.
+    fn save(&self, map: &Map) -> GameState {
+        GameState {
+            game: self.name().to_string(),
+            phase: self.current_phase_name().to_string(),
+            map: map.into(),
+        }
+    }
+
+    /// Loads a game state and returns the game map.
+    ///
+    /// Note that this also updates the game phase.
+    fn load(&mut self, hex: &Hex, state: GameState) -> Option<Map> {
+        if state.game != self.name() {
+            return None;
+        }
+        let mut map = self.create_map(hex);
+        if !self.set_phase_name(&mut map, &state.phase) {
+            return None;
+        }
+        state.map.update_map(&mut map);
+        Some(map)
+    }
+}
+
+/// Describes the current game state.
+pub struct GameState {
+    /// A unique identifier for the game.
+    pub game: String,
+    /// The current game phase.
+    pub phase: String,
+    /// The current map state.
+    pub map: n18map::descr::Descr,
 }

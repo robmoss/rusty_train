@@ -5,7 +5,7 @@ use cairo::{Context, Format, ImageSurface};
 use gtk::{FileChooserExt, NativeDialogExt, WidgetExt};
 
 use super::Content;
-use n18map::Map;
+use n18game::GameState;
 
 /// Prompt the user to select a file to which data will be saved.
 pub fn save_file_dialog(
@@ -118,50 +118,66 @@ pub fn save_screenshot<S: State + ?Sized>(
     Ok(Action::Redraw)
 }
 
-/// Prompt the user to save the current map state.
-pub fn save_map(
+/// Prompt the user to save the current game state.
+pub fn save_game(
     window: &gtk::ApplicationWindow,
-    map: &mut Map,
+    game_state: GameState,
 ) -> Result<Action, Box<dyn std::error::Error>> {
-    let filter_map = gtk::FileFilter::new();
-    filter_map.set_name(Some("Map files"));
-    filter_map.add_pattern("*.map");
+    let filter_game = gtk::FileFilter::new();
+    filter_game.set_name(Some("Game files"));
+    filter_game.add_pattern("*.game");
     let filter_all = gtk::FileFilter::new();
     filter_all.set_name(Some("All files"));
     filter_all.add_pattern("*");
-    let filters = vec![&filter_map, &filter_all];
-    let dest_file =
-        save_file_dialog(window, "Save map state", &filters, None);
+    let filters = vec![&filter_game, &filter_all];
+    let dest_file = save_file_dialog(window, "Save game", &filters, None);
     let dest_file = if let Some(dest) = dest_file {
         dest
     } else {
         return Ok(Action::None);
     };
-    let descr: n18map::descr::Descr = (&*map).into();
-    n18io::write_map_descr(dest_file, &descr, true)?;
+    n18io::write_game_state(dest_file, game_state, true)?;
     Ok(Action::None)
 }
 
-/// Prompt the user to load a previously-saved map state.
-pub fn load_map(
+/// Prompt the user to load a previously-saved game state.
+pub fn load_game(
     window: &gtk::ApplicationWindow,
-    map: &mut Map,
+    content: &mut Content,
 ) -> Result<Action, Box<dyn std::error::Error>> {
-    let filter_map = gtk::FileFilter::new();
-    filter_map.set_name(Some("Map files"));
-    filter_map.add_pattern("*.map");
+    let filter_game = gtk::FileFilter::new();
+    filter_game.set_name(Some("Game files"));
+    filter_game.add_pattern("*.game");
     let filter_all = gtk::FileFilter::new();
     filter_all.set_name(Some("All files"));
     filter_all.add_pattern("*");
-    let filters = vec![&filter_map, &filter_all];
-    let dest_file =
-        open_file_dialog(window, "Load map state", &filters, None);
+    let filters = vec![&filter_game, &filter_all];
+    let dest_file = open_file_dialog(window, "Load game", &filters, None);
     let dest_file = if let Some(dest) = dest_file {
         dest
     } else {
         return Ok(Action::None);
     };
-    let descr = n18io::read_map_descr(dest_file)?;
-    descr.update_map(map);
-    Ok(Action::Redraw)
+    let game_state = n18io::read_game_state(dest_file)?;
+    let game_opt: Option<usize> =
+        content.games.games.iter().enumerate().find_map(|(ix, g)| {
+            if g.name() == game_state.game {
+                Some(ix)
+            } else {
+                None
+            }
+        });
+    if let Some(ix) = game_opt {
+        content.games.set_active(ix);
+        if let Some(new_map) =
+            content.games.active_mut().load(&content.hex, game_state)
+        {
+            content.map = new_map;
+            Ok(Action::Redraw)
+        } else {
+            Ok(Action::None)
+        }
+    } else {
+        Ok(Action::None)
+    }
 }

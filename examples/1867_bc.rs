@@ -25,6 +25,7 @@ use output::Dir;
 /// The state of the 1867 game.
 pub struct GameState {
     example: Example,
+    game: Box<dyn Game>,
     companies: Vec<CompanyInfo>,
 }
 
@@ -93,6 +94,12 @@ fn save_1867_bc_routes(
     let descr: navig18xx::map::Descr = state.example.get_map().into();
     info!("Writing {} ...", dest_file.to_str().unwrap());
     navig18xx::io::write_map_descr(dest_file, &descr, true)?;
+
+    // Save the game state.
+    let state_file = json_dir.join("1867_bc.game");
+    let game_state = state.game.save(state.example.get_map());
+    info!("Writing {} ...", state_file.to_str().unwrap());
+    navig18xx::io::write_game_state(state_file, game_state, true)?;
 
     // Save an image of the map prior to drawing any routes.
     state.example.draw_map();
@@ -267,7 +274,12 @@ fn game_state() -> GameState {
         },
     ];
 
-    GameState { example, companies }
+    let game: Box<dyn Game> = Box::new(game);
+    GameState {
+        example,
+        game,
+        companies,
+    }
 }
 
 fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {

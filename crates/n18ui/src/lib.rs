@@ -324,7 +324,7 @@ pub fn global_keymap(
             Some((ResetState::No, Inhibit(false), Action::None))
         }
         (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
-            match util::load_map(window, &mut content.map) {
+            match util::load_game(window, content) {
                 Ok(action) => {
                     let reset = match action {
                         Action::None => ResetState::No,
@@ -339,7 +339,8 @@ pub fn global_keymap(
             }
         }
         (gdk::keys::constants::s, true) | (gdk::keys::constants::S, true) => {
-            match util::save_map(window, &mut content.map) {
+            let game_state = content.games.active().save(&content.map);
+            match util::save_game(window, game_state) {
                 Ok(action) => {
                     let reset = match action {
                         Action::None => ResetState::No,
