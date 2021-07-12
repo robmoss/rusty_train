@@ -314,6 +314,7 @@ pub fn global_keymap(
                 if content.games.set_active(ix) {
                     content.map =
                         content.games.active().create_map(&content.hex);
+                    window.set_title(content.games.active().name());
                     return Some((
                         ResetState::Yes,
                         Inhibit(false),
@@ -330,6 +331,7 @@ pub fn global_keymap(
                         Action::None => ResetState::No,
                         _ => ResetState::Yes,
                     };
+                    window.set_title(content.games.active().name());
                     Some((reset, Inhibit(false), action))
                 }
                 Err(error) => {
