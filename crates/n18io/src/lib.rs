@@ -3213,14 +3213,14 @@ impl Default for TileRotation {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Token {
+struct Token {
     pub style: TokenStyle,
     pub x_pcnt: usize,
     pub y_pcnt: usize,
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum TokenStyle {
+enum TokenStyle {
     SideArcs {
         bg: TokenColour,
         fg: TokenColour,
@@ -3276,7 +3276,7 @@ pub enum TokenStyle {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct TokenColour {
+struct TokenColour {
     pub red: usize,
     pub green: usize,
     pub blue: usize,
