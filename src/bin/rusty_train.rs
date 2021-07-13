@@ -64,7 +64,7 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
 
-    let (width, height) = state.map_size().unwrap();
+    let (width, height) = state.map_size();
 
     bar.set_title(Some("Rusty Train"));
     bar.set_decoration_layout(Some("menu:close"));

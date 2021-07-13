@@ -136,25 +136,25 @@ impl State for ReplaceTile {
     }
 
     fn key_press(
-        mut self: Box<Self>,
+        &mut self,
         content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Box<dyn State>, Inhibit, Action) {
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let map = &mut content.map;
         let key = event.get_keyval();
         match key {
             gdk::keys::constants::Escape => (
-                Box::new(super::default::Default::at_hex(Some(
+                Some(Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
-                ))),
+                )))),
                 Inhibit(false),
                 Action::Redraw,
             ),
             gdk::keys::constants::Return => {
                 if self.show_original {
-                    (self, Inhibit(false), Action::None)
+                    (None, Inhibit(false), Action::None)
                 } else {
                     // Replace the original tile with the current selection.
                     let tile_ix = self.candidates[self.selected];
@@ -165,8 +165,8 @@ impl State for ReplaceTile {
                         self.rotation,
                     );
                     (
-                        Box::new(super::default::Default::at_hex(Some(
-                            self.active_hex,
+                        Some(Box::new(super::default::Default::at_hex(
+                            Some(self.active_hex),
                         ))),
                         Inhibit(false),
                         Action::Redraw,
@@ -175,50 +175,50 @@ impl State for ReplaceTile {
             }
             gdk::keys::constants::o | gdk::keys::constants::O => {
                 self.show_original = !self.show_original;
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Up => {
                 if self.show_original {
-                    (self, Inhibit(false), Action::None)
+                    (None, Inhibit(false), Action::None)
                 } else {
                     if self.selected == 0 {
                         self.selected = self.candidates.len() - 1
                     } else {
                         self.selected -= 1
                     }
-                    (self, Inhibit(false), Action::Redraw)
+                    (None, Inhibit(false), Action::Redraw)
                 }
             }
             gdk::keys::constants::Down => {
                 if self.show_original {
-                    (self, Inhibit(false), Action::None)
+                    (None, Inhibit(false), Action::None)
                 } else {
                     self.selected += 1;
                     if self.selected >= self.candidates.len() {
                         self.selected = 0;
                     }
-                    (self, Inhibit(false), Action::Redraw)
+                    (None, Inhibit(false), Action::Redraw)
                 }
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
                 self.rotation = self.rotation.rotate_anti_cw();
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
                 self.rotation = self.rotation.rotate_cw();
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
-            _ => (self, Inhibit(false), Action::None),
+            _ => (None, Inhibit(false), Action::None),
         }
     }
 
     fn button_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
-    ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        (None, Inhibit(false), Action::None)
     }
 }

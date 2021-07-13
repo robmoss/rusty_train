@@ -20,19 +20,19 @@ pub trait State {
 
     /// Responds to a key being pressed, and returns the new state.
     fn key_press(
-        self: Box<Self>,
+        &mut self,
         content: &mut Content,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Box<dyn State>, Inhibit, Action);
+    ) -> (Option<Box<dyn State>>, Inhibit, Action);
 
     /// Responds to a mouse button being clicked, and returns the new state.
     fn button_press(
-        self: Box<Self>,
+        &mut self,
         content: &mut Content,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
-    ) -> (Box<dyn State>, Inhibit, Action);
+    ) -> (Option<Box<dyn State>>, Inhibit, Action);
 }

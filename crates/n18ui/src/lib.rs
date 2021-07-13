@@ -75,7 +75,7 @@ pub struct Content {
 /// Defines the current state of the user interface.
 pub struct UI {
     content: Content,
-    state: Option<Box<dyn State>>,
+    state: Box<dyn State>,
     surface: Arc<RwLock<ImageSurface>>,
     context: Context,
 }
@@ -190,8 +190,7 @@ impl UI {
         let surface = Arc::new(RwLock::new(surface));
 
         // Create the UI state struct, and draw the initial state.
-        let b: Box<dyn State> = Box::new(init_state);
-        let state = Some(b);
+        let state: Box<dyn State> = Box::new(init_state);
         let ui_state = UI {
             content,
             state,
@@ -223,17 +222,13 @@ impl UI {
     }
 
     /// Returns the dimensions of the current game map, in pixels.
-    pub fn map_size(&self) -> Option<(i32, i32)> {
-        self.state
-            .as_ref()
-            .map(|s| current_surface_dims(&**s, &self.content))
+    pub fn map_size(&self) -> (i32, i32) {
+        current_surface_dims(&*self.state, &self.content)
     }
 
     /// Draws the current state of the user interface.
     pub fn draw(&self) {
-        if let Some(ref state) = self.state {
-            draw_state(&**state, &self.content, &self.context);
-        }
+        draw_state(&*self.state, &self.content, &self.context);
     }
 
     /// Requests the drawing area to update its size, and redraws the current
@@ -241,11 +236,7 @@ impl UI {
     ///
     /// This should be called when the user has zoomed in or zoomed out.
     fn zoom_and_redraw(&self, area: &gtk::DrawingArea) {
-        let curr_exts = self
-            .state
-            .as_ref()
-            .map(|s| ink_extents(&**s, &self.content))
-            .expect("State is None");
+        let curr_exts = ink_extents(&*self.state, &self.content);
         let width = (curr_exts.2 + 2.0 * curr_exts.0) as i32;
         let height = (curr_exts.3 + 2.0 * curr_exts.1) as i32;
         area.set_size_request(width, height);
@@ -260,13 +251,7 @@ impl UI {
     /// This should only be called when the active game has changed (e.g.,
     /// when creating a new game or loading a saved game).
     fn reset_and_redraw(&mut self, area: &gtk::DrawingArea) {
-        let want_dims = {
-            let c = &mut self.content;
-            self.state
-                .as_ref()
-                .map(|s| max_surface_dims(&**s, c))
-                .expect("State is None")
-        };
+        let want_dims = max_surface_dims(&*self.state, &mut self.content);
         let want_width = want_dims.0;
         let want_height = want_dims.1;
 
@@ -354,42 +339,33 @@ impl UI {
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Inhibit, Action) {
-        let state_opt = self.state.take();
-        if let Some(curr_state) = state_opt {
-            // Note: use &* because Box<T> implements Deref<Target = T>.
-            // So &*curr_state converts from Box<dyn State> to &dyn State.
-            let action = global_keymap(
-                &*curr_state,
-                &mut self.content,
-                window,
-                area,
-                event,
-            );
-            let (new_state, inhibit, action) =
-                if let Some((reset_state, inhibit, action)) = action {
-                    match reset_state {
-                        ResetState::No => (curr_state, inhibit, action),
-                        ResetState::Yes => {
-                            let b: Box<dyn State> =
-                                Box::new(state::default::Default::new(
-                                    &self.content.map,
-                                ));
-                            (b, inhibit, action)
-                        }
+        // Note: use &* because Box<T> implements Deref<Target = T>.
+        // So &*curr_state converts from Box<dyn State> to &dyn State.
+        let action = global_keymap(
+            &*self.state,
+            &mut self.content,
+            window,
+            area,
+            event,
+        );
+        let (new_state_opt, inhibit, action) =
+            if let Some((reset_state, inhibit, action)) = action {
+                match reset_state {
+                    ResetState::No => (None, inhibit, action),
+                    ResetState::Yes => {
+                        let b: Box<dyn State> = Box::new(
+                            state::default::Default::new(&self.content.map),
+                        );
+                        (Some(b), inhibit, action)
                     }
-                } else {
-                    curr_state.key_press(
-                        &mut self.content,
-                        window,
-                        area,
-                        event,
-                    )
-                };
-            self.state = Some(new_state);
-            (inhibit, action)
-        } else {
-            (Inhibit(false), Action::None)
+                }
+            } else {
+                self.state.key_press(&mut self.content, window, area, event)
+            };
+        if let Some(new_state) = new_state_opt {
+            self.state = new_state;
         }
+        (inhibit, action)
     }
 
     /// Responds to a key being pressed.
@@ -411,19 +387,13 @@ impl UI {
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
     ) -> (Inhibit, Action) {
-        let state_opt = self.state.take();
-        if let Some(curr_state) = state_opt {
-            let (new_state, inhibit, action) = curr_state.button_press(
-                &mut self.content,
-                window,
-                area,
-                event,
-            );
-            self.state = Some(new_state);
-            (inhibit, action)
-        } else {
-            (Inhibit(false), Action::None)
+        let (new_state_opt, inhibit, action) =
+            self.state
+                .button_press(&mut self.content, window, area, event);
+        if let Some(new_state) = new_state_opt {
+            self.state = new_state;
         }
+        (inhibit, action)
     }
 
     /// Responds to a mouse button being clicked.

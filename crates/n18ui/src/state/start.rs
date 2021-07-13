@@ -45,22 +45,22 @@ impl State for Start {
     }
 
     fn key_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventKey,
-    ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        (None, Inhibit(false), Action::None)
     }
 
     fn button_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
-    ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        (None, Inhibit(false), Action::None)
     }
 }

@@ -72,34 +72,38 @@ impl State for EditTokens {
     }
 
     fn key_press(
-        mut self: Box<Self>,
+        &mut self,
         content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Box<dyn State>, Inhibit, Action) {
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let map = &mut content.map;
         let key = event.get_keyval();
         match key {
             gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.
-                let restore = self.original_tokens.into_iter().collect();
+                let restore = self
+                    .original_tokens
+                    .iter()
+                    .map(|(ts, tok)| (*ts, *tok))
+                    .collect();
                 if let Some(hs) = map.get_hex_mut(self.active_hex) {
                     hs.set_tokens(restore)
                 }
                 (
-                    Box::new(super::default::Default::at_hex(Some(
+                    Some(Box::new(super::default::Default::at_hex(Some(
                         self.active_hex,
-                    ))),
+                    )))),
                     Inhibit(false),
                     Action::Redraw,
                 )
             }
             gdk::keys::constants::Return => (
                 // NOTE: no changes to apply, just exit this mode.
-                Box::new(super::default::Default::at_hex(Some(
+                Some(Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
-                ))),
+                )))),
                 Inhibit(false),
                 Action::Redraw,
             ),
@@ -109,14 +113,14 @@ impl State for EditTokens {
                 } else {
                     self.selected -= 1
                 }
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Up => {
                 let token_space = &self.token_spaces[self.selected];
@@ -130,7 +134,7 @@ impl State for EditTokens {
                         .unwrap_or_else(|| game.first_token());
                     hs.set_token_at(token_space, *next);
                 }
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::Down => {
                 let token_space = &self.token_spaces[self.selected];
@@ -144,7 +148,7 @@ impl State for EditTokens {
                         .unwrap_or_else(|| game.last_token());
                     hs.set_token_at(token_space, *next);
                 };
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
             gdk::keys::constants::_0
             | gdk::keys::constants::KP_0
@@ -154,19 +158,19 @@ impl State for EditTokens {
                 if let Some(hs) = map.get_hex_mut(self.active_hex) {
                     hs.remove_token_at(token_space)
                 }
-                (self, Inhibit(false), Action::Redraw)
+                (None, Inhibit(false), Action::Redraw)
             }
-            _ => (self, Inhibit(false), Action::None),
+            _ => (None, Inhibit(false), Action::None),
         }
     }
 
     fn button_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
-    ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        (None, Inhibit(false), Action::None)
     }
 }

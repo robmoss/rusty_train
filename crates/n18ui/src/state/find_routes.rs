@@ -199,12 +199,12 @@ impl State for FindRoutes {
     }
 
     fn key_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Box<dyn State>, Inhibit, Action) {
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let key = event.get_keyval();
         match key {
             gdk::keys::constants::Escape | gdk::keys::constants::Return => {
@@ -217,19 +217,19 @@ impl State for FindRoutes {
                 let state = Box::new(super::default::Default::at_hex(
                     self.active_hex,
                 ));
-                (state, Inhibit(false), Action::Redraw)
+                (Some(state), Inhibit(false), Action::Redraw)
             }
-            _ => (self, Inhibit(false), Action::None),
+            _ => (None, Inhibit(false), Action::None),
         }
     }
 
     fn button_press(
-        self: Box<Self>,
+        &mut self,
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         _event: &gdk::EventButton,
-    ) -> (Box<dyn State>, Inhibit, Action) {
-        (self, Inhibit(false), Action::None)
+    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        (None, Inhibit(false), Action::None)
     }
 }
