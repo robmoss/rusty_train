@@ -19,11 +19,7 @@ impl Start {
         let tiles = vec![];
         let tokens = vec![].into();
         // NOTE: a map must have at least one hex.
-        // And these hexes currently define the size of the image buffer.
-        let hexes = vec![
-            n18map::HexAddress::new(0, 0),
-            n18map::HexAddress::new(50, 50),
-        ];
+        let hexes = vec![n18map::HexAddress::new(0, 0)];
         n18map::Map::new(tiles, tokens, hexes)
     }
 }
@@ -36,12 +32,10 @@ impl Default for Start {
 
 impl State for Start {
     fn draw(&self, content: &Content, ctx: &Context) {
-        ctx.set_source_rgb(0.9, 0.9, 0.9);
-        ctx.paint();
         let usage = LabelBuilder::new(
             ctx,
             &content.hex,
-            "Ctrl+N: Start a new game\nCtrl+O: Load a saved game",
+            "Ctrl+N: Start a new game\nCtrl+O: Load a saved game\nQ: Quit",
         )
         .font_size(16.0)
         .into_label()

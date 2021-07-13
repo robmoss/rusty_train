@@ -12,6 +12,10 @@ pub mod start;
 /// The methods that are required in order to manipulate the user interface.
 pub trait State {
     /// Draws the current state of the map.
+    ///
+    /// Note that this method should not draw a background by filling the
+    /// entire surface, because this makes it impossible to determine the
+    /// appropriate surface dimensions.
     fn draw(&self, content: &Content, ctx: &Context);
 
     /// Responds to a key being pressed, and returns the new state.

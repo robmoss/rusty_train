@@ -10,8 +10,8 @@ use navig18xx::prelude::*;
 pub fn build_ui(application: &gtk::Application) {
     // NOTE: make this more like the doc example in n18ui.
 
-    let hex_width: i32 = 125;
-    let hex = Hex::new(hex_width as f64);
+    let hex_width = 125.0;
+    let hex = Hex::new(hex_width);
     let game = n18game::_1867::Game::new(&hex);
 
     let game_box = Box::new(game);
@@ -64,24 +64,7 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
 
-    let dims = state.map_size();
-    let width = dims.0 as i32;
-    let height = dims.1 as i32;
-
-    // NOTE: this image surface, which has fixed dimensions, will be used to
-    // draw all game maps.
-    let surf = cairo::ImageSurface::create(
-        cairo::Format::ARgb32,
-        width * 2,
-        height * 2,
-    )
-    .expect("Could not create ImageSurface");
-    let state_ctx = cairo::Context::new(&surf);
-
-    state_ctx.set_source_rgb(1.0, 1.0, 1.0);
-    state_ctx.rectangle(0.0, 0.0, 2.0 * dims.0, 2.0 * dims.1);
-    state_ctx.fill();
-    state.draw(&state_ctx);
+    let (width, height) = state.map_size().unwrap();
 
     bar.set_title(Some("Rusty Train"));
     bar.set_decoration_layout(Some("menu:close"));
@@ -95,7 +78,9 @@ pub fn run(application: &gtk::Application, mut state: UI) {
         glib::MainContext::sync_channel(glib::PRIORITY_DEFAULT, 100);
 
     // Let the UI draw on the window.
+    let surface = state.surface();
     drawing_area.connect_draw(move |_da, ctx| {
+        let surf = surface.read().expect("Could not access drawing surface");
         ctx.set_source_surface(&surf, 0.0, 0.0);
         ctx.paint();
         Inhibit(false)
@@ -135,7 +120,7 @@ pub fn run(application: &gtk::Application, mut state: UI) {
                 state.key_press_action(&win_, &area_, &event)
             }
         };
-        state.handle_action(&win_, &area_, action, &state_ctx);
+        state.handle_action(&win_, &area_, action);
         glib::source::Continue(true)
     });
 

@@ -173,7 +173,7 @@ pub fn load_game(
             content.games.active_mut().load(&content.hex, game_state)
         {
             content.map = new_map;
-            Ok(Action::Resize)
+            Ok(Action::ResetGame)
         } else {
             Ok(Action::None)
         }

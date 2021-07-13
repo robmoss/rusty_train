@@ -3,8 +3,10 @@
 //!
 //! See the `rusty_train` code for an example of how to use the [UI] struct.
 //!
-use cairo::Context;
+use cairo::{Context, ImageSurface};
 use gtk::{GtkWindowExt, Inhibit, WidgetExt};
+use log::info;
+use std::sync::{Arc, RwLock};
 
 use n18game::Game;
 use n18hex::Hex;
@@ -74,6 +76,8 @@ pub struct Content {
 pub struct UI {
     content: Content,
     state: Option<Box<dyn State>>,
+    surface: Arc<RwLock<ImageSurface>>,
+    context: Context,
 }
 
 /// The actions that may be required when the UI state changes.
@@ -85,8 +89,9 @@ pub enum Action {
     Quit,
     /// Redraw the surface.
     Redraw,
-    /// Resize the drawing area and redraw the surface.
-    Resize,
+    /// In response to changing the active game, resize the drawing area and
+    /// redraw the surface.
+    ResetGame,
     /// Increase the hex size.
     ZoomIn,
     /// Decrease the hex size.
@@ -103,57 +108,202 @@ pub enum Action {
 //     event: &'a T,
 // }
 
+/// Draws the state onto the provided context.
+fn draw_state(state: &dyn State, content: &Content, ctx: &Context) {
+    ctx.set_source_rgb(1.0, 1.0, 1.0);
+    ctx.reset_clip();
+    let (x1, y1, x2, y2) = ctx.clip_extents();
+    ctx.rectangle(x1, y1, x2, y2);
+    ctx.fill();
+    state.draw(content, ctx);
+}
+
+/// Returns the ink bounding box `(x0, y0, width, height)` for the provided
+/// state.
+fn ink_extents(state: &dyn State, content: &Content) -> (f64, f64, f64, f64) {
+    let surf = cairo::RecordingSurface::create(cairo::Content::Color, None)
+        .expect("Could not create RecordingSurface");
+
+    let ctx = cairo::Context::new(&surf);
+    state.draw(content, &ctx);
+    // Note: (x0, y0, width, height)
+    surf.ink_extents()
+}
+
+/// Returns the ink bounding box `(x0, y0, width, height)` for the provided
+/// state, for the specified maximal hex diameter `hex_d`.
+fn ink_extents_with_hex(
+    state: &dyn State,
+    content: &mut Content,
+    hex_d: f64,
+) -> (f64, f64, f64, f64) {
+    let mut new_hex = Hex::new(hex_d);
+    std::mem::swap(&mut new_hex, &mut content.hex);
+    let exts = ink_extents(state, content);
+    std::mem::swap(&mut new_hex, &mut content.hex);
+    exts
+}
+
+/// Returns the surface dimensions required to draw the provided state.
+fn current_surface_dims(state: &dyn State, content: &Content) -> (i32, i32) {
+    let exts = ink_extents(state, content);
+    let want_width = (exts.2 + 2.0 * exts.0) as i32;
+    let want_height = (exts.3 + 2.0 * exts.1) as i32;
+    (want_width, want_height)
+}
+
+/// Returns the surface dimensions required to draw the provided state at the
+/// maximum zoom level.
+fn max_surface_dims(state: &dyn State, content: &mut Content) -> (i32, i32) {
+    // NOTE: this is the upper limit on the maximum hex size.
+    let hex_d = 164.0;
+    let exts = ink_extents_with_hex(state, content, hex_d);
+    let want_width = (exts.2 + 2.0 * exts.0) as i32;
+    let want_height = (exts.3 + 2.0 * exts.1) as i32;
+    (want_width, want_height)
+}
+
 impl UI {
     /// Creates the initial user interface state.
     pub fn new(hex: Hex, games: Vec<Box<dyn Game>>) -> Self {
+        let games = Games::new(games);
         let init_state = state::start::Start::new();
         let map = init_state.dummy_map();
+
+        // Determine the surface dimensions necessary to contain the state
+        // output at the highest zoom level.
+        let mut content = Content { hex, map, games };
+        let dims = max_surface_dims(&init_state, &mut content);
+
+        // Create the backing surface and context.
+        info!("Creating image surface ({}, {})", dims.0, dims.1,);
+        let surface = cairo::ImageSurface::create(
+            cairo::Format::ARgb32,
+            dims.0,
+            dims.1,
+        )
+        .expect("Could not create ImageSurface");
+        let context = Context::new(&surface);
+        // Paint the new surface white.
+        context.set_source_rgb(1.0, 1.0, 1.0);
+        context.paint();
+        let surface = Arc::new(RwLock::new(surface));
+
+        // Create the UI state struct, and draw the initial state.
         let b: Box<dyn State> = Box::new(init_state);
         let state = Some(b);
-        let games = Games::new(games);
-        let content = Content { hex, map, games };
-        UI { content, state }
+        let ui_state = UI {
+            content,
+            state,
+            surface,
+            context,
+        };
+        ui_state.draw();
+        ui_state
+    }
+
+    /// Returns the image surface onto which the state is drawn, contained
+    /// within a thread-safe reader-writer lock.
+    ///
+    /// Use this surface as the source for painting the current state:
+    ///
+    /// ```no_run
+    /// # let hex = n18hex::Hex::new(125.0);
+    /// # let ui_state = n18ui::UI::new(hex, vec![]);
+    /// # let fmt = cairo::Format::ARgb32;
+    /// # let s = cairo::ImageSurface::create(fmt, 10, 10).unwrap();
+    /// # let context = cairo::Context::new(&s);
+    /// let surf_lock = ui_state.surface();
+    /// let surface = surf_lock.read().expect("Cannot access surface");
+    /// context.set_source_surface(&surface, 0.0, 0.0);
+    /// context.paint();
+    /// ```
+    pub fn surface(&self) -> Arc<RwLock<ImageSurface>> {
+        Arc::clone(&self.surface)
     }
 
     /// Returns the dimensions of the current game map, in pixels.
-    pub fn map_size(&self) -> (f64, f64) {
-        // NOTE: margin is defined in Map::prepare_to_draw().
-        let margin = 10.0;
-        let num_rows =
-            self.content.map.max_row - self.content.map.min_row + 1;
-        let num_cols =
-            self.content.map.max_col - self.content.map.min_col + 1;
-        // After the first column, each column contributes 0.75 * max_d.
-        let width =
-            self.content.hex.max_d * (1.0 + ((num_cols - 1) as f64) * 0.75);
-        // Each row is 1.5 * min_d in height, if it contains hexes with both
-        // odd and even column numbers.
-        let height = (num_rows as f64 + 0.5) * self.content.hex.min_d;
-        (width + 2.0 * margin, height + 2.0 * margin)
+    pub fn map_size(&self) -> Option<(i32, i32)> {
+        self.state
+            .as_ref()
+            .map(|s| current_surface_dims(&**s, &self.content))
     }
 
     /// Draws the current state of the user interface.
-    pub fn draw(&self, ctx: &Context) {
+    pub fn draw(&self) {
         if let Some(ref state) = self.state {
-            ctx.set_source_rgb(1.0, 1.0, 1.0);
-            ctx.reset_clip();
-            let (x1, y1, x2, y2) = ctx.clip_extents();
-            ctx.rectangle(x1, y1, x2, y2);
-            ctx.fill();
-            state.draw(&self.content, ctx);
+            draw_state(&**state, &self.content, &self.context);
         }
     }
 
     /// Requests the drawing area to update its size, and redraws the current
     /// game state.
-    fn resize_and_redraw(&self, area: &gtk::DrawingArea, ctx: &Context) {
-        let dims = self.map_size();
-        let width = dims.0 as i32;
-        let height = dims.1 as i32;
+    ///
+    /// This should be called when the user has zoomed in or zoomed out.
+    fn zoom_and_redraw(&self, area: &gtk::DrawingArea) {
+        let curr_exts = self
+            .state
+            .as_ref()
+            .map(|s| ink_extents(&**s, &self.content))
+            .expect("State is None");
+        let width = (curr_exts.2 + 2.0 * curr_exts.0) as i32;
+        let height = (curr_exts.3 + 2.0 * curr_exts.1) as i32;
         area.set_size_request(width, height);
         // NOTE: must redraw to the backing surface.
-        self.draw(ctx);
+        self.draw();
         area.queue_draw();
+    }
+
+    /// Resets the drawing surface, requests the drawing area to update its
+    /// size, and redraws the current game state.
+    ///
+    /// This should only be called when the active game has changed (e.g.,
+    /// when creating a new game or loading a saved game).
+    fn reset_and_redraw(&mut self, area: &gtk::DrawingArea) {
+        let want_dims = {
+            let c = &mut self.content;
+            self.state
+                .as_ref()
+                .map(|s| max_surface_dims(&**s, c))
+                .expect("State is None")
+        };
+        let want_width = want_dims.0;
+        let want_height = want_dims.1;
+
+        // Resize the underlying image surface if it is too small.
+        let (curr_width, curr_height) = {
+            let curr_surface = self
+                .surface
+                .read()
+                .expect("Could not access drawing surface");
+            (curr_surface.get_width(), curr_surface.get_height())
+        };
+        let resize = (curr_width < want_width) || (curr_height < want_height);
+        if resize {
+            info!(
+                "Resizing image surface from ({}, {}) to ({}, {})",
+                curr_width, curr_height, want_width, want_height
+            );
+            let surface = cairo::ImageSurface::create(
+                cairo::Format::ARgb32,
+                want_width,
+                want_height,
+            )
+            .expect("Could not create ImageSurface");
+            self.context = Context::new(&surface);
+            let mut surf_ref = self
+                .surface
+                .write()
+                .expect("Could not modify drawing surface");
+            *surf_ref = surface;
+            // Paint the new surface white.
+            self.context.set_source_rgb(1.0, 1.0, 1.0);
+            self.context.paint();
+        }
+
+        // Request the drawing area to update its size, and redraw the current
+        // (i.e., new) game state.
+        self.zoom_and_redraw(area);
     }
 
     pub fn handle_action(
@@ -161,7 +311,6 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         action: Action,
-        ctx: &Context,
     ) {
         match action {
             Action::ZoomIn => {
@@ -169,7 +318,7 @@ impl UI {
                     // NOTE: may need to increase surface, draw area size?
                     self.content.hex =
                         Hex::new(self.content.hex.max_d + 10.0);
-                    self.resize_and_redraw(area, ctx);
+                    self.zoom_and_redraw(area);
                 }
             }
             Action::ZoomOut => {
@@ -177,19 +326,19 @@ impl UI {
                     // NOTE: may need to decrease surface, draw area size?
                     self.content.hex =
                         Hex::new(self.content.hex.max_d - 10.0);
-                    self.resize_and_redraw(area, ctx);
+                    self.zoom_and_redraw(area);
                 }
             }
             Action::Redraw => {
                 // NOTE: must redraw to the backing surface.
-                self.draw(ctx);
+                self.draw();
                 area.queue_draw();
             }
-            Action::Resize => {
+            Action::ResetGame => {
                 // NOTE: request this size request is only required when the
                 // game map has been replaced (e.g., by starting a new game or
                 // by loading a saved game).
-                self.resize_and_redraw(area, ctx);
+                self.reset_and_redraw(area);
             }
             Action::Quit => {
                 window.close();
@@ -249,10 +398,9 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-        ctx: &Context,
     ) -> Inhibit {
         let (inhibit, action) = self.key_press_action(window, area, event);
-        self.handle_action(window, area, action, ctx);
+        self.handle_action(window, area, action);
         inhibit
     }
 
@@ -284,10 +432,9 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
-        ctx: &Context,
     ) -> Inhibit {
         let (inhibit, action) = self.button_press_action(window, area, event);
-        self.handle_action(window, area, action, ctx);
+        self.handle_action(window, area, action);
         inhibit
     }
 }
@@ -339,7 +486,7 @@ pub fn global_keymap(
                     return Some((
                         ResetState::Yes,
                         Inhibit(false),
-                        Action::Resize,
+                        Action::ResetGame,
                     ));
                 }
             }
