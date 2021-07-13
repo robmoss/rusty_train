@@ -385,3 +385,91 @@ pub fn highlight_path(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
     // Then draw visited cities and dits.
     highlight_visits(hex, ctx, map, &path.visits);
 }
+
+/// Supported output image formats.
+#[derive(Clone, Copy, Debug)]
+pub enum ImageFormat {
+    /// Write PDF (vector) files.
+    Pdf,
+    /// Write PNG (bitmap) files.
+    Png,
+    /// Write SVG (vector) files.
+    Svg,
+}
+
+impl ImageFormat {
+    /// Returns the filename extension associated with the image format.
+    pub fn extension(&self) -> &str {
+        use ImageFormat::*;
+        match self {
+            Pdf => "pdf",
+            Png => "png",
+            Svg => "svg",
+        }
+    }
+
+    /// Saves the image drawn by `draw_fn` to an output file.
+    pub fn save_image<F, P>(
+        &self,
+        width: f64,
+        height: f64,
+        draw_fn: F,
+        dest: P,
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        F: FnOnce(&cairo::Context),
+        P: std::convert::AsRef<std::path::Path>,
+    {
+        use ImageFormat::*;
+        match self {
+            Pdf => {
+                let surf = cairo::PdfSurface::new(width, height, dest)?;
+                let ctx = cairo::Context::new(&surf);
+                draw_fn(&ctx);
+                surf.finish();
+            }
+            Png => {
+                let surf = cairo::ImageSurface::create(
+                    cairo::Format::ARgb32,
+                    width as i32,
+                    height as i32,
+                )?;
+                let ctx = cairo::Context::new(&surf);
+                let mut out_file = std::fs::File::create(dest.as_ref())
+                    .expect("Could not create output file");
+                draw_fn(&ctx);
+                surf.write_to_png(&mut out_file)?;
+            }
+            Svg => {
+                let surf = cairo::SvgSurface::new(width, height, Some(dest))?;
+                let ctx = cairo::Context::new(&surf);
+                draw_fn(&ctx);
+                surf.finish();
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Returns the width and height of the image drawn by `draw_fn`.
+///
+/// The returned dimensions include horizontal and vertical margins, which are
+/// defined to be the horizontal and vertical distances between the origin and
+/// the top-left corner `(x0, y0)` of the image.
+/// If either `x0` or `y0` is negative, the returned dimensions will result in
+/// a cropped image.
+///
+/// Returns `None` if unable to create a `cairo::RecordingSurface`.
+pub fn image_size<F>(draw_fn: F) -> Option<(f64, f64)>
+where
+    F: FnOnce(&cairo::Context),
+{
+    let rec_surf =
+        cairo::RecordingSurface::create(cairo::Content::Color, None).ok()?;
+    let ctx = cairo::Context::new(&rec_surf);
+    draw_fn(&ctx);
+    let exts = rec_surf.ink_extents();
+    let width = exts.2 + 2.0 * exts.0;
+    let height = exts.3 + 2.0 * exts.1;
+    Some((width, height))
+}
