@@ -23,13 +23,21 @@ use state::State;
 
 /// Ordered collections of available games.
 pub struct Games {
+    // NOTE: it would be nice to index games by name (e.g., in a
+    // BTreeMap<String, Box<dyn Game>>) but then we'd need to store the name
+    // of the active game as a separate String field, and create a new string
+    // each time we change the active game.
     games: Vec<Box<dyn Game>>,
     game_ix: usize,
 }
 
 impl Games {
     /// Creates a collection of games.
-    pub fn new(games: Vec<Box<dyn Game>>) -> Self {
+    pub fn new<T>(games: T) -> Self
+    where
+        T: IntoIterator<Item = Box<dyn Game>>,
+    {
+        let games: Vec<_> = games.into_iter().collect();
         Games { games, game_ix: 0 }
     }
 
@@ -181,7 +189,10 @@ fn max_surface_dims(state: &dyn State, content: &mut Content) -> (i32, i32) {
 
 impl UI {
     /// Creates the initial user interface state.
-    pub fn new(hex: Hex, games: Vec<Box<dyn Game>>) -> Self {
+    pub fn new<T>(hex: Hex, games: T) -> Self
+    where
+        T: IntoIterator<Item = Box<dyn Game>>,
+    {
         let games = Games::new(games);
         let init_state = state::start::Start::new();
         let map = init_state.dummy_map();
