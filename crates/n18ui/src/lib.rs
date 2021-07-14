@@ -54,8 +54,24 @@ impl Games {
         self.games.iter().map(|g| &**g)
     }
 
-    /// Changes the active game.
-    pub fn set_active(&mut self, ix: usize) -> bool {
+    /// Changes the active game by name.
+    pub fn set_active_name(&mut self, name: &str) -> bool {
+        let ix_opt = self
+            .games
+            .iter()
+            .enumerate()
+            .find(|(_ix, game)| game.name() == name)
+            .map(|(ix, _game)| ix);
+        if let Some(ix) = ix_opt {
+            self.game_ix = ix;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Changes the active game by index.
+    pub fn set_active_index(&mut self, ix: usize) -> bool {
         if ix < self.games.len() {
             self.game_ix = ix;
             true
@@ -446,10 +462,13 @@ pub fn global_keymap(
         (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
             // Prompt the user to select a game, and load its starting map.
             let game_names: Vec<&str> = content.games.names();
-            let ix_opt =
-                dialog::select_item(window, "Select a game", &game_names);
+            let ix_opt = dialog::select_item_index(
+                window,
+                "Select a game",
+                &game_names,
+            );
             if let Some(ix) = ix_opt {
-                if content.games.set_active(ix) {
+                if content.games.set_active_index(ix) {
                     content.map =
                         content.games.active().create_map(&content.hex);
                     window.set_title(content.games.active().name());

@@ -75,7 +75,7 @@ impl SelectItemDialog {
 }
 
 /// Display an item-selection dialog and return the selected item index.
-pub fn select_item<'a>(
+pub fn select_item_index<'a>(
     parent: &gtk::ApplicationWindow,
     title: &str,
     items: &'a [&'a str],
@@ -85,6 +85,15 @@ pub fn select_item<'a>(
     }
     let dlg = SelectItemDialog::new(parent, title, items);
     dlg.run()
+}
+
+/// Display an item-selection dialog and return the selected item.
+pub fn select_item<'a>(
+    parent: &gtk::ApplicationWindow,
+    title: &str,
+    items: &'a [&'a str],
+) -> Option<&'a str> {
+    select_item_index(parent, title, items).map(|ix| items[ix])
 }
 
 /// A dialog for selecting trains and options that provide route bonuses.

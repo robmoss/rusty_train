@@ -32,10 +32,9 @@ impl FindRoutes {
         let companies = valid_companies(content);
         let company_names: Vec<&str> =
             companies.iter().map(|c| c.full_name.as_str()).collect();
-        let ix = select_item(window, "Select a company", &company_names)?;
+        let abbrev = select_item(window, "Select a company", &company_names)?;
 
-        // Identify the company name and token.
-        let abbrev = &companies[ix].abbrev;
+        // Identify the company token.
         let token = content.map.try_token(abbrev)?;
 
         // Select the company trains and bonuses.
@@ -52,7 +51,7 @@ impl FindRoutes {
             window.get_title().map(|s| s.as_str().to_string());
         let state = FindRoutes {
             active_hex: active_hex.copied(),
-            abbrev: abbrev.clone(),
+            abbrev: abbrev.to_string(),
             best_routes,
             original_window_title,
             active_route,

@@ -159,16 +159,7 @@ pub fn load_game(
         return Ok(Action::None);
     };
     let game_state = n18io::read_game_state(dest_file)?;
-    let game_opt: Option<usize> =
-        content.games.games.iter().enumerate().find_map(|(ix, g)| {
-            if g.name() == game_state.game {
-                Some(ix)
-            } else {
-                None
-            }
-        });
-    if let Some(ix) = game_opt {
-        content.games.set_active(ix);
+    if content.games.set_active_name(&game_state.game) {
         if let Some(new_map) =
             content.games.active_mut().load(&content.hex, game_state)
         {
