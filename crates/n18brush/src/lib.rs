@@ -81,10 +81,29 @@ pub fn outline_empty_hexes(
     hex_iter.restart();
 }
 
+/// Draws the core map layers: hex backgrounds, tiles, empty hex borders, and
+/// track barriers.
 pub fn draw_map(hex: &Hex, ctx: &Context, hex_iter: &mut HexIter<'_>) {
     draw_hex_backgrounds(hex, ctx, hex_iter);
     draw_tiles(hex, ctx, hex_iter);
     outline_empty_hexes(hex, ctx, hex_iter);
+    draw_barriers(hex, ctx, hex_iter.get_map());
+}
+
+/// Draws the core map layers for a subset of map hexes: hex backgrounds,
+/// tiles, empty hex borders, and track barriers.
+///
+/// The subset is defined by `hex_iter`; see [Map::hex_subset_iter].
+pub fn draw_map_subset(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    hex_iter: &mut HexIter<'_>,
+) {
+    draw_hex_backgrounds(hex, ctx, hex_iter);
+    draw_tiles(hex, ctx, hex_iter);
+    outline_empty_hexes(hex, ctx, hex_iter);
+    draw_barriers_subset(hex, ctx, map, hex_iter);
 }
 
 pub fn draw_barriers_subset(
@@ -252,7 +271,7 @@ pub fn highlight_active_hex(
     hex_iter.restart();
 }
 
-// TODO: provide a default colour cycle?
+/// Highlights routes, using a different colour for each route.
 pub fn highlight_routes<C, R>(
     hex: &Hex,
     ctx: &Context,
@@ -372,6 +391,7 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
     }
 }
 
+/// Highlights a single route, using the current source.
 pub fn highlight_route(hex: &Hex, ctx: &Context, map: &Map, route: &Route) {
     // Draw track segments first.
     highlight_steps(hex, ctx, map, &route.steps);

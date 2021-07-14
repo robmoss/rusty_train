@@ -87,10 +87,7 @@ fn test_connection_bonus_between_two_dits() {
     let mut hex_iter = map.hex_iter(&hex, &ctx);
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    brush::draw_barriers(&hex, &ctx, &map);
+    brush::draw_map(&hex, &ctx, &mut hex_iter);
 
     let filename = output_dir.join("test-conn-bonus-map.png");
     let mut file = std::fs::File::create(filename)
@@ -133,10 +130,7 @@ fn test_connection_bonus_between_two_dits() {
     // Draw each of the best routes, and save this to a PNG file.
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    brush::draw_barriers(&hex, &ctx, &map);
+    brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),
@@ -183,10 +177,7 @@ fn test_connection_bonus_between_two_dits() {
     // Draw each of the best routes, and save this to a PNG file.
     ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
     ctx.paint();
-    brush::draw_hex_backgrounds(&hex, &ctx, &mut hex_iter);
-    brush::draw_tiles(&hex, &ctx, &mut hex_iter);
-    brush::outline_empty_hexes(&hex, &ctx, &mut hex_iter);
-    brush::draw_barriers(&hex, &ctx, &map);
+    brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &new_best.routes(), |ix| {
         match ix % 3 {
             0 => (0.7, 0.1, 0.1, 1.0),

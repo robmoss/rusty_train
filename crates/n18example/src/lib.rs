@@ -112,10 +112,7 @@ impl Example {
         let hex = &self.hex;
         let ctx = &self.rec_ctx;
         let mut hex_iter = self.map.hex_iter(hex, ctx);
-        brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
-        brush::draw_tiles(hex, ctx, &mut hex_iter);
-        brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
-        brush::draw_barriers(hex, ctx, &self.map);
+        brush::draw_map(hex, ctx, &mut hex_iter);
     }
 
     pub fn draw_map_subset<P>(&self, include: P)
@@ -125,10 +122,7 @@ impl Example {
         let hex = &self.hex;
         let ctx = &self.rec_ctx;
         let mut hex_iter = self.map.hex_subset_iter(hex, ctx, include);
-        brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
-        brush::draw_tiles(hex, ctx, &mut hex_iter);
-        brush::outline_empty_hexes(hex, ctx, &mut hex_iter);
-        brush::draw_barriers_subset(hex, ctx, &self.map, &mut hex_iter);
+        brush::draw_map_subset(hex, ctx, &self.map, &mut hex_iter);
     }
 
     pub fn draw_path(&self, path: &Path, rgba: (f64, f64, f64, f64)) {

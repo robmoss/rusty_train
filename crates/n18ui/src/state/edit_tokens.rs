@@ -46,7 +46,6 @@ impl State for EditTokens {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
-        n18brush::draw_barriers(hex, ctx, map);
 
         // Highlight the active token space.
         let token_space = &self.token_spaces[self.selected];

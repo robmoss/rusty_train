@@ -726,6 +726,10 @@ impl<'a> HexIter<'a> {
         self.ix = 0;
     }
 
+    pub fn get_map(&self) -> &Map {
+        &self.map
+    }
+
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {
         let include = vec![true; map.hexes.len()];
         Self::new_subset(hex, ctx, map, include)

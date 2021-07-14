@@ -31,7 +31,6 @@ impl State for Default {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
-        n18brush::draw_barriers(hex, ctx, map);
 
         // Draw the active hex with a red border.
         n18brush::highlight_active_hex(
