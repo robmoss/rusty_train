@@ -106,6 +106,12 @@ pub use n18io::read_routes;
 pub use n18io::write_routes;
 
 #[doc(inline)]
+pub use n18io::read_game_state;
+
+#[doc(inline)]
+pub use n18io::write_game_state;
+
+#[doc(inline)]
 pub use n18map::Map;
 
 #[doc(inline)]
@@ -149,6 +155,36 @@ pub use n18route::TrainRoute;
 
 #[doc(inline)]
 pub use n18game::Game;
+
+#[doc(inline)]
+pub use n18brush::ImageFormat;
+
+#[doc(inline)]
+pub use n18brush::image_size;
+
+#[doc(inline)]
+pub use n18brush::draw_map;
+
+#[doc(inline)]
+pub use n18brush::draw_map_subset;
+
+#[doc(inline)]
+pub use n18brush::highlight_active_hex;
+
+#[doc(inline)]
+pub use n18brush::highlight_hexes;
+
+#[doc(inline)]
+pub use n18brush::highlight_route;
+
+#[doc(inline)]
+pub use n18brush::highlight_routes;
+
+#[doc(inline)]
+pub use n18brush::highlight_token_space;
+
+#[doc(inline)]
+pub use n18brush::highlight_tokens;
 
 #[cfg(feature = "ui")]
 #[doc(inline)]
