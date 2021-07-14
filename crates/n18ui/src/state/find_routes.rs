@@ -19,6 +19,7 @@ pub struct FindRoutes {
     abbrev: String,
     best_routes: Option<(Token, Routes)>,
     original_window_title: Option<String>,
+    active_route: Option<usize>,
 }
 
 impl FindRoutes {
@@ -45,18 +46,49 @@ impl FindRoutes {
 
         // Find the best routes.
         let best_routes = best_routes_for(content, &token, trains, bonuses);
+        let active_route = None;
 
-        // Update the window title.
         let original_window_title =
             window.get_title().map(|s| s.as_str().to_string());
-        update_title(window, abbrev, &best_routes);
-
-        Some(FindRoutes {
+        let state = FindRoutes {
             active_hex: active_hex.copied(),
             abbrev: abbrev.clone(),
             best_routes,
             original_window_title,
-        })
+            active_route,
+        };
+
+        // Update the window title.
+        // update_title(window, abbrev, &best_routes);
+        state.set_window_title(window, content);
+
+        Some(state)
+    }
+
+    /// Updates the window title so that it shows the company name and either
+    /// the net revenue, or the revenue for the currently-selected route.
+    fn set_window_title(
+        &self,
+        window: &gtk::ApplicationWindow,
+        content: &Content,
+    ) {
+        let title = if let Some((_token, routes)) = &self.best_routes {
+            if let Some(ix) = self.active_route {
+                let route = &routes.train_routes[ix];
+                let train = &route.train;
+                let train_name =
+                    content.games.active().train_name(train).unwrap();
+                format!(
+                    "{} {}-train: ${}",
+                    self.abbrev, train_name, route.revenue
+                )
+            } else {
+                format!("{}: ${}", self.abbrev, routes.net_revenue)
+            }
+        } else {
+            format!("{}: No routes", &self.abbrev)
+        };
+        window.set_title(&title);
     }
 }
 
@@ -73,21 +105,6 @@ fn valid_companies(content: &Content) -> Vec<&Company> {
         .filter(|c| placed_names.iter().any(|name| c.abbrev == *name))
         .collect();
     companies
-}
-
-/// Updates the window title so that it shows the company name and revenue.
-fn update_title(
-    window: &gtk::ApplicationWindow,
-    abbrev: &str,
-    routes: &Option<(Token, Routes)>,
-) {
-    let title = routes
-        .as_ref()
-        .map(|(_token, pairing)| {
-            format!("{}: ${}", abbrev, pairing.net_revenue)
-        })
-        .unwrap_or(format!("{}: No routes", abbrev));
-    window.set_title(&title);
 }
 
 /// Finds a path from the currently-selected token that yields the maximum
@@ -166,17 +183,30 @@ impl State for FindRoutes {
         // Draw each route.
         // Note that this also redraws the token spaces at each visit.
         if let Some((_token, routes)) = &self.best_routes {
-            n18brush::highlight_routes(
-                &hex,
-                &ctx,
-                &map,
-                &routes.routes(),
-                |ix| match ix % 3 {
+            if let Some(ix) = self.active_route {
+                // Draw only a single route, in the same colour as when
+                // drawing all routes.
+                let colour = match ix % 3 {
                     0 => (0.7, 0.1, 0.1, 1.0),
                     1 => (0.1, 0.7, 0.1, 1.0),
                     _ => (0.1, 0.1, 0.7, 1.0),
-                },
-            );
+                };
+                ctx.set_source_rgba(colour.0, colour.1, colour.2, colour.3);
+                let route = routes.routes()[ix];
+                n18brush::highlight_route(&hex, &ctx, &map, route);
+            } else {
+                n18brush::highlight_routes(
+                    &hex,
+                    &ctx,
+                    &map,
+                    &routes.routes(),
+                    |ix| match ix % 3 {
+                        0 => (0.7, 0.1, 0.1, 1.0),
+                        1 => (0.1, 0.7, 0.1, 1.0),
+                        _ => (0.1, 0.1, 0.7, 1.0),
+                    },
+                );
+            }
         }
 
         // Highlight all matching token spaces on the map.
@@ -200,7 +230,7 @@ impl State for FindRoutes {
 
     fn key_press(
         &mut self,
-        _content: &mut Content,
+        content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
@@ -218,6 +248,45 @@ impl State for FindRoutes {
                     self.active_hex,
                 ));
                 (Some(state), Inhibit(false), Action::Redraw)
+            }
+            gdk::keys::constants::Left | gdk::keys::constants::Up => {
+                // Draw the previous route, if any, by itself.
+                if let Some((_token, routes)) = &self.best_routes {
+                    let routes_vec = routes.routes();
+                    let num_routes = routes_vec.len();
+                    if let Some(curr_ix) = self.active_route {
+                        if curr_ix == 0 {
+                            self.active_route = None;
+                        } else {
+                            self.active_route = Some(curr_ix - 1);
+                        }
+                    } else {
+                        self.active_route = Some(num_routes - 1);
+                    }
+                    self.set_window_title(window, content);
+                    (None, Inhibit(false), Action::Redraw)
+                } else {
+                    (None, Inhibit(false), Action::None)
+                }
+            }
+            gdk::keys::constants::Right | gdk::keys::constants::Down => {
+                // Draw the next route, if any, by itself.
+                if let Some((_token, routes)) = &self.best_routes {
+                    let num_routes = routes.routes().len();
+                    if let Some(curr_ix) = self.active_route {
+                        if curr_ix == num_routes - 1 {
+                            self.active_route = None;
+                        } else {
+                            self.active_route = Some(curr_ix + 1);
+                        }
+                    } else {
+                        self.active_route = Some(0);
+                    }
+                    self.set_window_title(window, content);
+                    (None, Inhibit(false), Action::Redraw)
+                } else {
+                    (None, Inhibit(false), Action::None)
+                }
             }
             _ => (None, Inhibit(false), Action::None),
         }
