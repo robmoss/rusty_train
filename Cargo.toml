@@ -4,17 +4,11 @@ version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
 edition = "2018"
-# Require Rust 1.38 for the 'duration_float' feature.
-# See this tracking issue for specifying the minimum Rust version:
-# https://github.com/rust-lang/rust/issues/65262
-# rust = "1.38"
-# Require Rust 1.48 for linking to items by name with rustdoc:
-# https://doc.rust-lang.org/stable/rustdoc/linking-to-items-by-name.html
-# Rust 1.48 also speeds up compile times, likely due to an async compilation
-# regression being fixed (https://github.com/rust-lang/rust/pull/78410).
-# Require Rust 1.51 for running all tests cases with `--include-ignored`,
-# and using the "version 2" resolver to enable/disable features for all crates
-# in the workspace.
+description = "A graphical user interface for constructing 18xx maps and identifying optimal train routes."
+repository = "https://bitbucket.org/robmoss/navig18xx/"
+readme = "README.md"
+keywords = ["18xx", "optimisation", "optimization"]
+categories = ["algorithms", "graphics"]
 default-run = "rusty_train"
 
 [workspace]
