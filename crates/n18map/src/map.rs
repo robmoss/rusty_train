@@ -25,10 +25,14 @@ pub struct Map {
     hexes_tbl: HashMap<HexAddress, ()>,
     /// City labels that apply to map hexes.
     labels_tbl: HashMap<HexAddress, Vec<Label>>,
-    pub min_row: usize,
-    pub max_row: usize,
-    pub min_col: usize,
-    pub max_col: usize,
+    /// The minimum row number for which there is a hex.
+    min_row: usize,
+    /// The maximum row number for which there is a hex.
+    max_row: usize,
+    /// The minimum column number for which there is a hex.
+    min_col: usize,
+    /// The maximum column number for which there is a hex.
+    max_col: usize,
     flat_top: bool,
 }
 
