@@ -26,7 +26,7 @@ fn test_dual_routes_from_montreal() {
         margin + rows * (hex_width as f32 * 0.88) as i32,
     );
     let hex = Hex::new(hex_width as f64);
-    let game = n18game::_1867::Game::new(&hex);
+    let game = navig18xx::game::new_1867(&hex);
     let mut map = game.create_map(&hex);
     let company_token = *game.first_token();
 

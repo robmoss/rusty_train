@@ -990,8 +990,6 @@ dependencies = [
  "glib",
  "gtk",
  "log",
- "n18game",
- "n18ui",
  "navig18xx",
 ]
 

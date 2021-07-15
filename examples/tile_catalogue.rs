@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let num_cols = 16;
 
     let hex = Hex::new(hex_max_diameter);
-    let game = navig18xx::game::_1867::Game::new(&hex);
+    let game = navig18xx::game::new_1867(&hex);
     // NOTE: this method currently returns special tiles too.
     let tiles = game.player_tiles();
     let example = place_tiles(hex, &tiles, num_rows, num_cols);

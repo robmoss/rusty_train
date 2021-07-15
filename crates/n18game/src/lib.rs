@@ -6,6 +6,11 @@ use n18token::{Token, Tokens};
 
 pub mod _1867;
 
+/// Creates a new game of 1867: The Railways Of Canada.
+pub fn new_1867(hex: &Hex) -> _1867::Game {
+    _1867::Game::new(hex)
+}
+
 /// The details that characterise a company that can operate trains.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Company {

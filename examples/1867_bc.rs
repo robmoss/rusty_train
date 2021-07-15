@@ -16,7 +16,7 @@ use log::info;
 use std::io::Write;
 use std::path::Path;
 
-use navig18xx::game::_1867;
+use navig18xx::game::new_1867;
 use navig18xx::prelude::*;
 
 mod output;
@@ -167,7 +167,7 @@ fn save_1867_bc_routes(
 fn game_state() -> GameState {
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
-    let mut game = _1867::Game::new(&hex);
+    let mut game = new_1867(&hex);
     let mut example = Example::new_game(&game, hex);
 
     // NOTE: the major companies with tokens on the board are:

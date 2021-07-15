@@ -19,10 +19,7 @@ members = ["crates/*", "."]
 default-members = ["crates/*", "."]
 
 [dependencies]
-n18game = { path = "./crates/n18game" }
-n18ui = { path = "./crates/n18ui" }
 navig18xx = { path = "./crates/navig18xx" }
-
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
 # Use features provided by GTK 3.20 (native file choosers).

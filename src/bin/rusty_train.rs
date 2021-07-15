@@ -12,7 +12,7 @@ pub fn build_ui(application: &gtk::Application) {
 
     let hex_width = 125.0;
     let hex = Hex::new(hex_width);
-    let game = n18game::_1867::Game::new(&hex);
+    let game = navig18xx::game::new_1867(&hex);
 
     let game_box = Box::new(game);
     let games: Vec<Box<dyn Game>> = vec![game_box];

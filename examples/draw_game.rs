@@ -102,7 +102,7 @@ pub fn main() {
 
     // Index the available games by name.
     let mut games: std::collections::BTreeMap<String, Box<dyn Game>> =
-        vec![Box::new(n18game::_1867::Game::new(&hex)) as Box<dyn Game>]
+        vec![Box::new(navig18xx::game::new_1867(&hex)) as Box<dyn Game>]
             .into_iter()
             .map(|game| (game.name().to_string(), game))
             .collect();
