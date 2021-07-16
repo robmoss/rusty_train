@@ -5,6 +5,17 @@ use n18hex::{Hex, HexColour, HexFace, PI};
 use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
 
+/// Supported orientations for the map's hexagonal grid.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Orientation {
+    /// Arrange hexagons in vertical columns; the top and bottom of each
+    /// hexagon is flat.
+    VerticalColumns,
+    /// Arrange hexagons in horizontal rows; the top and bottom of each
+    /// hexagon is pointed.
+    HorizontalRows,
+}
+
 /// A grid of hexes, each of which may contain a [Tile].
 #[derive(Debug, PartialEq)]
 pub struct Map {
@@ -33,7 +44,8 @@ pub struct Map {
     min_col: usize,
     /// The maximum column number for which there is a hex.
     max_col: usize,
-    flat_top: bool,
+    /// The orientation of the hexagonal grid.
+    orientation: Orientation,
 }
 
 // TODO: map::for_1867() -> Map
@@ -333,7 +345,8 @@ impl Map {
         let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
         let min_row = hexes.iter().map(|hc| hc.row).min().unwrap();
         let max_row = hexes.iter().map(|hc| hc.row).max().unwrap();
-        let flat_top = true;
+        // Note: we currently only support vertical columns.
+        let orientation = Orientation::VerticalColumns;
 
         Map {
             tokens,
@@ -348,7 +361,7 @@ impl Map {
             max_row,
             min_col,
             max_col,
-            flat_top,
+            orientation,
         }
     }
 
@@ -477,22 +490,52 @@ impl Map {
         let row = row - self.min_row;
         let col = col - self.min_col;
 
-        if self.flat_top {
-            let x = x0 + (col as f64) * hex.max_d * 0.75;
-            let y = if (col + self.min_col) % 2 == 1 {
-                y0 + (row as f64 + 0.5) * hex.min_d
-            } else {
-                y0 + (row as f64) * hex.min_d
-            };
-            Some((x, y))
-        } else {
-            let x = if (row + self.min_row) % 2 == 1 {
-                x0 + (col as f64 + 0.5) * hex.min_d
-            } else {
-                x0 + (col as f64) * hex.min_d
-            };
-            let y = y0 + (row as f64) * hex.max_d * 0.75;
-            Some((x, y))
+        match self.orientation {
+            Orientation::VerticalColumns => {
+                let x = x0 + (col as f64) * hex.max_d * 0.75;
+                let y = if (col + self.min_col) % 2 == 1 {
+                    y0 + (row as f64 + 0.5) * hex.min_d
+                } else {
+                    y0 + (row as f64) * hex.min_d
+                };
+                Some((x, y))
+            }
+            Orientation::HorizontalRows => {
+                let x = if (row + self.min_row) % 2 == 1 {
+                    x0 + (col as f64 + 0.5) * hex.min_d
+                } else {
+                    x0 + (col as f64) * hex.min_d
+                };
+                let y = y0 + (row as f64) * hex.max_d * 0.75;
+                Some((x, y))
+            }
+        }
+    }
+
+    /// Returns the hexagon rotation for the map.
+    fn hex_angle(&self) -> f64 {
+        use Orientation::*;
+        match self.orientation {
+            VerticalColumns => 0.0,
+            HorizontalRows => PI / 6.0,
+        }
+    }
+
+    /// Returns the hexagon x-origin coordinate for the map.
+    fn hex_x0(&self, hex: &Hex) -> f64 {
+        use Orientation::*;
+        match self.orientation {
+            VerticalColumns => 0.5 * hex.max_d + MAP_MARGIN,
+            HorizontalRows => 0.5 * hex.min_d + MAP_MARGIN,
+        }
+    }
+
+    /// Returns the hexagon y-origin coordinate for the map.
+    fn hex_y0(&self, hex: &Hex) -> f64 {
+        use Orientation::*;
+        match self.orientation {
+            VerticalColumns => 0.5 * hex.min_d + MAP_MARGIN,
+            HorizontalRows => 0.5 * hex.max_d + MAP_MARGIN,
         }
     }
 
@@ -502,17 +545,9 @@ impl Map {
         hex: &Hex,
         ctx: &Context,
     ) -> cairo::Matrix {
-        let angle = if self.flat_top { 0.0 } else { PI / 6.0 };
-        let x0 = if self.flat_top {
-            0.5 * hex.max_d + MAP_MARGIN
-        } else {
-            0.5 * hex.min_d + MAP_MARGIN
-        };
-        let y0 = if self.flat_top {
-            0.5 * hex.min_d + MAP_MARGIN
-        } else {
-            0.5 * hex.max_d + MAP_MARGIN
-        };
+        let angle = self.hex_angle();
+        let x0 = self.hex_x0(hex);
+        let y0 = self.hex_y0(hex);
 
         let (x, y) = self
             .hex_centre(addr.row, addr.col, x0, y0, hex)
@@ -748,17 +783,9 @@ impl<'a> HexIter<'a> {
         map: &'a Map,
         include: Vec<bool>,
     ) -> Self {
-        let angle = if map.flat_top { 0.0 } else { PI / 6.0 };
-        let x0 = if map.flat_top {
-            0.5 * hex.max_d + MAP_MARGIN
-        } else {
-            0.5 * hex.min_d + MAP_MARGIN
-        };
-        let y0 = if map.flat_top {
-            0.5 * hex.min_d + MAP_MARGIN
-        } else {
-            0.5 * hex.max_d + MAP_MARGIN
-        };
+        let angle = map.hex_angle();
+        let x0 = map.hex_x0(hex);
+        let y0 = map.hex_y0(hex);
 
         Self {
             hex,
