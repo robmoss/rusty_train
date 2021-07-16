@@ -1,4 +1,4 @@
-use cairo::{Context, FontSlant, FontWeight};
+use cairo::Context;
 use n18hex::consts::*;
 use n18hex::Hex;
 
@@ -459,9 +459,7 @@ impl Token {
 
     fn draw_text(&self, hex: &Hex, ctx: &Context, text: &str) {
         // NOTE: scale font size relative to hex diameter.
-        ctx.select_font_face("Sans", FontSlant::Normal, FontWeight::Bold);
         let scale = hex.max_d / 125.0;
-        ctx.set_font_size(10.0 * scale);
 
         // NOTE: use pango to draw the label on tokens, so that we can specify
         // a maximum width and wrap the text, and support line breaks for
