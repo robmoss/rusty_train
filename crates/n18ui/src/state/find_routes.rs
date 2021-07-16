@@ -32,7 +32,15 @@ impl FindRoutes {
         let companies = valid_companies(content);
         let company_names: Vec<&str> =
             companies.iter().map(|c| c.full_name.as_str()).collect();
-        let abbrev = select_item(window, "Select a company", &company_names)?;
+        let chosen_name =
+            select_item(window, "Select a company", &company_names)?;
+        let abbrev = companies.iter().find_map(|c| {
+            if c.full_name == chosen_name {
+                Some(c.abbrev.as_str())
+            } else {
+                None
+            }
+        })?;
 
         // Identify the company token.
         let token = content.map.try_token(abbrev)?;
