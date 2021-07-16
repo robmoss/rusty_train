@@ -41,6 +41,9 @@ pub struct Map {
 // - extra route logic (e.g., Timmins): F: Fn(&Route, usize) -> usize ???
 //   (https://stackoverflow.com/a/54182204)
 
+/// The width (in pixels) of the margin around the map edges.
+const MAP_MARGIN: f64 = 10.0;
+
 impl Map {
     pub fn tiles(&self) -> &[Tile] {
         self.tiles.as_slice()
@@ -501,14 +504,14 @@ impl Map {
     ) -> cairo::Matrix {
         let angle = if self.flat_top { 0.0 } else { PI / 6.0 };
         let x0 = if self.flat_top {
-            0.5 * hex.max_d + 10.0
+            0.5 * hex.max_d + MAP_MARGIN
         } else {
-            0.5 * hex.min_d + 10.0
+            0.5 * hex.min_d + MAP_MARGIN
         };
         let y0 = if self.flat_top {
-            0.5 * hex.min_d + 10.0
+            0.5 * hex.min_d + MAP_MARGIN
         } else {
-            0.5 * hex.max_d + 10.0
+            0.5 * hex.max_d + MAP_MARGIN
         };
 
         let (x, y) = self
@@ -747,14 +750,14 @@ impl<'a> HexIter<'a> {
     ) -> Self {
         let angle = if map.flat_top { 0.0 } else { PI / 6.0 };
         let x0 = if map.flat_top {
-            0.5 * hex.max_d + 10.0
+            0.5 * hex.max_d + MAP_MARGIN
         } else {
-            0.5 * hex.min_d + 10.0
+            0.5 * hex.min_d + MAP_MARGIN
         };
         let y0 = if map.flat_top {
-            0.5 * hex.min_d + 10.0
+            0.5 * hex.min_d + MAP_MARGIN
         } else {
-            0.5 * hex.max_d + 10.0
+            0.5 * hex.max_d + MAP_MARGIN
         };
 
         Self {
