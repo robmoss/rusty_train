@@ -1,4 +1,5 @@
 use cairo::Context;
+use log::debug;
 
 use n18hex::Hex;
 use n18map::{HexAddress, HexIter, Map};
@@ -404,6 +405,59 @@ pub fn highlight_path(hex: &Hex, ctx: &Context, map: &Map, path: &Path) {
     highlight_steps(hex, ctx, map, &path.steps);
     // Then draw visited cities and dits.
     highlight_visits(hex, ctx, map, &path.visits);
+}
+
+/// Draw an arbitrary tile at the specified map hex, rather than the tile that
+/// is currently placed at the map hex (if any).
+pub fn draw_tile_at(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    addr: &HexAddress,
+    tile: &Tile,
+    radians: f64,
+) {
+    let m = map.prepare_to_draw(*addr, hex, ctx);
+    ctx.rotate(radians);
+    tile.draw(ctx, hex);
+    ctx.set_matrix(m);
+}
+
+/// Draw an arbitrary tile and tokens at the specified map hex, rather than
+/// the tile and tokens that are currently placed at the map hex (if any).
+///
+/// This only draws tokens for which there is a matching token space (i.e., a
+/// matching city index and a matching token index).
+/// It ignores tokens spaces that do not belong to the provided tile, and
+/// unknown token names.
+/// It outputs a debug logging message for each ignored token space and token.
+pub fn draw_tile_and_tokens_at<'a, T>(
+    hex: &Hex,
+    ctx: &Context,
+    map: &Map,
+    addr: &HexAddress,
+    tile: &Tile,
+    radians: f64,
+    tokens: T,
+) where
+    T: IntoIterator<Item = (&'a TokenSpace, &'a Token)>,
+{
+    let m = map.prepare_to_draw(*addr, hex, ctx);
+    ctx.rotate(radians);
+    tile.draw(ctx, hex);
+    for (token_space, token) in tokens.into_iter() {
+        if tile.define_token_space(&token_space, &hex, ctx) {
+            let tok_name = map.try_token_name(token);
+            if let Some(name) = tok_name {
+                token.draw(&hex, ctx, &name, radians);
+            } else {
+                debug!("Invalid token for this map: {:?}", token);
+            }
+        } else {
+            debug!("Tile {} has no {:?}", tile.name, token_space);
+        }
+    }
+    ctx.set_matrix(m);
 }
 
 /// Supported output image formats.

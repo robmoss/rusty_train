@@ -86,38 +86,39 @@ impl State for ReplaceTile {
 
         // Draw the replacement tile over the current tile.
         if !self.show_original {
-            let map_hex = map.get_hex(self.active_hex);
-            let m = map.prepare_to_draw(self.active_hex, hex, ctx);
-
-            // Apply the appropriate tile rotation.
-            let extra_angle = map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
-            let rotn = self.rotation.radians() + extra_angle;
-            ctx.rotate(rotn);
-
-            // Draw the replacement tile.
+            // Find the replacement tile.
             let tile_ix = self.candidates[self.selected];
             let tile = &map.tiles()[tile_ix];
-            tile.draw(ctx, hex);
 
-            // Draw any tokens that have been placed, if there is a matching
-            // token space (i.e., matching city index and token index).
+            // Apply the appropriate tile rotation.
+            let map_hex = map.get_hex(self.active_hex);
+            let radians = self.rotation.radians()
+                + map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
+
+            // Draw the replacement tile and placed tokens, if any, in
+            // matching spaces (i.e., matching city index and token index).
             // See the module doc comment, above, for details.
             if let Some(hs) = map_hex {
-                for (token_space, token) in hs.get_tokens() {
-                    if tile.define_token_space(&token_space, &hex, ctx) {
-                        let tok_name = map.try_token_name(token);
-                        if let Some(name) = tok_name {
-                            token.draw(&hex, ctx, &name, rotn);
-                        } else {
-                            println!("Could not get token name.")
-                        }
-                    } else {
-                        println!("Could not define token space.")
-                    }
-                }
+                let tokens = hs.get_tokens();
+                n18brush::draw_tile_and_tokens_at(
+                    hex,
+                    ctx,
+                    map,
+                    &self.active_hex,
+                    tile,
+                    radians,
+                    tokens,
+                );
+            } else {
+                n18brush::draw_tile_at(
+                    hex,
+                    ctx,
+                    map,
+                    &self.active_hex,
+                    tile,
+                    radians,
+                );
             };
-
-            ctx.set_matrix(m);
         }
 
         n18brush::outline_empty_hexes(hex, ctx, &mut hex_iter);

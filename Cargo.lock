@@ -575,6 +575,7 @@ name = "n18brush"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
+ "log",
  "n18hex",
  "n18map",
  "n18route",

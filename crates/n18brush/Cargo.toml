@@ -15,3 +15,4 @@ n18tile = { path = "../n18tile" }
 n18token = { path = "../n18token" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
+log = "0.4"
