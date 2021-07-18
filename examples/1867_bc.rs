@@ -91,13 +91,13 @@ fn save_1867_bc_routes(
 
     // Save the map state.
     let dest_file = json_dir.join("1867_bc.map");
-    let descr: navig18xx::map::Descr = state.example.get_map().into();
+    let descr: navig18xx::map::Descr = state.example.map().into();
     info!("Writing {} ...", dest_file.to_str().unwrap());
     navig18xx::io::write_map_descr(dest_file, &descr, true)?;
 
     // Save the game state.
     let state_file = json_dir.join("1867_bc.game");
-    let game_state = state.game.save(state.example.get_map());
+    let game_state = state.game.save(state.example.map());
     info!("Writing {} ...", state_file.to_str().unwrap());
     navig18xx::io::write_game_state(state_file, game_state, true)?;
 
@@ -183,7 +183,7 @@ fn game_state() -> GameState {
     // Black:  New York Central Railroad (NYC)
 
     // Set the game phase to "8".
-    game.set_phase_name(example.get_map_mut(), "8");
+    game.set_phase_name(example.map_mut(), "8");
 
     // Define the five tokens by company name.
     let cnr = "CNR";
@@ -284,7 +284,7 @@ fn game_state() -> GameState {
 
 fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
     let bonuses = vec![];
-    let token = example.get_map().get_token(company.token_name);
+    let token = example.map().get_token(company.token_name);
     let path_limit = company.trains.path_limit();
     let criteria = Criteria {
         token,
@@ -292,7 +292,7 @@ fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
         conflict_rule: ConflictRule::TrackOrCityHex,
         route_conflict_rule: ConflictRule::TrackOnly,
     };
-    let map = example.get_map();
+    let map = example.map();
     let start = Local::now();
     let paths = paths_for_token(&map, &criteria);
     assert_eq!(paths.len(), company.num_paths);
@@ -335,43 +335,36 @@ fn draw_routes(
         row + col >= 17
     });
 
-    let first_rgba = (0.7, 0.1, 0.1, 1.0);
-    let second_rgba = (0.1, 0.7, 0.1, 1.0);
-    for (pix, tr) in routes.train_routes.iter().enumerate() {
-        if pix == 0 {
-            example.draw_route(&tr.route, first_rgba)
-        } else {
-            example.draw_route(&tr.route, second_rgba)
-        }
+    let colours = example.theme().highlight_colours();
+    for (tr, colour) in routes.train_routes.iter().zip(colours) {
+        example.draw_route(&tr.route, colour)
     }
 
     let label_text = format!(
         "{}: {} = ${}",
         company.token_name, company.train_desc, routes.net_revenue
     );
-    let label = example
-        .new_label(label_text)
-        .font_family("Serif")
+    let labeller = example
+        .text_style()
+        .font_serif()
         .font_size(36.0)
         .bold()
-        .hjust(0.5)
-        .vjust(0.0)
-        .into_label()
-        .expect("Could not create label");
+        .halign_left()
+        .valign_top()
+        .labeller(example.context(), example.hex());
 
     // NOTE: image coordinates are not the same as map canvas coordinates,
     // because we're only drawing a subset of the map and the full surface
     // will be cropped to the inked portion.
     // Instead, draw the label relative to a known hex address.
-    let m = example.get_map().prepare_to_draw(
+    let m = example.map().prepare_to_draw(
         "A5".parse().unwrap(),
-        &example.get_hex(),
-        &example.get_context(),
+        example.hex(),
+        example.context(),
     );
-    // Draw the text in black, then restore the transformation matrix.
-    example.get_context().set_source_rgb(0.0, 0.0, 0.0);
-    label.draw();
-    example.get_context().set_matrix(m);
+    // Draw the text, then restore the transformation matrix.
+    labeller.draw_at_current_point(&label_text);
+    example.context().set_matrix(m);
 
     Ok(())
 }
@@ -381,7 +374,7 @@ fn save_png<S: AsRef<Path>>(example: &Example, filename: S) {
     // NOTE: don't use a fully-transparent background (alpha = 0.0).
     // Otherwise the revenue label will not be visible in the book when using
     // a dark theme.
-    let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
+    let bg_rgba = Some(Colour::WHITE);
     let margin = 20;
     info!("Writing {} ...", filename.to_str().unwrap());
     example.write_png(margin, bg_rgba, filename);

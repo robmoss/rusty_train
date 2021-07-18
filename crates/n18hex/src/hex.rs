@@ -1,12 +1,13 @@
-use cairo::{Context, LineCap, LineJoin};
+use cairo::Context;
 
 use crate::consts::PI;
 use crate::consts::{PI_1_4, PI_3_4};
 use crate::consts::{PI_1_6, PI_2_6, PI_3_6, PI_4_6, PI_5_6};
 use crate::coord::Coord;
+use crate::theme::Theme;
 
 /// The tile background colours for [Hex].
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum HexColour {
     Yellow,
     Green,
@@ -18,27 +19,6 @@ pub enum HexColour {
 }
 
 impl HexColour {
-    /// Makes this colour the source pattern for the provided context.
-    pub fn set_source_rgb(&self, ctx: &Context) {
-        match self {
-            // #F3F013
-            // HexColour::Yellow => ctx.set_source_rgb(0.953, 0.941, 0.075),
-            // NOTE: Horrendous dark yellow to check track outlines.
-            HexColour::Yellow => ctx.set_source_rgb(0.86, 0.75, 0.07),
-            // #33B764
-            HexColour::Green => ctx.set_source_rgb(0.20, 0.718, 0.392),
-            // #AC6B3E
-            HexColour::Brown => ctx.set_source_rgb(0.675, 0.420, 0.243),
-            // #BCBCBC
-            HexColour::Grey => ctx.set_source_rgb(0.741, 0.737, 0.737),
-            // #BD5E64 -- Too similar to brown
-            // HexColour::Red => ctx.set_source_rgb(0.741, 0.369, 0.392),
-            HexColour::Red => ctx.set_source_rgb(0.86, 0.243, 0.243),
-            HexColour::Blue => ctx.set_source_rgb(0.0, 0.5, 0.96),
-            HexColour::Empty => ctx.set_source_rgb(0.741, 0.86, 0.741),
-        }
-    }
-
     /// Returns the colour associated with the next phase of tiles, if any.
     pub fn next_phase(&self) -> Option<Self> {
         match self {
@@ -474,6 +454,8 @@ impl HexPosition {
 ///
 /// The origin is defined to be the centre of the hexagon.
 pub struct Hex {
+    /// The colours and drawing styles for this hexagon.
+    pub theme: Theme,
     /// The maximal diameter (the length between opposite corners).
     pub max_d: f64,
     /// The minimal diameter (the length between opposite faces).
@@ -494,19 +476,29 @@ impl From<f64> for Hex {
 impl Hex {
     /// Constructs a hexagon for the given maximal diameter.
     pub fn new(max_d: f64) -> Self {
+        let theme = Theme::default();
+        Self::with_theme(max_d, theme)
+    }
+
+    /// Returns the coordinates of each hexagon corner, relative to the
+    /// hexagon centre.
+    fn corner_coords(alpha: f64, beta: f64) -> Vec<Coord> {
+        vec![
+            Coord::from((-2.0 * alpha, 0.0)), // Middle left
+            Coord::from((-alpha, beta)),      // Upper left
+            Coord::from((alpha, beta)),       // Upper right
+            Coord::from((2.0 * alpha, 0.0)),  // Middle right
+            Coord::from((alpha, -beta)),      // Lower right
+            Coord::from((-alpha, -beta)),     // Lower left
+        ]
+    }
+
+    /// Constructs a hexagon for the given maximal diameter and drawing theme.
+    pub fn with_theme(max_d: f64, theme: Theme) -> Self {
         let min_d = (3.0_f64).sqrt() * max_d / 2.0;
         let alpha = max_d / 4.0;
         let beta = alpha * (3.0_f64).sqrt();
-        let corners = vec![
-            (-2.0 * alpha, 0.0), // Middle left
-            (-alpha, beta),      // Upper left
-            (alpha, beta),       // Upper right
-            (2.0 * alpha, 0.0),  // Middle right
-            (alpha, -beta),      // Lower right
-            (-alpha, -beta),     // Lower left
-        ];
-
-        let corner_coords = corners.iter().map(|c| c.into()).collect();
+        let corners = Self::corner_coords(alpha, beta);
 
         let dim = (max_d * 2.0) as i32;
         let surface =
@@ -517,12 +509,37 @@ impl Hex {
         context.translate(max_d, max_d);
 
         Self {
+            theme,
             max_d,
             min_d,
-            corners: corner_coords,
+            corners,
             surface,
             context,
         }
+    }
+
+    /// Resizes the hexagon to have the specified maximal diameter.
+    pub fn resize(&mut self, max_d: f64) {
+        let min_d = (3.0_f64).sqrt() * max_d / 2.0;
+        let alpha = max_d / 4.0;
+        let beta = alpha * (3.0_f64).sqrt();
+        let corners = Self::corner_coords(alpha, beta);
+
+        self.max_d = max_d;
+        self.min_d = min_d;
+        self.corners = corners;
+
+        let dim = (max_d * 2.0) as i32;
+        let resize_surface =
+            self.surface.get_width() < dim || self.surface.get_height() < dim;
+        if resize_surface {
+            self.surface =
+                cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
+                    .expect("Can't create cairo::ImageSurface");
+            self.context = cairo::Context::new(&self.surface);
+        }
+        // Move the origin to the centre of this hexagon.
+        self.context.translate(max_d, max_d);
     }
 
     /// Returns the ratio of the minimal diameter to the maximal diameter:
@@ -564,9 +581,7 @@ impl Hex {
 
     /// Defines the hexagon boundary as a path on the provided context.
     pub fn define_boundary(&self, ctx: &Context) {
-        ctx.set_line_cap(LineCap::Butt);
-        ctx.set_line_join(LineJoin::Round);
-
+        self.theme.hex_border.apply_line(ctx, self);
         ctx.new_path();
         for coord in &self.corners {
             ctx.line_to(coord.x, coord.y);
@@ -578,10 +593,9 @@ impl Hex {
     /// Fills the hexagon with a specific colour on the provided context.
     pub fn draw_background(&self, colour: HexColour, ctx: &Context) {
         self.define_boundary(ctx);
-        colour.set_source_rgb(ctx);
-        ctx.set_line_width(self.max_d * 0.01);
+        self.theme.apply_hex_colour(ctx, colour);
         ctx.fill_preserve();
-        ctx.set_source_rgb(0.7, 0.7, 0.7);
+        self.theme.hex_border.apply_line_and_stroke(ctx, self);
         ctx.stroke();
     }
 

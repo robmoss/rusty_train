@@ -59,14 +59,13 @@ impl State for EditTokens {
         );
 
         // Draw the active hex with a grey border.
+        let border = n18hex::Colour::from((76, 76, 76));
         n18brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,
             &Some(self.active_hex),
-            0.3,
-            0.3,
-            0.3,
+            border,
         );
     }
 

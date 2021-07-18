@@ -7,11 +7,11 @@ use std::collections::HashMap;
 
 use super::Company;
 use n18catalogue::tile_catalogue;
-use n18hex::{Hex, HexColour, HexFace, HexPosition};
+use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Bonus, Train, TrainType};
 use n18tile::{Label, Tile};
-use n18token::{Colour, Token, TokenStyle};
+use n18token::{Token, TokenStyle};
 
 fn addrs() -> Vec<(usize, usize)> {
     vec![

@@ -3222,65 +3222,65 @@ struct Token {
 #[derive(Serialize, Deserialize)]
 enum TokenStyle {
     SideArcs {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TopArcs {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TopSquares {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TopLines {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TopTriangles {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TripleTriangles {
-        bg: TokenColour,
-        fg: TokenColour,
-        text: TokenColour,
+        bg: Colour,
+        fg: Colour,
+        text: Colour,
     },
     TribandV {
-        sides: TokenColour,
-        middle: TokenColour,
-        text: TokenColour,
+        sides: Colour,
+        middle: Colour,
+        text: Colour,
     },
     TribandH {
-        sides: TokenColour,
-        middle: TokenColour,
-        text: TokenColour,
+        sides: Colour,
+        middle: Colour,
+        text: Colour,
     },
     TricolourV {
-        left: TokenColour,
-        middle: TokenColour,
-        right: TokenColour,
-        text: TokenColour,
+        left: Colour,
+        middle: Colour,
+        right: Colour,
+        text: Colour,
     },
     TricolourH {
-        top: TokenColour,
-        middle: TokenColour,
-        bottom: TokenColour,
-        text: TokenColour,
+        top: Colour,
+        middle: Colour,
+        bottom: Colour,
+        text: Colour,
     },
 }
 
 #[derive(Serialize, Deserialize)]
-struct TokenColour {
-    pub red: usize,
-    pub green: usize,
-    pub blue: usize,
-    pub alpha: Option<usize>,
+struct Colour {
+    pub red: u8,
+    pub green: u8,
+    pub blue: u8,
+    pub alpha: u8,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -3343,8 +3343,8 @@ impl std::convert::From<&TileRotation> for n18map::RotateCW {
     }
 }
 
-impl std::convert::From<&n18token::Colour> for TokenColour {
-    fn from(src: &n18token::Colour) -> Self {
+impl std::convert::From<&n18hex::Colour> for Colour {
+    fn from(src: &n18hex::Colour) -> Self {
         Self {
             red: src.red,
             blue: src.blue,
@@ -3354,8 +3354,8 @@ impl std::convert::From<&n18token::Colour> for TokenColour {
     }
 }
 
-impl std::convert::From<&TokenColour> for n18token::Colour {
-    fn from(src: &TokenColour) -> Self {
+impl std::convert::From<&Colour> for n18hex::Colour {
+    fn from(src: &Colour) -> Self {
         Self {
             red: src.red,
             blue: src.blue,

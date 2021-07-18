@@ -79,9 +79,9 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
         .map(|(ix, (bg, fg))| {
             // Use black text on yellow, and white text on green.
             let text = if bg == bg_yellow {
-                Colour::from((0, 0, 0))
+                Colour::BLACK
             } else {
-                Colour::from((255, 255, 255))
+                Colour::WHITE
             };
             // Cycle through token styles, repeating each style in turn so
             // that it is paired with all of the foreground colours.

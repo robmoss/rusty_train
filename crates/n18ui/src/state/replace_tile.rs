@@ -125,14 +125,13 @@ impl State for ReplaceTile {
         n18brush::draw_barriers(hex, ctx, map);
 
         // Draw the active hex with a blue border.
+        let border = n18hex::Colour::from((0, 0, 179));
         n18brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,
             &Some(self.active_hex),
-            0.0,
-            0.0,
-            0.7,
+            border,
         );
     }
 

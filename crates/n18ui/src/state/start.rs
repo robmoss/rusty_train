@@ -2,7 +2,8 @@
 use cairo::Context;
 use gtk::Inhibit;
 
-use n18example::LabelBuilder;
+use n18hex::theme::Text;
+use n18hex::Coord;
 
 use super::{Action, State};
 use crate::Content;
@@ -32,16 +33,11 @@ impl Default for Start {
 
 impl State for Start {
     fn draw(&self, content: &Content, ctx: &Context) {
-        let usage = LabelBuilder::new(
-            ctx,
-            &content.hex,
-            "Ctrl+N: Start a new game\nCtrl+O: Load a saved game\nQ: Quit",
-        )
-        .font_size(16.0)
-        .into_label()
-        .unwrap();
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        usage.draw_at(20.0, 20.0);
+        let usage_str =
+            "Ctrl+N: Start a new game\nCtrl+O: Load a saved game\nQ: Quit";
+        let labeller =
+            Text::new().font_size(16.0).labeller(ctx, &content.hex);
+        labeller.draw(usage_str, Coord::from((20.0, 20.0)));
     }
 
     fn key_press(

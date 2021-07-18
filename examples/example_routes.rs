@@ -1,3 +1,4 @@
+use navig18xx::hex::theme::AlignH;
 use navig18xx::prelude::*;
 use navig18xx::route::builder::{Result, RouteBuilder};
 use std::io::Write;
@@ -32,7 +33,7 @@ fn main() -> Result<()> {
     let token_a = Token::new(TokenStyle::SideArcs {
         fg: (176, 176, 176).into(),
         bg: (66, 0, 0).into(),
-        text: (255, 255, 255).into(),
+        text: Colour::WHITE,
     });
     let name_a = "A";
     let tokens = vec![(name_a, token_a)];
@@ -59,7 +60,7 @@ fn main() -> Result<()> {
     ];
     let example = Example::new(hex_max_diameter, tokens, tiles);
 
-    let map = example.get_map();
+    let map = example.map();
     let route1 = RouteBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
         .to_city(0, true)?
         .to_edge(HexFace::Bottom)?
@@ -90,32 +91,36 @@ fn main() -> Result<()> {
     let best_route = &best_routes.unwrap().train_routes[0].route;
 
     example.draw_map();
-    example.draw_route(&best_route, (0.1, 0.7, 0.1, 1.0));
-    example.draw_route(&route1, (0.7, 0.1, 0.1, 1.0));
-    example.draw_route(&route2, (0.1, 0.1, 0.7, 1.0));
+    example.draw_route(&best_route, example.theme().nth_highlight_colour(1));
+    example.draw_route(&route1, example.theme().nth_highlight_colour(0));
+    example.draw_route(&route2, example.theme().nth_highlight_colour(2));
 
     // NOTE: use Pango to draw a large label above the map.
-    let ctx = example.get_context();
+    let ctx = example.context();
     let centre_label = false;
-    let hjust = if centre_label { 0.5 } else { 0.0 };
-    let label = example
-        .new_label("navig18xx")
-        .font_family("Serif")
+    let horiz = if centre_label {
+        AlignH::Centre
+    } else {
+        AlignH::Left
+    };
+    let labeller = example
+        .text_style()
+        .font_serif()
         .font_size(36.0)
         .bold()
-        .hjust(hjust)
-        .into_label()
-        .expect("Could not create label");
-    let label_height = label.dims().1;
-    ctx.set_source_rgb(0.0, 0.0, 0.0);
-    if centre_label {
+        .halign(horiz)
+        .labeller(ctx, example.hex());
+    let label_text = "navig18xx";
+    let label_height = labeller.size(label_text).height;
+    let coords = if centre_label {
         let image_width = example.content_size().0;
-        label.draw_at(0.5 * image_width, -2.0 * label_height as f64);
+        (0.5 * image_width, -2.0 * label_height as f64)
     } else {
-        label.draw_at(0.0, -2.0 * label_height as f64);
-    }
+        (0.0, -2.0 * label_height as f64)
+    };
+    labeller.draw(label_text, coords.into());
 
-    let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
+    let bg_rgba = Some(Colour::WHITE);
     let margin = 20;
     example.write_png(margin, bg_rgba, output_dir.join("example_routes.png"));
     example.write_svg(margin, bg_rgba, output_dir.join("example_routes.svg"));

@@ -185,9 +185,8 @@ pub mod tests {
                 }
                 None => {
                     // Draw a border around this hex.
-                    ctx.set_source_rgb(0.7, 0.7, 0.7);
                     hex.define_boundary(ctx);
-                    ctx.set_line_width(hex.max_d * 0.01);
+                    hex.theme.hex_border.apply_line_and_stroke(ctx, hex);
                     ctx.stroke();
                 }
             }

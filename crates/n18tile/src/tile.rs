@@ -1,6 +1,6 @@
 use crate::{City, Connection, Connections, Dit, Draw, Label, Track};
 use cairo::Context;
-use n18hex::{Hex, HexColour, HexCorner, HexPosition};
+use n18hex::{Colour, Hex, HexColour, HexCorner, HexPosition};
 use std::collections::HashMap;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -312,7 +312,7 @@ impl Tile {
         // Draw the tile name, except for special tiles such as those that are
         // part of the initial map and are not truly "tiles" as such.
         if self.show_tile_name {
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            Colour::BLACK.apply_colour(ctx);
             let hex_pos = HexPosition::Corner(HexCorner::BottomRight, None);
             Label::TileName.draw(ctx, hex, &hex_pos, &self);
         }
@@ -398,8 +398,8 @@ impl Tile {
     /// Determines the surface size for this tile, which includes a small
     /// margin on all four sides.
     fn surface_width(&self, hex: &Hex) -> f64 {
-        let margin = 0.05;
-        hex.max_d * (1.0 + margin)
+        let margin = hex.theme.tile_margin.absolute(hex);
+        hex.max_d + 2.0 * margin
     }
 
     /// Saves the tile to a PNG file.
@@ -438,8 +438,7 @@ impl Tile {
         hex: &Hex,
         stream: &mut W,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let margin = 0.05;
-        let width = hex.max_d * (1.0 + margin);
+        let width = self.surface_width(hex);
         let dim = width as i32;
         let surface =
             cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
@@ -457,8 +456,7 @@ impl Tile {
         hex: &Hex,
         stream: W,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let margin = 0.05;
-        let width = hex.max_d * (1.0 + margin);
+        let width = self.surface_width(hex);
         let surface = cairo::SvgSurface::for_stream(width, width, stream)
             .map_err(|_status| "Can't create surface")?;
         let ctx = cairo::Context::new(&surface);

@@ -16,7 +16,6 @@ n18io = { path = "../n18io" }
 n18route = { path = "../n18route" }
 n18game = { path = "../n18game" }
 n18brush = { path = "../n18brush" }
-n18example = { path = "../n18example" }
 
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }

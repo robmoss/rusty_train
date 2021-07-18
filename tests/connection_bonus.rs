@@ -85,7 +85,7 @@ fn test_connection_bonus_between_two_dits() {
     map_hex.set_token_at(&token_space, company_token);
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);
-    ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(&ctx);
     ctx.paint();
     brush::draw_map(&hex, &ctx, &mut hex_iter);
 
@@ -128,15 +128,11 @@ fn test_connection_bonus_between_two_dits() {
     }
 
     // Draw each of the best routes, and save this to a PNG file.
-    ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(&ctx);
     ctx.paint();
     brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
-        match ix % 3 {
-            0 => (0.7, 0.1, 0.1, 1.0),
-            1 => (0.1, 0.7, 0.1, 1.0),
-            _ => (0.1, 0.1, 0.7, 1.0),
-        }
+        hex.theme.nth_highlight_colour(ix)
     });
     let filename = output_dir.join("test-conn-bonus-route-no-bonus.png");
     let mut file = std::fs::File::create(filename)
@@ -175,15 +171,11 @@ fn test_connection_bonus_between_two_dits() {
     }
 
     // Draw each of the best routes, and save this to a PNG file.
-    ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(&ctx);
     ctx.paint();
     brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &new_best.routes(), |ix| {
-        match ix % 3 {
-            0 => (0.7, 0.1, 0.1, 1.0),
-            1 => (0.1, 0.7, 0.1, 1.0),
-            _ => (0.1, 0.1, 0.7, 1.0),
-        }
+        hex.theme.nth_highlight_colour(ix)
     });
     let filename = output_dir.join("test-conn-bonus-route-with-bonus.png");
     let mut file = std::fs::File::create(filename)

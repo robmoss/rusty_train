@@ -192,12 +192,8 @@ impl State for FindRoutes {
             if let Some(ix) = self.active_route {
                 // Draw only a single route, in the same colour as when
                 // drawing all routes.
-                let colour = match ix % 3 {
-                    0 => (0.7, 0.1, 0.1, 1.0),
-                    1 => (0.1, 0.7, 0.1, 1.0),
-                    _ => (0.1, 0.1, 0.7, 1.0),
-                };
-                ctx.set_source_rgba(colour.0, colour.1, colour.2, colour.3);
+                let colour = hex.theme.nth_highlight_colour(ix);
+                colour.apply_colour(&ctx);
                 let route = routes.routes()[ix];
                 n18brush::highlight_route(&hex, &ctx, &map, route);
             } else {
@@ -206,11 +202,7 @@ impl State for FindRoutes {
                     &ctx,
                     &map,
                     &routes.routes(),
-                    |ix| match ix % 3 {
-                        0 => (0.7, 0.1, 0.1, 1.0),
-                        1 => (0.1, 0.7, 0.1, 1.0),
-                        _ => (0.1, 0.1, 0.7, 1.0),
-                    },
+                    |ix| hex.theme.nth_highlight_colour(ix),
                 );
             }
         }

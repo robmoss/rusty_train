@@ -1,7 +1,7 @@
 use cairo::Context;
 use log::debug;
 
-use n18hex::Hex;
+use n18hex::{Colour, Hex, HexColour};
 use n18map::{HexAddress, HexIter, Map};
 use n18route::{Path, Route, Step, StopLocation, Visit};
 use n18tile::{Connection, DitShape, Draw, Tile, TokenSpace};
@@ -12,19 +12,20 @@ pub fn draw_hex_backgrounds(
     ctx: &Context,
     mut hex_iter: &mut HexIter<'_>,
 ) {
+    // Fill each hex with the default background colour.
     hex_iter.restart();
     for _ in &mut hex_iter {
-        // Draw a thick black border on all hexes.
-        // This will give map edges a clear border.
         hex.define_boundary(ctx);
-        ctx.set_source_rgb(0.741, 0.86, 0.741);
+        hex.theme.apply_hex_colour(ctx, HexColour::Empty);
         ctx.fill();
     }
+    // Draw a thick border around each hex, so that after the map tiles and
+    // other layers have been drawn on top of this, the map edges will have a
+    // clear border.
     hex_iter.restart();
     for _ in &mut hex_iter {
         hex.define_boundary(ctx);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.set_line_width(hex.max_d * 0.05);
+        hex.theme.map_border.apply_line_and_stroke(ctx, hex);
         ctx.stroke();
     }
 
@@ -59,7 +60,7 @@ pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
 
 pub fn draw_empty_hex(hex: &Hex, ctx: &Context) {
     hex.define_boundary(ctx);
-    ctx.set_source_rgb(0.741, 0.86, 0.741);
+    hex.theme.apply_hex_colour(ctx, HexColour::Empty);
     ctx.fill();
 }
 
@@ -72,9 +73,8 @@ pub fn outline_empty_hexes(
     hex_iter.restart();
     for hex_state in &mut hex_iter {
         if hex_state.tile_state.is_none() {
-            ctx.set_source_rgb(0.7, 0.7, 0.7);
             hex.define_boundary(ctx);
-            ctx.set_line_width(hex.max_d * 0.01);
+            hex.theme.hex_border.apply_line_and_stroke(ctx, hex);
             ctx.stroke();
         }
     }
@@ -113,8 +113,6 @@ pub fn draw_barriers_subset(
     map: &Map,
     mut hex_iter: &mut HexIter<'_>,
 ) {
-    let cap = ctx.get_line_cap();
-    ctx.set_line_cap(cairo::LineCap::Round);
     let barriers = map.barriers();
     hex_iter.restart();
     for hex_state in &mut hex_iter {
@@ -126,32 +124,26 @@ pub fn draw_barriers_subset(
             let corners = face.corners();
             let c0 = hex.corner_coord(&corners.0);
             let c1 = hex.corner_coord(&corners.1);
-            ctx.set_line_width(hex.max_d * 0.05);
-            ctx.set_source_rgb(0.1, 0.1, 0.6);
             ctx.move_to(c0.x, c0.y);
             ctx.line_to(c1.x, c1.y);
+            hex.theme.hex_barrier.apply_line_and_stroke(ctx, hex);
             ctx.stroke();
         }
     }
-    ctx.set_line_cap(cap);
 }
 
 pub fn draw_barriers(hex: &Hex, ctx: &Context, map: &Map) {
-    let cap = ctx.get_line_cap();
-    ctx.set_line_cap(cairo::LineCap::Round);
     for (addr, face) in map.barriers() {
         let m = map.prepare_to_draw(*addr, hex, ctx);
         let corners = face.corners();
         let c0 = hex.corner_coord(&corners.0);
         let c1 = hex.corner_coord(&corners.1);
-        ctx.set_line_width(hex.max_d * 0.05);
-        ctx.set_source_rgb(0.1, 0.1, 0.6);
         ctx.move_to(c0.x, c0.y);
         ctx.line_to(c1.x, c1.y);
+        hex.theme.hex_barrier.apply_line_and_stroke(ctx, hex);
         ctx.stroke();
         ctx.set_matrix(m);
     }
-    ctx.set_line_cap(cap);
 }
 
 /// Highlights tokens that satisfy a predicate by drawing borders around them
@@ -162,8 +154,8 @@ pub fn highlight_tokens<P>(
     ctx: &Context,
     mut hex_iter: &mut HexIter<'_>,
     mut predicate: P,
-    border: n18token::Colour,
-    fill: Option<n18token::Colour>,
+    border: n18hex::Colour,
+    fill: Option<n18hex::Colour>,
 ) where
     P: FnMut(&HexAddress, &Tile, &TokenSpace, &Token) -> bool,
 {
@@ -175,11 +167,11 @@ pub fn highlight_tokens<P>(
                 if predicate(hex_addr, tile, token_space, token) {
                     tile.define_token_space(token_space, hex, ctx);
                     if let Some(fill_colour) = fill {
-                        fill_colour.apply_to(ctx);
+                        fill_colour.apply_colour(ctx);
                         ctx.fill_preserve();
                     }
-                    border.apply_to(ctx);
-                    ctx.set_line_width(hex.max_d * 0.025);
+                    border.apply_colour(ctx);
+                    hex.theme.token_space_highlight.apply_line(ctx, hex);
                     ctx.stroke_preserve();
                 }
             }
@@ -194,13 +186,13 @@ pub fn highlight_token_space(
     map: &Map,
     hex_addr: HexAddress,
     token_space: &TokenSpace,
-    border: n18token::Colour,
+    border: n18hex::Colour,
 ) {
     if let Some(tile) = map.tile_at(hex_addr) {
         let m = map.prepare_to_draw(hex_addr, hex, ctx);
         tile.define_token_space(token_space, hex, ctx);
-        border.apply_to(ctx);
-        ctx.set_line_width(hex.max_d * 0.025);
+        border.apply_colour(ctx);
+        hex.theme.token_space_highlight.apply_line(ctx, hex);
         ctx.stroke_preserve();
         ctx.set_matrix(m);
     }
@@ -216,7 +208,7 @@ pub fn highlight_hexes<P>(
     ctx: &Context,
     mut hex_iter: &mut HexIter<'_>,
     mut predicate: P,
-    border: Option<n18token::Colour>,
+    border: Option<n18hex::Colour>,
 ) where
     P: FnMut(&HexAddress) -> bool,
 {
@@ -226,14 +218,14 @@ pub fn highlight_hexes<P>(
         if highlight {
             // Draw the active hex with a coloured border.
             if let Some(colour) = border {
-                colour.apply_to(ctx);
-                ctx.set_line_width(hex.max_d * 0.02);
+                colour.apply_colour(ctx);
+                hex.theme.hex_highlight.apply_line(ctx, hex);
                 hex.define_boundary(ctx);
                 ctx.stroke();
             }
         } else {
             // Cover all other tiles with a partially-transparent layer.
-            ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
+            hex.theme.hex_border.apply_fill(ctx);
             hex.define_boundary(ctx);
             ctx.fill();
         }
@@ -249,21 +241,19 @@ pub fn highlight_active_hex(
     ctx: &Context,
     mut hex_iter: &mut HexIter<'_>,
     active_hex: &Option<HexAddress>,
-    r: f64,
-    g: f64,
-    b: f64,
+    border: n18hex::Colour,
 ) {
     hex_iter.restart();
     for hex_state in &mut hex_iter {
         if active_hex == &Some(hex_state.addr) {
             // Draw the active hex with a coloured border.
-            ctx.set_source_rgb(r, g, b);
-            ctx.set_line_width(hex.max_d * 0.02);
+            border.apply_colour(ctx);
+            hex.theme.hex_highlight.apply_line(ctx, hex);
             hex.define_boundary(ctx);
             ctx.stroke();
         } else {
             // Cover all other tiles with a partially-transparent layer.
-            ctx.set_source_rgba(1.0, 1.0, 1.0, 0.25);
+            hex.theme.hex_border.apply_fill(ctx);
             hex.define_boundary(ctx);
             ctx.fill();
         }
@@ -273,42 +263,40 @@ pub fn highlight_active_hex(
 }
 
 /// Highlights routes, using a different colour for each route.
-pub fn highlight_routes<C, R>(
+pub fn highlight_routes<F, C, R>(
     hex: &Hex,
     ctx: &Context,
     map: &Map,
     routes: &[R],
-    colour_fn: C,
+    colour_fn: F,
 ) where
-    C: Fn(usize) -> (f64, f64, f64, f64),
+    F: Fn(usize) -> C,
+    C: Into<Colour>,
     R: AsRef<Route>,
 {
     for (ix, route) in routes.iter().enumerate() {
-        let (red, green, blue, alpha) = colour_fn(ix);
-        ctx.set_source_rgba(red, green, blue, alpha);
+        colour_fn(ix).into().apply_colour(&ctx);
         highlight_route(&hex, &ctx, &map, route.as_ref())
     }
 }
 
-pub fn highlight_paths<C>(
+pub fn highlight_paths<F, C>(
     hex: &Hex,
     ctx: &Context,
     map: &Map,
     paths: &[Path],
-    colour_fn: C,
+    colour_fn: F,
 ) where
-    C: Fn(usize) -> (f64, f64, f64, f64),
+    F: Fn(usize) -> C,
+    C: Into<Colour>,
 {
     for (ix, path) in paths.iter().enumerate() {
-        let (red, green, blue, alpha) = colour_fn(ix);
-        ctx.set_source_rgba(red, green, blue, alpha);
+        colour_fn(ix).into().apply_colour(&ctx);
         highlight_path(&hex, &ctx, &map, &path)
     }
 }
 
 fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
-    ctx.set_line_width(hex.max_d * 0.025);
-
     // Draw track segments first.
     for step in steps {
         let m = map.prepare_to_draw(step.addr, &hex, &ctx);
@@ -317,8 +305,8 @@ fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
         if let Connection::Track { ix, end: _ } = step.conn {
             let track = tile.tracks()[ix];
             track.define_path(&hex, &ctx);
-            // NOTE: hack to replace the black part of the track.
-            ctx.set_line_width(hex.max_d * 0.08);
+            // NOTE: cover the inner (black) part of the track.
+            hex.theme.track_inner.apply_line(ctx, hex);
             ctx.stroke();
         }
         ctx.set_matrix(m);
@@ -326,9 +314,7 @@ fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
 }
 
 fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
-    ctx.set_line_width(hex.max_d * 0.025);
     let source = ctx.get_source();
-    let line_width = ctx.get_line_width();
 
     for visit in visits {
         let m = map.prepare_to_draw(visit.addr, &hex, &ctx);
@@ -354,10 +340,11 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 if visit.revenue > 0 {
                     ctx.set_source(&source);
                 } else {
-                    // NOTE: the train did not stop here.
-                    ctx.set_source_rgb(0.0, 0.0, 0.0);
+                    // NOTE: the train did not stop here, use the default
+                    // track colour.
+                    hex.theme.track_inner.apply_stroke(ctx);
                 }
-                ctx.set_line_width(line_width);
+                hex.theme.token_space_highlight.apply_line(&ctx, &hex);
                 city.define_boundary(&hex, &ctx);
                 ctx.stroke();
             }
@@ -367,22 +354,22 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 if visit.revenue > 0 {
                     ctx.set_source(&source);
                 } else {
-                    // NOTE: the train did not stop here.
-                    ctx.set_source_rgb(0.0, 0.0, 0.0);
+                    // NOTE: the train did not stop here, use the default dit
+                    // colour.
+                    hex.theme.dit_inner.apply_stroke(ctx);
                 }
                 let dit_shape = track.dit.unwrap().2;
                 // TODO: need a better API for drawing dit
                 // background and foreground.
                 match dit_shape {
                     DitShape::Bar => {
-                        ctx.set_line_width(hex.max_d * 0.08);
-                        track.draw_dit_ends(0.10, &hex, &ctx);
+                        hex.theme.dit_inner.apply_line(ctx, hex);
+                        track.draw_dit_ends_fg(&hex, &ctx);
                     }
                     DitShape::Circle => {
                         track.define_circle_dit(&hex, &ctx);
                         ctx.fill_preserve();
-                        ctx.set_source_rgb(1.0, 1.0, 1.0);
-                        ctx.set_line_width(hex.max_d * 0.01);
+                        hex.theme.dit_circle.apply_line_and_stroke(ctx, hex);
                         ctx.stroke();
                     }
                 }

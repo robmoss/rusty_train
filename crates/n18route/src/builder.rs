@@ -5,7 +5,7 @@
 //! ```rust,no_run
 //! # extern crate cairo;
 //! # use cairo::{Context, ImageSurface};
-//! # use n18hex::Hex;
+//! # use n18hex::{Colour, Hex};
 //! # use n18map::Map;
 //! # use n18token::Tokens;
 //! # use n18route::builder::Result;
@@ -34,8 +34,8 @@
 //!     .to_edge(HexFace::Bottom)?
 //!     .into_route();
 //!
-//! let (red, green, blue, alpha) = (0.7, 0.1, 0.1, 1.0);
-//! ctx.set_source_rgba(red, green, blue, alpha);
+//! let highlight = Colour::from((179, 25, 25));
+//! highlight.apply_colour(&ctx);
 //! highlight_route(&hex, &ctx, &map, &route);
 //! # Ok(())
 //! # }

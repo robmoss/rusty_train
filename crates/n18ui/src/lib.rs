@@ -9,7 +9,7 @@ use log::info;
 use std::sync::{Arc, RwLock};
 
 use n18game::Game;
-use n18hex::Hex;
+use n18hex::{Colour, Hex};
 use n18map::Map;
 
 /// Create custom dialog windows.
@@ -134,7 +134,7 @@ pub enum Action {
 
 /// Draws the state onto the provided context.
 fn draw_state(state: &dyn State, content: &Content, ctx: &Context) {
-    ctx.set_source_rgb(1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(ctx);
     ctx.reset_clip();
     let (x1, y1, x2, y2) = ctx.clip_extents();
     ctx.rectangle(x1, y1, x2, y2);
@@ -212,7 +212,7 @@ impl UI {
         .expect("Could not create ImageSurface");
         let context = Context::new(&surface);
         // Paint the new surface white.
-        context.set_source_rgb(1.0, 1.0, 1.0);
+        Colour::WHITE.apply_colour(&context);
         context.paint();
         let surface = Arc::new(RwLock::new(surface));
 
@@ -309,7 +309,7 @@ impl UI {
                 .expect("Could not modify drawing surface");
             *surf_ref = surface;
             // Paint the new surface white.
-            self.context.set_source_rgb(1.0, 1.0, 1.0);
+            Colour::WHITE.apply_colour(&self.context);
             self.context.paint();
         }
 
@@ -326,18 +326,18 @@ impl UI {
     ) {
         match action {
             Action::ZoomIn => {
-                if self.content.hex.max_d < 154.0 {
+                let new_max_d = self.content.hex.max_d + 10.0;
+                if new_max_d < 164.0 {
                     // NOTE: may need to increase surface, draw area size?
-                    self.content.hex =
-                        Hex::new(self.content.hex.max_d + 10.0);
+                    self.content.hex.resize(new_max_d);
                     self.zoom_and_redraw(area);
                 }
             }
             Action::ZoomOut => {
-                if self.content.hex.max_d > 66.0 {
+                let new_max_d = self.content.hex.max_d - 10.0;
+                if new_max_d > 56.0 {
                     // NOTE: may need to decrease surface, draw area size?
-                    self.content.hex =
-                        Hex::new(self.content.hex.max_d - 10.0);
+                    self.content.hex.resize(new_max_d);
                     self.zoom_and_redraw(area);
                 }
             }

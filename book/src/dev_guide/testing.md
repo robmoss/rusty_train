@@ -20,3 +20,12 @@ cargo test --all-targets -- --include-ignored
 ```
 
 **Note:** you may want to build the ignored tests in release mode (i.e., with optimisations enabled) so that they take less time to run.
+
+## Comparing output images
+
+Compare changed output images by making a copy of the original image and identifying changed pixels in red:
+
+```shell
+git show HEAD:path/to/image.png > original_image.png
+compare -compose src original_image.png path/to/image.png diff.png
+```

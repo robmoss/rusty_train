@@ -6,7 +6,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let num_rows = 6;
     let num_cols = 14;
     let margin = 10;
-    let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
+    let bg_rgba = Some(Colour::WHITE);
     let png_file = "tile_catalogue.png";
 
     let hex = Hex::new(hex_max_diameter);

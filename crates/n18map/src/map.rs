@@ -53,9 +53,6 @@ pub struct Map {
 // - extra route logic (e.g., Timmins): F: Fn(&Route, usize) -> usize ???
 //   (https://stackoverflow.com/a/54182204)
 
-/// The width (in pixels) of the margin around the map edges.
-const MAP_MARGIN: f64 = 10.0;
-
 impl Map {
     pub fn tiles(&self) -> &[Tile] {
         self.tiles.as_slice()
@@ -524,18 +521,20 @@ impl Map {
     /// Returns the hexagon x-origin coordinate for the map.
     fn hex_x0(&self, hex: &Hex) -> f64 {
         use Orientation::*;
+        let margin = hex.theme.map_margin.absolute(hex);
         match self.orientation {
-            VerticalColumns => 0.5 * hex.max_d + MAP_MARGIN,
-            HorizontalRows => 0.5 * hex.min_d + MAP_MARGIN,
+            VerticalColumns => 0.5 * hex.max_d + margin,
+            HorizontalRows => 0.5 * hex.min_d + margin,
         }
     }
 
     /// Returns the hexagon y-origin coordinate for the map.
     fn hex_y0(&self, hex: &Hex) -> f64 {
         use Orientation::*;
+        let margin = hex.theme.map_margin.absolute(hex);
         match self.orientation {
-            VerticalColumns => 0.5 * hex.min_d + MAP_MARGIN,
-            HorizontalRows => 0.5 * hex.max_d + MAP_MARGIN,
+            VerticalColumns => 0.5 * hex.min_d + margin,
+            HorizontalRows => 0.5 * hex.max_d + margin,
         }
     }
 

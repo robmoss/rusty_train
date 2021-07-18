@@ -33,14 +33,13 @@ impl State for Default {
         n18brush::draw_map(hex, ctx, &mut hex_iter);
 
         // Draw the active hex with a red border.
+        let border = n18hex::Colour::from((179, 0, 0));
         n18brush::highlight_active_hex(
             hex,
             ctx,
             &mut hex_iter,
             &self.active_hex,
-            0.7,
-            0.0,
-            0.0,
+            border,
         );
     }
 

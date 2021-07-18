@@ -47,7 +47,7 @@ fn test_dual_routes_from_montreal() {
     assert!(map.place_tile("K13".parse().unwrap(), "3", RotateCW::Four));
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);
-    ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(&ctx);
     ctx.paint();
     brush::draw_map(&hex, &ctx, &mut hex_iter);
 
@@ -83,15 +83,11 @@ fn test_dual_routes_from_montreal() {
     assert!(best.net_revenue == 230);
 
     // Draw each of the best routes, and save this to a PNG file.
-    ctx.set_source_rgba(1.0, 1.0, 1.0, 1.0);
+    Colour::WHITE.apply_colour(&ctx);
     ctx.paint();
     brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
-        match ix % 3 {
-            0 => (0.7, 0.1, 0.1, 1.0),
-            1 => (0.1, 0.7, 0.1, 1.0),
-            _ => (0.1, 0.1, 0.7, 1.0),
-        }
+        hex.theme.nth_highlight_colour(ix)
     });
     let filename = output_dir.join("test-dual-routes-montreal-route.png");
     let mut file = std::fs::File::create(filename)

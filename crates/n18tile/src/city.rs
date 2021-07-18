@@ -226,7 +226,7 @@ impl City {
     // http://www.fwtwr.com/18xx/tiles/tiles.asp?xGame=1880
 
     fn define_fg_path(&self, hex: &Hex, ctx: &Context) {
-        let radius = hex.max_d * 0.125;
+        let radius = hex.theme.token_space_radius.absolute(hex);
         self.define_bg_path(hex, ctx);
 
         match self.tokens {
@@ -266,7 +266,7 @@ impl City {
     }
 
     fn define_bg_path(&self, hex: &Hex, ctx: &Context) {
-        let radius = hex.max_d * 0.125;
+        let radius = hex.theme.token_space_radius.absolute(hex);
         ctx.new_path();
 
         match self.tokens {
@@ -381,7 +381,7 @@ impl City {
         }
 
         self.translate_begin(hex, ctx);
-        let radius = hex.max_d * 0.125;
+        let radius = hex.theme.token_space_radius.absolute(hex);
         ctx.new_path();
 
         match self.tokens {
@@ -430,9 +430,9 @@ impl Draw for City {
         self.translate_begin(hex, ctx);
 
         self.define_bg_path(hex, ctx);
-        ctx.set_source_rgb(1.0, 1.0, 1.0);
-        ctx.set_line_width(hex.max_d * 0.03);
+        hex.theme.token_space_outer.apply_line_and_stroke(ctx, hex);
         ctx.stroke_preserve();
+        hex.theme.token_space_outer.apply_fill(ctx);
         ctx.fill_preserve();
 
         self.translate_end(hex, ctx);
@@ -443,13 +443,12 @@ impl Draw for City {
 
         self.define_bg_path(hex, ctx);
         match self.fill_colour {
-            None => ctx.set_source_rgb(1.0, 1.0, 1.0),
-            Some(colour) => colour.set_source_rgb(&ctx),
+            None => hex.theme.token_space_inner.apply_fill(ctx),
+            Some(colour) => hex.theme.apply_hex_colour(ctx, colour),
         }
         ctx.fill_preserve();
         self.define_fg_path(hex, ctx);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.set_line_width(hex.max_d * 0.01);
+        hex.theme.token_space_inner.apply_line_and_stroke(ctx, hex);
         ctx.stroke();
 
         self.translate_end(hex, ctx);

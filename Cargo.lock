@@ -604,8 +604,6 @@ dependencies = [
  "n18route",
  "n18tile",
  "n18token",
- "pango",
- "pangocairo",
 ]
 
 [[package]]
@@ -626,6 +624,8 @@ name = "n18hex"
 version = "0.1.0"
 dependencies = [
  "cairo-rs",
+ "pango",
+ "pangocairo",
 ]
 
 [[package]]
@@ -676,8 +676,6 @@ version = "0.1.0"
 dependencies = [
  "cairo-rs",
  "n18hex",
- "pango",
- "pangocairo",
 ]
 
 [[package]]
@@ -686,8 +684,6 @@ version = "0.1.0"
 dependencies = [
  "cairo-rs",
  "n18hex",
- "pango",
- "pangocairo",
 ]
 
 [[package]]
@@ -702,7 +698,6 @@ dependencies = [
  "gtk",
  "log",
  "n18brush",
- "n18example",
  "n18game",
  "n18hex",
  "n18io",

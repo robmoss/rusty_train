@@ -1,5 +1,6 @@
 use crate::draw::Draw;
 use cairo::Context;
+use n18hex::theme::Length;
 use n18hex::{Coord, Hex, HexCorner, HexFace, PI};
 
 /// The shapes that track segments may take.
@@ -234,7 +235,7 @@ impl Track {
                     LowerRight => (3.0 * PI / 3.0, 5.0 * PI / 3.0),
                 };
                 let centre = *hex.corner_coord(&corner);
-                let radius = hex.max_d * 0.25;
+                let radius = hex.theme.track_hard_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,
                     radius,
@@ -262,7 +263,7 @@ impl Track {
                     LowerRight => (2.0 * PI / 3.0, 4.0 * PI / 3.0),
                 };
                 let centre = *hex.corner_coord(&corner);
-                let radius = hex.max_d * 0.25;
+                let radius = hex.theme.track_hard_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,
                     radius,
@@ -297,7 +298,7 @@ impl Track {
                     UpperRight => (3.0 * PI / 3.0, 4.0 * PI / 3.0),
                     LowerRight => (4.0 * PI / 3.0, 5.0 * PI / 3.0),
                 };
-                let radius = hex.max_d * 0.75;
+                let radius = hex.theme.track_gentle_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,
                     radius,
@@ -331,7 +332,7 @@ impl Track {
                     UpperRight => (1.0 * PI / 3.0, 2.0 * PI / 3.0),
                     LowerRight => (2.0 * PI / 3.0, 3.0 * PI / 3.0),
                 };
-                let radius = hex.max_d * 0.75;
+                let radius = hex.theme.track_gentle_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,
                     radius,
@@ -348,14 +349,14 @@ impl Track {
     pub fn draw_circle_dit(&self, hex: &Hex, ctx: &Context) -> bool {
         if let Some((dit_end, _revenue, DitShape::Circle)) = self.dit {
             let dit_locn = self.end_coord(dit_end, hex);
-            let radius = hex.max_d * 0.085;
+            let radius = hex.theme.dit_circle_radius.absolute(hex);
             ctx.new_path();
-            ctx.set_line_width(hex.max_d * 0.01);
+            hex.theme.dit_circle.apply_line(ctx, hex);
             let (x, y) = (dit_locn.x, dit_locn.y);
             ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-            ctx.set_source_rgb(0.0, 0.0, 0.0);
+            hex.theme.dit_circle.apply_fill(ctx);
             ctx.fill_preserve();
-            ctx.set_source_rgb(1.0, 1.0, 1.0);
+            hex.theme.dit_circle.apply_stroke(ctx);
             ctx.stroke_preserve();
             true
         } else {
@@ -366,7 +367,7 @@ impl Track {
     pub fn define_circle_dit(&self, hex: &Hex, ctx: &Context) -> bool {
         if let Some((dit_end, _revenue, DitShape::Circle)) = self.dit {
             let dit_locn = self.end_coord(dit_end, hex);
-            let radius = hex.max_d * 0.085;
+            let radius = hex.theme.dit_circle_radius.absolute(hex);
             ctx.new_path();
             let (x, y) = (dit_locn.x, dit_locn.y);
             ctx.arc(x, y, radius, 0.0, 2.0 * PI);
@@ -376,20 +377,22 @@ impl Track {
         }
     }
 
-    pub fn draw_dit_ends(&self, line_width: f64, hex: &Hex, ctx: &Context) {
+    pub fn draw_dit_ends_fg(&self, hex: &Hex, ctx: &Context) {
+        self.draw_dit_ends(hex.theme.dit_inner_length, hex, ctx)
+    }
+
+    pub fn draw_dit_ends_bg(&self, hex: &Hex, ctx: &Context) {
+        self.draw_dit_ends(hex.theme.dit_outer_length, hex, ctx)
+    }
+
+    fn draw_dit_ends(&self, length: Length, hex: &Hex, ctx: &Context) {
         use TrackPath::*;
 
-        // let dit_width = hex.max_d * 0.10;
-        let dit_width = hex.max_d * line_width;
+        let dit_length = length.absolute(hex);
 
         if let Some((dit_end, _revenue, shape)) = self.dit {
             ctx.new_path();
             let dit_locn = self.end_coord(dit_end, hex);
-
-            // let line_cap = ctx.get_line_cap();
-            // // NOTE: Square doesn't work, Cairo can't figure out orientation.
-            // // ctx.set_line_cap(cairo::LineCap::Square);
-            // ctx.set_line_cap(cairo::LineCap::Round);
 
             // TODO: repeated use of self.describe_path() ...
             // TODO: can we call this once at construction time?
@@ -399,17 +402,18 @@ impl Track {
                     // how much can we share with define_path()?
 
                     if shape == DitShape::Circle {
-                        ctx.set_line_width(hex.max_d * 0.01);
-                        let radius = hex.max_d * 0.085;
+                        hex.theme.dit_circle.apply_line(ctx, hex);
+                        let radius =
+                            hex.theme.dit_circle_radius.absolute(hex);
                         let (x, y) = (dit_locn.x, dit_locn.y);
                         ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-                        ctx.set_source_rgb(0.0, 0.0, 0.0);
+                        hex.theme.dit_circle.apply_fill(ctx);
                         ctx.fill_preserve();
-                        ctx.set_source_rgb(1.0, 1.0, 1.0);
+                        hex.theme.dit_circle.apply_stroke(ctx);
                     } else {
                         // NOTE: line needs to be perpendicular
                         let dit_dirn = Coord::unit_normal(&start, &end);
-                        let dit_dirn = &dit_dirn * dit_width;
+                        let dit_dirn = &dit_dirn * dit_length;
                         let dit_start = &dit_locn - &dit_dirn;
                         let dit_end = &dit_locn + &dit_dirn;
                         ctx.move_to(dit_start.x, dit_start.y);
@@ -444,20 +448,21 @@ impl Track {
                         y: dit_dy,
                     }
                     .normalise();
-                    let dit_dirn = &dit_dirn * dit_width;
+                    let dit_dirn = &dit_dirn * dit_length;
                     let dit_mid = Coord {
                         x: centre.x + dit_dx,
                         y: centre.y + dit_dy,
                     };
 
                     if shape == DitShape::Circle {
-                        ctx.set_line_width(hex.max_d * 0.01);
-                        let radius = hex.max_d * 0.085;
+                        hex.theme.dit_circle.apply_line(ctx, hex);
+                        let radius =
+                            hex.theme.dit_circle_radius.absolute(hex);
                         let (x, y) = (dit_mid.x, dit_mid.y);
                         ctx.arc(x, y, radius, 0.0, 2.0 * PI);
-                        ctx.set_source_rgb(0.0, 0.0, 0.0);
+                        hex.theme.dit_circle.apply_fill(ctx);
                         ctx.fill_preserve();
-                        ctx.set_source_rgb(1.0, 1.0, 1.0);
+                        hex.theme.dit_circle.apply_stroke(ctx);
                     } else {
                         let dit_start = &dit_mid - &dit_dirn;
                         let dit_end = &dit_mid + &dit_dirn;
@@ -468,10 +473,18 @@ impl Track {
             }
 
             ctx.stroke_preserve();
-            // ctx.set_line_cap(line_cap);
         }
     }
 
+    /// Defines the path for this track segment.
+    ///
+    /// Note that if this track segment includes a [DitShape::Bar] dit, the
+    /// length of the dit is defined by [n18hex::Theme::dit_inner_length].
+    /// This ensures that drawing the path will only cover the dit foreground,
+    /// allowing the dit background to extend past each end of the foreground
+    /// line and provide a complete border around the dit boundary, as long as
+    /// [n18hex::Theme::dit_outer_length] is larger than
+    /// [n18hex::Theme::dit_inner_length].
     pub fn define_path(&self, hex: &Hex, ctx: &Context) {
         use TrackPath::*;
 
@@ -500,14 +513,13 @@ impl Track {
                 if let Some((dit_end, _revenue, shape)) = self.dit {
                     let dit_locn = self.end_coord(dit_end, hex);
                     if shape == DitShape::Circle {
-                        // NOTE: don't add the circle, it will be drawn with
-                        // an inappropriately-thick line.
-                        // let radius = hex.max_d * 0.085;
-                        // let (x, y) = (dit_locn.x, dit_locn.y);
-                        // ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                        // NOTE: don't draw the circle, it will produce an
+                        // inappropriately-thick line.
                     } else {
                         // NOTE: line needs to be perpendicular
-                        let dit_width = hex.max_d * 0.10;
+                        // NOTE: use dit_inner_length, as per the doc string.
+                        let dit_width =
+                            hex.theme.dit_inner_length.absolute(hex);
                         let dit_dirn = Coord::unit_normal(&start, &end);
                         let dit_dirn = &dit_dirn * dit_width;
                         let dit_start = &dit_locn - &dit_dirn;
@@ -561,7 +573,8 @@ impl Track {
                     };
                     let dit_dx = radius * angle.cos();
                     let dit_dy = radius * angle.sin();
-                    let dit_width = hex.max_d * 0.10;
+                    // NOTE: use dit_inner_length, as per the doc string.
+                    let dit_width = hex.theme.dit_inner_length.absolute(hex);
                     let dit_dirn = Coord {
                         x: dit_dx,
                         y: dit_dy,
@@ -573,11 +586,8 @@ impl Track {
                         y: centre.y + dit_dy,
                     };
                     if shape == DitShape::Circle {
-                        // NOTE: don't add the circle, it will be drawn with
-                        // an inappropriately-thick line.
-                        // let radius = hex.max_d * 0.085;
-                        // let (x, y) = (dit_mid.x, dit_mid.y);
-                        // ctx.arc(x, y, radius, 0.0, 2.0 * PI);
+                        // NOTE: don't draw the circle, it will produce an
+                        // inappropriately-thick line.
                     } else {
                         let dit_start = &dit_mid - &dit_dirn;
                         let dit_end = &dit_mid + &dit_dirn;
@@ -912,31 +922,28 @@ impl Draw for Track {
         // NOTE: also set the line width so that ctx.in_stroke() will behave
         // as expected when trying to determine whether two track segments
         // cross or intersect.
-        ctx.set_line_width(hex.max_d * 0.10);
+        hex.theme.track_outer.apply_line(ctx, hex);
     }
 
     fn draw_bg(&self, hex: &Hex, ctx: &Context) {
-        // TODO: treat dits differently, so that their ends have white lines?
         self.define_path(hex, ctx);
-        ctx.set_source_rgb(1.0, 1.0, 1.0);
-        ctx.set_line_width(hex.max_d * 0.10);
+        hex.theme.track_outer.apply_line_and_stroke(ctx, hex);
         ctx.stroke_preserve();
-        // TODO: for example, self.define_dits(), ctx.set_blah, ctx.stroke()
-        // ctx.set_source_rgb(0.0, 1.0, 0.0);
-        // NOTE: the width needs to be a bit LARGER than the path defined by
-        // self.define_path() ... maybe define_path() should take dit_width
-        // as an argument?!?
-        self.draw_dit_ends(0.11, hex, ctx);
+        // NOTE: the outer (background) dit length must be larger than the
+        // inner (foreground) dit length, as used by self.define_path(), so
+        // that the background stroke extends past the foreground stroke at
+        // each end of the dit.
+        // Alternatively, we could modify define_path() to take this length as
+        // an additional argument.
+        hex.theme.dit_outer.apply_line_and_stroke(ctx, hex);
+        self.draw_dit_ends_bg(hex, ctx);
     }
 
     fn draw_fg(&self, hex: &Hex, ctx: &Context) {
-        // TODO: treat dits differently, so that their ends have white lines?
         self.define_path(hex, ctx);
-        ctx.set_source_rgb(0.0, 0.0, 0.0);
-        ctx.set_line_width(hex.max_d * 0.08);
+        hex.theme.track_inner.apply_line_and_stroke(ctx, hex);
         ctx.stroke_preserve();
-        // TODO: for example, self.define_dits(hex, ctx), ctx.set_blah, ctx.stroke()
-        // ctx.set_source_rgb(0.0, 0.0, 1.0);
-        self.draw_dit_ends(0.10, hex, ctx);
+        hex.theme.dit_inner.apply_line_and_stroke(ctx, hex);
+        self.draw_dit_ends_fg(hex, ctx);
     }
 }

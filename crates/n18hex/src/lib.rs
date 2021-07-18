@@ -7,6 +7,9 @@ pub mod coord;
 /// Hexagonal tiles, and attributes such as faces, corners, and colours.
 pub mod hex;
 
+/// Define colours, line styles, and other drawing properties.
+pub mod theme;
+
 #[doc(inline)]
 pub use consts::*;
 
@@ -17,3 +20,6 @@ pub use coord::Coord;
 pub use hex::{
     Delta, Direction, Hex, HexColour, HexCorner, HexFace, HexPosition,
 };
+
+#[doc(inline)]
+pub use theme::{Colour, Theme};

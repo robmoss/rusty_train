@@ -46,6 +46,9 @@ pub use n18hex::Delta;
 pub use n18hex::Direction;
 
 #[doc(inline)]
+pub use n18hex::Colour;
+
+#[doc(inline)]
 pub use n18tile::City;
 
 #[doc(inline)]
@@ -80,9 +83,6 @@ pub use n18token::Token;
 
 #[doc(inline)]
 pub use n18token::TokenStyle;
-
-#[doc(inline)]
-pub use n18token::Colour;
 
 #[doc(inline)]
 pub use n18catalogue::tile_catalogue;

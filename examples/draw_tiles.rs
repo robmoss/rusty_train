@@ -100,7 +100,7 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
     let margin = 10;
-    let bg_rgba = Some((1.0, 1.0, 1.0, 1.0));
+    let bg_rgba = Some(Colour::WHITE);
 
     let json_str = json_file.as_ref().to_str().unwrap();
     println!("Reading {} ...", json_str);

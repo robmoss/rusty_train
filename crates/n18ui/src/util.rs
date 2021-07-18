@@ -108,7 +108,7 @@ pub fn save_screenshot<S: State + ?Sized>(
         .expect("Can't create surface");
     let icx = Context::new(&surface);
     // Fill the image with a white background.
-    icx.set_source_rgb(1.0, 1.0, 1.0);
+    n18hex::Colour::WHITE.apply_colour(&icx);
     icx.paint();
     // Then draw the current map content.
     state.draw(content, &icx);

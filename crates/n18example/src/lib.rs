@@ -3,7 +3,8 @@
 use cairo::{Content, Context, Format, RecordingSurface};
 use n18brush as brush;
 use n18game::Game;
-use n18hex::Hex;
+use n18hex::theme::Text;
+use n18hex::{Colour, Hex, Theme};
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Path, Route};
 use n18tile::Tile;
@@ -125,40 +126,48 @@ impl Example {
         brush::draw_map_subset(hex, ctx, &self.map, &mut hex_iter);
     }
 
-    pub fn draw_path(&self, path: &Path, rgba: (f64, f64, f64, f64)) {
+    pub fn draw_path<C>(&self, path: &Path, colour: C)
+    where
+        C: Into<Colour>,
+    {
         let hex = &self.hex;
         let ctx = &self.rec_ctx;
-        let (red, green, blue, alpha) = rgba;
-        self.rec_ctx.set_source_rgba(red, green, blue, alpha);
+        colour.into().apply_colour(&self.rec_ctx);
         brush::highlight_path(hex, ctx, &self.map, path);
     }
 
-    pub fn draw_route(&self, route: &Route, rgba: (f64, f64, f64, f64)) {
+    pub fn draw_route<C>(&self, route: &Route, colour: C)
+    where
+        C: Into<Colour>,
+    {
         let hex = &self.hex;
         let ctx = &self.rec_ctx;
-        let (red, green, blue, alpha) = rgba;
-        self.rec_ctx.set_source_rgba(red, green, blue, alpha);
+        colour.into().apply_colour(&self.rec_ctx);
         brush::highlight_route(hex, ctx, &self.map, route);
     }
 
-    pub fn new_label<T: ToString>(&self, text: T) -> LabelBuilder<'_> {
-        LabelBuilder::new(&self.rec_ctx, &self.hex, text)
+    pub fn text_style(&self) -> Text {
+        Text::new()
     }
 
-    pub fn get_context(&self) -> &Context {
+    pub fn context(&self) -> &Context {
         &self.rec_ctx
     }
 
-    pub fn get_map(&self) -> &Map {
+    pub fn map(&self) -> &Map {
         &self.map
     }
 
-    pub fn get_map_mut(&mut self) -> &mut Map {
+    pub fn map_mut(&mut self) -> &mut Map {
         &mut self.map
     }
 
-    pub fn get_hex(&self) -> &Hex {
+    pub fn hex(&self) -> &Hex {
         &self.hex
+    }
+
+    pub fn theme(&self) -> &Theme {
+        &self.hex.theme
     }
 
     pub fn content_size(&self) -> (f64, f64) {
@@ -183,29 +192,35 @@ impl Example {
         (width, height, dx, dy)
     }
 
-    fn copy_surface<T: Deref<Target = cairo::Surface>>(
+    fn copy_surface<S, C>(
         &self,
-        surf: &T,
+        surf: &S,
         dx: f64,
         dy: f64,
-        bg_rgba: Option<(f64, f64, f64, f64)>,
-    ) {
+        background: Option<C>,
+    ) where
+        S: Deref<Target = cairo::Surface>,
+        C: Into<Colour>,
+    {
         let ctx = Context::new(&surf);
 
-        if let Some((red, green, blue, alpha)) = bg_rgba {
-            ctx.set_source_rgba(red, green, blue, alpha);
+        if let Some(colour) = background {
+            colour.into().apply_colour(&ctx);
             ctx.paint();
         }
         ctx.set_source_surface(&self.rec_surf, dx, dy);
         ctx.paint();
     }
 
-    pub fn write_png<P: AsRef<std::path::Path>>(
+    pub fn write_png<C, P>(
         &self,
         margin: usize,
-        bg_rgba: Option<(f64, f64, f64, f64)>,
+        background: Option<C>,
         path: P,
-    ) {
+    ) where
+        C: Into<Colour>,
+        P: AsRef<std::path::Path>,
+    {
         let (width, height, dx, dy) = self.image_size(margin);
         let surf = cairo::ImageSurface::create(
             Format::ARgb32,
@@ -213,36 +228,42 @@ impl Example {
             height as i32,
         )
         .expect("Can't create surface");
-        self.copy_surface(&surf, dx, dy, bg_rgba);
+        self.copy_surface(&surf, dx, dy, background);
         let mut file =
             std::fs::File::create(path).expect("Can't create output file");
         surf.write_to_png(&mut file)
             .expect("Can't write output file")
     }
 
-    pub fn write_pdf<P: AsRef<std::path::Path>>(
+    pub fn write_pdf<C, P>(
         &self,
         margin: usize,
-        bg_rgba: Option<(f64, f64, f64, f64)>,
+        background: Option<C>,
         path: P,
-    ) {
+    ) where
+        C: Into<Colour>,
+        P: AsRef<std::path::Path>,
+    {
         let (width, height, dx, dy) = self.image_size(margin);
         let surf = cairo::PdfSurface::new(width, height, path)
             .expect("Can't create surface");
-        self.copy_surface(&surf, dx, dy, bg_rgba);
+        self.copy_surface(&surf, dx, dy, background);
         surf.finish();
     }
 
-    pub fn write_svg<P: AsRef<std::path::Path>>(
+    pub fn write_svg<C, P>(
         &self,
         margin: usize,
-        bg_rgba: Option<(f64, f64, f64, f64)>,
+        background: Option<C>,
         path: P,
-    ) {
+    ) where
+        C: Into<Colour>,
+        P: AsRef<std::path::Path>,
+    {
         let (width, height, dx, dy) = self.image_size(margin);
         let surf = cairo::SvgSurface::new(width, height, Some(path))
             .expect("Can't create surface");
-        self.copy_surface(&surf, dx, dy, bg_rgba);
+        self.copy_surface(&surf, dx, dy, background);
         surf.finish();
     }
 }
@@ -307,131 +328,5 @@ impl<'a> PlacedTile<'a> {
             self.toks.push(*tok)
         }
         self
-    }
-}
-
-pub struct Label<'a> {
-    ctx: &'a Context,
-    layout: pango::Layout,
-    font_descr: pango::FontDescription,
-    hjust: f64,
-    vjust: f64,
-}
-
-impl<'a> Label<'a> {
-    pub fn dims(&self) -> (i32, i32) {
-        pangocairo::update_layout(&self.ctx, &self.layout);
-        // TODO: is it best to return the ink extents or the logical extents?
-        let (_ink_rect, rect) = self.layout.get_pixel_extents();
-        (rect.width, rect.height)
-    }
-
-    pub fn draw_at(&self, x: f64, y: f64) {
-        pangocairo::update_layout(&self.ctx, &self.layout);
-        let (_ink_rect, rect) = self.layout.get_pixel_extents();
-        let tx = x - self.hjust * (rect.width as f64) - rect.x as f64;
-        let ty = y - self.vjust * (rect.height as f64) - rect.y as f64;
-        self.ctx.move_to(tx, ty);
-        pangocairo::show_layout(&self.ctx, &self.layout);
-    }
-
-    pub fn draw(&self) {
-        pangocairo::show_layout(&self.ctx, &self.layout);
-    }
-}
-
-pub struct LabelBuilder<'a> {
-    ctx: &'a Context,
-    hex: &'a Hex,
-    text: String,
-    font_size: f64,
-    font_family: Option<String>,
-    alignment: pango::Alignment,
-    style: pango::Style,
-    weight: pango::Weight,
-    hjust: f64,
-    vjust: f64,
-}
-
-impl<'a> LabelBuilder<'a> {
-    pub fn new<T: ToString>(ctx: &'a Context, hex: &'a Hex, text: T) -> Self {
-        LabelBuilder {
-            ctx,
-            hex,
-            text: text.to_string(),
-            font_size: 12.0,
-            font_family: None,
-            alignment: pango::Alignment::Left,
-            style: pango::Style::Normal,
-            weight: pango::Weight::Normal,
-            hjust: 0.0,
-            vjust: 0.0,
-        }
-    }
-
-    pub fn font_size(mut self, font_size: f64) -> Self {
-        self.font_size = font_size;
-        self
-    }
-
-    pub fn font_family<T: ToString>(mut self, font_family: T) -> Self {
-        self.font_family = Some(font_family.to_string());
-        self
-    }
-
-    pub fn alignment(mut self, alignment: pango::Alignment) -> Self {
-        self.alignment = alignment;
-        self
-    }
-
-    pub fn style(mut self, style: pango::Style) -> Self {
-        self.style = style;
-        self
-    }
-
-    pub fn weight(mut self, weight: pango::Weight) -> Self {
-        self.weight = weight;
-        self
-    }
-
-    pub fn bold(mut self) -> Self {
-        self.weight = pango::Weight::Bold;
-        self
-    }
-
-    pub fn hjust(mut self, hjust: f64) -> Self {
-        self.hjust = hjust;
-        self
-    }
-
-    pub fn vjust(mut self, vjust: f64) -> Self {
-        self.vjust = vjust;
-        self
-    }
-
-    pub fn into_label(self) -> Option<Label<'a>> {
-        let layout = pangocairo::create_layout(self.ctx)?;
-        layout.set_text(&self.text);
-        let mut font_descr = pango::FontDescription::new();
-        // NOTE: apply the specified font settings.
-        if let Some(family) = self.font_family {
-            font_descr.set_family(&family);
-        }
-        let scale = self.hex.max_d / 125.0;
-        // NOTE: font size in *points* is used by set_size(), while
-        // *device units* as used by set_absolute_size().
-        let dev_size = self.font_size * scale * pango::SCALE as f64;
-        font_descr.set_absolute_size(dev_size);
-        font_descr.set_style(self.style);
-        font_descr.set_weight(self.weight);
-        layout.set_font_description(Some(&font_descr));
-        layout.set_alignment(self.alignment);
-        Some(Label {
-            ctx: self.ctx,
-            layout,
-            font_descr,
-            hjust: self.hjust,
-            vjust: self.vjust,
-        })
     }
 }

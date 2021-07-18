@@ -19,6 +19,3 @@ n18brush = { path = "../n18brush" }
 
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
-# Use the minimum supported version of Pango (1.38).
-pango = { version = "0.9", features = ["v1_38"] }
-pangocairo = "0.10"

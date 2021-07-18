@@ -20,7 +20,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
     let token_a = Token::new(TokenStyle::SideArcs {
         fg: (176, 176, 176).into(),
         bg: (66, 0, 0).into(),
-        text: (255, 255, 255).into(),
+        text: Colour::WHITE,
     });
     let name_a = "A";
     let tokens = vec![(name_a, token_a)];
@@ -46,7 +46,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         [("8", trains_8), ("2p2", trains_2p2), ("both", trains_both)];
 
     // Find all available routes, ignoring limits on the number of stops.
-    let map = example.get_map();
+    let map = example.map();
     let token = map.get_token(name_a);
     let criteria = Criteria {
         token,
@@ -58,9 +58,9 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
     let bonuses = vec![];
 
     // Background and route colours, image margins.
-    let t8_rgba = (0.7, 0.1, 0.1, 1.0);
-    let t2p2_rgba = (0.1, 0.7, 0.1, 1.0);
-    let bg_rgba = Some((1.0, 1.0, 1.0, 0.0));
+    let t8_rgba = example.theme().nth_highlight_colour(0);
+    let t2p2_rgba = example.theme().nth_highlight_colour(1);
+    let bg_rgba = Some(Colour::TRANSPARENT);
     let margin = 20;
 
     // Save the map (without any routes) to disk.
