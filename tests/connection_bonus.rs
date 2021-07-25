@@ -85,8 +85,7 @@ fn test_connection_bonus_between_two_dits() {
     map_hex.set_token_at(&token_space, company_token);
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);
-    Colour::WHITE.apply_colour(&ctx);
-    ctx.paint();
+    brush::clear_surface(&ctx, Colour::WHITE);
     brush::draw_map(&hex, &ctx, &mut hex_iter);
 
     let filename = output_dir.join("test-conn-bonus-map.png");
@@ -128,8 +127,7 @@ fn test_connection_bonus_between_two_dits() {
     }
 
     // Draw each of the best routes, and save this to a PNG file.
-    Colour::WHITE.apply_colour(&ctx);
-    ctx.paint();
+    brush::clear_surface(&ctx, Colour::WHITE);
     brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &best.routes(), |ix| {
         hex.theme.nth_highlight_colour(ix)
@@ -171,8 +169,7 @@ fn test_connection_bonus_between_two_dits() {
     }
 
     // Draw each of the best routes, and save this to a PNG file.
-    Colour::WHITE.apply_colour(&ctx);
-    ctx.paint();
+    brush::clear_surface(&ctx, Colour::WHITE);
     brush::draw_map(&hex, &ctx, &mut hex_iter);
     brush::highlight_routes(&hex, &ctx, &map, &new_best.routes(), |ix| {
         hex.theme.nth_highlight_colour(ix)

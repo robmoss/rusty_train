@@ -7,6 +7,28 @@ use n18route::{Path, Route, Step, StopLocation, Visit};
 use n18tile::{Connection, DitShape, Draw, Tile, TokenSpace};
 use n18token::Token;
 
+/// Clears the surface with a uniform colour, or makes the surface entirely
+/// transparent if no colour is provided.
+pub fn clear_surface<C>(ctx: &Context, colour: C)
+where
+    C: Into<Option<Colour>>,
+{
+    // See https://www.cairographics.org/FAQ/#clear_a_surface for details.
+    let colour_opt = colour.into();
+    if let Some(colour) = colour_opt {
+        let operator = ctx.get_operator();
+        ctx.set_operator(cairo::Operator::Source);
+        colour.apply_colour(&ctx);
+        ctx.paint();
+        ctx.set_operator(operator);
+    } else {
+        let operator = ctx.get_operator();
+        ctx.set_operator(cairo::Operator::Clear);
+        ctx.paint();
+        ctx.set_operator(operator);
+    }
+}
+
 pub fn draw_hex_backgrounds(
     hex: &Hex,
     ctx: &Context,

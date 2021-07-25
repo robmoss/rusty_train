@@ -107,11 +107,7 @@ fn track_contained_in_hex() {
                     ctx.translate(dim / 2.0, dim / 2.0);
 
                     // Clear the surface.
-                    // https://www.cairographics.org/FAQ/#clear_a_surface
-                    let operator = ctx.get_operator();
-                    ctx.set_operator(cairo::Operator::Clear);
-                    ctx.paint();
-                    ctx.set_operator(operator);
+                    navig18xx::brush::clear_surface(&ctx, None);
 
                     hex.draw_background(HexColour::Green, &ctx);
                     t.draw_bg(&hex, &ctx);

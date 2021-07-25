@@ -205,8 +205,7 @@ impl Example {
         let ctx = Context::new(&surf);
 
         if let Some(colour) = background {
-            colour.into().apply_colour(&ctx);
-            ctx.paint();
+            brush::clear_surface(&ctx, colour.into());
         }
         ctx.set_source_surface(&self.rec_surf, dx, dy);
         ctx.paint();

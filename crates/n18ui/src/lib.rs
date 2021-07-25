@@ -212,8 +212,7 @@ impl UI {
         .expect("Could not create ImageSurface");
         let context = Context::new(&surface);
         // Paint the new surface white.
-        Colour::WHITE.apply_colour(&context);
-        context.paint();
+        n18brush::clear_surface(&context, Colour::WHITE);
         let surface = Arc::new(RwLock::new(surface));
 
         // Create the UI state struct, and draw the initial state.
@@ -309,8 +308,7 @@ impl UI {
                 .expect("Could not modify drawing surface");
             *surf_ref = surface;
             // Paint the new surface white.
-            Colour::WHITE.apply_colour(&self.context);
-            self.context.paint();
+            n18brush::clear_surface(&self.context, Colour::WHITE);
         }
 
         // Request the drawing area to update its size, and redraw the current

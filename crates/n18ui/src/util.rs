@@ -108,8 +108,7 @@ pub fn save_screenshot<S: State + ?Sized>(
         .expect("Can't create surface");
     let icx = Context::new(&surface);
     // Fill the image with a white background.
-    n18hex::Colour::WHITE.apply_colour(&icx);
-    icx.paint();
+    n18brush::clear_surface(&icx, n18hex::Colour::WHITE);
     // Then draw the current map content.
     state.draw(content, &icx);
     let mut file = std::fs::File::create(dest_file)
