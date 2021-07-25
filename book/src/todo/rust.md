@@ -10,7 +10,14 @@ This page collects Rust and Cargo features and feature requests that would assis
 
   - [Rust 1.51](https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html) allows [running all test cases](https://github.com/rust-lang/rust/pull/80053), and provides the "version 2" [feature resolver](https://doc.rust-lang.org/cargo/reference/features.html) that allows enabling/disabling [features](../dev_guide/features.md#updated-feature-resolver) for all crates in the workspace.
 
-  - [Rust 1.53](https://blog.rust-lang.org/2021/06/17/Rust-1.53.0.html) provides the [or_patterns](https://github.com/rust-lang/rfcs/pull/2535) feature, which is used by [cfg-expr 0.8.0](https://github.com/EmbarkStudios/cfg-expr) and required for updating the `gtk-rs` packages from version 0.9 to version 0.14.
+    This is the minimum supported Rust version for the `gtk-rs` version 0.14 crates.
+
+    However, the build dependency `system-deps` 3.2.0 depends on `cfg-expr` 0.8.0, which requires the [or_patterns](https://github.com/rust-lang/rfcs/pull/2535) feature from Rust 1.53.
+    This can be circumvented by setting the precise version of `system-deps`:
+
+    ```sh
+    cargo update -p system-deps --precise 3.1.2
+    ```
 
 - De-duplicate Cargo workspace information: [issue](https://github.com/rust-lang/cargo/issues/8415)
 
