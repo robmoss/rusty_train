@@ -431,9 +431,9 @@ impl Draw for City {
 
         self.define_bg_path(hex, ctx);
         hex.theme.token_space_outer.apply_line_and_stroke(ctx, hex);
-        ctx.stroke_preserve();
+        ctx.stroke_preserve().unwrap();
         hex.theme.token_space_outer.apply_fill(ctx);
-        ctx.fill_preserve();
+        ctx.fill_preserve().unwrap();
 
         self.translate_end(hex, ctx);
     }
@@ -446,10 +446,10 @@ impl Draw for City {
             None => hex.theme.token_space_inner.apply_fill(ctx),
             Some(colour) => hex.theme.apply_hex_colour(ctx, colour),
         }
-        ctx.fill_preserve();
+        ctx.fill_preserve().unwrap();
         self.define_fg_path(hex, ctx);
         hex.theme.token_space_inner.apply_line_and_stroke(ctx, hex);
-        ctx.stroke();
+        ctx.stroke().unwrap();
 
         self.translate_end(hex, ctx);
     }

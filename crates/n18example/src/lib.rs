@@ -36,7 +36,8 @@ impl Example {
         let map = Map::new(all_tiles, token_mgr, hexes);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
-        let rec_ctx = Context::new(&rec_surf);
+        let rec_ctx =
+            Context::new(&rec_surf).expect("Can't create cairo::Context");
         let mut example = Example {
             hex,
             map,
@@ -52,7 +53,8 @@ impl Example {
         let map = game.create_map(&hex);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
-        let rec_ctx = Context::new(&rec_surf);
+        let rec_ctx =
+            Context::new(&rec_surf).expect("Can't create cairo::Context");
         Example {
             hex,
             map,
@@ -78,7 +80,8 @@ impl Example {
         let map = Map::new(catalogue, token_mgr, hexes);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
-        let rec_ctx = Context::new(&rec_surf);
+        let rec_ctx =
+            Context::new(&rec_surf).expect("Can't create cairo::Context");
         let mut example = Example {
             hex,
             map,
@@ -177,7 +180,8 @@ impl Example {
 
     pub fn erase_all(&mut self) -> Result<(), cairo::Error> {
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)?;
-        let rec_ctx = Context::new(&rec_surf);
+        let rec_ctx =
+            Context::new(&rec_surf).expect("Can't create cairo::Context");
         self.rec_surf = rec_surf;
         self.rec_ctx = rec_ctx;
         Ok(())
@@ -202,13 +206,13 @@ impl Example {
         S: Deref<Target = cairo::Surface>,
         C: Into<Colour>,
     {
-        let ctx = Context::new(&surf);
+        let ctx = Context::new(&surf).expect("Can't create cairo::Context");
 
         if let Some(colour) = background {
             brush::clear_surface(&ctx, colour.into());
         }
-        ctx.set_source_surface(&self.rec_surf, dx, dy);
-        ctx.paint();
+        ctx.set_source_surface(&self.rec_surf, dx, dy).unwrap();
+        ctx.paint().unwrap();
     }
 
     pub fn write_png<C, P>(

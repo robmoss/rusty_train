@@ -18,15 +18,9 @@ n18game = { path = "../n18game" }
 n18brush = { path = "../n18brush" }
 
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.9", features = ["png", "pdf", "svg"] }
-
+cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
 # Use features provided by GTK 3.20 (native file choosers).
-gtk = { version = "0.9", features = ["v3_20"] }
-
-# Use the minimum supported version of GIO (2.44).
-gio = { version = "0.9", features = ["v2_44"] }
-
-gdk = "0.13"
-glib = "0.10"
+gtk = { version = "0.14", features = ["v3_20"] }
+gdk = "0.14"
 chrono = "0.4"
 log = "0.4"

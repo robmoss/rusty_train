@@ -6,7 +6,9 @@ use navig18xx::route::Bonus;
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
     let surface = ImageSurface::create(Format::ARgb32, width, height)
         .expect("Can't create surface");
-    (Context::new(&surface), surface)
+    let context =
+        Context::new(&surface).expect("Can't create cairo::Context");
+    (context, surface)
 }
 
 #[test]

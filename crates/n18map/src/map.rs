@@ -552,7 +552,7 @@ impl Map {
             .hex_centre(addr.row, addr.col, x0, y0, hex)
             .unwrap_or_else(|| panic!("Invalid hex: {}", addr));
 
-        let m = ctx.get_matrix();
+        let m = ctx.matrix();
         ctx.translate(x, y);
 
         if let Some(hex_state) = self.state.get(&addr) {
@@ -794,7 +794,7 @@ impl<'a> HexIter<'a> {
             y0,
             angle,
             ix: 0,
-            m: ctx.get_matrix(),
+            m: ctx.matrix(),
             include,
         }
     }

@@ -51,7 +51,7 @@ impl State for Default {
         event: &gdk::EventKey,
     ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let map = &mut content.map;
-        let key = event.get_keyval();
+        let key = event.keyval();
         match key {
             gdk::keys::constants::e | gdk::keys::constants::E => {
                 if let Some(addr) = self.active_hex {
@@ -259,14 +259,14 @@ impl State for Default {
         let hex = &content.hex;
         let map = &mut content.map;
         // Allow the user to select hexes with a single click of any button.
-        let (x, y) = event.get_position();
+        let (x, y) = event.position();
         let hexes = map.hexes();
         let ctx = hex.context();
         let addr = hexes.iter().find(|addr| {
             let m = map.prepare_to_draw(**addr, hex, ctx);
             hex.define_boundary(ctx);
             ctx.set_matrix(m);
-            ctx.in_fill(x, y)
+            ctx.in_fill(x, y).unwrap()
         });
         if let Some(a) = addr {
             self.active_hex = Some(*a);

@@ -77,7 +77,7 @@ impl State for EditTokens {
         event: &gdk::EventKey,
     ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let map = &mut content.map;
-        let key = event.get_keyval();
+        let key = event.keyval();
         match key {
             gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.

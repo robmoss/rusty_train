@@ -1,7 +1,5 @@
-use std::env::args;
 use std::io::Write;
 
-use gio::prelude::*;
 use gtk::prelude::*;
 use gtk::DrawingArea;
 
@@ -42,14 +40,13 @@ pub fn main() {
     .init();
 
     let application =
-        gtk::Application::new(Some("rusty_train.bin"), Default::default())
-            .expect("Initialisation failed...");
+        gtk::Application::new(Some("rusty_train.bin"), Default::default());
 
     application.connect_activate(|app| {
         build_ui(app);
     });
 
-    application.run(&args().collect::<Vec<_>>());
+    application.run();
 }
 
 pub enum UiEvent {
@@ -81,8 +78,8 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     let surface = state.surface();
     drawing_area.connect_draw(move |_da, ctx| {
         let surf = surface.read().expect("Could not access drawing surface");
-        ctx.set_source_surface(&surf, 0.0, 0.0);
-        ctx.paint();
+        ctx.set_source_surface(&surf, 0.0, 0.0).unwrap();
+        ctx.paint().unwrap();
         Inhibit(false)
     });
 

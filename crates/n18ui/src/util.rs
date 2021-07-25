@@ -2,7 +2,7 @@ use super::state::State;
 use super::Action;
 
 use cairo::{Context, Format, ImageSurface};
-use gtk::{FileChooserExt, NativeDialogExt, WidgetExt};
+use gtk::prelude::{FileChooserExt, NativeDialogExt, WidgetExt};
 
 use super::Content;
 use n18game::GameState;
@@ -31,7 +31,7 @@ pub fn save_file_dialog(
     }
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
-        let dest = dialog.get_filename().expect("Couldn't get filename");
+        let dest = dialog.filename().expect("Couldn't get filename");
         dialog.destroy();
         Some(dest)
     } else {
@@ -62,7 +62,7 @@ pub fn open_file_dialog(
     }
     let response = dialog.run();
     if response == gtk::ResponseType::Accept {
-        let dest = dialog.get_filename().expect("Couldn't get filename");
+        let dest = dialog.filename().expect("Couldn't get filename");
         dialog.destroy();
         Some(dest)
     } else {
@@ -102,11 +102,11 @@ pub fn save_screenshot<S: State + ?Sized>(
     };
     let dest_str = dest_file.to_string_lossy().into_owned();
     // Use the same dimensions as the current drawing area.
-    let width = area.get_allocated_width();
-    let height = area.get_allocated_height();
+    let width = area.allocated_width();
+    let height = area.allocated_height();
     let surface = ImageSurface::create(Format::ARgb32, width, height)
         .expect("Can't create surface");
-    let icx = Context::new(&surface);
+    let icx = Context::new(&surface).expect("Can't create cairo::Context");
     // Fill the image with a white background.
     n18brush::clear_surface(&icx, n18hex::Colour::WHITE);
     // Then draw the current map content.

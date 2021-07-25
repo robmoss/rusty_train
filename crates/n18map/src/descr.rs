@@ -168,7 +168,9 @@ pub mod tests {
     fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
         let surface = ImageSurface::create(Format::ARgb32, width, height)
             .expect("Can't create surface");
-        (Context::new(&surface), surface)
+        let context =
+            Context::new(&surface).expect("Can't create cairo::Surface");
+        (context, surface)
     }
 
     fn draw_tiles(map: &Map, hex: &Hex, ctx: &Context) {
@@ -187,7 +189,7 @@ pub mod tests {
                     // Draw a border around this hex.
                     hex.define_boundary(ctx);
                     hex.theme.hex_border.apply_line_and_stroke(ctx, hex);
-                    ctx.stroke();
+                    ctx.stroke().unwrap();
                 }
             }
         }

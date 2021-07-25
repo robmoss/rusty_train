@@ -355,9 +355,9 @@ impl Track {
             let (x, y) = (dit_locn.x, dit_locn.y);
             ctx.arc(x, y, radius, 0.0, 2.0 * PI);
             hex.theme.dit_circle.apply_fill(ctx);
-            ctx.fill_preserve();
+            ctx.fill_preserve().unwrap();
             hex.theme.dit_circle.apply_stroke(ctx);
-            ctx.stroke_preserve();
+            ctx.stroke_preserve().unwrap();
             true
         } else {
             false
@@ -408,7 +408,7 @@ impl Track {
                         let (x, y) = (dit_locn.x, dit_locn.y);
                         ctx.arc(x, y, radius, 0.0, 2.0 * PI);
                         hex.theme.dit_circle.apply_fill(ctx);
-                        ctx.fill_preserve();
+                        ctx.fill_preserve().unwrap();
                         hex.theme.dit_circle.apply_stroke(ctx);
                     } else {
                         // NOTE: line needs to be perpendicular
@@ -461,7 +461,7 @@ impl Track {
                         let (x, y) = (dit_mid.x, dit_mid.y);
                         ctx.arc(x, y, radius, 0.0, 2.0 * PI);
                         hex.theme.dit_circle.apply_fill(ctx);
-                        ctx.fill_preserve();
+                        ctx.fill_preserve().unwrap();
                         hex.theme.dit_circle.apply_stroke(ctx);
                     } else {
                         let dit_start = &dit_mid - &dit_dirn;
@@ -472,7 +472,7 @@ impl Track {
                 }
             }
 
-            ctx.stroke_preserve();
+            ctx.stroke_preserve().unwrap();
         }
     }
 
@@ -699,7 +699,7 @@ impl Track {
         ctx: &Context,
     ) -> bool {
         obj.define_boundary(hex, ctx);
-        self.coords(hex, dt).any(|c| ctx.in_fill(c.x, c.y))
+        self.coords(hex, dt).any(|c| ctx.in_fill(c.x, c.y).unwrap())
     }
 
     pub fn connected_to_fill<D: Draw>(
@@ -711,7 +711,8 @@ impl Track {
         obj.define_boundary(hex, ctx);
         let start = self.start(hex);
         let end = self.end(hex);
-        ctx.in_fill(start.x, start.y) || ctx.in_fill(end.x, end.y)
+        ctx.in_fill(start.x, start.y).unwrap()
+            || ctx.in_fill(end.x, end.y).unwrap()
     }
 
     pub fn connected(&self, other: &Self, hex: &Hex, ctx: &Context) -> bool {
@@ -722,12 +723,14 @@ impl Track {
         other.define_boundary(hex, ctx);
         let c0 = self.start(hex);
         let c1 = self.end(hex);
-        let self_in = ctx.in_stroke(c0.x, c0.y) || ctx.in_stroke(c1.x, c1.y);
+        let self_in = ctx.in_stroke(c0.x, c0.y).unwrap()
+            || ctx.in_stroke(c1.x, c1.y).unwrap();
 
         self.define_boundary(hex, ctx);
         let c0 = other.start(hex);
         let c1 = other.end(hex);
-        let other_in = ctx.in_stroke(c0.x, c0.y) || ctx.in_stroke(c1.x, c1.y);
+        let other_in = ctx.in_stroke(c0.x, c0.y).unwrap()
+            || ctx.in_stroke(c1.x, c1.y).unwrap();
 
         self_in && other_in
     }
@@ -761,8 +764,8 @@ impl Track {
         obj.define_boundary(hex, ctx);
         let start = self.start(hex);
         let end = self.end(hex);
-        let conn_start = ctx.in_fill(start.x, start.y);
-        let conn_end = ctx.in_fill(end.x, end.y);
+        let conn_start = ctx.in_fill(start.x, start.y).unwrap();
+        let conn_end = ctx.in_fill(end.x, end.y).unwrap();
         if conn_start && conn_end {
             panic!("Track connects at both ends")
         } else if conn_start {
@@ -785,8 +788,8 @@ impl Track {
         other.define_boundary(hex, ctx);
         let c0 = self.start(hex);
         let c1 = self.end(hex);
-        let self_c0 = ctx.in_stroke(c0.x, c0.y);
-        let self_c1 = ctx.in_stroke(c1.x, c1.y);
+        let self_c0 = ctx.in_stroke(c0.x, c0.y).unwrap();
+        let self_c1 = ctx.in_stroke(c1.x, c1.y).unwrap();
 
         let self_conn = if self_c0 && self_c1 {
             panic!("Tracks connected at both ends")
@@ -801,8 +804,8 @@ impl Track {
         self.define_boundary(hex, ctx);
         let c0 = other.start(hex);
         let c1 = other.end(hex);
-        let other_c0 = ctx.in_stroke(c0.x, c0.y);
-        let other_c1 = ctx.in_stroke(c1.x, c1.y);
+        let other_c0 = ctx.in_stroke(c0.x, c0.y).unwrap();
+        let other_c1 = ctx.in_stroke(c1.x, c1.y).unwrap();
 
         let other_conn = if other_c0 && other_c1 {
             panic!("Tracks connected at both ends")
@@ -836,7 +839,8 @@ impl Track {
             return false;
         }
         other.define_boundary(hex, ctx);
-        self.coords(hex, dt).any(|c| ctx.in_stroke(c.x, c.y))
+        self.coords(hex, dt)
+            .any(|c| ctx.in_stroke(c.x, c.y).unwrap())
     }
 }
 
@@ -928,7 +932,7 @@ impl Draw for Track {
     fn draw_bg(&self, hex: &Hex, ctx: &Context) {
         self.define_path(hex, ctx);
         hex.theme.track_outer.apply_line_and_stroke(ctx, hex);
-        ctx.stroke_preserve();
+        ctx.stroke_preserve().unwrap();
         // NOTE: the outer (background) dit length must be larger than the
         // inner (foreground) dit length, as used by self.define_path(), so
         // that the background stroke extends past the foreground stroke at
@@ -942,7 +946,7 @@ impl Draw for Track {
     fn draw_fg(&self, hex: &Hex, ctx: &Context) {
         self.define_path(hex, ctx);
         hex.theme.track_inner.apply_line_and_stroke(ctx, hex);
-        ctx.stroke_preserve();
+        ctx.stroke_preserve().unwrap();
         hex.theme.dit_inner.apply_line_and_stroke(ctx, hex);
         self.draw_dit_ends_fg(hex, ctx);
     }

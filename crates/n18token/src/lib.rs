@@ -171,7 +171,7 @@ impl TokenStyle {
         match self {
             SideArcs { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
 
                 ctx.clip_preserve();
                 ctx.new_path();
@@ -179,11 +179,11 @@ impl TokenStyle {
                 ctx.arc(1.5 * radius, 0.0, 1.0 * radius, 0.0, 2.0 * PI);
 
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TopArcs { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
 
                 ctx.clip_preserve();
                 ctx.new_path();
@@ -191,11 +191,11 @@ impl TokenStyle {
                 ctx.arc(0.0, 1.5 * radius, 1.0 * radius, 0.0, 2.0 * PI);
 
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TopSquares { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(-0.4 * radius, -dx);
@@ -203,18 +203,18 @@ impl TokenStyle {
                 ctx.line_to(0.4 * radius, -rmax);
                 ctx.line_to(-0.4 * radius, -rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 ctx.new_path();
                 ctx.move_to(-0.4 * radius, dx);
                 ctx.line_to(0.4 * radius, dx);
                 ctx.line_to(0.4 * radius, rmax);
                 ctx.line_to(-0.4 * radius, rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TopLines { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(-0.5 * radius, -dx);
@@ -230,7 +230,7 @@ impl TokenStyle {
                 ctx.line_to(0.3 * radius, -rmax);
                 ctx.line_to(0.5 * radius, -rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 ctx.new_path();
                 ctx.move_to(-0.5 * radius, dx);
                 ctx.line_to(-0.3 * radius, dx);
@@ -245,28 +245,28 @@ impl TokenStyle {
                 ctx.line_to(0.3 * radius, rmax);
                 ctx.line_to(0.5 * radius, rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TopTriangles { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(-dx, -rmax);
                 ctx.line_to(0.0, -dx);
                 ctx.line_to(dx, -rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 ctx.new_path();
                 ctx.move_to(-dx, rmax);
                 ctx.line_to(0.0, dx);
                 ctx.line_to(dx, rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TripleTriangles { fg, bg, .. } => {
                 bg.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(-1.5 * radius, -rmax);
@@ -277,7 +277,7 @@ impl TokenStyle {
                 ctx.line_to(0.3 * radius, -dx);
                 ctx.line_to(1.5 * radius, -rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 ctx.new_path();
                 ctx.move_to(-1.5 * radius, rmax);
                 ctx.line_to(-0.3 * radius, dx);
@@ -287,11 +287,11 @@ impl TokenStyle {
                 ctx.line_to(0.3 * radius, dx);
                 ctx.line_to(1.5 * radius, rmax);
                 fg.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TribandV { sides, middle, .. } => {
                 sides.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(-dx, rmax);
@@ -300,11 +300,11 @@ impl TokenStyle {
                 ctx.line_to(dx, rmax);
                 ctx.line_to(-dx, rmax);
                 middle.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TribandH { sides, middle, .. } => {
                 sides.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 ctx.new_path();
                 ctx.move_to(rmax, -dx);
@@ -313,7 +313,7 @@ impl TokenStyle {
                 ctx.line_to(rmax, dx);
                 ctx.line_to(rmax, -dx);
                 middle.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TricolourV {
                 left,
@@ -323,7 +323,7 @@ impl TokenStyle {
             } => {
                 // Fill the entire region with the middle colour.
                 middle.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 // Define the left region and fill with the left colour.
                 ctx.new_path();
@@ -332,7 +332,7 @@ impl TokenStyle {
                 ctx.line_to(-dx, rmax);
                 ctx.line_to(-dx, -rmax);
                 left.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 // Define the right region and fill with the right colour.
                 ctx.new_path();
                 ctx.move_to(rmax, -rmax);
@@ -340,7 +340,7 @@ impl TokenStyle {
                 ctx.line_to(dx, rmax);
                 ctx.line_to(dx, -rmax);
                 right.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
             TricolourH {
                 top,
@@ -350,7 +350,7 @@ impl TokenStyle {
             } => {
                 // Fill the entire region with the middle colour.
                 middle.apply_colour(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 ctx.clip_preserve();
                 // Define the top region and fill with the top colour.
                 ctx.new_path();
@@ -359,7 +359,7 @@ impl TokenStyle {
                 ctx.line_to(rmax, -rmax);
                 ctx.line_to(rmax, -dx);
                 top.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
                 // Define the bottom region and fill with the bottom colour.
                 ctx.new_path();
                 ctx.move_to(-rmax, dx);
@@ -367,7 +367,7 @@ impl TokenStyle {
                 ctx.line_to(rmax, rmax);
                 ctx.line_to(rmax, dx);
                 bottom.apply_colour(ctx);
-                ctx.fill();
+                ctx.fill().unwrap();
             }
         }
     }
@@ -416,7 +416,7 @@ impl Token {
 
         // Identify the location of the text centre, noting that the current
         // point is the token centre.
-        let (x, y) = ctx.get_current_point();
+        let (x, y) = ctx.current_point().unwrap();
         let radius = hex.theme.token_space_radius.absolute(hex);
         let dx = radius * ((self.x_pcnt as f64 - 50.0) / 50.0);
         let dy = radius * ((self.y_pcnt as f64 - 50.0) / 50.0);
@@ -430,18 +430,18 @@ impl Token {
     /// Define the token boundary before calling this function.
     pub fn draw(&self, hex: &Hex, ctx: &Context, text: &str, rotn: f64) {
         // Locate the centre of the token.
-        let (x0, y0, x1, y1) = ctx.fill_extents();
+        let (x0, y0, x1, y1) = ctx.fill_extents().unwrap();
         let x = 0.5 * (x0 + x1);
         let y = 0.5 * (y0 + y1);
 
-        let m = ctx.get_matrix();
-        ctx.save();
+        let m = ctx.matrix();
+        ctx.save().unwrap();
 
         // NOTE: move to the token centre and apply the inverse rotation.
         ctx.translate(x, y);
         ctx.rotate(-rotn);
 
-        let stroke_path = ctx.copy_path();
+        let stroke_path = ctx.copy_path().unwrap();
         self.style.draw_background(hex, ctx);
         self.draw_text(hex, ctx, text);
 
@@ -449,9 +449,9 @@ impl Token {
         ctx.new_path();
         ctx.append_path(&stroke_path);
         hex.theme.token_space_inner.apply_line_and_stroke(ctx, hex);
-        ctx.stroke_preserve();
+        ctx.stroke_preserve().unwrap();
 
-        ctx.restore();
+        ctx.restore().unwrap();
         ctx.set_matrix(m);
     }
 }

@@ -143,7 +143,7 @@ impl State for ReplaceTile {
         event: &gdk::EventKey,
     ) -> (Option<Box<dyn State>>, Inhibit, Action) {
         let map = &mut content.map;
-        let key = event.get_keyval();
+        let key = event.keyval();
         match key {
             gdk::keys::constants::Escape => (
                 Some(Box::new(super::default::Default::at_hex(Some(

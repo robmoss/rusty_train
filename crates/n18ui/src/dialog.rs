@@ -29,7 +29,7 @@ impl SelectItemDialog {
         );
 
         let padding = 4;
-        let content = dialog.get_content_area();
+        let content = dialog.content_area();
 
         let title_label = gtk::Label::new(Some(title));
 
@@ -44,7 +44,7 @@ impl SelectItemDialog {
             list.add(&item_label);
         });
         // Select the first item.
-        list.select_row(list.get_row_at_index(0).as_ref());
+        list.select_row(list.row_at_index(0).as_ref());
         // Make activating a row pick the active item and close the dialog.
         let dlg = dialog.clone();
         list.connect_row_activated(move |_, _| {
@@ -58,9 +58,7 @@ impl SelectItemDialog {
     }
 
     fn get_selected_ix(&self) -> Option<usize> {
-        self.list
-            .get_selected_row()
-            .map(|row| row.get_index() as usize)
+        self.list.selected_row().map(|row| row.index() as usize)
     }
 
     pub fn run(&self) -> Option<usize> {
@@ -130,7 +128,7 @@ impl<'a> TrainDialog<'a> {
 
         let padding = 4;
         let spacing = 8;
-        let content = dialog.get_content_area();
+        let content = dialog.content_area();
 
         // NOTE: pack the train list on the left, and options on the right.
         let train_col = gtk::Box::new(gtk::Orientation::Vertical, spacing);
@@ -163,7 +161,7 @@ impl<'a> TrainDialog<'a> {
 
     pub fn has_option(&self, ix: usize) -> Option<bool> {
         if ix < self.options.len() {
-            Some(self.options[ix].get_active())
+            Some(self.options[ix].is_active())
         } else {
             None
         }
@@ -172,7 +170,7 @@ impl<'a> TrainDialog<'a> {
     pub fn get_trains(&self) -> Trains {
         let mut train_vec = vec![];
         self.trains.iter().for_each(|(train, spin)| {
-            let num = spin.get_value() as usize;
+            let num = spin.value() as usize;
             for _ in 0..num {
                 train_vec.push(**train)
             }
@@ -181,7 +179,7 @@ impl<'a> TrainDialog<'a> {
     }
 
     pub fn get_options(&self) -> Vec<bool> {
-        self.options.iter().map(|cb| cb.get_active()).collect()
+        self.options.iter().map(|cb| cb.is_active()).collect()
     }
 
     pub fn run(&self) -> Option<(Trains, Vec<bool>)> {
@@ -263,7 +261,7 @@ impl<'a> PhaseDialog<'a> {
         );
 
         let padding = 4;
-        let content = dialog.get_content_area();
+        let content = dialog.content_area();
 
         let combo = gtk::ComboBoxText::new();
         // phase_names.iter().for_each(|name| combo.append_text(name));
@@ -283,7 +281,7 @@ impl<'a> PhaseDialog<'a> {
     }
 
     fn get_phase_ix(&self) -> Option<usize> {
-        self.combo.get_active_text().and_then(|text| {
+        self.combo.active_text().and_then(|text| {
             let text = text.as_str();
             self.phase_names
                 .iter()

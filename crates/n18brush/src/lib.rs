@@ -16,15 +16,15 @@ where
     // See https://www.cairographics.org/FAQ/#clear_a_surface for details.
     let colour_opt = colour.into();
     if let Some(colour) = colour_opt {
-        let operator = ctx.get_operator();
+        let operator = ctx.operator();
         ctx.set_operator(cairo::Operator::Source);
         colour.apply_colour(&ctx);
-        ctx.paint();
+        ctx.paint().unwrap();
         ctx.set_operator(operator);
     } else {
-        let operator = ctx.get_operator();
+        let operator = ctx.operator();
         ctx.set_operator(cairo::Operator::Clear);
-        ctx.paint();
+        ctx.paint().unwrap();
         ctx.set_operator(operator);
     }
 }
@@ -39,7 +39,7 @@ pub fn draw_hex_backgrounds(
     for _ in &mut hex_iter {
         hex.define_boundary(ctx);
         hex.theme.apply_hex_colour(ctx, HexColour::Empty);
-        ctx.fill();
+        ctx.fill().unwrap();
     }
     // Draw a thick border around each hex, so that after the map tiles and
     // other layers have been drawn on top of this, the map edges will have a
@@ -48,7 +48,7 @@ pub fn draw_hex_backgrounds(
     for _ in &mut hex_iter {
         hex.define_boundary(ctx);
         hex.theme.map_border.apply_line_and_stroke(ctx, hex);
-        ctx.stroke();
+        ctx.stroke().unwrap();
     }
 
     hex_iter.restart();
@@ -83,7 +83,7 @@ pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
 pub fn draw_empty_hex(hex: &Hex, ctx: &Context) {
     hex.define_boundary(ctx);
     hex.theme.apply_hex_colour(ctx, HexColour::Empty);
-    ctx.fill();
+    ctx.fill().unwrap();
 }
 
 pub fn outline_empty_hexes(
@@ -97,7 +97,7 @@ pub fn outline_empty_hexes(
         if hex_state.tile_state.is_none() {
             hex.define_boundary(ctx);
             hex.theme.hex_border.apply_line_and_stroke(ctx, hex);
-            ctx.stroke();
+            ctx.stroke().unwrap();
         }
     }
 
@@ -149,7 +149,7 @@ pub fn draw_barriers_subset(
             ctx.move_to(c0.x, c0.y);
             ctx.line_to(c1.x, c1.y);
             hex.theme.hex_barrier.apply_line_and_stroke(ctx, hex);
-            ctx.stroke();
+            ctx.stroke().unwrap();
         }
     }
 }
@@ -163,7 +163,7 @@ pub fn draw_barriers(hex: &Hex, ctx: &Context, map: &Map) {
         ctx.move_to(c0.x, c0.y);
         ctx.line_to(c1.x, c1.y);
         hex.theme.hex_barrier.apply_line_and_stroke(ctx, hex);
-        ctx.stroke();
+        ctx.stroke().unwrap();
         ctx.set_matrix(m);
     }
 }
@@ -190,11 +190,11 @@ pub fn highlight_tokens<P>(
                     tile.define_token_space(token_space, hex, ctx);
                     if let Some(fill_colour) = fill {
                         fill_colour.apply_colour(ctx);
-                        ctx.fill_preserve();
+                        ctx.fill_preserve().unwrap();
                     }
                     border.apply_colour(ctx);
                     hex.theme.token_space_highlight.apply_line(ctx, hex);
-                    ctx.stroke_preserve();
+                    ctx.stroke_preserve().unwrap();
                 }
             }
         }
@@ -215,7 +215,7 @@ pub fn highlight_token_space(
         tile.define_token_space(token_space, hex, ctx);
         border.apply_colour(ctx);
         hex.theme.token_space_highlight.apply_line(ctx, hex);
-        ctx.stroke_preserve();
+        ctx.stroke_preserve().unwrap();
         ctx.set_matrix(m);
     }
 }
@@ -243,13 +243,13 @@ pub fn highlight_hexes<P>(
                 colour.apply_colour(ctx);
                 hex.theme.hex_highlight.apply_line(ctx, hex);
                 hex.define_boundary(ctx);
-                ctx.stroke();
+                ctx.stroke().unwrap();
             }
         } else {
             // Cover all other tiles with a partially-transparent layer.
             hex.theme.hex_border.apply_fill(ctx);
             hex.define_boundary(ctx);
-            ctx.fill();
+            ctx.fill().unwrap();
         }
     }
 }
@@ -272,12 +272,12 @@ pub fn highlight_active_hex(
             border.apply_colour(ctx);
             hex.theme.hex_highlight.apply_line(ctx, hex);
             hex.define_boundary(ctx);
-            ctx.stroke();
+            ctx.stroke().unwrap();
         } else {
             // Cover all other tiles with a partially-transparent layer.
             hex.theme.hex_border.apply_fill(ctx);
             hex.define_boundary(ctx);
-            ctx.fill();
+            ctx.fill().unwrap();
         }
     }
 
@@ -329,14 +329,14 @@ fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
             track.define_path(&hex, &ctx);
             // NOTE: cover the inner (black) part of the track.
             hex.theme.track_inner.apply_line(ctx, hex);
-            ctx.stroke();
+            ctx.stroke().unwrap();
         }
         ctx.set_matrix(m);
     }
 }
 
 fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
-    let source = ctx.get_source();
+    let source = ctx.source();
 
     for visit in visits {
         let m = map.prepare_to_draw(visit.addr, &hex, &ctx);
@@ -360,7 +360,7 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 }
                 // Then draw a border around the city.
                 if visit.revenue > 0 {
-                    ctx.set_source(&source);
+                    ctx.set_source(&source).unwrap();
                 } else {
                     // NOTE: the train did not stop here, use the default
                     // track colour.
@@ -368,13 +368,13 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 }
                 hex.theme.token_space_highlight.apply_line(&ctx, &hex);
                 city.define_boundary(&hex, &ctx);
-                ctx.stroke();
+                ctx.stroke().unwrap();
             }
             StopLocation::Dit { ix } => {
                 let dit = tile.dits()[ix];
                 let track = tile.tracks()[dit.track_ix];
                 if visit.revenue > 0 {
-                    ctx.set_source(&source);
+                    ctx.set_source(&source).unwrap();
                 } else {
                     // NOTE: the train did not stop here, use the default dit
                     // colour.
@@ -390,9 +390,9 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                     }
                     DitShape::Circle => {
                         track.define_circle_dit(&hex, &ctx);
-                        ctx.fill_preserve();
+                        ctx.fill_preserve().unwrap();
                         hex.theme.dit_circle.apply_line_and_stroke(ctx, hex);
-                        ctx.stroke();
+                        ctx.stroke().unwrap();
                     }
                 }
             }
@@ -507,7 +507,7 @@ impl ImageFormat {
         match self {
             Pdf => {
                 let surf = cairo::PdfSurface::new(width, height, dest)?;
-                let ctx = cairo::Context::new(&surf);
+                let ctx = cairo::Context::new(&surf)?;
                 draw_fn(&ctx);
                 surf.finish();
             }
@@ -517,7 +517,7 @@ impl ImageFormat {
                     width as i32,
                     height as i32,
                 )?;
-                let ctx = cairo::Context::new(&surf);
+                let ctx = cairo::Context::new(&surf)?;
                 let mut out_file = std::fs::File::create(dest.as_ref())
                     .expect("Could not create output file");
                 draw_fn(&ctx);
@@ -525,7 +525,7 @@ impl ImageFormat {
             }
             Svg => {
                 let surf = cairo::SvgSurface::new(width, height, Some(dest))?;
-                let ctx = cairo::Context::new(&surf);
+                let ctx = cairo::Context::new(&surf)?;
                 draw_fn(&ctx);
                 surf.finish();
             }
@@ -549,7 +549,7 @@ where
 {
     let rec_surf =
         cairo::RecordingSurface::create(cairo::Content::Color, None).ok()?;
-    let ctx = cairo::Context::new(&rec_surf);
+    let ctx = cairo::Context::new(&rec_surf).ok()?;
     draw_fn(&ctx);
     let exts = rec_surf.ink_extents();
     let width = exts.2 + 2.0 * exts.0;

@@ -247,7 +247,11 @@ impl<'a> Labeller<'a> {
         let size = self.size(text);
         let coord = Coord::from((0.0, 0.0));
         let coord = size.top_left(&coord, self.horiz, self.vert);
-        if !self.context.has_current_point() {
+        let has_current_point = self
+            .context
+            .has_current_point()
+            .expect("Context::has_current_point() failed");
+        if !has_current_point {
             self.context.move_to(0.0, 0.0)
         }
         self.context.rel_move_to(coord.x, coord.y);
@@ -268,7 +272,7 @@ impl<'a> Labeller<'a> {
     pub fn size(&self, text: &str) -> Size {
         let use_logical = true;
         self.layout.set_text(text);
-        let (ink, logical) = self.layout.get_pixel_extents();
+        let (ink, logical) = self.layout.pixel_extents();
         let rect = if use_logical { logical } else { ink };
         rect.into()
     }

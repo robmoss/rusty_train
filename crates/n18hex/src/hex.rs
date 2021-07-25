@@ -504,7 +504,8 @@ impl Hex {
         let surface =
             cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
                 .expect("Can't create cairo::ImageSurface");
-        let context = cairo::Context::new(&surface);
+        let context = cairo::Context::new(&surface)
+            .expect("Can't create cairo::Context");
         // Move the origin to the centre of this surface.
         context.translate(max_d, max_d);
 
@@ -531,12 +532,13 @@ impl Hex {
 
         let dim = (max_d * 2.0) as i32;
         let resize_surface =
-            self.surface.get_width() < dim || self.surface.get_height() < dim;
+            self.surface.width() < dim || self.surface.height() < dim;
         if resize_surface {
             self.surface =
                 cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
                     .expect("Can't create cairo::ImageSurface");
-            self.context = cairo::Context::new(&self.surface);
+            self.context = cairo::Context::new(&self.surface)
+                .expect("Can't create cairo::Context");
         }
         // Move the origin to the centre of this hexagon.
         self.context.translate(max_d, max_d);
@@ -594,9 +596,9 @@ impl Hex {
     pub fn draw_background(&self, colour: HexColour, ctx: &Context) {
         self.define_boundary(ctx);
         self.theme.apply_hex_colour(ctx, colour);
-        ctx.fill_preserve();
+        ctx.fill_preserve().unwrap();
         self.theme.hex_border.apply_line_and_stroke(ctx, self);
-        ctx.stroke();
+        ctx.stroke().unwrap();
     }
 
     /// Returns the Cartesian coordinates for the middle of the given hexagon

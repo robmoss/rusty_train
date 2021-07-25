@@ -4,7 +4,7 @@
 //! See the `rusty_train` code for an example of how to use the [UI] struct.
 //!
 use cairo::{Context, ImageSurface};
-use gtk::{GtkWindowExt, Inhibit, WidgetExt};
+use gtk::prelude::{GtkWindowExt, Inhibit, WidgetExt};
 use log::info;
 use std::sync::{Arc, RwLock};
 
@@ -136,9 +136,9 @@ pub enum Action {
 fn draw_state(state: &dyn State, content: &Content, ctx: &Context) {
     Colour::WHITE.apply_colour(ctx);
     ctx.reset_clip();
-    let (x1, y1, x2, y2) = ctx.clip_extents();
+    let (x1, y1, x2, y2) = ctx.clip_extents().unwrap();
     ctx.rectangle(x1, y1, x2, y2);
-    ctx.fill();
+    ctx.fill().unwrap();
     state.draw(content, ctx);
 }
 
@@ -148,7 +148,8 @@ fn ink_extents(state: &dyn State, content: &Content) -> (f64, f64, f64, f64) {
     let surf = cairo::RecordingSurface::create(cairo::Content::Color, None)
         .expect("Could not create RecordingSurface");
 
-    let ctx = cairo::Context::new(&surf);
+    let ctx =
+        cairo::Context::new(&surf).expect("Could not create cairo::Context");
     state.draw(content, &ctx);
     // Note: (x0, y0, width, height)
     surf.ink_extents()
@@ -210,7 +211,8 @@ impl UI {
             dims.1,
         )
         .expect("Could not create ImageSurface");
-        let context = Context::new(&surface);
+        let context =
+            Context::new(&surface).expect("Could not create cairo::Context");
         // Paint the new surface white.
         n18brush::clear_surface(&context, Colour::WHITE);
         let surface = Arc::new(RwLock::new(surface));
@@ -287,7 +289,7 @@ impl UI {
                 .surface
                 .read()
                 .expect("Could not access drawing surface");
-            (curr_surface.get_width(), curr_surface.get_height())
+            (curr_surface.width(), curr_surface.height())
         };
         let resize = (curr_width < want_width) || (curr_height < want_height);
         if resize {
@@ -301,7 +303,8 @@ impl UI {
                 want_height,
             )
             .expect("Could not create ImageSurface");
-            self.context = Context::new(&surface);
+            self.context = Context::new(&surface)
+                .expect("Could not create cairo::Context");
             let mut surf_ref = self
                 .surface
                 .write()
@@ -460,8 +463,8 @@ pub fn global_keymap(
     area: &gtk::DrawingArea,
     event: &gdk::EventKey,
 ) -> Option<(ResetState, Inhibit, Action)> {
-    let key = event.get_keyval();
-    let modifiers = event.get_state();
+    let key = event.keyval();
+    let modifiers = event.state();
     let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
     match (key, ctrl) {
         (gdk::keys::constants::q, false)

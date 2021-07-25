@@ -2,7 +2,7 @@
 use super::{Action, State};
 
 use cairo::Context;
-use gtk::{GtkWindowExt, Inhibit};
+use gtk::prelude::{GtkWindowExt, Inhibit};
 
 use log::info;
 
@@ -56,7 +56,7 @@ impl FindRoutes {
         let active_route = None;
 
         let original_window_title =
-            window.get_title().map(|s| s.as_str().to_string());
+            window.title().map(|s| s.as_str().to_string());
         let state = FindRoutes {
             active_hex: active_hex.copied(),
             abbrev: abbrev.to_string(),
@@ -233,7 +233,7 @@ impl State for FindRoutes {
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
     ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        let key = event.get_keyval();
+        let key = event.keyval();
         match key {
             gdk::keys::constants::Escape | gdk::keys::constants::Return => {
                 // Exit this mode.

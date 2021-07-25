@@ -230,13 +230,13 @@ impl Tile {
         for ix in self.tracks_tbl.get(layer).unwrap_or(&empty).iter() {
             let track = self.tracks[*ix];
             ctx.set_source_rgb(1.0, 0.0, 0.0);
-            let line_cap = ctx.get_line_cap();
+            let line_cap = ctx.line_cap();
             ctx.set_line_cap(cairo::LineCap::Round);
             for coord in track.coords(hex, 0.1) {
                 ctx.new_path();
                 ctx.move_to(coord.x, coord.y);
                 ctx.line_to(coord.x, coord.y);
-                ctx.stroke();
+                ctx.stroke().unwrap();
             }
             ctx.set_line_cap(line_cap);
         }
@@ -250,7 +250,7 @@ impl Tile {
         for layer in &[Under, Normal, Over, Topmost] {
             let empty = vec![];
             ctx.set_source_rgb(1.0, 0.0, 0.0);
-            let line_cap = ctx.get_line_cap();
+            let line_cap = ctx.line_cap();
             ctx.set_line_cap(cairo::LineCap::Round);
             for ix in self.tracks_tbl.get(layer).unwrap_or(&empty) {
                 let track = self.tracks[*ix];
@@ -258,7 +258,7 @@ impl Tile {
                     ctx.new_path();
                     ctx.move_to(coord.x, coord.y);
                     ctx.line_to(coord.x, coord.y);
-                    ctx.stroke();
+                    ctx.stroke().unwrap();
                 }
             }
             ctx.set_line_cap(line_cap);
@@ -443,7 +443,8 @@ impl Tile {
         let surface =
             cairo::ImageSurface::create(cairo::Format::ARgb32, dim, dim)
                 .map_err(|_status| "Can't create surface")?;
-        let ctx = cairo::Context::new(&surface);
+        let ctx = cairo::Context::new(&surface)
+            .expect("Can't create cairo::Context");
         ctx.translate(width / 2.0, width / 2.0);
         self.draw(&ctx, hex);
         surface.write_to_png(stream)?;
@@ -459,7 +460,8 @@ impl Tile {
         let width = self.surface_width(hex);
         let surface = cairo::SvgSurface::for_stream(width, width, stream)
             .map_err(|_status| "Can't create surface")?;
-        let ctx = cairo::Context::new(&surface);
+        let ctx = cairo::Context::new(&surface)
+            .expect("Can't create cairo::Context");
         ctx.translate(width / 2.0, width / 2.0);
         self.draw(&ctx, hex);
         surface
@@ -477,7 +479,8 @@ impl Tile {
         let width = self.surface_width(hex);
         let surface = cairo::PdfSurface::for_stream(width, width, stream)
             .map_err(|_status| "Can't create surface")?;
-        let ctx = cairo::Context::new(&surface);
+        let ctx = cairo::Context::new(&surface)
+            .expect("Can't create cairo::Context");
         ctx.translate(width / 2.0, width / 2.0);
         self.draw(&ctx, hex);
         surface

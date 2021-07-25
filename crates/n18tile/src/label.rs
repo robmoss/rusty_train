@@ -94,9 +94,9 @@ impl Label {
                 ctx.new_path();
                 define_ellipse(ctx, radius, ratio, centre);
                 hex.theme.label_circle.apply_fill(ctx);
-                ctx.fill_preserve();
+                ctx.fill_preserve().unwrap();
                 hex.theme.label_circle.apply_line_and_stroke(ctx, hex);
-                ctx.stroke();
+                ctx.stroke().unwrap();
                 ctx.new_path();
 
                 // NOTE: Draw the text in the centre of the ellipse.
@@ -166,7 +166,7 @@ impl Label {
                         // Draw the background.
                         ctx.rectangle(x0, y0, box_width, box_height);
                         hex.theme.apply_hex_colour(ctx, *bg_colour);
-                        ctx.fill();
+                        ctx.fill().unwrap();
 
                         // Centre the label text in the box.
                         let size = labeller.size(text);
@@ -181,7 +181,7 @@ impl Label {
                 let dx = active_box as f64 * box_width;
                 ctx.rectangle(origin.x + dx, origin.y, box_width, box_height);
                 Colour::BLACK.apply_colour(ctx);
-                ctx.stroke();
+                ctx.stroke().unwrap();
             }
         };
     }
@@ -274,7 +274,7 @@ fn ellipse_height(radius: f64, ratio: f64) -> f64 {
 
 fn define_ellipse(ctx: &Context, radius: f64, ratio: f64, centre: Coord) {
     if ratio >= ELLIPSE_RATIO {
-        let matrix = ctx.get_matrix();
+        let matrix = ctx.matrix();
         let scale = 1.0 / ratio;
         ctx.scale(1.0, scale);
         ctx.arc(centre.x, centre.y / scale, radius, 0.0, 2.0 * PI);
