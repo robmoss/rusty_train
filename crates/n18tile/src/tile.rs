@@ -287,7 +287,7 @@ impl Tile {
         }
     }
 
-    pub fn get_revenues(&self) -> &[usize] {
+    pub fn revenues(&self) -> &[usize] {
         &self.revenues
     }
 

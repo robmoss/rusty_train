@@ -57,11 +57,11 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
         let map_hex = src.2;
         let tile = map_hex.tile(map);
         let token_spaces = tile.token_spaces();
-        let token_table = map_hex.get_tokens();
+        let token_table = map_hex.tokens();
         let tokens: Vec<_> = token_table
             .iter()
             .map(|(token_space, token)| {
-                let name = map.get_token_name(token);
+                let name = map.token_name(token);
                 let ix = token_spaces
                     .iter()
                     .position(|ts| ts == token_space)
@@ -83,7 +83,7 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
 impl From<&Map> for Descr {
     fn from(map: &Map) -> Descr {
         let tile_hexes =
-            map.hexes().iter().map(|addr| (*addr, map.get_hex(*addr)));
+            map.hexes().iter().map(|addr| (*addr, map.hex(*addr)));
         let tile_descrs = tile_hexes
             .map(|(addr, map_hex)| {
                 let tile_opt: Option<TileDescr> =
@@ -135,7 +135,7 @@ impl Descr {
                         (space_ix, token)
                     })
                     .collect();
-                let hex_state = map.get_hex_mut(*addr).expect("No hex state");
+                let hex_state = map.hex_mut(*addr).expect("No hex state");
                 for (space_ix, token) in tile_tokens {
                     hex_state.set_token_at(&spaces[*space_ix], token);
                 }
@@ -181,7 +181,7 @@ pub mod tests {
                     for (token_space, token) in tokens_table.iter() {
                         tile.define_token_space(&token_space, &hex, &ctx);
                         let rotn = hex_state.tile_rotation;
-                        let token_name = map.get_token_name(token);
+                        let token_name = map.token_name(token);
                         token.draw(hex, ctx, token_name, rotn);
                     }
                 }
@@ -333,7 +333,7 @@ pub mod tests {
                 );
                 let token_spaces = tile_hex_state.tile.token_spaces();
                 for (ix, token_name) in &tile_descr.tokens {
-                    let token_opt = tokens.get_token(token_name);
+                    let token_opt = tokens.token(token_name);
                     let token_space = token_spaces[*ix];
                     assert_eq!(
                         tile_hex_state.tile_tokens.get(&token_space),
@@ -342,7 +342,7 @@ pub mod tests {
                 }
 
                 // Check that the tile rotations match.
-                let hex_state = map.get_hex(*addr);
+                let hex_state = map.hex(*addr);
                 assert!(hex_state.is_some());
                 let rot = hex_state.unwrap().rotation();
                 assert_eq!(rot, &tile_descr.rotation);

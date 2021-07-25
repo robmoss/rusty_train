@@ -417,7 +417,7 @@ impl HexPosition {
 
     /// Returns the hexagon corner associated with this position, if the
     /// position is defined relative to a corner.
-    pub fn get_corner(&self) -> Option<HexCorner> {
+    pub fn corner(&self) -> Option<HexCorner> {
         match self {
             Self::Corner(corner, _delta) => Some(*corner),
             _ => None,
@@ -426,7 +426,7 @@ impl HexPosition {
 
     /// Returns the hexagon face associated with this position, if the
     /// position is defined relative to a face.
-    pub fn get_face(&self) -> Option<HexFace> {
+    pub fn face(&self) -> Option<HexFace> {
         match self {
             Self::Face(face, _delta) => Some(*face),
             _ => None,
@@ -441,12 +441,12 @@ impl HexPosition {
 
     /// Returns whether this position is defined relative to a hexagon corner.
     pub fn is_corner(&self) -> bool {
-        self.get_corner().is_some()
+        self.corner().is_some()
     }
 
     /// Returns whether this position is defined relative to a hexagon face.
     pub fn is_face(&self) -> bool {
-        self.get_face().is_some()
+        self.face().is_some()
     }
 }
 

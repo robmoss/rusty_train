@@ -123,10 +123,7 @@ fn edge_to_tile_face(
     addr: HexAddress,
     face: HexFace,
 ) -> Result<HexFace> {
-    let rotn = map
-        .get_hex(addr)
-        .ok_or(Error::NoTileAtHex(addr))?
-        .rotation();
+    let rotn = map.hex(addr).ok_or(Error::NoTileAtHex(addr))?.rotation();
     let num_cw_turns = rotn.count_turns();
     let mut tile_face = face;
     for _ in 0..num_cw_turns {

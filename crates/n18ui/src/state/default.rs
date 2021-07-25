@@ -217,7 +217,7 @@ impl State for Default {
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
                 if let Some(addr) = self.active_hex {
-                    if let Some(hs) = map.get_hex_mut(addr) {
+                    if let Some(hs) = map.hex_mut(addr) {
                         hs.rotate_anti_cw()
                     }
                     (None, Inhibit(false), Action::Redraw)
@@ -227,7 +227,7 @@ impl State for Default {
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
                 if let Some(addr) = self.active_hex {
-                    if let Some(hs) = map.get_hex_mut(addr) {
+                    if let Some(hs) = map.hex_mut(addr) {
                         hs.rotate_cw()
                     }
                     (None, Inhibit(false), Action::Redraw)

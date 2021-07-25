@@ -91,7 +91,7 @@ impl State for ReplaceTile {
             let tile = &map.tiles()[tile_ix];
 
             // Apply the appropriate tile rotation.
-            let map_hex = map.get_hex(self.active_hex);
+            let map_hex = map.hex(self.active_hex);
             let radians = self.rotation.radians()
                 + map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
 
@@ -99,7 +99,7 @@ impl State for ReplaceTile {
             // matching spaces (i.e., matching city index and token index).
             // See the module doc comment, above, for details.
             if let Some(hs) = map_hex {
-                let tokens = hs.get_tokens();
+                let tokens = hs.tokens();
                 n18brush::draw_tile_and_tokens_at(
                     hex,
                     ctx,

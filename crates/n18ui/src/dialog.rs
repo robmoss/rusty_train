@@ -57,7 +57,7 @@ impl SelectItemDialog {
         SelectItemDialog { dialog, list }
     }
 
-    fn get_selected_ix(&self) -> Option<usize> {
+    fn selected_ix(&self) -> Option<usize> {
         self.list.selected_row().map(|row| row.index() as usize)
     }
 
@@ -65,7 +65,7 @@ impl SelectItemDialog {
         let response = self.dialog.run();
         self.dialog.hide();
         if response == gtk::ResponseType::Accept {
-            self.get_selected_ix()
+            self.selected_ix()
         } else {
             None
         }
@@ -167,7 +167,7 @@ impl<'a> TrainDialog<'a> {
         }
     }
 
-    pub fn get_trains(&self) -> Trains {
+    pub fn trains(&self) -> Trains {
         let mut train_vec = vec![];
         self.trains.iter().for_each(|(train, spin)| {
             let num = spin.value() as usize;
@@ -178,7 +178,7 @@ impl<'a> TrainDialog<'a> {
         train_vec.into()
     }
 
-    pub fn get_options(&self) -> Vec<bool> {
+    pub fn options(&self) -> Vec<bool> {
         self.options.iter().map(|cb| cb.is_active()).collect()
     }
 
@@ -186,7 +186,7 @@ impl<'a> TrainDialog<'a> {
         let response = self.dialog.run();
         self.dialog.hide();
         if response == gtk::ResponseType::Accept {
-            Some((self.get_trains(), self.get_options()))
+            Some((self.trains(), self.options()))
         } else {
             None
         }
@@ -280,7 +280,7 @@ impl<'a> PhaseDialog<'a> {
         }
     }
 
-    fn get_phase_ix(&self) -> Option<usize> {
+    fn phase_ix(&self) -> Option<usize> {
         self.combo.active_text().and_then(|text| {
             let text = text.as_str();
             self.phase_names
@@ -295,7 +295,7 @@ impl<'a> PhaseDialog<'a> {
         let response = self.dialog.run();
         self.dialog.hide();
         if response == gtk::ResponseType::Accept {
-            self.get_phase_ix()
+            self.phase_ix()
         } else {
             None
         }
@@ -310,7 +310,7 @@ pub fn select_phase(
     let pd = PhaseDialog::new(
         parent,
         game.phase_names(),
-        game.get_phase_ix(),
+        game.phase_ix(),
         "Select Game Phase",
     );
     pd.run()

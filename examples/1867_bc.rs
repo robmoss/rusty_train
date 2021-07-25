@@ -243,12 +243,9 @@ fn game_state() -> GameState {
     ];
     example.place_tiles(extra_tiles);
 
-    let cnr_trains =
-        Trains::new(vec![*game.get_train("5"), *game.get_train("5+5E")]);
-    let gw_trains =
-        Trains::new(vec![*game.get_train("5"), *game.get_train("8")]);
-    let cno_trains =
-        Trains::new(vec![*game.get_train("6"), *game.get_train("8")]);
+    let cnr_trains = Trains::new(vec![*game.train("5"), *game.train("5+5E")]);
+    let gw_trains = Trains::new(vec![*game.train("5"), *game.train("8")]);
+    let cno_trains = Trains::new(vec![*game.train("6"), *game.train("8")]);
 
     let companies = vec![
         CompanyInfo {
@@ -284,7 +281,7 @@ fn game_state() -> GameState {
 
 fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
     let bonuses = vec![];
-    let token = example.map().get_token(company.token_name);
+    let token = example.map().token(company.token_name);
     let path_limit = company.trains.path_limit();
     let criteria = Criteria {
         token,

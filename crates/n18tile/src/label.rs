@@ -67,7 +67,7 @@ impl Label {
             }
             Self::Revenue(amount_ix) => {
                 // Determine the text dimensions.
-                let amount = tile.get_revenues()[*amount_ix];
+                let amount = tile.revenues()[*amount_ix];
                 let label_text = format!("{}", amount);
                 let text_size = labeller.size(&label_text);
                 // Make the circle/ellipse radius a bit larger than the

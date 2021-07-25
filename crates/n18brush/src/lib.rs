@@ -62,10 +62,8 @@ pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
             tile.draw(&ctx, &hex);
             for (token_space, map_token) in token_spaces.iter() {
                 if tile.define_token_space(&token_space, &hex, &ctx) {
-                    let name = hex_state
-                        .available_tokens
-                        .get_name(&map_token)
-                        .unwrap();
+                    let name =
+                        hex_state.available_tokens.name(&map_token).unwrap();
                     map_token.draw(&hex, &ctx, name, hex_state.tile_rotation);
                 } else {
                     println!("Could not define token space.")
@@ -110,7 +108,9 @@ pub fn draw_map(hex: &Hex, ctx: &Context, hex_iter: &mut HexIter<'_>) {
     draw_hex_backgrounds(hex, ctx, hex_iter);
     draw_tiles(hex, ctx, hex_iter);
     outline_empty_hexes(hex, ctx, hex_iter);
-    draw_barriers(hex, ctx, hex_iter.get_map());
+    // Note: use the fully-quantified syntax to call HexIter::map() rather
+    // than Iterator::map() on `hex_iter`.
+    draw_barriers(hex, ctx, HexIter::map(hex_iter));
 }
 
 /// Draws the core map layers for a subset of map hexes: hex backgrounds,
@@ -346,12 +346,12 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 let city = tile.cities()[ix];
                 city.draw_fg(&hex, &ctx);
                 // Draw the tokens first.
-                if let Some(hex_state) = map.get_hex(visit.addr) {
+                if let Some(hex_state) = map.hex(visit.addr) {
                     let rotn = hex_state.radians();
-                    let tokens_table = hex_state.get_tokens();
+                    let tokens_table = hex_state.tokens();
                     for (token_space, map_token) in tokens_table.iter() {
                         if tile.define_token_space(&token_space, &hex, &ctx) {
-                            let name = map.get_token_name(&map_token);
+                            let name = map.token_name(&map_token);
                             map_token.draw(&hex, &ctx, name, rotn);
                         } else {
                             println!("Could not define token space.")

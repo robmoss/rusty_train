@@ -367,7 +367,7 @@ impl super::Game for Game {
         ]
     }
 
-    fn get_bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus> {
+    fn bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus> {
         let timmins = Bonus::ConnectionBonus {
             from: (0, 3).into(),
             to_any: vec![
@@ -450,7 +450,7 @@ impl super::Game for Game {
     }
 
     /// Returns the index of the current game phase.
-    fn get_phase_ix(&self) -> usize {
+    fn phase_ix(&self) -> usize {
         self.phase
     }
 

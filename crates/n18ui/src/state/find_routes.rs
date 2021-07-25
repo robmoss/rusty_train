@@ -149,7 +149,7 @@ fn best_routes_for(
     );
     let now = std::time::Instant::now();
     // Determine the route bonuses that may apply.
-    let bonuses = content.games.active().get_bonuses(&bonus_options);
+    let bonuses = content.games.active().bonuses(&bonus_options);
     let best_routes = trains.select_routes(paths, bonuses);
     info!(
         "Calculated (train, path) revenues in {}",

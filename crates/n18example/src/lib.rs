@@ -102,9 +102,9 @@ impl Example {
                 let place_toks: Vec<(usize, Token)> = tile
                     .toks
                     .iter()
-                    .map(|(ix, name)| (*ix, self.map.get_token(name)))
+                    .map(|(ix, name)| (*ix, self.map.token(name)))
                     .collect();
-                let map_hex = self.map.get_hex_mut(addr).unwrap();
+                let map_hex = self.map.hex_mut(addr).unwrap();
                 for (ix, token) in place_toks.into_iter() {
                     map_hex.set_token_at(&tok_spaces[ix], token)
                 }

@@ -38,7 +38,7 @@ fn test_dual_routes_from_montreal() {
     let hex_tile = map.tile_at(addr_montreal).unwrap();
     let space_0 = hex_tile.token_spaces()[0];
     let space_1 = hex_tile.token_spaces()[1];
-    let map_hex = map.get_hex_mut(addr_montreal).unwrap();
+    let map_hex = map.hex_mut(addr_montreal).unwrap();
     map_hex.set_token_at(&space_0, company_token);
     map_hex.set_token_at(&space_1, company_token);
     // Place the other tiles for these two routes.

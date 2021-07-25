@@ -20,7 +20,7 @@ pub struct EditTokens {
 
 impl EditTokens {
     pub(super) fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
-        let hex_state = map.get_hex(addr)?;
+        let hex_state = map.hex(addr)?;
         let tile = map.tile_at(addr)?;
         if tile.colour == HexColour::Red {
             return None;
@@ -29,7 +29,7 @@ impl EditTokens {
         if token_spaces.is_empty() {
             return None;
         }
-        let original_tokens = hex_state.get_tokens().clone();
+        let original_tokens = hex_state.tokens().clone();
         Some(EditTokens {
             active_hex: addr,
             token_spaces,
@@ -86,7 +86,7 @@ impl State for EditTokens {
                     .iter()
                     .map(|(ts, tok)| (*ts, *tok))
                     .collect();
-                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                if let Some(hs) = map.hex_mut(self.active_hex) {
                     hs.set_tokens(restore)
                 }
                 (
@@ -125,9 +125,9 @@ impl State for EditTokens {
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
                 let game = content.games.active();
-                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                if let Some(hs) = map.hex_mut(self.active_hex) {
                     let next: &Token = hs
-                        .get_token_at(token_space)
+                        .token_at(token_space)
                         .and_then(|t| game.next_token(t))
                         .unwrap_or_else(|| game.first_token());
                     hs.set_token_at(token_space, *next);
@@ -139,9 +139,9 @@ impl State for EditTokens {
                 // NOTE: we cannot borrow map.tokens() to get the next token,
                 // so we have to take a reference to the game's tokens.
                 let game = content.games.active();
-                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                if let Some(hs) = map.hex_mut(self.active_hex) {
                     let next: &Token = hs
-                        .get_token_at(token_space)
+                        .token_at(token_space)
                         .and_then(|t| game.prev_token(t))
                         .unwrap_or_else(|| game.last_token());
                     hs.set_token_at(token_space, *next);
@@ -153,7 +153,7 @@ impl State for EditTokens {
             | gdk::keys::constants::BackSpace
             | gdk::keys::constants::Delete => {
                 let token_space = &self.token_spaces[self.selected];
-                if let Some(hs) = map.get_hex_mut(self.active_hex) {
+                if let Some(hs) = map.hex_mut(self.active_hex) {
                     hs.remove_token_at(token_space)
                 }
                 (None, Inhibit(false), Action::Redraw)

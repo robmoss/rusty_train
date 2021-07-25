@@ -128,7 +128,7 @@ impl Context {
         }
     }
 
-    fn get_current_path(&self) -> Path {
+    fn current_path(&self) -> Path {
         Path {
             steps: self.path.clone(),
             conflicts: self.conflicts.clone(),
@@ -439,7 +439,7 @@ fn depth_first_search(
     // implementation for (HexAddress, usize) to ensure that we only explore
     // it in a single (and arbitrary, but consistent) direction.
     if let Connection::City { ix: city_ix } = conn {
-        let token_tbl = map.get_hex(addr).unwrap().get_tokens();
+        let token_tbl = map.hex(addr).unwrap().tokens();
         let has_token = token_tbl.iter().any(|(&space, &tok)| {
             space.city_ix() == city_ix && tok == query.criteria.token
         });
@@ -482,7 +482,7 @@ fn depth_first_search(
             ctx.num_visits += 1;
             ctx.num_cities += 1;
             ctx.visits.push(visit);
-            paths.push(ctx.get_current_path());
+            paths.push(ctx.current_path());
             // NOTE: if we can continue travelling past this city, then do so.
             // NOTE: trains cannot continue past an off-board city/town.
             let off_board = tile.colour == HexColour::Red
@@ -491,9 +491,9 @@ fn depth_first_search(
                 let token_spaces = tile.city_token_spaces(city_ix);
                 // NOTE: we must only check tokens associated with this city.
                 let city_tokens: Vec<_> = map
-                    .get_hex(addr)
+                    .hex(addr)
                     .unwrap()
-                    .get_tokens()
+                    .tokens()
                     .iter()
                     .filter(|(&space, &_tok)| space.city_ix() == city_ix)
                     .collect();
@@ -523,7 +523,7 @@ fn depth_first_search(
             ctx.num_visits += 1;
             ctx.num_dits += 1;
             ctx.visits.push(visit);
-            paths.push(ctx.get_current_path());
+            paths.push(ctx.current_path());
             // NOTE: if we can continue travelling past this dit, then do so.
             let off_board = tile.colour == HexColour::Red
                 || tile.colour == HexColour::Blue;
@@ -657,7 +657,7 @@ mod tests {
     fn test_2x2_paths() {
         let hex = Hex::new(HEX_DIAMETER);
         let tokens = define_tokens();
-        let token_lp = *tokens.get_token("LP").unwrap();
+        let token_lp = *tokens.token("LP").unwrap();
         let map = map_2x2_tiles_5_6_58_63(&hex, tokens);
 
         let query = Query {

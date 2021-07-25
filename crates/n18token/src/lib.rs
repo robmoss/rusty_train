@@ -76,7 +76,7 @@ impl Tokens {
             .map(|ix| self.tokens[ix])
     }
 
-    pub fn get_token(&self, name: &str) -> Option<&Token> {
+    pub fn token(&self, name: &str) -> Option<&Token> {
         self.names
             .iter()
             .enumerate()
@@ -84,7 +84,7 @@ impl Tokens {
             .map(|(ix, _n)| &self.tokens[ix])
     }
 
-    pub fn get_name(&self, token: &Token) -> Option<&str> {
+    pub fn name(&self, token: &Token) -> Option<&str> {
         self.tokens
             .iter()
             .enumerate()

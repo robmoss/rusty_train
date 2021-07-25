@@ -78,7 +78,7 @@ fn main() -> Result<()> {
         .into_route();
 
     // Find the best route for an 8-train.
-    let token = map.get_token(name_a);
+    let token = map.token(name_a);
     let criteria = Criteria {
         token,
         path_limit: None,

@@ -610,7 +610,7 @@ impl Track {
             .map(|(end, _revenue, _shape)| self.end_coord(end, hex))
     }
 
-    pub fn get_coord(&self, hex: &Hex, x: f64) -> Option<Coord> {
+    pub fn coord(&self, hex: &Hex, x: f64) -> Option<Coord> {
         use TrackPath::*;
 
         if self.clipped(x) {

@@ -31,7 +31,7 @@ pub struct Company {
 /// in order for these types to known and usable.
 /// We instead use string slices (`&str`) to identify these game-specific
 /// entities, and provide methods to retrieve these entities with and without
-/// panicking (`get_foo()` and `try_foo()`, respectively).
+/// panicking (`foo()` and `try_foo()`, respectively).
 ///
 /// Also note that trains and game phases, as returned by [Game::trains],
 /// [Game::train_names], [Game::train_types], and [Game::phase_names], are
@@ -132,7 +132,7 @@ pub trait Game {
     /// # Panics
     ///
     /// Panics if there is no company with the given name.
-    fn get_company(&self, abbrev: &str) -> &Company {
+    fn company(&self, abbrev: &str) -> &Company {
         self.try_company(abbrev)
             .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
     }
@@ -147,7 +147,7 @@ pub trait Game {
     /// # Panics
     ///
     /// Panics if there is no token with the given name.
-    fn get_token(&self, abbrev: &str) -> &Token {
+    fn token(&self, abbrev: &str) -> &Token {
         self.try_token(abbrev)
             .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
     }
@@ -173,7 +173,7 @@ pub trait Game {
     /// # Panics
     ///
     /// Panics if there is no train with the given name.
-    fn get_train(&self, name: &str) -> &Train {
+    fn train(&self, name: &str) -> &Train {
         self.try_train(name)
             .unwrap_or_else(|| panic!("No train named '{}'", name))
     }
@@ -195,7 +195,7 @@ pub trait Game {
     /// Return the bonuses that may apply to the routes being operated by a
     /// company, given the bonus options (e.g., private company bonuses) that
     /// the company currently owns.
-    fn get_bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus>;
+    fn bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus>;
 
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.
@@ -214,11 +214,11 @@ pub trait Game {
 
     /// Returns the name of the current game phase.
     fn current_phase_name(&self) -> &str {
-        self.phase_names()[self.get_phase_ix()]
+        self.phase_names()[self.phase_ix()]
     }
 
     /// Returns the index of the current game phase.
-    fn get_phase_ix(&self) -> usize;
+    fn phase_ix(&self) -> usize;
 
     /// Changes the current game phase, which may update the map.
     ///
@@ -246,7 +246,7 @@ pub trait Game {
 
     /// Advance to the next game phase, if it exists.
     fn next_phase(&mut self, map: &mut Map) -> bool {
-        let curr = self.get_phase_ix();
+        let curr = self.phase_ix();
         if curr < usize::MAX {
             self.set_phase_ix(map, curr + 1)
         } else {
@@ -256,7 +256,7 @@ pub trait Game {
 
     /// Revert to the previous game phase, if it exists.
     fn prev_phase(&mut self, map: &mut Map) -> bool {
-        let curr = self.get_phase_ix();
+        let curr = self.phase_ix();
         if curr > 0 {
             self.set_phase_ix(map, curr - 1)
         } else {

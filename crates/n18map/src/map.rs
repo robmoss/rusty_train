@@ -65,7 +65,7 @@ impl Map {
 
     /// Returns the token with the given abbreviated name, if it exists.
     pub fn try_token(&self, name: &str) -> Option<Token> {
-        self.tokens.get_token(name).copied()
+        self.tokens.token(name).copied()
     }
 
     /// Returns the token with the given abbreviated name.
@@ -73,8 +73,8 @@ impl Map {
     /// # Panics
     ///
     /// Panics if there is no token with the given name.
-    pub fn get_token(&self, name: &str) -> Token {
-        self.tokens.get_token(name).copied().unwrap_or_else(|| {
+    pub fn token(&self, name: &str) -> Token {
+        self.tokens.token(name).copied().unwrap_or_else(|| {
             let valid_names = self.tokens.names();
             if valid_names.is_empty() {
                 panic!(
@@ -93,7 +93,7 @@ impl Map {
 
     /// Returns the abbreviated name of the given token, if it exists.
     pub fn try_token_name(&self, token: &Token) -> Option<&str> {
-        self.tokens.get_name(token)
+        self.tokens.name(token)
     }
 
     /// Returns the abbreviated name of the given token.
@@ -101,9 +101,9 @@ impl Map {
     /// # Panics
     ///
     /// Panics if there is no such token.
-    pub fn get_token_name(&self, token: &Token) -> &str {
+    pub fn token_name(&self, token: &Token) -> &str {
         self.tokens
-            .get_name(token)
+            .name(token)
             .unwrap_or_else(|| panic!("Unknown token {:?}", token))
     }
 
@@ -138,14 +138,14 @@ impl Map {
     // TODO: replace with methods that retrieve specific details?
     // Tokens, Rotation, Tile name, Replaceable ...
 
-    pub fn get_hex(&self, addr: HexAddress) -> Option<&MapHex> {
+    pub fn hex(&self, addr: HexAddress) -> Option<&MapHex> {
         self.state.get(&addr)
     }
 
     // TODO: replace with methods that replace/update specific details?
     // Tokens, Rotation, Tile name, Replaceable ...
 
-    pub fn get_hex_mut(&mut self, addr: HexAddress) -> Option<&mut MapHex> {
+    pub fn hex_mut(&mut self, addr: HexAddress) -> Option<&mut MapHex> {
         self.state.get_mut(&addr)
     }
 
@@ -767,7 +767,7 @@ impl<'a> HexIter<'a> {
         self.ix = 0;
     }
 
-    pub fn get_map(&self) -> &Map {
+    pub fn map(&self) -> &Map {
         &self.map
     }
 
@@ -1056,7 +1056,7 @@ impl MapHex {
         &self.rotation
     }
 
-    pub fn get_token_at(&self, space: &TokenSpace) -> Option<&Token> {
+    pub fn token_at(&self, space: &TokenSpace) -> Option<&Token> {
         self.tokens.get(space)
     }
 
@@ -1068,7 +1068,7 @@ impl MapHex {
         self.tokens.remove(space);
     }
 
-    pub fn get_tokens(&self) -> &TokensTable {
+    pub fn tokens(&self) -> &TokensTable {
         &self.tokens
     }
 

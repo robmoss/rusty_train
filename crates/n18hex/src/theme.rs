@@ -789,7 +789,7 @@ impl Theme {
     /// Sets a hexagon colour as the source pattern for the provided context.
     pub fn apply_hex_colour(&self, ctx: &Context, hc: HexColour) {
         let colour = self
-            .get_hex_colour(hc)
+            .hex_colour(hc)
             .unwrap_or_else(|| panic!("No colour defined for {:?}", hc));
         self.apply_colour(ctx, colour)
     }
@@ -811,7 +811,7 @@ impl Theme {
     }
 
     /// Retrieves the colour associated with the provided hexagon background.
-    pub fn get_hex_colour(&self, hc: HexColour) -> Option<Colour> {
+    pub fn hex_colour(&self, hc: HexColour) -> Option<Colour> {
         self.hex_colours.get(&hc).copied()
     }
 
@@ -1039,7 +1039,7 @@ mod test {
     /// hexadecimal triplet.
     fn to_rgb(theme: &Theme, hc: HexColour) {
         let colour = theme
-            .get_hex_colour(hc)
+            .hex_colour(hc)
             .unwrap_or_else(|| panic!("No colour defined for {:?}", hc));
         let rgb_string = colour.as_rgb();
         println!("{:6} = {}", format!("{:?}", hc), rgb_string)

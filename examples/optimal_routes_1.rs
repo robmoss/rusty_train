@@ -47,7 +47,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
 
     // Find all available routes, ignoring limits on the number of stops.
     let map = example.map();
-    let token = map.get_token(name_a);
+    let token = map.token(name_a);
     let criteria = Criteria {
         token,
         path_limit: None,
