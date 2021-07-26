@@ -9,7 +9,7 @@ use super::Company;
 use n18catalogue::tile_catalogue;
 use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
-use n18route::{Bonus, Train, TrainType};
+use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Token, TokenStyle};
 
@@ -415,6 +415,21 @@ impl super::Game for Game {
             panic!("Invalid number of bonus options: {}", bonus_options.len())
         }
         bonuses
+    }
+
+    /// Defines the elements that cannot be shared in a single route.
+    ///
+    /// A single route cannot reuse any track segment, any revenue centre
+    /// (city or dit), or multiple revenue centres on a single hex.
+    fn single_route_conflicts(&self) -> ConflictRule {
+        ConflictRule::TrackOrCityHex
+    }
+
+    /// Defines the elements that cannot be shared between routes.
+    ///
+    /// Routes cannot have any track segments in common.
+    fn multiple_routes_conflicts(&self) -> ConflictRule {
+        ConflictRule::TrackOnly
     }
 
     /// Create the initial map for 1867.

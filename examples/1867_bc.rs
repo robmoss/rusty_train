@@ -126,7 +126,8 @@ fn save_1867_bc_routes(
                 (routes, false)
             } else {
                 info!("Calculating best routes for {}", company.token_name);
-                let new_routes = best_routes(&state.example, &company);
+                let new_routes =
+                    best_routes(&state.example, &*state.game, &company);
                 if new_routes == routes {
                     // The calculated routes match the cached routes, no need
                     // to save them.
@@ -145,7 +146,7 @@ fn save_1867_bc_routes(
             }
         } else {
             // Calculate the best routes and save the results.
-            (best_routes(&state.example, &company), true)
+            (best_routes(&state.example, &*state.game, &company), true)
         };
 
         // Draw the best routes and save the image to disk.
@@ -279,15 +280,19 @@ fn game_state() -> GameState {
     }
 }
 
-fn best_routes(example: &Example, company: &CompanyInfo) -> Routes {
+fn best_routes(
+    example: &Example,
+    game: &dyn Game,
+    company: &CompanyInfo,
+) -> Routes {
     let bonuses = vec![];
     let token = example.map().token(company.token_name);
     let path_limit = company.trains.path_limit();
     let criteria = Criteria {
         token,
         path_limit,
-        conflict_rule: ConflictRule::TrackOrCityHex,
-        route_conflict_rule: ConflictRule::TrackOnly,
+        conflict_rule: game.single_route_conflicts(),
+        route_conflict_rule: game.multiple_routes_conflicts(),
     };
     let map = example.map();
     let start = Local::now();

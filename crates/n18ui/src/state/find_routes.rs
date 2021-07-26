@@ -10,7 +10,7 @@ use crate::dialog::{select_item, select_trains};
 use crate::Content;
 use n18game::Company;
 use n18map::HexAddress;
-use n18route::{paths_for_token, ConflictRule, Criteria, Routes, Trains};
+use n18route::{paths_for_token, Criteria, Routes, Trains};
 use n18token::Token;
 
 /// Search for the best routes that a company can operate.
@@ -131,12 +131,13 @@ fn best_routes_for(
     info!("");
     info!("Searching for the best routes ...");
 
+    let game = content.games.active();
     let path_limit = trains.path_limit();
     let criteria = Criteria {
         token: *token,
         path_limit,
-        conflict_rule: ConflictRule::TrackOrCityHex,
-        route_conflict_rule: ConflictRule::TrackOnly,
+        conflict_rule: game.single_route_conflicts(),
+        route_conflict_rule: game.multiple_routes_conflicts(),
     };
 
     let now = std::time::Instant::now();
@@ -149,7 +150,7 @@ fn best_routes_for(
     );
     let now = std::time::Instant::now();
     // Determine the route bonuses that may apply.
-    let bonuses = content.games.active().bonuses(&bonus_options);
+    let bonuses = game.bonuses(&bonus_options);
     let best_routes = trains.select_routes(paths, bonuses);
     info!(
         "Calculated (train, path) revenues in {}",

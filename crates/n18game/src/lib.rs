@@ -1,6 +1,6 @@
 use n18hex::Hex;
 use n18map::Map;
-use n18route::{Bonus, Train};
+use n18route::{Bonus, ConflictRule, Train};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
 
@@ -196,6 +196,12 @@ pub trait Game {
     /// company, given the bonus options (e.g., private company bonuses) that
     /// the company currently owns.
     fn bonuses(&self, bonus_options: &[bool]) -> Vec<Bonus>;
+
+    /// Defines the elements that cannot be shared in a single route.
+    fn single_route_conflicts(&self) -> ConflictRule;
+
+    /// Defines the elements that cannot be shared between routes.
+    fn multiple_routes_conflicts(&self) -> ConflictRule;
 
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.
