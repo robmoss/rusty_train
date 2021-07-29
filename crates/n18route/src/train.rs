@@ -615,6 +615,9 @@ pub struct Route {
     pub visits: Vec<Visit>,
 }
 
+/// This seemingly-pointless implementation allows passing [Route] values to
+/// `n18brush::highlight_routes()`, which accepts routes as a slice `&[R]`,
+/// where `R: AsRef<Route>`.
 impl AsRef<Route> for Route {
     fn as_ref(&self) -> &Route {
         self
