@@ -11,6 +11,8 @@ load_save = ["serde", "serde_json"]
 
 Note that optional dependencies [implicitly define](https://doc.rust-lang.org/cargo/reference/features.html) a feature of the same name as the dependency, and so explicit features cannot use the same name as a dependency.
 
+- The `namespaced-features` feature would allow us to define a `serde` feature than enables both crates; see the [RFC](https://github.com/rust-lang/rfcs/pull/3143) and [tracking issue](https://github.com/rust-lang/cargo/issues/5565) for details.
+
 But note that features and workspaces **are not easily combined**; see these issues — [1](https://github.com/rust-lang/cargo/issues/4463), [2](https://github.com/rust-lang/cargo/issues/5015), [3](https://github.com/rust-lang/cargo/issues/5251), [4](https://github.com/rust-lang/cargo/issues/9094) — for some perspective.
 
 - It would appear that each crate would need to define this `load_save` feature, and for the `navig18xx` crate this feature would enable `crate-name/load_save` for each of these crates.
