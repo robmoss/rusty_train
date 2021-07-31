@@ -130,7 +130,7 @@ impl Connections {
                     if j == i {
                         continue;
                     }
-                    let conn_opt = track.connected_at(&other, hex, ctx);
+                    let conn_opt = track.connected_at(other, hex, ctx);
                     if let Some((conn_end, other_end)) = conn_opt {
                         if conn_end == dit_end {
                             dit_conns
@@ -179,7 +179,7 @@ impl Connections {
             let end_conns = track_conns.contains_key(&(i, TrackEnd::End));
             if !(start_conns && end_conns) {
                 for (j, other) in tracks.iter().enumerate().skip(i + 1) {
-                    if track.connected(&other, hex, ctx) {
+                    if track.connected(other, hex, ctx) {
                         println!("WARNING: tracks {} and {} connect", i, j);
                     }
                 }

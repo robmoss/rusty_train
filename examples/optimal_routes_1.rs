@@ -54,7 +54,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         conflict_rule: ConflictRule::TrackOrCityHex,
         route_conflict_rule: ConflictRule::TrackOnly,
     };
-    let paths = paths_for_token(&map, &criteria);
+    let paths = paths_for_token(map, &criteria);
     let bonuses = vec![];
 
     // Background and route colours, image margins.

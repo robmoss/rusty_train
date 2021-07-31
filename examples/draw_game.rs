@@ -119,11 +119,11 @@ pub fn main() {
     let map = game.load(&hex, game_state).expect("Could not load map");
 
     // Determine the appropriate image size, and save the image to disk.
-    let (width, height) = image_size(|ctx| draw(&map, &hex, &ctx))
+    let (width, height) = image_size(|ctx| draw(&map, &hex, ctx))
         .expect("Could not determine image size");
     println!("Writing {} ...", output.to_str().unwrap());
     settings
         .format
-        .save_image(width, height, |ctx| draw(&map, &hex, &ctx), &output)
+        .save_image(width, height, |ctx| draw(&map, &hex, ctx), &output)
         .expect("Could not write output image")
 }

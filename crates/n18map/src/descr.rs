@@ -179,7 +179,7 @@ pub mod tests {
                 Some((tile, tokens_table)) => {
                     tile.draw(ctx, hex);
                     for (token_space, token) in tokens_table.iter() {
-                        tile.define_token_space(&token_space, &hex, &ctx);
+                        tile.define_token_space(token_space, hex, ctx);
                         let rotn = hex_state.tile_rotation;
                         let token_name = map.token_name(token);
                         token.draw(hex, ctx, token_name, rotn);

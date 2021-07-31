@@ -3782,7 +3782,7 @@ mod tests {
         let filename = output_path("test-json_round_trip_1867.json");
         let pretty = false;
 
-        let write_res = super::write_tiles(&filename, &cat_in, pretty);
+        let write_res = super::write_tiles(&filename, cat_in, pretty);
         assert!(write_res.is_ok(), "Could not write {}", filename.display());
         let read_res = super::read_tiles(&filename, &hex);
         assert!(read_res.is_ok(), "Could not read {}", filename.display());

@@ -249,7 +249,7 @@ impl<'a> RouteBuilder<'a> {
         // NOTE: this also adds a step to the adjacent hex face.
         let curr = self.steps.last().unwrap();
         let mut new_steps =
-            self.find_steps_to(&curr, Connection::Face { face })?;
+            self.find_steps_to(curr, Connection::Face { face })?;
         self.steps.append(&mut new_steps);
         self.num_hexes += 1;
         Ok(self)
@@ -265,7 +265,7 @@ impl<'a> RouteBuilder<'a> {
         // Account for the tile rotation!
         let curr = self.steps.last().unwrap();
         let addr = curr.addr;
-        let tile_face = edge_to_tile_face(&self.map, addr, face)?;
+        let tile_face = edge_to_tile_face(self.map, addr, face)?;
         self.to_tile_face(tile_face)
     }
 
@@ -282,7 +282,7 @@ impl<'a> RouteBuilder<'a> {
         // non-mutable borrows of self.steps.
         let addr = curr.addr;
         let mut new_steps =
-            self.find_steps_to(&curr, Connection::City { ix })?;
+            self.find_steps_to(curr, Connection::City { ix })?;
         self.steps.append(&mut new_steps);
         let revenue = if stop { 1 } else { 0 };
         self.num_cities += 1;
@@ -310,7 +310,7 @@ impl<'a> RouteBuilder<'a> {
         // non-mutable borrows of self.steps.
         let addr = curr.addr;
         let mut new_steps =
-            self.find_steps_to(&curr, Connection::Dit { ix })?;
+            self.find_steps_to(curr, Connection::Dit { ix })?;
         self.steps.append(&mut new_steps);
         let revenue = if stop { 1 } else { 0 };
         self.num_dits += 1;
@@ -364,7 +364,7 @@ impl<'a> RouteBuilder<'a> {
             .ok_or(Error::NoTileAtHex(src.addr))?;
         let mut steps = self
             .depth_first_search(
-                &mut seen, &tile, &src.addr, &src.conn, &dest, 0,
+                &mut seen, tile, &src.addr, &src.conn, &dest, 0,
             )
             .ok_or(Error::NotConnected(src.addr, src.conn, dest))?;
         // NOTE: if dest is HexFace, also add the adjacent face on the next hex
@@ -396,7 +396,7 @@ impl<'a> RouteBuilder<'a> {
         level: usize,
     ) -> Option<Vec<Step>> {
         let mut found: Option<Vec<Step>> = None;
-        for conn in tile.connections(&src).unwrap() {
+        for conn in tile.connections(src).unwrap() {
             if seen.contains(conn) {
                 continue;
             } else {

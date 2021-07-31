@@ -139,9 +139,9 @@ impl Label {
 
                 // Add a margin around the text.
                 let margin_width =
-                    hex.theme.phase_revenue_margin_x.absolute(&hex);
+                    hex.theme.phase_revenue_margin_x.absolute(hex);
                 let margin_height =
-                    hex.theme.phase_revenue_margin_y.absolute(&hex);
+                    hex.theme.phase_revenue_margin_y.absolute(hex);
                 let box_width = box_width + 2.0 * margin_width;
                 let box_height = box_height + 2.0 * margin_height;
                 let net_width = box_width * boxes.len() as f64;

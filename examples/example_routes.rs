@@ -61,7 +61,7 @@ fn main() -> Result<()> {
     let example = Example::new(hex_max_diameter, tokens, tiles);
 
     let map = example.map();
-    let route1 = RouteBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
+    let route1 = RouteBuilder::from_edge(map, "A1", HexFace::LowerRight)?
         .to_city(0, true)?
         .to_edge(HexFace::Bottom)?
         .to_edge(HexFace::Bottom)?
@@ -72,7 +72,7 @@ fn main() -> Result<()> {
         .to_city(0, false)?
         .to_edge(HexFace::Bottom)?
         .into_route();
-    let route2 = RouteBuilder::from_edge(&map, "A3", HexFace::Top)?
+    let route2 = RouteBuilder::from_edge(map, "A3", HexFace::Top)?
         .to_edge(HexFace::Bottom)?
         .to_city(0, true)?
         .into_route();
@@ -85,13 +85,13 @@ fn main() -> Result<()> {
         conflict_rule: ConflictRule::TrackOrCityHex,
         route_conflict_rule: ConflictRule::TrackOnly,
     };
-    let paths = paths_for_token(&map, &criteria);
+    let paths = paths_for_token(map, &criteria);
     let trains = Trains::new(vec![TrainType::SkipTowns.with_max_stops(8)]);
     let best_routes = trains.select_routes(paths, vec![]);
     let best_route = &best_routes.unwrap().train_routes[0].route;
 
     example.draw_map();
-    example.draw_route(&best_route, example.theme().nth_highlight_colour(1));
+    example.draw_route(best_route, example.theme().nth_highlight_colour(1));
     example.draw_route(&route1, example.theme().nth_highlight_colour(0));
     example.draw_route(&route2, example.theme().nth_highlight_colour(2));
 

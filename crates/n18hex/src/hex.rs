@@ -383,7 +383,7 @@ impl HexPosition {
                 }
             }
             Face(face, delta) => {
-                let coord = &hex.midpoint(&face);
+                let coord = &hex.midpoint(face);
                 let shift = match delta {
                     Some(Delta::InDir(angle, frac)) => {
                         let angle = angle.radians();
@@ -398,7 +398,7 @@ impl HexPosition {
                 coord + &shift
             }
             Corner(corner, delta) => {
-                let coord = hex.corner_coord(&corner);
+                let coord = hex.corner_coord(corner);
                 let shift = match delta {
                     Some(Delta::InDir(angle, frac)) => {
                         let angle = angle.radians();

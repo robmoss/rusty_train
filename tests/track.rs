@@ -22,10 +22,10 @@ fn two_straights_cross() {
     let dt = 0.1;
     let t1 = Track::straight(HexFace::Top);
     let t2 = Track::straight(HexFace::UpperLeft);
-    assert!(t1.crosses(&t2, &hex, dt, &ctx));
-    assert!(t2.crosses(&t1, &hex, dt, &ctx));
-    assert!(!t1.connected(&t2, &hex, &ctx));
-    assert!(!t2.connected(&t1, &hex, &ctx));
+    assert!(t1.crosses(&t2, &hex, dt, ctx));
+    assert!(t2.crosses(&t1, &hex, dt, ctx));
+    assert!(!t1.connected(&t2, &hex, ctx));
+    assert!(!t2.connected(&t1, &hex, ctx));
 }
 
 fn no_escape(track: &Track, hex: &Hex, dt: f64, ctx: &Context) -> bool {
@@ -82,8 +82,7 @@ fn track_contained_in_hex() {
                         assert!(ctx.in_stroke(start.x, start.y).unwrap());
                         // NOTE: this check causes the invalid clockwise
                         // setting to fail!
-                        let diff =
-                            (&start - &hex.midpoint(&face)).magnitude();
+                        let diff = (&start - &hex.midpoint(face)).magnitude();
                         assert!(diff < 1e-8);
                     } else {
                         assert!(!ctx.in_stroke(start.x, start.y).unwrap());
@@ -151,7 +150,7 @@ fn invalid_span_escapes_hex() {
     let dt = 0.1;
 
     let t = Track::gentle_r(HexFace::LowerLeft).with_span(-0.5, 0.5);
-    assert!(!no_escape(&t, &hex, dt, &ctx));
+    assert!(!no_escape(&t, &hex, dt, ctx));
 }
 
 #[test]
@@ -170,7 +169,7 @@ fn coords_contained_in_track() {
                     &[1.0, 1.0 - 0.25 * x0, 1.0 - 0.5 * x0, 1.0 - 0.75 * x0]
                 {
                     let t = Track::new(*face, *curve, *x0, *x1, None, None);
-                    t.define_boundary(&hex, &ctx);
+                    t.define_boundary(&hex, ctx);
                     assert!(t.coords(&hex, dt).all(|coord| ctx
                         .in_stroke(coord.x, coord.y)
                         .unwrap()))

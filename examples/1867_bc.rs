@@ -127,7 +127,7 @@ fn save_1867_bc_routes(
             } else {
                 info!("Calculating best routes for {}", company.token_name);
                 let new_routes =
-                    best_routes(&state.example, &*state.game, &company);
+                    best_routes(&state.example, &*state.game, company);
                 if new_routes == routes {
                     // The calculated routes match the cached routes, no need
                     // to save them.
@@ -146,12 +146,12 @@ fn save_1867_bc_routes(
             }
         } else {
             // Calculate the best routes and save the results.
-            (best_routes(&state.example, &*state.game, &company), true)
+            (best_routes(&state.example, &*state.game, company), true)
         };
 
         // Draw the best routes and save the image to disk.
         state.example.erase_all()?;
-        draw_routes(&mut state.example, &company, &routes)?;
+        draw_routes(&mut state.example, company, &routes)?;
         save_png(&state.example, image_file);
 
         // If the best routes were calculated, save them to disk.
@@ -296,7 +296,7 @@ fn best_routes(
     };
     let map = example.map();
     let start = Local::now();
-    let paths = paths_for_token(&map, &criteria);
+    let paths = paths_for_token(map, &criteria);
     assert_eq!(paths.len(), company.num_paths);
     let mid = Local::now() - start;
     let routes = company

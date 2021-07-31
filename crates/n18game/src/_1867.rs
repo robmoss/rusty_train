@@ -225,8 +225,8 @@ impl Game {
                 TrainType::SkipAny.with_max_stops(5).with_multiplier(2),
             ),
         ];
-        let all_tiles = game_tiles(&hex);
-        let num_player_tiles = tile_catalogue(&hex).len();
+        let all_tiles = game_tiles(hex);
+        let num_player_tiles = tile_catalogue(hex).len();
         // Define 24 tokens for the 16 minor and 8 major companies, as per the
         // `draw_tokens` example.
         // - Distinguish between minor and major companies with yellow and
@@ -517,21 +517,21 @@ impl super::Game for Game {
 }
 
 fn game_tiles(hex: &Hex) -> Vec<Tile> {
-    let mut all_tiles = tile_catalogue(&hex);
+    let mut all_tiles = tile_catalogue(hex);
     // NOTE: hide tile names on all starting tiles, off-board tiles, etc.
-    let mut town_tiles = starting_town_tiles(&hex)
+    let mut town_tiles = starting_town_tiles(hex)
         .into_iter()
         .map(|t| t.hide_tile_name())
         .collect();
-    let mut city_tiles = starting_city_tiles(&hex)
+    let mut city_tiles = starting_city_tiles(hex)
         .into_iter()
         .map(|t| t.hide_tile_name())
         .collect();
-    let mut offb_tiles = offboard_tiles(&hex)
+    let mut offb_tiles = offboard_tiles(hex)
         .into_iter()
         .map(|t| t.hide_tile_name())
         .collect();
-    let mut misc_tiles = miscellaneous_tiles(&hex)
+    let mut misc_tiles = miscellaneous_tiles(hex)
         .into_iter()
         .map(|t| t.hide_tile_name())
         .collect();

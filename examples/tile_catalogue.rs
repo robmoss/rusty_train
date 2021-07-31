@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let game = navig18xx::game::new_1867(&hex);
     // NOTE: this method currently returns special tiles too.
     let tiles = game.player_tiles();
-    let example = place_tiles(hex, &tiles, num_rows, num_cols);
+    let example = place_tiles(hex, tiles, num_rows, num_cols);
     example.draw_map();
     example.write_png(margin, bg_rgba, png_file);
 

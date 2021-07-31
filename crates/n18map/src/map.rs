@@ -768,7 +768,7 @@ impl<'a> HexIter<'a> {
     }
 
     pub fn map(&self) -> &Map {
-        &self.map
+        self.map
     }
 
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {

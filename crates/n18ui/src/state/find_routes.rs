@@ -194,14 +194,14 @@ impl State for FindRoutes {
                 // Draw only a single route, in the same colour as when
                 // drawing all routes.
                 let colour = hex.theme.nth_highlight_colour(ix);
-                colour.apply_colour(&ctx);
+                colour.apply_colour(ctx);
                 let route = routes.routes()[ix];
-                n18brush::highlight_route(&hex, &ctx, &map, route);
+                n18brush::highlight_route(hex, ctx, map, route);
             } else {
                 n18brush::highlight_routes(
-                    &hex,
-                    &ctx,
-                    &map,
+                    hex,
+                    ctx,
+                    map,
                     &routes.routes(),
                     |ix| hex.theme.nth_highlight_colour(ix),
                 );
@@ -218,7 +218,7 @@ impl State for FindRoutes {
             ctx,
             &mut hex_iter,
             |_addr, _tile, _token_space, token| {
-                map.try_token_name(&token)
+                map.try_token_name(token)
                     .map(|name| name == self.abbrev)
                     .unwrap_or(false)
             },
@@ -239,7 +239,7 @@ impl State for FindRoutes {
             gdk::keys::constants::Escape | gdk::keys::constants::Return => {
                 // Exit this mode.
                 if let Some(title) = &self.original_window_title {
-                    window.set_title(&title);
+                    window.set_title(title);
                 } else {
                     window.set_title("");
                 }

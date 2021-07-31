@@ -100,7 +100,7 @@ impl City {
             HexPosition::Corner(corner, delta) => {
                 let c1 = hex.corner_coord(&corner.next());
                 let c2 = hex.corner_coord(&corner.prev());
-                let centre = c1.average(&c2);
+                let centre = c1.average(c2);
                 let d = self.delta_coords(&centre, delta, hex);
                 &centre + &d
             }

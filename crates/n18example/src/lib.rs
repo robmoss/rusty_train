@@ -206,7 +206,7 @@ impl Example {
         S: Deref<Target = cairo::Surface>,
         C: Into<Colour>,
     {
-        let ctx = Context::new(&surf).expect("Can't create cairo::Context");
+        let ctx = Context::new(surf).expect("Can't create cairo::Context");
 
         if let Some(colour) = background {
             brush::clear_surface(&ctx, colour.into());

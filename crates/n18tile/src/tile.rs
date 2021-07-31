@@ -88,7 +88,7 @@ impl Tile {
         }
         for (i, track) in tracks.iter().enumerate() {
             for (j, other) in tracks.iter().enumerate().skip(i + 1) {
-                if track.crosses(&other, hex, dt, ctx) {
+                if track.crosses(other, hex, dt, ctx) {
                     if verbose {
                         println!("    Tracks {} and {} cross", i, j);
                     }
@@ -314,11 +314,11 @@ impl Tile {
         if self.show_tile_name {
             Colour::BLACK.apply_colour(ctx);
             let hex_pos = HexPosition::Corner(HexCorner::BottomRight, None);
-            Label::TileName.draw(ctx, hex, &hex_pos, &self);
+            Label::TileName.draw(ctx, hex, &hex_pos, self);
         }
         // Draw other tile labels.
         for (label, pos) in &self.labels {
-            label.draw(ctx, hex, pos, &self);
+            label.draw(ctx, hex, pos, self);
         }
     }
 

@@ -22,7 +22,7 @@ impl SelectItemDialog {
         ];
         let flags = gtk::DialogFlags::all();
         let dialog = gtk::Dialog::with_buttons(
-            Some(&title),
+            Some(title),
             Some(parent),
             flags,
             &buttons,
@@ -221,7 +221,7 @@ pub fn select_trains(
     let train_types = game.train_types();
     let train_names: HashMap<_, &str> = train_types
         .iter()
-        .map(|t| (*t, game.train_name(&t).unwrap()))
+        .map(|t| (*t, game.train_name(t).unwrap()))
         .collect();
     let option_names = game.bonus_options();
     let td = TrainDialog::new(
@@ -254,7 +254,7 @@ impl<'a> PhaseDialog<'a> {
         ];
         let flags = gtk::DialogFlags::all();
         let dialog = gtk::Dialog::with_buttons(
-            Some(&title),
+            Some(title),
             Some(parent),
             flags,
             &buttons,

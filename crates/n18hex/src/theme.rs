@@ -231,10 +231,10 @@ impl<'a> Labeller<'a> {
         // Draw the text at the appropriate coordinates.
         self.context.new_path();
         self.context.move_to(coord.x, coord.y);
-        self.colour.apply_colour(&self.context);
+        self.colour.apply_colour(self.context);
         self.layout.set_text(text);
-        pangocairo::update_layout(&self.context, &self.layout);
-        pangocairo::show_layout(&self.context, &self.layout);
+        pangocairo::update_layout(self.context, &self.layout);
+        pangocairo::show_layout(self.context, &self.layout);
         self.context.new_path();
     }
 
@@ -255,10 +255,10 @@ impl<'a> Labeller<'a> {
             self.context.move_to(0.0, 0.0)
         }
         self.context.rel_move_to(coord.x, coord.y);
-        self.colour.apply_colour(&self.context);
+        self.colour.apply_colour(self.context);
         self.layout.set_text(text);
-        pangocairo::update_layout(&self.context, &self.layout);
-        pangocairo::show_layout(&self.context, &self.layout);
+        pangocairo::update_layout(self.context, &self.layout);
+        pangocairo::show_layout(self.context, &self.layout);
         self.context.new_path();
     }
 

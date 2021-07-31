@@ -190,8 +190,8 @@ pub fn paths_for_token(map: &Map, criteria: &Criteria) -> Vec<Path> {
 /// Returns all valid paths that match the provided criteria, passing through
 /// the specified token.
 pub fn paths_through(map: &Map, query: &Query) -> Vec<Path> {
-    let mut paths = paths_from(&map, &query);
-    let mut extra_paths = path_combinations(&query, &paths);
+    let mut paths = paths_from(map, query);
+    let mut extra_paths = path_combinations(query, &paths);
     paths.append(&mut extra_paths);
     paths
 }
@@ -258,7 +258,7 @@ fn path_combinations(query: &Query, paths: &[Path]) -> Vec<Path> {
             };
 
             if can_append {
-                let new_path = path_i.append(&path_j);
+                let new_path = path_i.append(path_j);
                 new_paths.push(new_path);
             }
         }

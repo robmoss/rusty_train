@@ -376,16 +376,16 @@ impl TokenStyle {
         use TokenStyle::*;
 
         match self {
-            SideArcs { text, .. } => &text,
-            TopArcs { text, .. } => &text,
-            TopSquares { text, .. } => &text,
-            TopLines { text, .. } => &text,
-            TopTriangles { text, .. } => &text,
-            TripleTriangles { text, .. } => &text,
-            TribandV { text, .. } => &text,
-            TribandH { text, .. } => &text,
-            TricolourV { text, .. } => &text,
-            TricolourH { text, .. } => &text,
+            SideArcs { text, .. } => text,
+            TopArcs { text, .. } => text,
+            TopSquares { text, .. } => text,
+            TopLines { text, .. } => text,
+            TopTriangles { text, .. } => text,
+            TripleTriangles { text, .. } => text,
+            TribandV { text, .. } => text,
+            TribandH { text, .. } => text,
+            TricolourV { text, .. } => text,
+            TricolourH { text, .. } => text,
         }
     }
 }

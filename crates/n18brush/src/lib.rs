@@ -18,7 +18,7 @@ where
     if let Some(colour) = colour_opt {
         let operator = ctx.operator();
         ctx.set_operator(cairo::Operator::Source);
-        colour.apply_colour(&ctx);
+        colour.apply_colour(ctx);
         ctx.paint().unwrap();
         ctx.set_operator(operator);
     } else {
@@ -59,19 +59,19 @@ pub fn draw_tiles(hex: &Hex, ctx: &Context, mut hex_iter: &mut HexIter<'_>) {
     for hex_state in &mut hex_iter {
         if let Some((tile, token_spaces)) = hex_state.tile_state {
             // Draw the tile and any tokens.
-            tile.draw(&ctx, &hex);
+            tile.draw(ctx, hex);
             for (token_space, map_token) in token_spaces.iter() {
-                if tile.define_token_space(&token_space, &hex, &ctx) {
+                if tile.define_token_space(token_space, hex, ctx) {
                     let name =
-                        hex_state.available_tokens.name(&map_token).unwrap();
-                    map_token.draw(&hex, &ctx, name, hex_state.tile_rotation);
+                        hex_state.available_tokens.name(map_token).unwrap();
+                    map_token.draw(hex, ctx, name, hex_state.tile_rotation);
                 } else {
                     println!("Could not define token space.")
                 }
             }
         } else {
             // Fill empty hexes with a background colour.
-            draw_empty_hex(&hex, &ctx);
+            draw_empty_hex(hex, ctx);
         }
     }
 
@@ -297,8 +297,8 @@ pub fn highlight_routes<F, C, R>(
     R: AsRef<Route>,
 {
     for (ix, route) in routes.iter().enumerate() {
-        colour_fn(ix).into().apply_colour(&ctx);
-        highlight_route(&hex, &ctx, &map, route.as_ref())
+        colour_fn(ix).into().apply_colour(ctx);
+        highlight_route(hex, ctx, map, route.as_ref())
     }
 }
 
@@ -313,20 +313,20 @@ pub fn highlight_paths<F, C>(
     C: Into<Colour>,
 {
     for (ix, path) in paths.iter().enumerate() {
-        colour_fn(ix).into().apply_colour(&ctx);
-        highlight_path(&hex, &ctx, &map, &path)
+        colour_fn(ix).into().apply_colour(ctx);
+        highlight_path(hex, ctx, map, path)
     }
 }
 
 fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
     // Draw track segments first.
     for step in steps {
-        let m = map.prepare_to_draw(step.addr, &hex, &ctx);
+        let m = map.prepare_to_draw(step.addr, hex, ctx);
         let tile = map.tile_at(step.addr).expect("Invalid step hex");
 
         if let Connection::Track { ix, end: _ } = step.conn {
             let track = tile.tracks()[ix];
-            track.define_path(&hex, &ctx);
+            track.define_path(hex, ctx);
             // NOTE: cover the inner (black) part of the track.
             hex.theme.track_inner.apply_line(ctx, hex);
             ctx.stroke().unwrap();
@@ -339,20 +339,20 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
     let source = ctx.source();
 
     for visit in visits {
-        let m = map.prepare_to_draw(visit.addr, &hex, &ctx);
+        let m = map.prepare_to_draw(visit.addr, hex, ctx);
         let tile = map.tile_at(visit.addr).expect("Invalid step hex");
         match visit.visits {
             StopLocation::City { ix } => {
                 let city = tile.cities()[ix];
-                city.draw_fg(&hex, &ctx);
+                city.draw_fg(hex, ctx);
                 // Draw the tokens first.
                 if let Some(hex_state) = map.hex(visit.addr) {
                     let rotn = hex_state.radians();
                     let tokens_table = hex_state.tokens();
                     for (token_space, map_token) in tokens_table.iter() {
-                        if tile.define_token_space(&token_space, &hex, &ctx) {
-                            let name = map.token_name(&map_token);
-                            map_token.draw(&hex, &ctx, name, rotn);
+                        if tile.define_token_space(token_space, hex, ctx) {
+                            let name = map.token_name(map_token);
+                            map_token.draw(hex, ctx, name, rotn);
                         } else {
                             println!("Could not define token space.")
                         }
@@ -366,8 +366,8 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                     // track colour.
                     hex.theme.track_inner.apply_stroke(ctx);
                 }
-                hex.theme.token_space_highlight.apply_line(&ctx, &hex);
-                city.define_boundary(&hex, &ctx);
+                hex.theme.token_space_highlight.apply_line(ctx, hex);
+                city.define_boundary(hex, ctx);
                 ctx.stroke().unwrap();
             }
             StopLocation::Dit { ix } => {
@@ -386,10 +386,10 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 match dit_shape {
                     DitShape::Bar => {
                         hex.theme.dit_inner.apply_line(ctx, hex);
-                        track.draw_dit_ends_fg(&hex, &ctx);
+                        track.draw_dit_ends_fg(hex, ctx);
                     }
                     DitShape::Circle => {
-                        track.define_circle_dit(&hex, &ctx);
+                        track.define_circle_dit(hex, ctx);
                         ctx.fill_preserve().unwrap();
                         hex.theme.dit_circle.apply_line_and_stroke(ctx, hex);
                         ctx.stroke().unwrap();
@@ -455,10 +455,10 @@ pub fn draw_tile_and_tokens_at<'a, T>(
     ctx.rotate(radians);
     tile.draw(ctx, hex);
     for (token_space, token) in tokens.into_iter() {
-        if tile.define_token_space(&token_space, &hex, ctx) {
+        if tile.define_token_space(token_space, hex, ctx) {
             let tok_name = map.try_token_name(token);
             if let Some(name) = tok_name {
-                token.draw(&hex, ctx, &name, radians);
+                token.draw(hex, ctx, name, radians);
             } else {
                 debug!("Invalid token for this map: {:?}", token);
             }
