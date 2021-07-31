@@ -387,9 +387,8 @@ pub mod tests {
         assert_eq!(hexes.len(), 4);
 
         // Check that there are only two tiles.
-        let tile_hexes: Vec<_> =
-            map.tile_hex_iter(&hex, hex.context()).collect();
-        assert_eq!(tile_hexes.len(), 2);
+        let tile_count = map.tile_hex_iter(&hex, hex.context()).count();
+        assert_eq!(tile_count, 2);
 
         // Check that the tiles are at the correct locations.
         for hex_state in hexes.into_iter() {
