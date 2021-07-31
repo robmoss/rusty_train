@@ -25,7 +25,7 @@ impl Example {
         tiles: Vec<PlacedTile>,
     ) -> Self {
         let hex = hex.into();
-        let all_tiles = n18catalogue::tile_catalogue(&hex);
+        let all_tiles = n18catalogue::tile_catalogue();
         let tokens = tokens
             .into_iter()
             .map(|(name, style)| (name.to_string(), style))

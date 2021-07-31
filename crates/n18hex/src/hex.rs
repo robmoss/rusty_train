@@ -473,6 +473,20 @@ impl From<f64> for Hex {
     }
 }
 
+/// The default hexagon has a maximal diameter of 125 pixels and uses the
+/// default [Theme].
+///
+/// We cannot use [lazy_static](https://crates.io/crates/lazy_static) to
+/// provide a single, static instance of this value, because each [Hex]
+/// contains a Cairo surface and associated context, and these types cannot be
+/// shared between threads (they do not implement `Sync`).
+impl Default for Hex {
+    fn default() -> Self {
+        let default_hex_width = 125.0;
+        Hex::new(default_hex_width)
+    }
+}
+
 impl Hex {
     /// Constructs a hexagon for the given maximal diameter.
     pub fn new(max_d: f64) -> Self {

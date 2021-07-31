@@ -7,8 +7,8 @@ use n18token::{Token, Tokens};
 pub mod _1867;
 
 /// Creates a new game of 1867: The Railways Of Canada.
-pub fn new_1867(hex: &Hex) -> _1867::Game {
-    _1867::Game::new(hex)
+pub fn new_1867() -> _1867::Game {
+    _1867::Game::default()
 }
 
 /// The details that characterise a company that can operate trains.

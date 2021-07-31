@@ -104,7 +104,7 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
 
     let json_str = json_file.as_ref().to_str().unwrap();
     println!("Reading {} ...", json_str);
-    let tiles = read_tiles(json_file, &hex)?;
+    let tiles = read_tiles(json_file)?;
 
     let example = place_tiles(hex, &tiles, rows, cols);
     example.draw_map();

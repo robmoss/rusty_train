@@ -59,6 +59,13 @@ pub struct Tile {
 }
 
 impl Tile {
+    /// Creates a new tile and determines the connectivity between track
+    /// segments, revenue centres, and hex faces.
+    ///
+    /// Note that `hex` should be the [**default hexagon**](Hex::default),
+    /// to ensure that track connectivity is valid and consistent.
+    /// By making this an argument, a single [Hex] can be used to construct
+    /// all required tiles, rather than creating a new [Hex] for each tile.
     pub fn new<S: Into<String>>(
         colour: HexColour,
         name: S,

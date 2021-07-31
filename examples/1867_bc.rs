@@ -166,9 +166,9 @@ fn save_1867_bc_routes(
 }
 
 fn game_state() -> GameState {
+    let mut game = new_1867();
     let hex_max_diameter = 125.0;
     let hex = Hex::new(hex_max_diameter);
-    let mut game = new_1867(&hex);
     let mut example = Example::new_game(&game, hex);
 
     // NOTE: the major companies with tokens on the board are:

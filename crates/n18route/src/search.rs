@@ -556,12 +556,9 @@ fn depth_first_search(
 mod tests {
     use super::{Criteria, PathLimit, Query};
     use crate::conflict::ConflictRule;
-    use n18hex::Hex;
     use n18map::{Descr, HexAddress, Map, RotateCW, TileDescr};
     use n18tile::Connection;
     use n18token::{Token, Tokens};
-
-    static HEX_DIAMETER: f64 = 150.0;
 
     /// Return a 2x2 map that contains the following tiles:
     ///
@@ -574,8 +571,8 @@ mod tests {
     /// on tiles 6 and 63.
     ///
     /// Note that this map may be used by test cases in other modules.
-    pub fn map_2x2_tiles_5_6_58_63(hex: &Hex, tokens: Tokens) -> Map {
-        let tiles = n18catalogue::tile_catalogue(hex);
+    pub fn map_2x2_tiles_5_6_58_63(tokens: Tokens) -> Map {
+        let tiles = n18catalogue::tile_catalogue();
         let descr = descr_2x2_tiles_5_6_58_63();
         descr.build_map(tiles, tokens)
     }
@@ -655,10 +652,9 @@ mod tests {
     /// on tiles 6 and 63.
     #[test]
     fn test_2x2_paths() {
-        let hex = Hex::new(HEX_DIAMETER);
         let tokens = define_tokens();
         let token_lp = *tokens.token("LP").unwrap();
-        let map = map_2x2_tiles_5_6_58_63(&hex, tokens);
+        let map = map_2x2_tiles_5_6_58_63(tokens);
 
         let query = Query {
             addr: HexAddress::new(0, 0),

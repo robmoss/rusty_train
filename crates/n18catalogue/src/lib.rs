@@ -2,13 +2,16 @@ use n18hex::*;
 use n18tile::*;
 
 /// Tiles as per the [18xx Tile Database](http://www.fwtwr.com/18xx/tiles/).
-pub fn tile_catalogue(hex: &Hex) -> Vec<Tile> {
+pub fn tile_catalogue() -> Vec<Tile> {
     use crate::track::DitShape::*;
     use HexColour::*;
     use HexCorner::*;
     use HexFace::*;
     use HexPosition::*;
     use TrackEnd::*;
+
+    let h: Hex = Hex::default();
+    let hex = &h;
 
     vec![
         Tile::new(

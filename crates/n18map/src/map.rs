@@ -575,7 +575,7 @@ impl Map {
     /// # use n18token::*;
     /// # use n18catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
-    /// # let tiles = tile_catalogue(&hex);
+    /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
@@ -624,7 +624,7 @@ impl Map {
     /// # use n18token::*;
     /// # use n18catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
-    /// # let tiles = tile_catalogue(&hex);
+    /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
@@ -662,7 +662,7 @@ impl Map {
     /// # use n18token::*;
     /// # use n18catalogue::tile_catalogue;
     /// # let hex = Hex::new(125.0);
-    /// # let tiles = tile_catalogue(&hex);
+    /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
     /// # let hexes: Vec<HexAddress> = (0 as usize..4)
     /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
@@ -1203,10 +1203,7 @@ impl From<&(usize, usize)> for HexAddress {
 #[cfg(test)]
 mod tests {
     use super::HexAddress;
-    use n18hex::Hex;
     use n18tile::{Connection, TrackEnd};
-
-    static HEX_DIAMETER: f64 = 150.0;
 
     #[test]
     /// Test various strings of the form "A[0-9]+"; only strings where the
@@ -1274,8 +1271,7 @@ mod tests {
 
     #[test]
     fn test_simple_two_by_two() {
-        let hex = Hex::new(HEX_DIAMETER);
-        let map = crate::descr::tests::map_2x2_tiles_5_6_58_63(&hex);
+        let map = crate::descr::tests::map_2x2_tiles_5_6_58_63();
 
         // NOTE: iterate over starting connection and, for each, check that it
         // has the expected connections, and only the expected connections.

@@ -231,8 +231,8 @@ pub mod tests {
     /// on tiles 6 and 63.
     ///
     /// Note that this map may be used by test cases in other modules.
-    pub fn map_2x2_tiles_5_6_58_63(hex: &Hex) -> Map {
-        let tiles = n18catalogue::tile_catalogue(hex);
+    pub fn map_2x2_tiles_5_6_58_63() -> Map {
+        let tiles = n18catalogue::tile_catalogue();
         let tokens = define_tokens();
         let descr = descr_2x2_tiles_5_6_58_63();
         descr.build_map(tiles, tokens)
@@ -276,7 +276,7 @@ pub mod tests {
     #[test]
     fn simple_two_by_two() {
         let hex = Hex::new(HEX_DIAMETER);
-        let map = map_2x2_tiles_5_6_58_63(&hex);
+        let map = map_2x2_tiles_5_6_58_63();
         let tokens = define_tokens();
 
         // NOTE: check the three hex iterators to ensure they all yield the
@@ -370,7 +370,7 @@ pub mod tests {
     #[test]
     fn simple_two_by_two_with_empty_hexes() {
         let hex = Hex::new(HEX_DIAMETER);
-        let tiles = n18catalogue::tile_catalogue(&hex);
+        let tiles = n18catalogue::tile_catalogue();
         let tokens = define_tokens();
         let mut descr = descr_2x2_tiles_5_6_58_63();
         // Remove two of the tiles.

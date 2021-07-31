@@ -651,23 +651,22 @@ impl std::convert::From<&Direction> for n18hex::Direction {
 /// Reads a single tile from disk.
 pub fn read_tile<P: AsRef<Path>>(
     path: P,
-    hex: &Hex,
 ) -> Result<n18tile::Tile, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let tile: Tile = serde_json::from_reader(reader)?;
-    Ok(tile.build(hex))
+    let hex = Hex::default();
+    Ok(tile.build(&hex))
 }
 
 /// Reads multiple tiles from disk.
 pub fn read_tiles<P: AsRef<Path>>(
     path: P,
-    hex: &Hex,
 ) -> Result<Vec<n18tile::Tile>, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let tiles: Tiles = serde_json::from_reader(reader)?;
-    Ok(tiles.build(hex))
+    Ok(tiles.build())
 }
 
 /// Writes a single tile to disk.
@@ -731,12 +730,24 @@ pub fn write_routes<P: AsRef<Path>>(
 // NOTE: need hex and ctx to construct tiles!
 
 impl Tiles {
-    pub fn build(&self, hex: &Hex) -> Vec<n18tile::Tile> {
-        self.tiles.iter().map(|t| t.build(hex)).collect()
+    /// Returns a collection of [n18tile::Tile] values equivalent to these
+    /// tiles.
+    pub fn build(&self) -> Vec<n18tile::Tile> {
+        let hex = Hex::default();
+        self.tiles.iter().map(|t| t.build(&hex)).collect()
     }
 }
 
 impl Tile {
+    /// Returns a [n18tile::Tile] equivalent of this tile.
+    ///
+    /// The provided [hex](Hex) should be the default hexagon, to ensure that
+    /// the track connectivity is valid and consistent with the tiles returned
+    /// by [n18catalogue] functions.
+    ///
+    /// It is accepted as an explicit argument so that it can be provided by
+    /// [Tiles::build], rather than requiring a new [Hex] to be constructed
+    /// for each call to this method.
     pub fn build(&self, hex: &Hex) -> n18tile::Tile {
         let tile = n18tile::Tile::new(
             (&self.colour).into(),
@@ -3720,11 +3731,6 @@ mod tests {
         Ok(())
     }
 
-    fn init_hex() -> Hex {
-        let hex_max_diameter = 125.0;
-        Hex::new(hex_max_diameter)
-    }
-
     static OUT_DIR: &str = "../../tests/output";
 
     fn output_path(file: &'static str) -> std::path::PathBuf {
@@ -3733,8 +3739,7 @@ mod tests {
 
     #[test]
     fn compare_catalogues() {
-        let hex = init_hex();
-        let catalogue = n18catalogue::tile_catalogue(&hex);
+        let catalogue = n18catalogue::tile_catalogue();
         let de_tiles = super::test_tiles().tiles;
         // NOTE: have added new tiles to the catalogue for 1867 map.
         // assert_eq!(catalogue.len(), de_tiles.len());
@@ -3755,14 +3760,13 @@ mod tests {
 
     #[test]
     fn json_round_trip_2() {
-        let hex = init_hex();
-        let cat_in = n18catalogue::tile_catalogue(&hex);
+        let cat_in = n18catalogue::tile_catalogue();
         let filename = output_path("test-json_round_trip_2.json");
         let pretty = false;
 
         let write_res = super::write_tiles(&filename, &cat_in, pretty);
         assert!(write_res.is_ok(), "Could not write {}", filename.display());
-        let read_res = super::read_tiles(&filename, &hex);
+        let read_res = super::read_tiles(&filename);
         assert!(read_res.is_ok(), "Could not read {}", filename.display());
         let cat_out = read_res.unwrap();
         assert_eq!(cat_in, cat_out);
@@ -3776,15 +3780,14 @@ mod tests {
         // are not used by any of the tiles in n18catalogue.
         // This test case ensures these features are correctly (de)serialised.
         use n18game::Game;
-        let hex = init_hex();
-        let game = n18game::_1867::Game::new(&hex);
+        let game = n18game::_1867::Game::new();
         let cat_in = game.player_tiles();
         let filename = output_path("test-json_round_trip_1867.json");
         let pretty = false;
 
         let write_res = super::write_tiles(&filename, cat_in, pretty);
         assert!(write_res.is_ok(), "Could not write {}", filename.display());
-        let read_res = super::read_tiles(&filename, &hex);
+        let read_res = super::read_tiles(&filename);
         assert!(read_res.is_ok(), "Could not read {}", filename.display());
         let cat_out = read_res.unwrap();
         assert_eq!(cat_in, cat_out);
@@ -3792,8 +3795,8 @@ mod tests {
 
     #[test]
     fn compare_to_catalogue_de() {
-        let hex = init_hex();
-        let catalogue = n18catalogue::tile_catalogue(&hex);
+        let hex = Hex::default();
+        let catalogue = n18catalogue::tile_catalogue();
         let de_tiles = super::test_tiles().tiles;
 
         for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {
@@ -3808,8 +3811,7 @@ mod tests {
 
     #[test]
     fn compare_to_catalogue_ser() {
-        let hex = init_hex();
-        let catalogue = n18catalogue::tile_catalogue(&hex);
+        let catalogue = n18catalogue::tile_catalogue();
         let de_tiles = super::test_tiles().tiles;
 
         for (cat_tile, de_descr) in catalogue.iter().zip(&de_tiles) {

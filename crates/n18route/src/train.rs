@@ -10,8 +10,7 @@
 //! # use n18route::*;
 //! # use n18token::{Token, Tokens, TokenStyle};
 //! // Create a map; this one has 6 rows and 14 columns.
-//! let hex = Hex::new(125.0);
-//! let tiles = tile_catalogue(&hex);
+//! let tiles = tile_catalogue();
 //! let num_rows: usize = 6;
 //! let num_cols: usize = 14;
 //! let addrs: Vec<(usize, usize)> = (0..num_rows)
