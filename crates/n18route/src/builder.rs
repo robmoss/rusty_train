@@ -15,10 +15,11 @@
 //!
 //! # fn main() -> Result<()> {
 //! # let hex = Hex::new(125.0);
-//! # let map = Map::new(vec![], Tokens::new(vec![]), vec![]);
+//! # let tiles: Vec<n18tile::Tile> = vec![];
+//! # let map = Map::new(tiles.into(), Tokens::new(vec![]), vec![]);
 //! # let surf = cairo::ImageSurface::create(cairo::Format::ARgb32, 10, 10)
 //! #     .unwrap();
-//! # let ctx = cairo::Context::new(&surf);
+//! # let ctx = cairo::Context::new(&surf).unwrap();
 //! // let hex: n18hex::Hex = ...
 //! // let map: n18map::Map = ...
 //! // let ctx: cairo::Context = ...

@@ -28,14 +28,14 @@
 //! let tokens: Tokens = vec![("AB".to_string(), company_token)].into();
 //!
 //! // Create the game map.
-//! let mut game_map = Map::new(tiles, tokens, hexes);
+//! let mut game_map = Map::new(tiles.into(), tokens, hexes);
 //! // NOTE: place tiles and tokens, or load an existing map configuration.
 //!
 //! // Define the collection of trains owned by a company.
 //! let trains = vec![
-//!     Train::new_8_train(),
-//!     Train::new_8_train(),
-//!     Train::new_5p5e_train(),
+//!     Train::new().with_max_stops(8),
+//!     Train::new().with_max_stops(8),
+//!     Train::new().with_max_stops(5).with_multiplier(2),
 //! ];
 //! let mut trains = Trains::new(trains);
 //!

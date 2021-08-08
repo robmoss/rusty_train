@@ -1,6 +1,7 @@
 use cairo::Context;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
+use n18catalogue::{Availability, Catalogue};
 use n18hex::{Hex, HexColour, HexFace, PI};
 use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
@@ -25,9 +26,7 @@ pub struct Map {
     /// additional cost (e.g., rivers).
     barriers: Vec<(HexAddress, HexFace)>,
     /// All tiles that might be placed on the map.
-    tiles: Vec<Tile>,
-    /// All tiles, indexed by name.
-    catalogue: HashMap<String, usize>,
+    tiles: Catalogue,
     /// The map state: which tiles are placed on which hexes.
     state: HashMap<HexAddress, MapHex>,
     /// All hexes on which a tile might be placed.
@@ -54,8 +53,69 @@ pub struct Map {
 //   (https://stackoverflow.com/a/54182204)
 
 impl Map {
-    pub fn tiles(&self) -> &[Tile] {
-        self.tiles.as_slice()
+    /// Returns an iterator over all tiles in the map catalogue.
+    ///
+    /// This includes tiles that are not available to the player.
+    pub fn tile_iter(&self) -> impl Iterator<Item = &Tile> {
+        self.tiles.tile_iter()
+    }
+
+    /// Returns an iterator over all tiles in the map catalogue, and their
+    /// availability.
+    ///
+    /// This includes tiles that are not available to the player.
+    pub fn tile_avail_iter(
+        &self,
+    ) -> impl Iterator<Item = &(Tile, Availability)> {
+        self.tiles.iter()
+    }
+
+    /// Returns how many copies of the specified tile are currently placed on
+    /// the map.
+    fn number_placed(&self, tile_ix: usize) -> usize {
+        self.state
+            .values()
+            .filter(|map_hex| map_hex.tile_ix == tile_ix)
+            .count()
+    }
+
+    /// Returns all of the tiles in the map catalogue that can be placed on
+    /// the map in its current state, respecting any limits on tile
+    /// availability.
+    ///
+    /// Note that this method returns a `Vec`, rather than an `Iterator`,
+    /// because it must collect the available tiles.
+    /// In order to return an `Iterator`, the closure that filters the map
+    /// catalogue would need to take ownership of the map.
+    pub fn available_tiles(&self) -> Vec<(usize, &Tile)> {
+        use n18catalogue::Availability::*;
+        self.tiles
+            .iter()
+            .enumerate()
+            .filter_map(|(ix, (tile, avail))| match avail {
+                Unlimited => Some((ix, tile)),
+                Unavailable => None,
+                Limited(count) => {
+                    // Count how many copies of this tile have already been
+                    // placed on the map.
+                    if self.number_placed(ix) < *count {
+                        Some((ix, tile))
+                    } else {
+                        None
+                    }
+                }
+            })
+            .collect()
+    }
+
+    /// Returns the nth tile in the map catalogue.
+    pub fn nth_tile(&self, ix: usize) -> &Tile {
+        &self.tiles[ix].0
+    }
+
+    /// Returns the number of distinct tiles in the map catalogue.
+    pub fn num_tiles(&self) -> usize {
+        self.tiles.len()
     }
 
     /// Returns the abbreviated names associated with each token.
@@ -321,7 +381,7 @@ impl Map {
     }
 
     pub fn new(
-        tiles: Vec<Tile>,
+        tiles: Catalogue,
         tokens: Tokens,
         hexes: Vec<HexAddress>,
     ) -> Self {
@@ -330,11 +390,6 @@ impl Map {
         }
 
         let barriers = vec![];
-        let catalogue = tiles
-            .iter()
-            .enumerate()
-            .map(|(ix, t)| (t.name.clone(), ix))
-            .collect();
         let state = HashMap::new();
         let hexes_tbl = hexes.iter().map(|addr| (*addr, ())).collect();
         let labels_tbl = HashMap::new();
@@ -349,7 +404,6 @@ impl Map {
             tokens,
             barriers,
             tiles,
-            catalogue,
             state,
             hexes,
             hexes_tbl,
@@ -363,7 +417,7 @@ impl Map {
     }
 
     pub fn tile_at(&self, hex: HexAddress) -> Option<&Tile> {
-        self.state.get(&hex).map(|hs| &self.tiles[hs.tile_ix])
+        self.state.get(&hex).map(|hs| &self.tiles[hs.tile_ix].0)
     }
 
     pub fn place_tile(
@@ -372,8 +426,8 @@ impl Map {
         tile: &str,
         rot: RotateCW,
     ) -> bool {
-        let tile_ix = if let Some(ix) = self.catalogue.get(tile) {
-            *ix
+        let tile_ix = if let Some(ix) = self.tiles.index_of(tile) {
+            ix
         } else {
             return false;
         };
@@ -583,7 +637,7 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, tokens, hexes);
+    /// # let map = Map::new(tiles.into(), tokens, hexes);
     /// // Draw a thick black border around each hex.
     /// ctx.set_source_rgb(0.0, 0.0, 0.0);
     /// ctx.set_line_width(hex.max_d * 0.05);
@@ -632,7 +686,7 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, tokens, hexes);
+    /// # let map = Map::new(tiles.into(), tokens, hexes);
     /// // Fill each empty tile with a dark grey.
     /// ctx.set_source_rgb(0.4, 0.4, 0.4);
     /// for _addr in map.empty_hex_iter(&hex, ctx) {
@@ -670,7 +724,7 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles, tokens, hexes);
+    /// # let map = Map::new(tiles.into(), tokens, hexes);
     /// // Draw a red border around each token space.
     /// ctx.set_source_rgb(0.8, 0.2, 0.2);
     /// ctx.set_line_width(hex.max_d * 0.015);
@@ -842,8 +896,10 @@ impl<'a> Iterator for HexIter<'a> {
 
         if let Some(hex_state) = self.map.state.get(&addr) {
             self.ctx.rotate(self.angle + hex_state.rotation.radians());
-            let tile_state =
-                Some((&self.map.tiles[hex_state.tile_ix], &hex_state.tokens));
+            let tile_state = Some((
+                &self.map.tiles[hex_state.tile_ix].0,
+                &hex_state.tokens,
+            ));
             Some(HexState {
                 addr,
                 tile_state,
@@ -1037,7 +1093,7 @@ pub struct MapHex {
 
 impl MapHex {
     pub fn tile<'a>(&self, map: &'a Map) -> &'a Tile {
-        &map.tiles[self.tile_ix]
+        &map.tiles[self.tile_ix].0
     }
 
     pub fn rotate_anti_cw(&mut self) {

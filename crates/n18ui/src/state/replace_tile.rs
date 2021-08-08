@@ -51,7 +51,7 @@ pub struct ReplaceTile {
 
 impl ReplaceTile {
     pub(super) fn with_any(map: &Map, addr: HexAddress) -> Self {
-        let candidates: Vec<usize> = (0..(map.tiles().len())).collect();
+        let candidates: Vec<usize> = (0..(map.num_tiles())).collect();
         ReplaceTile {
             active_hex: addr,
             candidates,
@@ -88,7 +88,7 @@ impl State for ReplaceTile {
         if !self.show_original {
             // Find the replacement tile.
             let tile_ix = self.candidates[self.selected];
-            let tile = &map.tiles()[tile_ix];
+            let tile = &map.nth_tile(tile_ix);
 
             // Apply the appropriate tile rotation.
             let map_hex = map.hex(self.active_hex);
@@ -158,7 +158,7 @@ impl State for ReplaceTile {
                 } else {
                     // Replace the original tile with the current selection.
                     let tile_ix = self.candidates[self.selected];
-                    let tile_name = map.tiles()[tile_ix].name.clone();
+                    let tile_name = map.nth_tile(tile_ix).name.clone();
                     map.place_tile(
                         self.active_hex,
                         &tile_name,

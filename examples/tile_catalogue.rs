@@ -20,10 +20,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let num_cols = 16;
 
     let game = navig18xx::game::new_1867();
-    // NOTE: this method currently returns special tiles too.
-    let tiles = game.player_tiles();
+    // NOTE: this method returns special tiles too.
+    let tiles = game.clone_tiles();
     let hex = Hex::new(hex_max_diameter);
-    let example = place_tiles(hex, tiles, num_rows, num_cols);
+    let example = place_tiles(hex, &tiles, num_rows, num_cols);
     example.draw_map();
     example.write_png(margin, bg_rgba, png_file);
 

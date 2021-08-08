@@ -16,10 +16,13 @@ struct Tiles {
     pub tiles: Vec<Tile>,
 }
 
-impl std::convert::From<&[n18tile::Tile]> for Tiles {
-    fn from(src: &[n18tile::Tile]) -> Self {
+impl<'a, T> std::convert::From<T> for Tiles
+where
+    T: IntoIterator<Item = &'a n18tile::Tile>,
+{
+    fn from(src: T) -> Self {
         Self {
-            tiles: src.iter().map(|t| t.into()).collect(),
+            tiles: src.into_iter().map(|t| t.into()).collect(),
         }
     }
 }
@@ -686,9 +689,13 @@ pub fn write_tile<P: AsRef<Path>>(
 }
 
 /// Writes multiple tiles to disk.
-pub fn write_tiles<P: AsRef<Path>>(
+pub fn write_tiles<
+    'a,
+    P: AsRef<Path>,
+    T: IntoIterator<Item = &'a n18tile::Tile>,
+>(
     path: P,
-    tiles: &[n18tile::Tile],
+    tiles: T,
     pretty: bool,
 ) -> Result<(), Box<dyn Error>> {
     let file = File::create(path)?;
@@ -3781,11 +3788,11 @@ mod tests {
         // This test case ensures these features are correctly (de)serialised.
         use n18game::Game;
         let game = n18game::_1867::Game::new();
-        let cat_in = game.player_tiles();
+        let cat_in = game.clone_tiles();
         let filename = output_path("test-json_round_trip_1867.json");
         let pretty = false;
 
-        let write_res = super::write_tiles(&filename, cat_in, pretty);
+        let write_res = super::write_tiles(&filename, &cat_in, pretty);
         assert!(write_res.is_ok(), "Could not write {}", filename.display());
         let read_res = super::read_tiles(&filename);
         assert!(read_res.is_ok(), "Could not read {}", filename.display());

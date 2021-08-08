@@ -99,7 +99,7 @@ impl Descr {
     /// Constructs a map whose state reflects the tile configurations.
     pub fn build_map(&self, tiles: Vec<Tile>, tokens: Tokens) -> Map {
         let addrs = self.tiles.keys().copied().collect::<Vec<_>>();
-        let mut map = Map::new(tiles, tokens, addrs);
+        let mut map = Map::new(tiles.into(), tokens, addrs);
         self.update_map(&mut map);
         map
     }

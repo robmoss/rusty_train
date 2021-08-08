@@ -88,6 +88,9 @@ pub use n18token::TokenStyle;
 pub use n18catalogue::tile_catalogue;
 
 #[doc(inline)]
+pub use n18catalogue::Catalogue;
+
+#[doc(inline)]
 pub use n18io::read_tile;
 
 #[doc(inline)]

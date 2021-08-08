@@ -239,7 +239,7 @@ impl UI {
     /// # let ui_state = n18ui::UI::new(hex, vec![]);
     /// # let fmt = cairo::Format::ARgb32;
     /// # let s = cairo::ImageSurface::create(fmt, 10, 10).unwrap();
-    /// # let context = cairo::Context::new(&s);
+    /// # let context = cairo::Context::new(&s).unwrap();
     /// let surf_lock = ui_state.surface();
     /// let surface = surf_lock.read().expect("Cannot access surface");
     /// context.set_source_surface(&surface, 0.0, 0.0);

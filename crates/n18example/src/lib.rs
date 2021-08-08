@@ -25,7 +25,7 @@ impl Example {
         tiles: Vec<PlacedTile>,
     ) -> Self {
         let hex = hex.into();
-        let all_tiles = n18catalogue::tile_catalogue();
+        let all_tiles = n18catalogue::tile_catalogue().into();
         let tokens = tokens
             .into_iter()
             .map(|(name, style)| (name.to_string(), style))
@@ -77,6 +77,7 @@ impl Example {
         let token_mgr = Tokens::new(tokens);
         let hexes: Vec<HexAddress> =
             tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
+        let catalogue = catalogue.into();
         let map = Map::new(catalogue, token_mgr, hexes);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");

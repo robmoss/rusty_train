@@ -453,6 +453,7 @@ impl HexPosition {
 /// The geometry of hexagonal tiles.
 ///
 /// The origin is defined to be the centre of the hexagon.
+#[derive(Debug)]
 pub struct Hex {
     /// The colours and drawing styles for this hexagon.
     pub theme: Theme,

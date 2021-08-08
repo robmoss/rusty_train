@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use super::Company;
-use n18catalogue::tile_catalogue;
+use n18catalogue::{Builder, Catalogue};
 use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition};
 use n18map::{HexAddress, Map, RotateCW};
 use n18route::{Bonus, ConflictRule, Train, TrainType};
@@ -199,8 +199,7 @@ fn hex_labels() -> Vec<(HexAddress, Label)> {
 pub struct Game {
     companies: Vec<Company>,
     trains: Vec<(&'static str, Train)>,
-    all_tiles: Vec<Tile>,
-    num_player_tiles: usize,
+    catalogue: Catalogue,
     barriers: Vec<(HexAddress, HexFace)>,
     phase: usize,
     phase_names: Vec<&'static str>,
@@ -231,8 +230,7 @@ impl Game {
                 TrainType::SkipAny.with_max_stops(5).with_multiplier(2),
             ),
         ];
-        let all_tiles = game_tiles();
-        let num_player_tiles = tile_catalogue().len();
+        let catalogue = make_catalogue();
         // Define 24 tokens for the 16 minor and 8 major companies, as per the
         // `draw_tokens` example.
         // - Distinguish between minor and major companies with yellow and
@@ -333,8 +331,7 @@ impl Game {
         Game {
             companies,
             trains,
-            all_tiles,
-            num_player_tiles,
+            catalogue,
             barriers,
             phase,
             phase_names,
@@ -443,7 +440,7 @@ impl super::Game for Game {
         let tokens = self.create_tokens();
         let hexes: Vec<HexAddress> =
             addrs().iter().map(|coords| coords.into()).collect();
-        let mut map = Map::new(self.all_tiles.clone(), tokens, hexes);
+        let mut map = Map::new(self.catalogue.clone(), tokens, hexes);
         for (addr, (tile_name, rotn)) in initial_tiles() {
             if !map.place_tile(addr, tile_name, rotn) {
                 println!("Could not place tile {} at {}", tile_name, addr)
@@ -459,15 +456,10 @@ impl super::Game for Game {
         map
     }
 
-    /// Return the tiles that players are allowed to place on the map.
-    fn player_tiles(&self) -> &[Tile] {
-        &self.all_tiles[0..self.num_player_tiles]
-    }
-
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.
-    fn all_tiles(&self) -> &[Tile] {
-        &self.all_tiles
+    fn catalogue(&self) -> &Catalogue {
+        &self.catalogue
     }
 
     /// Returns the index of the current game phase.
@@ -522,31 +514,105 @@ impl super::Game for Game {
     }
 }
 
-fn game_tiles() -> Vec<Tile> {
-    let mut all_tiles = tile_catalogue();
-    let hex = Hex::default();
+/// Returns the tiles that are available to players at the start of the game.
+fn player_tiles() -> Builder {
+    let tiles = vec![
+        // Yellow tiles.
+        ("3", 2),
+        ("4", 4),
+        ("5", 2),
+        ("6", 2),
+        ("7", 3),
+        ("8", 19),
+        ("9", 24),
+        ("57", 2),
+        ("58", 4),
+        ("201", 3),
+        ("202", 3),
+        ("621", 2),
+        // Green tiles.
+        ("14", 2),
+        ("15", 4),
+        ("16", 2),
+        ("17", 2),
+        ("18", 2),
+        ("19", 2),
+        ("20", 2),
+        ("21", 2),
+        ("22", 2),
+        ("23", 5),
+        ("24", 5),
+        ("25", 4),
+        ("26", 2),
+        ("27", 2),
+        ("28", 2),
+        ("29", 2),
+        ("30", 2),
+        ("31", 2),
+        ("87", 2),
+        ("88", 2),
+        ("120", 1),
+        ("204", 2),
+        ("207", 5),
+        ("208", 2),
+        ("619", 2),
+        ("622", 2),
+        ("624", 1),
+        ("625", 1),
+        ("626", 1),
+        ("637", 1),
+        ("X1", 1),
+        ("X2", 1),
+        ("X3", 1),
+        ("X4", 1),
+        // Brown tiles.
+        ("39", 2),
+        ("40", 2),
+        ("41", 2),
+        ("42", 2),
+        ("43", 2),
+        ("44", 2),
+        ("45", 2),
+        ("46", 2),
+        ("47", 2),
+        ("63", 3),
+        ("70", 2),
+        ("611", 3),
+        ("623", 3),
+        ("801", 2),
+        ("911", 3),
+        ("122", 1),
+        ("X5", 1),
+        ("X6", 1),
+        ("X7", 1),
+        // Grey tiles.
+        ("124", 1),
+        ("639", 1),
+        ("X8", 1),
+    ];
+    Builder::subset_available(tiles).unwrap()
+}
+
+fn make_catalogue() -> Catalogue {
+    let mut builder = player_tiles();
+    let hex = builder.hex();
     // NOTE: hide tile names on all starting tiles, off-board tiles, etc.
-    let mut town_tiles = starting_town_tiles(&hex)
+    let town_tiles = starting_town_tiles(hex)
         .into_iter()
-        .map(|t| t.hide_tile_name())
-        .collect();
-    let mut city_tiles = starting_city_tiles(&hex)
+        .map(|t| t.hide_tile_name());
+    let city_tiles = starting_city_tiles(hex)
         .into_iter()
-        .map(|t| t.hide_tile_name())
-        .collect();
-    let mut offb_tiles = offboard_tiles(&hex)
+        .map(|t| t.hide_tile_name());
+    let offb_tiles =
+        offboard_tiles(hex).into_iter().map(|t| t.hide_tile_name());
+    let misc_tiles = miscellaneous_tiles(hex)
         .into_iter()
-        .map(|t| t.hide_tile_name())
-        .collect();
-    let mut misc_tiles = miscellaneous_tiles(&hex)
-        .into_iter()
-        .map(|t| t.hide_tile_name())
-        .collect();
-    all_tiles.append(&mut town_tiles);
-    all_tiles.append(&mut city_tiles);
-    all_tiles.append(&mut offb_tiles);
-    all_tiles.append(&mut misc_tiles);
-    all_tiles
+        .map(|t| t.hide_tile_name());
+    builder.add_unavailable_tiles(town_tiles);
+    builder.add_unavailable_tiles(city_tiles);
+    builder.add_unavailable_tiles(offb_tiles);
+    builder.add_unavailable_tiles(misc_tiles);
+    builder.build()
 }
 
 /// Position labels relative to the tile centre.

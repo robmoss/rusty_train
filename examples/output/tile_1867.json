@@ -141,6 +141,157 @@
       ]
     },
     {
+      "name": "57",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "58",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.5
+        }
+      ]
+    },
+    {
+      "name": "201",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "202",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "621",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.1
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
       "name": "14",
       "colour": "Green",
       "track": [
@@ -395,268 +546,6 @@
       ]
     },
     {
-      "name": "39",
-      "colour": "Brown",
-      "track": [
-        {
-          "GentleL": "Bottom"
-        },
-        {
-          "HardL": "Bottom"
-        },
-        {
-          "HardL": "LowerLeft"
-        }
-      ]
-    },
-    {
-      "name": "40",
-      "colour": "Brown",
-      "track": [
-        {
-          "GentleL": "Bottom"
-        },
-        {
-          "GentleL": "UpperLeft"
-        },
-        {
-          "GentleL": "UpperRight"
-        }
-      ]
-    },
-    {
-      "name": "41",
-      "colour": "Brown",
-      "track": [
-        {
-          "Straight": "Bottom"
-        },
-        {
-          "GentleR": "Bottom"
-        },
-        {
-          "HardL": "Top"
-        }
-      ]
-    },
-    {
-      "name": "42",
-      "colour": "Brown",
-      "track": [
-        {
-          "Straight": "Bottom"
-        },
-        {
-          "GentleL": "Bottom"
-        },
-        {
-          "HardR": "Top"
-        }
-      ]
-    },
-    {
-      "name": "43",
-      "colour": "Brown",
-      "track": [
-        {
-          "Straight": "Bottom"
-        },
-        {
-          "GentleL": "Bottom"
-        },
-        {
-          "HardL": "LowerLeft"
-        },
-        {
-          "GentleL": "LowerLeft"
-        }
-      ]
-    },
-    {
-      "name": "44",
-      "colour": "Brown",
-      "track": [
-        {
-          "Straight": "Bottom"
-        },
-        {
-          "HardL": "Bottom"
-        },
-        {
-          "HardL": "Top"
-        },
-        {
-          "Straight": "LowerLeft"
-        }
-      ]
-    },
-    {
-      "name": "45",
-      "colour": "Brown",
-      "track": [
-        {
-          "GentleL": "UpperLeft"
-        },
-        {
-          "HardR": "Top"
-        },
-        {
-          "GentleR": "Bottom"
-        },
-        {
-          "Straight": "Bottom"
-        }
-      ]
-    },
-    {
-      "name": "46",
-      "colour": "Brown",
-      "track": [
-        {
-          "GentleL": "UpperLeft"
-        },
-        {
-          "HardL": "Top"
-        },
-        {
-          "GentleL": "Bottom"
-        },
-        {
-          "Straight": "Bottom"
-        }
-      ]
-    },
-    {
-      "name": "47",
-      "colour": "Brown",
-      "track": [
-        {
-          "Straight": "Bottom"
-        },
-        {
-          "GentleR": "Bottom"
-        },
-        {
-          "GentleL": "LowerLeft"
-        },
-        {
-          "Straight": "LowerLeft"
-        }
-      ]
-    },
-    {
-      "name": "57",
-      "colour": "Yellow",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "Top"
-        }
-      ],
-      "cities": [
-        {
-          "Single": "Centre",
-          "revenue": 20
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "UpperLeftFace",
-          "to_centre": 0.2
-        }
-      ]
-    },
-    {
-      "name": "58",
-      "colour": "Yellow",
-      "track": [
-        {
-          "GentleR": "Bottom",
-          "dit": [
-            "End",
-            10,
-            "Bar"
-          ],
-          "span": [
-            0.0,
-            0.5
-          ]
-        },
-        {
-          "GentleR": "Bottom",
-          "span": [
-            0.5,
-            1.0
-          ]
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "UpperLeftFace",
-          "to_centre": 0.5
-        }
-      ]
-    },
-    {
-      "name": "63",
-      "colour": "Brown",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        },
-        {
-          "Mid": "LowerRight"
-        }
-      ],
-      "cities": [
-        {
-          "Double": "Centre",
-          "revenue": 40
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
-          "to_centre": 0.1
-        }
-      ]
-    },
-    {
-      "name": "70",
-      "colour": "Brown",
-      "track": [
-        {
-          "GentleL": "Top"
-        },
-        {
-          "HardL": "Top"
-        },
-        {
-          "GentleR": "Bottom"
-        },
-        {
-          "HardR": "Bottom"
-        }
-      ]
-    },
-    {
       "name": "87",
       "colour": "Green",
       "track": [
@@ -775,160 +664,6 @@
       ]
     },
     {
-      "name": "122",
-      "colour": "Brown",
-      "track": [
-        {
-          "HardL": "LowerLeft",
-          "span": [
-            0.0,
-            0.5
-          ]
-        },
-        {
-          "HardL": "LowerLeft",
-          "span": [
-            0.5,
-            1.0
-          ]
-        },
-        {
-          "HardL": "Top",
-          "span": [
-            0.0,
-            0.5
-          ]
-        },
-        {
-          "HardL": "Top",
-          "span": [
-            0.5,
-            1.0
-          ]
-        }
-      ],
-      "cities": [
-        {
-          "Double": "LeftCorner",
-          "revenue": 80
-        },
-        {
-          "Double": "TopRightCorner",
-          "revenue": 80
-        }
-      ],
-      "labels": [
-        {
-          "City": "T",
-          "location": "BottomRightCorner",
-          "nudge": [
-            "N",
-            0.2
-          ]
-        },
-        {
-          "Revenue": 0,
-          "location": "Centre"
-        }
-      ]
-    },
-    {
-      "name": "124",
-      "colour": "Grey",
-      "track": [
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        }
-      ],
-      "cities": [
-        {
-          "Quad": "Centre",
-          "revenue": 100
-        }
-      ],
-      "labels": [
-        {
-          "City": "T",
-          "location": "TopRightCorner",
-          "to_centre": 0.05
-        },
-        {
-          "Revenue": 0,
-          "location": "RightCorner",
-          "to_centre": 0.08
-        }
-      ]
-    },
-    {
-      "name": "201",
-      "colour": "Yellow",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerRight"
-        }
-      ],
-      "cities": [
-        {
-          "Single": "Centre",
-          "revenue": 30
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
-          "to_centre": 0.25
-        },
-        {
-          "Y": null,
-          "location": "LowerLeftFace",
-          "to_centre": 0.2
-        }
-      ]
-    },
-    {
-      "name": "202",
-      "colour": "Yellow",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "UpperRight"
-        }
-      ],
-      "cities": [
-        {
-          "Single": "Centre",
-          "revenue": 30
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
-          "to_centre": 0.25
-        },
-        {
-          "Y": null,
-          "location": "LowerLeftFace",
-          "to_centre": 0.2
-        }
-      ]
-    },
-    {
       "name": "204",
       "colour": "Green",
       "track": [
@@ -1031,40 +766,6 @@
       ]
     },
     {
-      "name": "611",
-      "colour": "Brown",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        }
-      ],
-      "cities": [
-        {
-          "Double": "Centre",
-          "revenue": 40
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
-          "to_centre": 0.125
-        }
-      ]
-    },
-    {
       "name": "619",
       "colour": "Green",
       "track": [
@@ -1092,40 +793,6 @@
           "Revenue": 0,
           "location": "TopRightCorner",
           "to_centre": 0.15
-        }
-      ]
-    },
-    {
-      "name": "621",
-      "colour": "Yellow",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Straight": "Bottom",
-          "span": [
-            0.5,
-            1.0
-          ]
-        }
-      ],
-      "cities": [
-        {
-          "Single": "Centre",
-          "revenue": 30
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "UpperLeftFace",
-          "to_centre": 0.1
-        },
-        {
-          "Y": null,
-          "location": "LowerLeftFace",
-          "to_centre": 0.2
         }
       ]
     },
@@ -1161,48 +828,6 @@
         {
           "Y": null,
           "location": "BottomLeftCorner",
-          "to_centre": 0.15
-        }
-      ]
-    },
-    {
-      "name": "623",
-      "colour": "Brown",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        },
-        {
-          "Mid": "LowerRight"
-        }
-      ],
-      "cities": [
-        {
-          "Double": "Centre",
-          "revenue": 50
-        }
-      ],
-      "labels": [
-        {
-          "Y": null,
-          "location": "TopRightCorner",
-          "to_centre": 0.15
-        },
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
           "to_centre": 0.15
         }
       ]
@@ -1314,117 +939,6 @@
           "Revenue": 0,
           "location": "TopRightCorner",
           "to_centre": 0.15
-        }
-      ]
-    },
-    {
-      "name": "639",
-      "colour": "Grey",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        },
-        {
-          "Mid": "LowerRight"
-        }
-      ],
-      "cities": [
-        {
-          "Quad": "Centre",
-          "revenue": 100
-        }
-      ],
-      "labels": [
-        {
-          "City": "M",
-          "location": "TopRightCorner",
-          "to_centre": 0.05
-        },
-        {
-          "Revenue": 0,
-          "location": "RightCorner",
-          "to_centre": 0.08
-        }
-      ]
-    },
-    {
-      "name": "801",
-      "colour": "Brown",
-      "track": [
-        {
-          "Mid": "Bottom"
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "UpperLeft"
-        },
-        {
-          "Mid": "Top"
-        }
-      ],
-      "cities": [
-        {
-          "Double": "Centre",
-          "revenue": 50
-        }
-      ],
-      "labels": [
-        {
-          "Y": null,
-          "location": "RightCorner",
-          "to_centre": 0.2
-        },
-        {
-          "Revenue": 0,
-          "location": "TopRightCorner",
-          "to_centre": 0.15
-        }
-      ]
-    },
-    {
-      "name": "911",
-      "colour": "Brown",
-      "track": [
-        {
-          "Mid": "Bottom",
-          "dit": [
-            "End",
-            10,
-            "Circle"
-          ]
-        },
-        {
-          "Mid": "LowerLeft"
-        },
-        {
-          "Mid": "Top"
-        },
-        {
-          "Mid": "UpperRight"
-        },
-        {
-          "Mid": "LowerRight"
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "UpperLeftFace",
-          "to_centre": 0.25
         }
       ]
     },
@@ -1746,6 +1260,414 @@
       ]
     },
     {
+      "name": "39",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "40",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "GentleL": "UpperRight"
+        }
+      ]
+    },
+    {
+      "name": "41",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        }
+      ]
+    },
+    {
+      "name": "42",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardR": "Top"
+        }
+      ]
+    },
+    {
+      "name": "43",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        },
+        {
+          "GentleL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "44",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "45",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardR": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "46",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "47",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "LowerLeft"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "63",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "70",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Top"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "611",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.125
+        }
+      ]
+    },
+    {
+      "name": "623",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "801",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "RightCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "911",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "122",
+      "colour": "Brown",
+      "track": [
+        {
+          "HardL": "LowerLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "LowerLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Double": "LeftCorner",
+          "revenue": 80
+        },
+        {
+          "Double": "TopRightCorner",
+          "revenue": 80
+        }
+      ],
+      "labels": [
+        {
+          "City": "T",
+          "location": "BottomRightCorner",
+          "nudge": [
+            "N",
+            0.2
+          ]
+        },
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
       "name": "X5",
       "colour": "Brown",
       "track": [
@@ -1947,6 +1869,84 @@
       ]
     },
     {
+      "name": "124",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Quad": "Centre",
+          "revenue": 100
+        }
+      ],
+      "labels": [
+        {
+          "City": "T",
+          "location": "TopRightCorner",
+          "to_centre": 0.05
+        },
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.08
+        }
+      ]
+    },
+    {
+      "name": "639",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Quad": "Centre",
+          "revenue": 100
+        }
+      ],
+      "labels": [
+        {
+          "City": "M",
+          "location": "TopRightCorner",
+          "to_centre": 0.05
+        },
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.08
+        }
+      ]
+    },
+    {
       "name": "X8",
       "colour": "Grey",
       "track": [
@@ -1985,132 +1985,6 @@
         {
           "Revenue": 0,
           "location": "BottomLeftCorner",
-          "to_centre": 0.1
-        }
-      ]
-    },
-    {
-      "name": "IN10",
-      "colour": "Yellow",
-      "track": [
-        {
-          "GentleL": "Bottom",
-          "dit": [
-            "End",
-            30,
-            "Bar"
-          ],
-          "span": [
-            0.0,
-            0.85
-          ]
-        },
-        {
-          "GentleL": "Bottom",
-          "span": [
-            0.85,
-            1.0
-          ]
-        },
-        {
-          "GentleR": "Bottom",
-          "dit": [
-            "End",
-            30,
-            "Bar"
-          ],
-          "span": [
-            0.0,
-            0.85
-          ]
-        },
-        {
-          "GentleR": "Bottom",
-          "span": [
-            0.85,
-            1.0
-          ]
-        },
-        {
-          "Straight": "UpperLeft",
-          "span": [
-            0.125,
-            1.0
-          ]
-        },
-        {
-          "GentleL": "Top"
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
-          "to_centre": 0.1
-        }
-      ]
-    },
-    {
-      "name": "IN11",
-      "colour": "Green",
-      "track": [
-        {
-          "Straight": "LowerRight"
-        },
-        {
-          "GentleR": "LowerRight",
-          "span": [
-            0.0,
-            0.5
-          ]
-        },
-        {
-          "GentleR": "LowerRight",
-          "span": [
-            0.5,
-            1.0
-          ]
-        },
-        {
-          "GentleL": "Bottom",
-          "span": [
-            0.0,
-            0.5
-          ]
-        },
-        {
-          "GentleL": "Bottom",
-          "span": [
-            0.5,
-            1.0
-          ]
-        },
-        {
-          "Straight": "Bottom"
-        }
-      ],
-      "cities": [
-        {
-          "Single": "LowerLeftFace",
-          "revenue": 30,
-          "nudge": [
-            "N60E",
-            0.2
-          ]
-        },
-        {
-          "Single": "UpperRightFace",
-          "revenue": 30,
-          "nudge": [
-            "S60W",
-            0.2
-          ]
-        }
-      ],
-      "labels": [
-        {
-          "Revenue": 0,
-          "location": "TopLeftCorner",
           "to_centre": 0.1
         }
       ]

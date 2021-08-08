@@ -1,3 +1,4 @@
+use n18catalogue::Catalogue;
 use n18hex::Hex;
 use n18map::Map;
 use n18route::{Bonus, ConflictRule, Train};
@@ -205,10 +206,13 @@ pub trait Game {
 
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.
-    fn all_tiles(&self) -> &[Tile];
+    fn catalogue(&self) -> &Catalogue;
 
-    /// Returns the tiles that players are allowed to place on the map.
-    fn player_tiles(&self) -> &[Tile];
+    /// Returns a copy of each game tile, including special tiles that players
+    /// cannot place on the map.
+    fn clone_tiles(&self) -> Vec<Tile> {
+        self.catalogue().tile_iter().cloned().collect()
+    }
 
     /// Returns the name of each game phase, in the order that they occur.
     fn phase_names(&self) -> &[&str];

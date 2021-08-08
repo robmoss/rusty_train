@@ -17,11 +17,11 @@ impl Start {
     }
 
     pub fn dummy_map(&self) -> n18map::Map {
-        let tiles = vec![];
+        let tiles: Vec<n18tile::Tile> = vec![];
         let tokens = vec![].into();
         // NOTE: a map must have at least one hex.
         let hexes = vec![n18map::HexAddress::new(0, 0)];
-        n18map::Map::new(tiles, tokens, hexes)
+        n18map::Map::new(tiles.into(), tokens, hexes)
     }
 }
 
