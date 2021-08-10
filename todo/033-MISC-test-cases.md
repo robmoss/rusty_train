@@ -8,3 +8,5 @@
 
   - For each track segment, city, etc, we know the correct number of connections and can check that all of the expected connections are present.
     But this should go into a separate test file, `tile.rs` or `catalogue.rs`, and that file should also test drawing individual layers.
+
+  - Consider locating these tests in `n18catalogue::tests`.

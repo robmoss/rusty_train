@@ -27,16 +27,6 @@ The route-finding step that goes from `(trains, token, bonuses)` to `Routes` sho
 - This method should probably accept `(&str, usize)` tuples, rather than accepting arbitrary `Train` values (which cannot be guaranteed to match any of the game's train types).
   Alternatively, provide this information as a `BTreeMap<&str, usize>` to ensure that there are no duplicate trains.
 
-## Catalogue tiles by name
-
-Tiles should be stored in a `HashMap` or `BTreeMap`, using the tile names as keys, so that games can assemble many of their tiles by simply providing a list of tile names.
-
-- Provide this through a new `Catalogue` type that maps tile names to a `Tile` and an (optional) tile limit.
-
-- This will require cloning each `tile.name`, since we cannot use `&tile.name` as a key.
-
-  - We could theoretically implement `Borrow<str>` for `Tile`, similar to the `CaseInsensitiveString` [example](https://doc.rust-lang.org/std/borrow/trait.Borrow.html), but this requires `Tile` and `str` to have identical `Hash` and `Eq` implementations, which isn't sensible.
-
 ## Error handling
 
 The current implementation generally avoids returning `Result<T,E>` values and instead panics when an error is encountered.
