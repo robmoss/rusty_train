@@ -696,6 +696,11 @@ impl Trains {
         trains.into()
     }
 
+    /// Returns `true` if there are no trains in this collection.
+    pub fn is_empty(&self) -> bool {
+        self.train_count() == 0
+    }
+
     /// Returns the number of trains in this collection.
     pub fn train_count(&self) -> usize {
         self.trains.values().sum()

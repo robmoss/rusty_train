@@ -4,13 +4,11 @@ use super::{Action, State};
 use cairo::Context;
 use gtk::prelude::{GtkWindowExt, Inhibit};
 
-use log::info;
-
 use crate::dialog::{select_item, select_trains};
 use crate::Content;
 use n18game::Company;
 use n18map::HexAddress;
-use n18route::{paths_for_token, Criteria, Routes, Trains};
+use n18route::Routes;
 use n18token::Token;
 
 /// Search for the best routes that a company can operate.
@@ -52,7 +50,11 @@ impl FindRoutes {
             select_trains(window, content.games.active(), abbrev)?;
 
         // Find the best routes.
-        let best_routes = best_routes_for(content, &token, trains, bonuses);
+        let best_routes = content
+            .games
+            .active()
+            .best_routes(&content.map, token, &trains, bonuses)
+            .map(|routes| (token, routes));
         let active_route = None;
 
         let original_window_title =
@@ -112,56 +114,6 @@ fn valid_companies(content: &Content) -> Vec<&Company> {
         .filter(|c| placed_names.iter().any(|name| c.abbrev == *name))
         .collect();
     companies
-}
-
-/// Finds a path from the currently-selected token that yields the maximum
-/// revenue.
-fn best_routes_for(
-    content: &Content,
-    token: &Token,
-    trains: Trains,
-    bonus_options: Vec<bool>,
-) -> Option<(Token, Routes)> {
-    // Handle the case where no trains were selected.
-    if trains.train_count() == 0 {
-        return None;
-    }
-
-    let start = std::time::Instant::now();
-    info!("");
-    info!("Searching for the best routes ...");
-
-    let game = content.games.active();
-    let path_limit = trains.path_limit();
-    let criteria = Criteria {
-        token: *token,
-        path_limit,
-        conflict_rule: game.single_route_conflicts(),
-        route_conflict_rule: game.multiple_routes_conflicts(),
-    };
-
-    let now = std::time::Instant::now();
-    let map = &content.map;
-    let paths = paths_for_token(map, &criteria);
-    info!(
-        "Enumerated {} routes in {}",
-        paths.len(),
-        now.elapsed().as_secs_f64()
-    );
-    let now = std::time::Instant::now();
-    // Determine the route bonuses that may apply.
-    let bonuses = game.bonuses(&bonus_options);
-    let best_routes = trains.select_routes(paths, bonuses);
-    info!(
-        "Calculated (train, path) revenues in {}",
-        now.elapsed().as_secs_f64()
-    );
-    info!(
-        "Searching for the best routes took {}",
-        start.elapsed().as_secs_f64()
-    );
-
-    best_routes.map(|pairing| (*token, pairing))
 }
 
 impl State for FindRoutes {

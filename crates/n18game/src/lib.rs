@@ -1,7 +1,8 @@
+use log::info;
 use n18catalogue::Catalogue;
 use n18hex::Hex;
 use n18map::Map;
-use n18route::{Bonus, ConflictRule, Train};
+use n18route::{Bonus, ConflictRule, Routes, Train, Trains};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
 
@@ -203,6 +204,62 @@ pub trait Game {
 
     /// Defines the elements that cannot be shared between routes.
     fn multiple_routes_conflicts(&self) -> ConflictRule;
+
+    /// Finds a path from the currently-selected token that yields the maximum
+    /// revenue.
+    ///
+    /// # Default implementation
+    ///
+    /// The default implementation finds all valid paths with
+    /// [paths_for_token](n18route::paths_for_token) and selects the best
+    /// combination with [select_routes](n18route::Trains::select_routes).
+    ///
+    /// While this should be sufficient for many 18xx games, some games may
+    /// need to override this method.
+    fn best_routes(
+        &self,
+        map: &Map,
+        token: Token,
+        trains: &Trains,
+        bonus_options: Vec<bool>,
+    ) -> Option<Routes> {
+        if trains.is_empty() {
+            return None;
+        }
+
+        let start = std::time::Instant::now();
+        info!("");
+        info!("Searching for the best routes ...");
+
+        let path_limit = trains.path_limit();
+        let criteria = n18route::Criteria {
+            token,
+            path_limit,
+            conflict_rule: self.single_route_conflicts(),
+            route_conflict_rule: self.multiple_routes_conflicts(),
+        };
+
+        let paths = n18route::paths_for_token(map, &criteria);
+        info!(
+            "Enumerated {} routes in {}",
+            paths.len(),
+            start.elapsed().as_secs_f64()
+        );
+
+        let now = std::time::Instant::now();
+        let bonuses = self.bonuses(&bonus_options);
+        let routes = trains.select_routes(paths, bonuses);
+
+        info!(
+            "Calculated (train, path) revenues in {}",
+            now.elapsed().as_secs_f64()
+        );
+        info!(
+            "Searching for the best routes took {}",
+            start.elapsed().as_secs_f64()
+        );
+        routes
+    }
 
     /// Returns all game tiles, including special tiles that players cannot
     /// place on the map.
