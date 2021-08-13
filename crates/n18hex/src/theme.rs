@@ -864,7 +864,7 @@ static SCALE_U8_COLOUR: f64 = 1.0 / u8::MAX as f64;
 /// ```
 ///
 /// Attempts to parse invalid strings will return a [ParseColourError] value.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Colour {
     pub red: u8,
     pub green: u8,

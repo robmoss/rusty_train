@@ -7,7 +7,7 @@ use n18tile::Tile;
 use n18token::Tokens;
 
 /// A description of a tile's configuration on a map hex.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TileDescr {
     /// The map row in which the tile is located.
     pub row: usize,

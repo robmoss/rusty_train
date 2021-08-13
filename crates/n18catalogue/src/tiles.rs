@@ -24,7 +24,7 @@ use n18tile::{City, Label, Rotation, Tile, Track};
 /// # use n18catalogue::Kind;
 /// let kinds: Vec<Kind> = Kind::iter().collect();
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Kind {
     _3,
     _4,

@@ -3,7 +3,7 @@ use n18hex::consts::*;
 use n18hex::{Colour, Hex};
 
 /// The collection of tokens associated with each company.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Tokens {
     names: Vec<String>,
     tokens: Vec<Token>,
@@ -94,7 +94,7 @@ impl Tokens {
 }
 
 /// A token that may occupy a token space on a `Tile`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Token {
     pub style: TokenStyle,
     pub x_pcnt: usize,
@@ -102,7 +102,7 @@ pub struct Token {
 }
 
 /// Define the appearance of each token.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TokenStyle {
     // TODO: add TopArcs, SideSquares, TopSquares, SideLines, TopLines, etc.
     // See https://boardgamegeek.com/image/5033873/18611867 for ideas.

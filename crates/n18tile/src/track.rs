@@ -4,7 +4,7 @@ use n18hex::theme::Length;
 use n18hex::{Coord, Hex, HexCorner, HexFace, PI};
 
 /// The shapes that track segments may take.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TrackCurve {
     Straight,
     GentleL,
@@ -19,7 +19,7 @@ impl Default for TrackCurve {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 enum TrackPath {
     Linear {
         start: Coord,
@@ -35,7 +35,7 @@ enum TrackPath {
 }
 
 /// Each track segment has two ends.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TrackEnd {
     Start,
     End,
@@ -53,14 +53,14 @@ impl TrackEnd {
 }
 
 /// A dit may have one of several shapes.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DitShape {
     Bar,
     Circle,
 }
 
 /// Track segments along which trains can run routes.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Track {
     pub face: HexFace,
     pub curve: TrackCurve,

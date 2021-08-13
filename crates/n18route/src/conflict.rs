@@ -5,7 +5,7 @@ use n18map::HexAddress;
 use n18tile::Connection;
 
 /// A rule defines which elements of a path or route may not be shared.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ConflictRule {
     /// No track segment (including hex faces) in common.
     TrackOnly,
@@ -18,7 +18,7 @@ pub enum ConflictRule {
 }
 
 /// A specific element of a path or route that cannot be shared.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Conflict {
     /// A face on a specific hex.
     Face { addr: HexAddress, face: HexFace },
@@ -42,7 +42,7 @@ pub mod rc_hash {
     use super::Conflict;
     use std::collections::BTreeSet;
 
-    #[derive(Clone, Debug, Default, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
     pub struct RouteConflicts {
         rc: BTreeSet<Conflict>,
     }
@@ -96,7 +96,7 @@ pub mod rc_vec {
     use super::Conflict;
     use std::collections::BTreeSet;
 
-    #[derive(Clone, Debug, Default, PartialEq, Eq)]
+    #[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
     pub struct RouteConflicts {
         rc: Vec<Conflict>,
     }

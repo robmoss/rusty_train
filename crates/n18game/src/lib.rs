@@ -14,7 +14,7 @@ pub fn new_1867() -> _1867::Game {
 }
 
 /// The details that characterise a company that can operate trains.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Company {
     /// The abbreviated company name, which must be unique for each company in
     /// the game, and which will appear on the company tokens.

@@ -7,7 +7,7 @@ use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
 
 /// Supported orientations for the map's hexagonal grid.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Orientation {
     /// Arrange hexagons in vertical columns; the top and bottom of each
     /// hexagon is flat.
@@ -1014,7 +1014,7 @@ impl<'a> From<HexIter<'a>> for TileHexIter<'a> {
 }
 
 /// The rotation of a `Tile`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RotateCW {
     Zero,
     One,
@@ -1134,7 +1134,7 @@ impl MapHex {
 }
 
 /// A hex location on a `Map`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HexAddress {
     pub(crate) row: usize,
     pub(crate) col: usize,

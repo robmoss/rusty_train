@@ -14,14 +14,14 @@ use crate::conflict::RouteConflicts;
 use crate::Conflict;
 
 /// A single step in a path.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Step {
     pub addr: HexAddress,
     pub conn: Connection,
 }
 
 /// The different locations at which a train may stop and earn revenue.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StopLocation {
     City { ix: usize },
     Dit { ix: usize },
@@ -38,7 +38,7 @@ impl StopLocation {
 }
 
 /// A location on a path that, if the train stops here, may earn revenue.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Visit {
     /// The tile on which this stop occurs.
     pub addr: HexAddress,
@@ -49,7 +49,7 @@ pub struct Visit {
 }
 
 /// A path that a train may travel along.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Path {
     pub steps: Vec<Step>,
     pub conflicts: BTreeSet<Conflict>,

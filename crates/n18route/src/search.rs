@@ -11,7 +11,7 @@ use n18map::{HexAddress, Map};
 use n18tile::{Connection, Tile, TokenSpace};
 use n18token::Token;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PathLimit {
     Cities { count: usize },
     CitiesAndTowns { count: usize },
@@ -20,7 +20,7 @@ pub enum PathLimit {
 
 /// The search criteria for identifying valid paths that start from a specific
 /// location.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Query {
     pub addr: HexAddress,
     pub from: Connection,
@@ -28,7 +28,7 @@ pub struct Query {
 }
 
 /// The search criteria for identifying valid paths.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Criteria {
     pub token: Token,
     pub path_limit: Option<PathLimit>,

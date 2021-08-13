@@ -3,7 +3,7 @@ use crate::track::{Track, TrackEnd};
 use n18hex::{Hex, HexFace};
 use std::collections::BTreeMap;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Connection {
     Track { ix: usize, end: TrackEnd },
     Dit { ix: usize },
@@ -45,7 +45,7 @@ impl Connection {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Dit {
     pub track_ix: usize,
     end: TrackEnd,

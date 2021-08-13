@@ -75,7 +75,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::iter::FromIterator;
 
 /// The types of trains that can operate routes to earn revenue.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Train {
     /// The constraints on the routes that the train can operate.
     pub train_type: TrainType,
@@ -86,7 +86,7 @@ pub struct Train {
 }
 
 /// The types of trains that can operate routes to earn revenue.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TrainType {
     /// Cannot skip towns or cities.
     MustStop,
@@ -129,7 +129,7 @@ impl Default for Train {
 }
 
 /// Identify visits along a path where a train stops and earns revenue.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TrainStop {
     /// The index of the visit in the path.
     pub visit_ix: usize,
@@ -571,7 +571,7 @@ fn best_stop_ixs(
 }
 
 /// Pairings of trains to routes.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Routes {
     /// The total revenue earned from these routes.
     pub net_revenue: usize,
@@ -589,7 +589,7 @@ impl Routes {
 ///
 /// Note that the train may not earn revenue from every location along the
 /// path.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TrainRoute {
     /// The train.
     pub train: Train,
@@ -606,7 +606,7 @@ impl AsRef<Route> for TrainRoute {
 }
 
 /// A route operated by a train.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Route {
     /// The steps that form the entire route.
     pub steps: Vec<Step>,
@@ -642,6 +642,7 @@ impl From<&Path> for Route {
 }
 
 /// The trains owned by a single company, which may operate routes.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Trains {
     trains: BTreeMap<Train, usize>,
     train_vec: Vec<Train>,

@@ -3,7 +3,7 @@ use cairo::Context;
 use n18hex::{Colour, Hex, HexColour, HexCorner, HexPosition};
 use std::collections::BTreeMap;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DrawLayer {
     Under,
     Normal,
@@ -497,7 +497,7 @@ impl Tile {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TokenSpace {
     city_ix: usize,
     token_ix: usize,

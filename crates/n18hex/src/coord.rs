@@ -1,5 +1,5 @@
 /// Represents Cartesian coordinates as a struct with named fields.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Coord {
     pub x: f64,
     pub y: f64,
