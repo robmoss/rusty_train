@@ -35,7 +35,7 @@ enum TrackPath {
 }
 
 /// Each track segment has two ends.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub enum TrackEnd {
     Start,
     End,

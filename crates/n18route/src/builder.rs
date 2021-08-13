@@ -47,7 +47,7 @@ use super::{Path, Route, Step, StopLocation, Visit};
 use n18hex::HexFace;
 use n18map::{HexAddress, Map};
 use n18tile::{Connection, Tile};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 /// The different ways in which building a path may fail.
 pub enum Error {
@@ -332,7 +332,7 @@ impl<'a> RouteBuilder<'a> {
     pub fn into_path(self) -> Path {
         Path {
             steps: self.steps,
-            conflicts: HashSet::new(),
+            conflicts: BTreeSet::new(),
             route_conflicts: crate::conflict::RouteConflicts::new(),
             visits: self.visits,
             num_visits: self.num_visits,
@@ -358,7 +358,7 @@ impl<'a> RouteBuilder<'a> {
         src: &Step,
         dest: Connection,
     ) -> Result<Vec<Step>> {
-        let mut seen: HashSet<Connection> = HashSet::new();
+        let mut seen: BTreeSet<Connection> = BTreeSet::new();
         let tile = self
             .map
             .tile_at(src.addr)
@@ -389,7 +389,7 @@ impl<'a> RouteBuilder<'a> {
 
     fn depth_first_search(
         &self,
-        seen: &mut HashSet<Connection>,
+        seen: &mut BTreeSet<Connection>,
         tile: &Tile,
         addr: &HexAddress,
         src: &Connection,

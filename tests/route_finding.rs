@@ -1,7 +1,7 @@
 use cairo::{Context, Format, ImageSurface};
 use navig18xx::brush;
 use navig18xx::prelude::*;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 fn new_context(width: i32, height: i32) -> (Context, ImageSurface) {
     let surface = ImageSurface::create(Format::ARgb32, width, height)
@@ -59,7 +59,7 @@ fn test_dual_routes_from_montreal() {
         .expect("Couldn't write to output PNG file");
 
     // Search for the optimal routes.
-    let all_trains: HashMap<&str, Train> = game
+    let all_trains: BTreeMap<&str, Train> = game
         .train_types()
         .into_iter()
         .map(|t| (game.train_name(t).unwrap(), *t))

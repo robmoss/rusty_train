@@ -1,5 +1,5 @@
 use gtk::prelude::*;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use n18game::Game;
 use n18route::{Train, Trains};
@@ -105,7 +105,7 @@ impl<'a> TrainDialog<'a> {
     pub fn new(
         parent: &gtk::ApplicationWindow,
         train_types: &'a [&Train],
-        train_names: &'a HashMap<&Train, &str>,
+        train_names: &'a BTreeMap<&Train, &str>,
         option_names: &'a [&str],
         name: &str,
     ) -> Self {
@@ -219,7 +219,7 @@ pub fn select_trains(
     name: &str,
 ) -> Option<(Trains, Vec<bool>)> {
     let train_types = game.train_types();
-    let train_names: HashMap<_, &str> = train_types
+    let train_names: BTreeMap<_, &str> = train_types
         .iter()
         .map(|t| (*t, game.train_name(t).unwrap()))
         .collect();

@@ -125,7 +125,7 @@ impl State for FindRoutes {
         n18brush::draw_map(hex, ctx, &mut hex_iter);
         // Slightly fade hexes that are not part of any route.
         if let Some((_token, routes)) = &self.best_routes {
-            let hexes: std::collections::HashSet<&HexAddress> = routes
+            let hexes: std::collections::BTreeSet<&HexAddress> = routes
                 .routes()
                 .iter()
                 .flat_map(|route| route.steps.iter().map(|step| &step.addr))

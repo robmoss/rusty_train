@@ -30,6 +30,7 @@ The following optimisations have been introduced:
   - We only need to record one hex face conflict for each pair of adjacent hex faces.
 - **Sort conflicts:** store route conflicts in sorted vectors, to minimise the number of comparisons required to identify whether two paths conflict.
 - **Parallel iterator:** iterate over the huge numbers of path combinations in parallel using [rayon](https://github.com/rayon-rs/rayon).
+- **B-Trees:** ensure [deterministic results](./determinism.md) by using B-Trees instead of hashed data structures.
 
 |                   |      GW |     C&O |     CNR |
 |-------------------|--------:|--------:|--------:|
@@ -37,6 +38,8 @@ The following optimisations have been introduced:
 | Fewer conflicts   |    0:22 |    4:08 |    9:35 |
 | Sorted conflicts  |    0:12 |    1:42 |    4:58 |
 | Parallel iterator |    0:06 |    0:51 |    2:26 |
-| **Improvement:**  | **84%** | **84%** | **81%** |
+| B-Trees           |    0:05 |    0:45 |    2:01 |
+| **Improvement:**  | **86%** | **86%** | **85%** |
 
 These times were obtained by running `cargo test --release 1867_bc` using Rust 1.48.0 on Debian Buster (Linux kernel 5.10.28) with 8 GB RAM and an Intel Core i7-5600U CPU (2 cores, 4 MB cache).
+The times reported for the **B-Trees** optimisation were obtained using Rust 1.54.0 and Linux kernel 5.10.46, but these software updates did not change the times obtained for the **Parallel iterator** optimisation.

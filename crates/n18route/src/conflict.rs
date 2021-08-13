@@ -40,16 +40,18 @@ pub type RouteConflicts = rc_vec::RouteConflicts;
 pub mod rc_hash {
 
     use super::Conflict;
-    use std::collections::HashSet;
+    use std::collections::BTreeSet;
 
     #[derive(Clone, Debug, Default, PartialEq, Eq)]
     pub struct RouteConflicts {
-        rc: HashSet<Conflict>,
+        rc: BTreeSet<Conflict>,
     }
 
     impl RouteConflicts {
         pub fn new() -> Self {
-            RouteConflicts { rc: HashSet::new() }
+            RouteConflicts {
+                rc: BTreeSet::new(),
+            }
         }
 
         pub fn is_disjoint(&self, other: &Self) -> bool {
@@ -75,14 +77,14 @@ pub mod rc_hash {
         }
     }
 
-    impl From<HashSet<Conflict>> for RouteConflicts {
-        fn from(set: HashSet<Conflict>) -> Self {
+    impl From<BTreeSet<Conflict>> for RouteConflicts {
+        fn from(set: BTreeSet<Conflict>) -> Self {
             RouteConflicts { rc: set }
         }
     }
 
-    impl From<&HashSet<Conflict>> for RouteConflicts {
-        fn from(set: &HashSet<Conflict>) -> Self {
+    impl From<&BTreeSet<Conflict>> for RouteConflicts {
+        fn from(set: &BTreeSet<Conflict>) -> Self {
             let rc = set.iter().copied().collect();
             RouteConflicts { rc }
         }
@@ -92,7 +94,7 @@ pub mod rc_hash {
 pub mod rc_vec {
 
     use super::Conflict;
-    use std::collections::HashSet;
+    use std::collections::BTreeSet;
 
     #[derive(Clone, Debug, Default, PartialEq, Eq)]
     pub struct RouteConflicts {
@@ -126,7 +128,7 @@ pub mod rc_vec {
 
         // NOTE: alternate implementation, which requires itertools.
         // pub fn merge(&self, other: &Self) -> Self {
-        //     let conflict_set: std::collections::HashSet<Conflict> =
+        //     let conflict_set: std::collections::BTreeSet<Conflict> =
         //         self.rc.iter().merge(other.rc.iter()).map(|c| *c).collect();
         //     let mut result: Vec<Conflict> =
         //         conflict_set.into_iter().collect();
@@ -191,16 +193,16 @@ pub mod rc_vec {
         }
     }
 
-    impl From<HashSet<Conflict>> for RouteConflicts {
-        fn from(set: HashSet<Conflict>) -> Self {
+    impl From<BTreeSet<Conflict>> for RouteConflicts {
+        fn from(set: BTreeSet<Conflict>) -> Self {
             let mut rc: Vec<_> = set.iter().copied().collect();
             rc.sort();
             RouteConflicts { rc }
         }
     }
 
-    impl From<&HashSet<Conflict>> for RouteConflicts {
-        fn from(set: &HashSet<Conflict>) -> Self {
+    impl From<&BTreeSet<Conflict>> for RouteConflicts {
+        fn from(set: &BTreeSet<Conflict>) -> Self {
             let mut rc: Vec<_> = set.iter().copied().collect();
             rc.sort();
             RouteConflicts { rc }

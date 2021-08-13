@@ -11,7 +11,7 @@
       "route": {
         "steps": [
           {
-            "addr": "F16",
+            "addr": "D16",
             "conn": {
               "City": {
                 "ix": 0
@@ -19,11 +19,61 @@
             }
           },
           {
-            "addr": "F16",
+            "addr": "D16",
             "conn": {
               "Track": {
-                "ix": 0,
+                "ix": 5,
                 "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "D16",
+            "conn": {
+              "Face": {
+                "face": "LowerRight"
+              }
+            }
+          },
+          {
+            "addr": "E17",
+            "conn": {
+              "Face": {
+                "face": "UpperLeft"
+              }
+            }
+          },
+          {
+            "addr": "E17",
+            "conn": {
+              "Track": {
+                "ix": 2,
+                "end": "Start"
+              }
+            }
+          },
+          {
+            "addr": "E17",
+            "conn": {
+              "City": {
+                "ix": 0
+              }
+            }
+          },
+          {
+            "addr": "E17",
+            "conn": {
+              "Track": {
+                "ix": 4,
+                "end": "End"
+              }
+            }
+          },
+          {
+            "addr": "E17",
+            "conn": {
+              "Face": {
+                "face": "UpperRight"
               }
             }
           },
@@ -36,57 +86,7 @@
             }
           },
           {
-            "addr": "E17",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "E17",
-            "conn": {
-              "Track": {
-                "ix": 4,
-                "end": "Start"
-              }
-            }
-          },
-          {
-            "addr": "E17",
-            "conn": {
-              "City": {
-                "ix": 0
-              }
-            }
-          },
-          {
-            "addr": "E17",
-            "conn": {
-              "Track": {
-                "ix": 3,
-                "end": "End"
-              }
-            }
-          },
-          {
-            "addr": "E17",
-            "conn": {
-              "Face": {
-                "face": "Top"
-              }
-            }
-          },
-          {
-            "addr": "E15",
-            "conn": {
-              "Face": {
-                "face": "Bottom"
-              }
-            }
-          },
-          {
-            "addr": "E15",
+            "addr": "F16",
             "conn": {
               "Track": {
                 "ix": 0,
@@ -95,7 +95,7 @@
             }
           },
           {
-            "addr": "E15",
+            "addr": "F16",
             "conn": {
               "City": {
                 "ix": 0
@@ -103,24 +103,16 @@
             }
           },
           {
-            "addr": "E15",
+            "addr": "F16",
             "conn": {
               "Track": {
-                "ix": 4,
+                "ix": 2,
                 "end": "End"
               }
             }
           },
           {
-            "addr": "E15",
-            "conn": {
-              "Face": {
-                "face": "UpperRight"
-              }
-            }
-          },
-          {
-            "addr": "F14",
+            "addr": "F16",
             "conn": {
               "Face": {
                 "face": "Top"
@@ -130,8 +122,16 @@
           {
             "addr": "F14",
             "conn": {
+              "Face": {
+                "face": "UpperLeft"
+              }
+            }
+          },
+          {
+            "addr": "F14",
+            "conn": {
               "Track": {
-                "ix": 0,
+                "ix": 1,
                 "end": "End"
               }
             }
@@ -448,8 +448,8 @@
         ],
         "visits": [
           {
-            "addr": "F16",
-            "revenue": 100,
+            "addr": "D16",
+            "revenue": 40,
             "visits": {
               "City": {
                 "ix": 0
@@ -466,8 +466,8 @@
             }
           },
           {
-            "addr": "E15",
-            "revenue": 40,
+            "addr": "F16",
+            "revenue": 100,
             "visits": {
               "City": {
                 "ix": 0

@@ -3,7 +3,7 @@
 //! Initial version of 1867 map and tiles.
 //!
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::Company;
 use n18catalogue::{Builder, Catalogue, Kind};
@@ -122,7 +122,7 @@ fn addrs() -> Vec<(usize, usize)> {
     ]
 }
 
-fn initial_tiles() -> HashMap<HexAddress, (&'static str, RotateCW)> {
+fn initial_tiles() -> BTreeMap<HexAddress, (&'static str, RotateCW)> {
     let tiles: Vec<(HexAddress, (&str, RotateCW))> = vec![
         // Blue off-board tiles.
         // Unnamed port ($10)

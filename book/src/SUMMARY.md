@@ -26,6 +26,7 @@
   - [Finding optimal routes](./dev_guide/routes.md)
   - [Performance](./dev_guide/performance.md)
   - [Profiling](./dev_guide/profiling.md)
+  - [Determinism](./dev_guide/determinism.md)
   - [18xx games]()
   - [(De)serialisation]()
   - [GTK user interface](./dev_guide/rusty_train.md)

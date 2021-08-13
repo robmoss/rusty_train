@@ -1,7 +1,7 @@
 use crate::{City, Connection, Connections, Dit, Draw, Label, Track};
 use cairo::Context;
 use n18hex::{Colour, Hex, HexColour, HexCorner, HexPosition};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum DrawLayer {
@@ -45,9 +45,9 @@ pub struct Tile {
     tracks: Vec<Track>,
     cities: Vec<City>,
     // Track indices by drawing layer.
-    tracks_tbl: HashMap<DrawLayer, Vec<usize>>,
+    tracks_tbl: BTreeMap<DrawLayer, Vec<usize>>,
     // City indices by drawing layer.
-    cities_tbl: HashMap<DrawLayer, Vec<usize>>,
+    cities_tbl: BTreeMap<DrawLayer, Vec<usize>>,
     // The revenue(s) for any dits and/or cities.
     revenues: Vec<usize>,
     // Tile labels: tile name, revenue, city name, etc.
@@ -81,11 +81,11 @@ impl Tile {
         // (e.g., straight -> mid + mid; gentle_l -> ...)
         // Hmmm ... maybe not
         let ctx = hex.context();
-        let mut tracks_tbl = HashMap::new();
-        let mut cities_tbl = HashMap::new();
+        let mut tracks_tbl = BTreeMap::new();
+        let mut cities_tbl = BTreeMap::new();
         let default_layer = DrawLayer::Normal;
         let dt = 0.10;
-        let mut track_layers = HashMap::new();
+        let mut track_layers = BTreeMap::new();
         let name = name.into();
         // TODO: can we divide this up into smaller functions and check
         // some invariant conditions and write test cases?

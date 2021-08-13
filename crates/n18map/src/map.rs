@@ -1,5 +1,5 @@
 use cairo::Context;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 
 use n18catalogue::{Availability, Catalogue};
 use n18hex::{Hex, HexColour, HexFace, PI};
@@ -28,13 +28,13 @@ pub struct Map {
     /// All tiles that might be placed on the map.
     tiles: Catalogue,
     /// The map state: which tiles are placed on which hexes.
-    state: HashMap<HexAddress, MapHex>,
+    state: BTreeMap<HexAddress, MapHex>,
     /// All hexes on which a tile might be placed.
     hexes: Vec<HexAddress>,
     /// All hexes, stored by key to simplify lookup.
-    hexes_tbl: HashMap<HexAddress, ()>,
+    hexes_tbl: BTreeMap<HexAddress, ()>,
     /// City labels that apply to map hexes.
-    labels_tbl: HashMap<HexAddress, Vec<Label>>,
+    labels_tbl: BTreeMap<HexAddress, Vec<Label>>,
     /// The minimum row number for which there is a hex.
     min_row: usize,
     /// The maximum row number for which there is a hex.
@@ -390,9 +390,9 @@ impl Map {
         }
 
         let barriers = vec![];
-        let state = HashMap::new();
+        let state = BTreeMap::new();
         let hexes_tbl = hexes.iter().map(|addr| (*addr, ())).collect();
-        let labels_tbl = HashMap::new();
+        let labels_tbl = BTreeMap::new();
         let min_col = hexes.iter().map(|hc| hc.col).min().unwrap();
         let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
         let min_row = hexes.iter().map(|hc| hc.row).min().unwrap();

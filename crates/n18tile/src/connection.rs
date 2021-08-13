@@ -1,9 +1,9 @@
 use crate::city::City;
 use crate::track::{Track, TrackEnd};
 use n18hex::{Hex, HexFace};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Connection {
     Track { ix: usize, end: TrackEnd },
     Dit { ix: usize },
@@ -58,10 +58,10 @@ pub struct Connections {
     // connectivity purposes they are separate entities and so they should
     // also be stored separately; here they are stored by index (0..N).
     dits: Vec<Dit>,
-    track: HashMap<(usize, TrackEnd), Vec<Connection>>,
-    face: HashMap<HexFace, Vec<Connection>>,
-    city: HashMap<usize, Vec<Connection>>,
-    dit: HashMap<usize, Vec<Connection>>,
+    track: BTreeMap<(usize, TrackEnd), Vec<Connection>>,
+    face: BTreeMap<HexFace, Vec<Connection>>,
+    city: BTreeMap<usize, Vec<Connection>>,
+    dit: BTreeMap<usize, Vec<Connection>>,
     none: Vec<Connection>,
 }
 
@@ -82,10 +82,10 @@ impl Connections {
 
     pub fn new(tracks: &[Track], cities: &[City], hex: &Hex) -> Self {
         let mut dits = vec![];
-        let mut track_conns = HashMap::new();
-        let mut face_conns = HashMap::new();
-        let mut dit_conns = HashMap::new();
-        let mut city_conns = HashMap::new();
+        let mut track_conns = BTreeMap::new();
+        let mut face_conns = BTreeMap::new();
+        let mut dit_conns = BTreeMap::new();
+        let mut city_conns = BTreeMap::new();
 
         let ctx = hex.context();
 

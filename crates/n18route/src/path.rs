@@ -5,7 +5,7 @@
 //!
 //! See the [route-finding documentation](crate::doc) for details.
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use n18map::HexAddress;
 use n18tile::Connection;
@@ -52,7 +52,7 @@ pub struct Visit {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Path {
     pub steps: Vec<Step>,
-    pub conflicts: HashSet<Conflict>,
+    pub conflicts: BTreeSet<Conflict>,
     pub route_conflicts: RouteConflicts,
     pub visits: Vec<Visit>,
     pub num_visits: usize,
@@ -94,7 +94,7 @@ impl Path {
         // start, and continue on to other's end.
         visits.reverse();
         visits.append(&mut other_visits);
-        let conflicts: HashSet<_> =
+        let conflicts: BTreeSet<_> =
             self.conflicts.union(&other.conflicts).copied().collect();
         let route_conflicts =
             self.route_conflicts.merge(&other.route_conflicts);

@@ -2,7 +2,7 @@
 
 use log::info;
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use super::conflict::{Conflict, ConflictRule};
 use super::{Path, Step, StopLocation, Visit};
@@ -43,9 +43,9 @@ struct Context {
     /// The previous steps in this path.
     path: Vec<Step>,
     /// The existing path elements that may not be re-used.
-    conflicts: HashSet<Conflict>,
+    conflicts: BTreeSet<Conflict>,
     /// The existing path elements that may not be re-used by other routes.
-    route_conflicts: HashSet<Conflict>,
+    route_conflicts: BTreeSet<Conflict>,
     /// The cities and dits that have been visited, possibly for revenue.
     visits: Vec<Visit>,
     /// The number cities and dits that have been visited.
@@ -64,7 +64,7 @@ impl Context {
             addr: query.addr,
             conn: query.from,
         }];
-        let mut conflicts = HashSet::new();
+        let mut conflicts = BTreeSet::new();
         if let Some(conflict) = query
             .criteria
             .conflict_rule
@@ -72,7 +72,7 @@ impl Context {
         {
             conflicts.insert(conflict);
         }
-        let mut route_conflicts = HashSet::new();
+        let mut route_conflicts = BTreeSet::new();
         if let Some(conflict) = query
             .criteria
             .route_conflict_rule
@@ -230,7 +230,7 @@ fn path_combinations(query: &Query, paths: &[Path]) -> Vec<Path> {
     for (i, path_i) in paths.iter().enumerate() {
         for path_j in paths.iter().skip(i + 1) {
             // First, check that these paths don't conflict with each other.
-            let conflicts: HashSet<_> =
+            let conflicts: BTreeSet<_> =
                 path_i.conflicts.intersection(&path_j.conflicts).collect();
             if conflicts.len() != 1 {
                 continue;

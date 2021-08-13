@@ -71,7 +71,7 @@ use super::{Path, Step, Visit};
 use log::info;
 use n18map::HexAddress;
 use rayon::prelude::*;
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 use std::iter::FromIterator;
 
 /// The types of trains that can operate routes to earn revenue.
@@ -188,8 +188,8 @@ impl Train {
     pub fn revenue_for(
         &self,
         path: &Path,
-        visit_bonuses: &HashMap<HexAddress, usize>,
-        conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+        visit_bonuses: &BTreeMap<HexAddress, usize>,
+        conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
     ) -> Option<(usize, Vec<TrainStop>)> {
         let (revenue, stops): (usize, Vec<TrainStop>) = match self.max_stops {
             // With no limit on stops, we can stop at every visit, and this
@@ -272,7 +272,7 @@ impl Train {
 /// Calculate the revenue bonus for stopping at a location.
 fn visit_bonus(
     addr: &HexAddress,
-    visit_bonuses: &HashMap<HexAddress, usize>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
 ) -> usize {
     visit_bonuses.get(addr).copied().unwrap_or(0)
 }
@@ -298,7 +298,7 @@ fn connection_bonus(
     addr: &HexAddress,
     path: &Path,
     stop_ixs: &[usize],
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> usize {
     conn_bonuses
         .get(addr)
@@ -316,8 +316,8 @@ fn revenue_for_stop(
     path: &Path,
     stop_ixs: &[usize],
     ix: usize,
-    visit_bonuses: &HashMap<HexAddress, usize>,
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> usize {
     let base_revenue: usize = path.visits[ix].revenue;
     let addr = path.visits[ix].addr;
@@ -329,8 +329,8 @@ fn revenue_for_stop(
 fn addr_ix_and_base_revenue(
     path: &Path,
     addr: &HexAddress,
-    visit_bonuses: &HashMap<HexAddress, usize>,
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> (usize, usize) {
     let ix = path
         .visits
@@ -354,8 +354,8 @@ fn addr_ix_and_base_revenue(
 fn best_ix_and_base_revenue(
     path: &Path,
     addrs: &[HexAddress],
-    visit_bonuses: &HashMap<HexAddress, usize>,
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> (usize, usize) {
     addrs
         .iter()
@@ -372,8 +372,8 @@ fn revenue_for_stops(
     path: &Path,
     train: &Train,
     stop_ixs: &[usize],
-    visit_bonuses: &HashMap<HexAddress, usize>,
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
 ) -> (usize, Vec<TrainStop>) {
     let stops: Vec<TrainStop> = stop_ixs
         .iter()
@@ -401,8 +401,8 @@ fn revenue_for_stops(
 fn best_stop_ixs(
     path: &Path,
     train: &Train,
-    visit_bonuses: &HashMap<HexAddress, usize>,
-    conn_bonuses: &HashMap<HexAddress, (Vec<HexAddress>, usize)>,
+    visit_bonuses: &BTreeMap<HexAddress, usize>,
+    conn_bonuses: &BTreeMap<HexAddress, (Vec<HexAddress>, usize)>,
     can_skip: Vec<bool>,
     max_stops: usize,
 ) -> (usize, Vec<TrainStop>) {
@@ -455,7 +455,7 @@ fn best_stop_ixs(
         .skip(num_to_keep)
         .map(|(ix, _rev)| *ix)
         .collect();
-    let default_skip_addrs: HashSet<HexAddress> = default_skip_ixs
+    let default_skip_addrs: BTreeSet<HexAddress> = default_skip_ixs
         .iter()
         .map(|ix| path.visits[*ix].addr)
         .collect();
@@ -476,11 +476,11 @@ fn best_stop_ixs(
         conn_bonuses,
     );
 
-    let visit_addrs: HashSet<HexAddress> =
+    let visit_addrs: BTreeSet<HexAddress> =
         path.visits.iter().map(|v| v.addr).collect();
     // Find connection bonuses that could be satisfied, but are not satisfied
     // by the default approach of stopping at visits with the most revenue.
-    let maybe_conn: HashMap<_, _> = conn_bonuses
+    let maybe_conn: BTreeMap<_, _> = conn_bonuses
         .iter()
         .filter(|(addr, (conns, _bonus))| {
             visit_addrs.contains(addr)
@@ -746,7 +746,7 @@ impl Trains {
         let num_trains = self.train_count();
 
         // Index visit bonuses by location.
-        let visit_bonuses: HashMap<HexAddress, usize> = bonuses
+        let visit_bonuses: BTreeMap<HexAddress, usize> = bonuses
             .iter()
             .filter_map(|b| match b {
                 Bonus::VisitBonus { locn, bonus } => Some((*locn, *bonus)),
@@ -755,7 +755,7 @@ impl Trains {
             .collect();
 
         // Index connection bonuses by location.
-        let connect_bonuses: HashMap<HexAddress, (Vec<HexAddress>, usize)> =
+        let connect_bonuses: BTreeMap<HexAddress, (Vec<HexAddress>, usize)> =
             bonuses
                 .into_iter()
                 .filter_map(|b| match b {

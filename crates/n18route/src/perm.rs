@@ -1,6 +1,6 @@
 //! Generate permutations of, e.g., trains to allocate to paths.
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 /// Iterate over *k*-permutations of a set of size *n*, for a fixed *k*.
 ///
@@ -100,7 +100,7 @@ pub struct KPermutationsFilter {
     /// The mapping of indices to classes.
     classes: Vec<usize>,
     /// The class permutations that have been yielded already.
-    yielded: HashSet<Vec<usize>>,
+    yielded: BTreeSet<Vec<usize>>,
     /// The underlying permutations iterator.
     perms: KPermutations,
 }
@@ -112,7 +112,7 @@ impl KPermutationsFilter {
         let n = classes.len();
         KPermutationsFilter {
             classes,
-            yielded: HashSet::new(),
+            yielded: BTreeSet::new(),
             perms: KPermutations::new(n, k),
         }
     }
