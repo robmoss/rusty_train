@@ -1,13 +1,17 @@
+//! Provides a user interface controller for GTK 3.
+
 use gtk::prelude::*;
 use std::collections::BTreeMap;
 
 use n18game::Game;
 use n18route::{Train, Trains};
 
+use crate::{PingDest, PingSender, UiController};
+
 /// Prompts the user to select one string from `items` and provides the
 /// selected string (if any) to `callback`.
 pub fn select_string<F>(
-    parent: &gtk::ApplicationWindow,
+    parent: &gtk::Window,
     title: &str,
     items: &[&str],
     callback: F,
@@ -23,7 +27,7 @@ pub fn select_string<F>(
 /// Prompts the user to select one item from `items` and provides the index of
 /// the selected item (if any) to `callback`.
 pub fn select_index<F>(
-    parent: &gtk::ApplicationWindow,
+    parent: &gtk::Window,
     title: &str,
     items: &[&str],
     callback: F,
@@ -97,7 +101,7 @@ pub fn select_index<F>(
 /// and provides these details (if any) to `callback`.
 #[allow(clippy::needless_collect)]
 pub fn select_trains<F>(
-    parent: &gtk::ApplicationWindow,
+    parent: &gtk::Window,
     game: &dyn Game,
     name: &str,
     callback: F,
@@ -204,11 +208,8 @@ pub fn select_trains<F>(
 
 /// Prompts the user to select a game phase, and provides this phase (if any)
 /// to `callback`.
-pub fn select_phase<F>(
-    parent: &gtk::ApplicationWindow,
-    game: &dyn Game,
-    callback: F,
-) where
+pub fn select_phase<F>(parent: &gtk::Window, game: &dyn Game, callback: F)
+where
     F: Fn(Option<usize>) + 'static,
 {
     let title = "Select Game Phase";
@@ -283,7 +284,7 @@ fn add_spinner<'a>(
 /// Prompts the user to select a file to which data will be saved, and
 /// provides the selected filename (if any) to `callback`.
 pub fn select_file_save<F>(
-    window: &gtk::ApplicationWindow,
+    window: &gtk::Window,
     title: &str,
     filters: &[gtk::FileFilter],
     default_path: Option<&str>,
@@ -330,7 +331,7 @@ pub fn select_file_save<F>(
 /// Prompts the user to select a file from which data will be read, and
 /// provides the selected filename (if any) to `callback`.
 pub fn select_file_load<F>(
-    window: &gtk::ApplicationWindow,
+    window: &gtk::Window,
     title: &str,
     filters: &[gtk::FileFilter],
     default_path: Option<&str>,
@@ -393,4 +394,139 @@ pub fn game_file_filters() -> Vec<gtk::FileFilter> {
     filter_all.set_name(Some("All files"));
     filter_all.add_pattern("*");
     vec![filter_game, filter_all]
+}
+
+/// A user interface controller for GTK 3, which draws the game map on a
+/// `DrawingArea` widget.
+pub struct Gtk3Controller {
+    window: ::gtk::Window,
+    draw_area: ::gtk::DrawingArea,
+    ping_tx: glib::Sender<PingDest>,
+}
+
+impl Gtk3Controller {
+    pub fn new(
+        window: ::gtk::Window,
+        draw_area: ::gtk::DrawingArea,
+        ping_tx: glib::Sender<PingDest>,
+    ) -> Self {
+        Gtk3Controller {
+            window,
+            draw_area,
+            ping_tx,
+        }
+    }
+}
+
+impl UiController for Gtk3Controller {
+    fn quit(&mut self) {
+        self.window.close();
+    }
+
+    fn redraw(&self) {
+        self.draw_area.queue_draw();
+    }
+
+    fn set_window_title(&mut self, title: &str) {
+        self.window.set_title(title)
+    }
+
+    fn window_title(&self) -> Option<String> {
+        self.window.title().map(|gs| gs.to_string())
+    }
+
+    fn resize(&mut self, width: i32, height: i32) {
+        self.draw_area.set_size_request(width, height);
+    }
+
+    fn ping_tx(&self) -> PingSender {
+        PingSender::Glib(self.ping_tx.clone())
+    }
+
+    fn select_string<F>(&mut self, title: &str, strings: &[&str], callback: F)
+    where
+        F: Fn(Option<String>) + 'static,
+    {
+        select_string(&self.window, title, strings, callback)
+    }
+
+    fn select_index<F>(&mut self, title: &str, strings: &[&str], callback: F)
+    where
+        F: Fn(Option<usize>) + 'static,
+    {
+        select_index(&self.window, title, strings, callback)
+    }
+
+    fn select_trains<F>(&mut self, game: &dyn Game, title: &str, callback: F)
+    where
+        Self: Sized,
+        F: Fn(Option<(Trains, Vec<bool>)>) + 'static,
+    {
+        select_trains(&self.window, game, title, callback)
+    }
+
+    fn select_phase<F>(&mut self, game: &dyn Game, callback: F)
+    where
+        Self: Sized,
+        F: Fn(Option<usize>) + 'static,
+    {
+        select_phase(&self.window, game, callback)
+    }
+
+    fn select_screenshot_save<F>(
+        &mut self,
+        title: &str,
+        default_path: Option<&str>,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn(Option<std::path::PathBuf>) + 'static,
+    {
+        let filters = image_file_filters();
+        select_file_save(
+            &self.window,
+            title,
+            &filters,
+            default_path,
+            callback,
+        )
+    }
+
+    fn select_game_save<F>(
+        &mut self,
+        title: &str,
+        default_path: Option<&str>,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn(Option<std::path::PathBuf>) + 'static,
+    {
+        let filters = game_file_filters();
+        select_file_save(
+            &self.window,
+            title,
+            &filters,
+            default_path,
+            callback,
+        )
+    }
+
+    fn select_game_load<F>(
+        &mut self,
+        title: &str,
+        default_path: Option<&str>,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn(Option<std::path::PathBuf>) + 'static,
+    {
+        let filters = game_file_filters();
+        select_file_load(
+            &self.window,
+            title,
+            &filters,
+            default_path,
+            callback,
+        )
+    }
 }

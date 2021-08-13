@@ -215,9 +215,9 @@ impl Map {
         self.hexes.keys()
     }
 
-    /// Returns a valid hex address, if the map contains at least one hex.
-    pub fn default_hex(&self) -> Option<HexAddress> {
-        self.hexes.keys().next().copied()
+    /// Returns a valid hex address, since all maps contain at least one hex.
+    pub fn default_hex(&self) -> HexAddress {
+        self.hexes.keys().next().copied().unwrap()
     }
 
     // TODO: replace with methods that retrieve specific details?

@@ -191,7 +191,7 @@ pub use n18brush::highlight_tokens;
 
 #[cfg(feature = "ui")]
 #[doc(inline)]
-pub use n18ui::UI;
+pub use n18ui::UserInterface;
 
 #[doc(inline)]
 pub use n18example::Example;

@@ -1,13 +1,12 @@
 //! Adds and removes tokens from the current tile.
-use super::{Action, State};
-
 use cairo::Context;
 
-use crate::{Content, Ping};
 use n18hex::HexColour;
 use n18map::{HexAddress, Map, TokensTable};
 use n18tile::TokenSpace;
 use n18token::Token;
+
+use crate::{Assets, UiState};
 
 /// Placing or removing tokens from a tile.
 pub struct EditTokens {
@@ -18,7 +17,7 @@ pub struct EditTokens {
 }
 
 impl EditTokens {
-    pub(super) fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
+    pub fn try_new(map: &Map, addr: HexAddress) -> Option<Self> {
         let hex_state = map.hex_state(addr)?;
         let tile = map.tile_at(addr)?;
         if tile.colour == HexColour::Red {
@@ -36,12 +35,77 @@ impl EditTokens {
             original_tokens,
         })
     }
+
+    pub fn active_hex(&self) -> HexAddress {
+        self.active_hex
+    }
+
+    pub fn restore_tokens(&self, map: &mut Map) {
+        let restore = self
+            .original_tokens
+            .iter()
+            .map(|(ts, tok)| (*ts, *tok))
+            .collect();
+        if let Some(hs) = map.hex_state_mut(self.active_hex) {
+            hs.set_tokens(restore)
+        }
+    }
+
+    pub fn clear_token_space(&self, map: &mut Map) {
+        let token_space = &self.token_spaces[self.selected];
+        if let Some(hs) = map.hex_state_mut(self.active_hex) {
+            hs.remove_token_at(token_space)
+        }
+    }
+
+    pub fn previous_token_space(&mut self) {
+        if self.selected == 0 {
+            self.selected = self.token_spaces.len() - 1;
+        } else {
+            self.selected -= 1
+        }
+    }
+
+    pub fn next_token_space(&mut self) {
+        self.selected += 1;
+        if self.selected >= self.token_spaces.len() {
+            self.selected = 0
+        }
+    }
+
+    pub fn select_previous_token(&mut self, assets: &mut Assets) {
+        let token_space = &self.token_spaces[self.selected];
+        // NOTE: we cannot borrow map.tokens() to get the next token,
+        // so we have to take a reference to the game's tokens.
+        let game = assets.games.active();
+        if let Some(hs) = assets.map.hex_state_mut(self.active_hex) {
+            let next: &Token = hs
+                .token_at(token_space)
+                .and_then(|t| game.prev_token(t))
+                .unwrap_or_else(|| game.last_token());
+            hs.set_token_at(token_space, *next);
+        }
+    }
+
+    pub fn select_next_token(&mut self, assets: &mut Assets) {
+        let token_space = &self.token_spaces[self.selected];
+        // NOTE: we cannot borrow map.tokens() to get the next token,
+        // so we have to take a reference to the game's tokens.
+        let game = assets.games.active();
+        if let Some(hs) = assets.map.hex_state_mut(self.active_hex) {
+            let next: &Token = hs
+                .token_at(token_space)
+                .and_then(|t| game.next_token(t))
+                .unwrap_or_else(|| game.first_token());
+            hs.set_token_at(token_space, *next);
+        }
+    }
 }
 
-impl State for EditTokens {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for EditTokens {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
@@ -66,96 +130,5 @@ impl State for EditTokens {
             &Some(self.active_hex),
             border,
         );
-    }
-
-    fn key_press(
-        &mut self,
-        content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        event: &crate::KeyPress,
-        _ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
-        let map = &mut content.map;
-        match event.key {
-            gdk::keys::constants::Escape => {
-                // NOTE: revert any edits before exiting this mode.
-                let restore = self
-                    .original_tokens
-                    .iter()
-                    .map(|(ts, tok)| (*ts, *tok))
-                    .collect();
-                if let Some(hs) = map.hex_state_mut(self.active_hex) {
-                    hs.set_tokens(restore)
-                }
-                (
-                    Some(Box::new(super::default::Default::at_hex(Some(
-                        self.active_hex,
-                    )))),
-                    Action::Redraw,
-                )
-            }
-            gdk::keys::constants::Return => (
-                // NOTE: no changes to apply, just exit this mode.
-                Some(Box::new(super::default::Default::at_hex(Some(
-                    self.active_hex,
-                )))),
-                Action::Redraw,
-            ),
-            gdk::keys::constants::Left => {
-                if self.selected == 0 {
-                    self.selected = self.token_spaces.len() - 1;
-                } else {
-                    self.selected -= 1
-                }
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::Right => {
-                self.selected += 1;
-                if self.selected >= self.token_spaces.len() {
-                    self.selected = 0
-                }
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::Up => {
-                let token_space = &self.token_spaces[self.selected];
-                // NOTE: we cannot borrow map.tokens() to get the next token,
-                // so we have to take a reference to the game's tokens.
-                let game = content.games.active();
-                if let Some(hs) = map.hex_state_mut(self.active_hex) {
-                    let next: &Token = hs
-                        .token_at(token_space)
-                        .and_then(|t| game.next_token(t))
-                        .unwrap_or_else(|| game.first_token());
-                    hs.set_token_at(token_space, *next);
-                }
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::Down => {
-                let token_space = &self.token_spaces[self.selected];
-                // NOTE: we cannot borrow map.tokens() to get the next token,
-                // so we have to take a reference to the game's tokens.
-                let game = content.games.active();
-                if let Some(hs) = map.hex_state_mut(self.active_hex) {
-                    let next: &Token = hs
-                        .token_at(token_space)
-                        .and_then(|t| game.prev_token(t))
-                        .unwrap_or_else(|| game.last_token());
-                    hs.set_token_at(token_space, *next);
-                };
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::_0
-            | gdk::keys::constants::KP_0
-            | gdk::keys::constants::BackSpace
-            | gdk::keys::constants::Delete => {
-                let token_space = &self.token_spaces[self.selected];
-                if let Some(hs) = map.hex_state_mut(self.active_hex) {
-                    hs.remove_token_at(token_space)
-                }
-                (None, Action::Redraw)
-            }
-            _ => (None, Action::None),
-        }
     }
 }

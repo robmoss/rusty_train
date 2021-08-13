@@ -761,6 +761,19 @@ impl RotateCW {
     }
 }
 
+impl std::ops::Add for RotateCW {
+    type Output = RotateCW;
+
+    fn add(self, other: Self) -> RotateCW {
+        let mut result = self;
+        let turns = other.count_turns();
+        for _ in 0..turns {
+            result = result.rotate_cw();
+        }
+        result
+    }
+}
+
 #[cfg(test)]
 mod test {
 

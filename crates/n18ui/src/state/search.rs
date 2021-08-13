@@ -1,43 +1,41 @@
 //! Searches for the best routes that a company can operate.
-use super::{Action, State};
 
 use cairo::Context;
-use gtk::prelude::GtkWindowExt;
 use std::sync::mpsc::Receiver;
 
-use crate::dialog::{select_string, select_trains};
-use crate::{Content, Ping, PingDest};
 use n18game::Company;
 use n18map::HexAddress;
 use n18route::{Routes, Trains};
 use n18token::Token;
 
+use crate::{
+    Assets, Controller, PingDest, State, UiController, UiResponse, UiState,
+};
+
 /// Prompts the user to select a company that has at least one token placed on
 /// the map.
 pub struct SelectCompany {
-    active_hex: Option<HexAddress>,
+    active_hex: HexAddress,
     receiver: Receiver<Option<String>>,
 }
 
 impl SelectCompany {
     pub fn new(
-        content: &Content,
-        active_hex: Option<HexAddress>,
-        window: &gtk::ApplicationWindow,
-        ping_tx: &Ping,
+        assets: &Assets,
+        controller: &mut Controller,
+        active_hex: HexAddress,
     ) -> Self {
-        let companies = valid_companies(content);
+        let companies = valid_companies(assets);
         let company_names: Vec<&str> =
             companies.iter().map(|c| c.full_name.as_str()).collect();
         let (sender, receiver) = std::sync::mpsc::channel();
-        let ping_tx = ping_tx.clone();
-        select_string(
-            window,
+        let ping_tx = controller.ping_tx();
+        controller.select_string(
             "Select a company",
             &company_names,
             move |name_opt| {
                 sender.send(name_opt).unwrap();
-                ping_tx.send(PingDest::State).unwrap();
+                ping_tx.send_ping(PingDest::State).unwrap();
             },
         );
         SelectCompany {
@@ -47,24 +45,22 @@ impl SelectCompany {
     }
 }
 
-impl State for SelectCompany {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for SelectCompany {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
         n18brush::draw_map(hex, ctx, &mut hex_iter);
     }
 
     fn ping(
         &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
+        assets: &mut Assets,
+        controller: &mut Controller,
+    ) -> (UiResponse, Option<State>) {
         let name_opt = self.receiver.recv().unwrap();
         if let Some(chosen_name) = name_opt {
-            let companies = valid_companies(content);
+            let companies = valid_companies(assets);
             let abbrev_opt = companies.iter().find_map(|c| {
                 if c.full_name == chosen_name {
                     Some(c.abbrev.clone())
@@ -73,31 +69,30 @@ impl State for SelectCompany {
                 }
             });
             if let Some(abbrev) = abbrev_opt {
-                if let Some(token) = content.map.try_token(&abbrev) {
-                    let b: Box<dyn State> = Box::new(SelectTrains::new(
-                        content,
+                if let Some(token) = assets.map.try_token(&abbrev) {
+                    let b = State::FindRoutesTrains(SelectTrains::new(
+                        assets,
+                        controller,
                         self.active_hex,
-                        window,
-                        ping_tx,
                         abbrev,
                         token,
                     ));
-                    return (Some(b), Action::Redraw);
+                    return (UiResponse::Redraw, Some(b));
                 }
             }
         }
 
         // Return to the default state.
-        let b: Box<dyn State> =
-            Box::new(super::default::Default::at_hex(self.active_hex));
-        (Some(b), Action::Redraw)
+        // let def = super::default::Default::at_hex(self.active_hex);
+        // (Action::Redraw, Some(UiState::Default(def)))
+        (UiResponse::Redraw, Some(self.active_hex.into()))
     }
 }
 
 /// Prompts the user to select the trains owned by the selected company, and
 /// any relevant bonuses.
 pub struct SelectTrains {
-    active_hex: Option<HexAddress>,
+    active_hex: HexAddress,
     receiver: Receiver<Option<(Trains, Vec<bool>)>>,
     abbrev: String,
     token: Token,
@@ -105,22 +100,20 @@ pub struct SelectTrains {
 
 impl SelectTrains {
     pub fn new(
-        content: &Content,
-        active_hex: Option<HexAddress>,
-        window: &gtk::ApplicationWindow,
-        ping_tx: &Ping,
+        assets: &Assets,
+        controller: &mut Controller,
+        active_hex: HexAddress,
         abbrev: String,
         token: Token,
     ) -> Self {
         let (sender, receiver) = std::sync::mpsc::channel();
-        let ping_tx = ping_tx.clone();
-        select_trains(
-            window,
-            content.games.active(),
+        let ping_tx = controller.ping_tx();
+        controller.select_trains(
+            assets.games.active(),
             &abbrev,
             move |trains_opt| {
                 sender.send(trains_opt).unwrap();
-                ping_tx.send(PingDest::State).unwrap();
+                ping_tx.send_ping(PingDest::State).unwrap();
             },
         );
         SelectTrains {
@@ -132,81 +125,72 @@ impl SelectTrains {
     }
 }
 
-impl State for SelectTrains {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for SelectTrains {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
         n18brush::draw_map(hex, ctx, &mut hex_iter);
     }
 
     fn ping(
         &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
+        assets: &mut Assets,
+        controller: &mut Controller,
+    ) -> (UiResponse, Option<State>) {
         let trains_opt = self.receiver.recv().unwrap();
         if let Some((trains, bonuses)) = trains_opt {
-            let b: Box<dyn State> = Box::new(Search::new(
-                content,
+            let state = State::FindRoutesSearch(Search::new(
+                assets,
+                controller,
                 self.active_hex,
-                window,
-                ping_tx,
                 self.abbrev.clone(),
                 self.token,
                 trains,
                 bonuses,
             ));
-            return (Some(b), Action::Redraw);
+            return (UiResponse::Redraw, Some(state));
         }
 
         // Return to the default state.
-        let b: Box<dyn State> =
-            Box::new(super::default::Default::at_hex(self.active_hex));
-        (Some(b), Action::Redraw)
+        (UiResponse::Redraw, Some(self.active_hex.into()))
     }
 }
 
 /// Searches for the optimal routes for the selected company.
 pub struct Search {
-    active_hex: Option<HexAddress>,
+    active_hex: HexAddress,
     abbrev: String,
-    original_window_title: Option<String>,
     receiver: std::sync::mpsc::Receiver<Option<(Token, Routes)>>,
 }
 
 impl Search {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        content: &Content,
-        active_hex: Option<HexAddress>,
-        window: &gtk::ApplicationWindow,
-        ping_tx: &Ping,
+        assets: &Assets,
+        controller: &mut dyn UiController,
+        active_hex: HexAddress,
         abbrev: String,
         token: Token,
         trains: Trains,
         bonuses: Vec<bool>,
     ) -> Self {
-        let original_window_title =
-            window.title().map(|s| s.as_str().to_string());
         let new_title = format!("{}: searching ...", abbrev);
-        window.set_title(&new_title);
+        controller.set_window_title(&new_title);
 
         // Search for the best routes in a separate thread, to avoid making
-        // the user interface unresponsive, and provide this thread with a
-        // cloned `ping_tx` so that it can ping this state when the
+        // the user interface unresponsive, and ping this state when the
         // route-finding has finished.
-        let ping_tx = ping_tx.clone();
+        let ping_tx = controller.ping_tx();
+
         // NOTE: we also need to clone the map, because the thread cannot take
         // a reference unless we somehow define an appropriate lifetime.
-        let map = content.map.clone();
+        let map = assets.map.clone();
         // Create a channel from which to retrieve the best routes.
         let (sender, receiver) = std::sync::mpsc::sync_channel(1);
 
         // Spawn the new thread.
-        let active_game = content.games.active();
+        let active_game = assets.games.active();
         let search_fn =
             active_game.best_routes_closure(map, token, trains, bonuses);
         std::thread::spawn(move || {
@@ -215,22 +199,21 @@ impl Search {
             // Send the best routes back to this state.
             sender.send(best_routes).unwrap();
             // Ping this state so that it can retrieve the best routes.
-            ping_tx.send(PingDest::State).unwrap();
+            ping_tx.send_ping(PingDest::State).unwrap();
         });
 
         Search {
             active_hex,
             abbrev,
-            original_window_title,
             receiver,
         }
     }
 }
 
-impl State for Search {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for Search {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
         n18brush::draw_map(hex, ctx, &mut hex_iter);
 
@@ -242,67 +225,61 @@ impl State for Search {
 
     fn ping(
         &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        _ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
+        assets: &mut Assets,
+        controller: &mut Controller,
+    ) -> (UiResponse, Option<State>) {
         let best_routes = self.receiver.recv().unwrap();
-        let b: Box<dyn State> = Box::new(Found::new(
-            content,
+        let state = State::FindRoutesFound(Found::new(
+            assets,
+            controller,
             self.active_hex,
-            window,
             self.abbrev.clone(),
             best_routes,
-            self.original_window_title.clone(),
         ));
-        (Some(b), Action::Redraw)
+        (UiResponse::Redraw, Some(state))
     }
 }
 
 /// Displays the optimal routes for the selected company, once they have been
 /// found.
 pub struct Found {
-    active_hex: Option<HexAddress>,
+    active_hex: HexAddress,
     abbrev: String,
     best_routes: Option<(Token, Routes)>,
-    original_window_title: Option<String>,
     active_route: Option<usize>,
 }
 
 impl Found {
     pub fn new(
-        content: &Content,
-        active_hex: Option<HexAddress>,
-        window: &gtk::ApplicationWindow,
+        assets: &Assets,
+        controller: &mut dyn UiController,
+        active_hex: HexAddress,
         abbrev: String,
         best_routes: Option<(Token, Routes)>,
-        original_window_title: Option<String>,
     ) -> Self {
         let state = Found {
             active_hex,
             abbrev,
             best_routes,
-            original_window_title,
             active_route: None,
         };
-        state.update_window_title(window, content);
+        controller.set_window_title(&state.window_title(assets));
         state
     }
 
-    /// Updates the window title so that it shows the company name and either
-    /// the net revenue, or the revenue for the currently-selected route.
-    fn update_window_title(
-        &self,
-        window: &gtk::ApplicationWindow,
-        content: &Content,
-    ) {
-        let title = if let Some((_token, routes)) = &self.best_routes {
+    pub fn active_hex(&self) -> HexAddress {
+        self.active_hex
+    }
+
+    /// Returns the window title, which shows the company name and either the
+    /// net revenue, or the revenue for the currently-selected route.
+    pub fn window_title(&self, assets: &Assets) -> String {
+        if let Some((_token, routes)) = &self.best_routes {
             if let Some(ix) = self.active_route {
                 let route = &routes.train_routes[ix];
                 let train = &route.train;
                 let train_name =
-                    content.games.active().train_name(train).unwrap();
+                    assets.games.active().train_name(train).unwrap();
                 format!(
                     "{} {}-train: ${}",
                     self.abbrev, train_name, route.revenue
@@ -312,15 +289,57 @@ impl Found {
             }
         } else {
             format!("{}: No routes", &self.abbrev)
-        };
-        window.set_title(&title);
+        }
+    }
+
+    pub fn highlight_previous_route(&mut self) -> bool {
+        if let Some((_token, routes)) = &self.best_routes {
+            let routes_vec = routes.routes();
+            let num_routes = routes_vec.len();
+            if num_routes < 2 {
+                return false;
+            }
+            if let Some(curr_ix) = self.active_route {
+                if curr_ix == 0 {
+                    self.active_route = None;
+                } else {
+                    self.active_route = Some(curr_ix - 1);
+                }
+            } else {
+                self.active_route = Some(num_routes - 1);
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn highlight_next_route(&mut self) -> bool {
+        if let Some((_token, routes)) = &self.best_routes {
+            let num_routes = routes.routes().len();
+            if num_routes < 2 {
+                return false;
+            }
+            if let Some(curr_ix) = self.active_route {
+                if curr_ix == num_routes - 1 {
+                    self.active_route = None;
+                } else {
+                    self.active_route = Some(curr_ix + 1);
+                }
+            } else {
+                self.active_route = Some(0);
+            }
+            true
+        } else {
+            false
+        }
     }
 }
 
-impl State for Found {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for Found {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
@@ -380,85 +399,15 @@ impl State for Found {
             Some((230, 25, 25, 31).into()),
         );
     }
-
-    fn key_press(
-        &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        event: &crate::KeyPress,
-        _ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
-        match event.key {
-            gdk::keys::constants::Escape | gdk::keys::constants::Return => {
-                // Exit this mode.
-                if let Some(title) = &self.original_window_title {
-                    window.set_title(title);
-                } else {
-                    window.set_title("");
-                }
-                let state = Box::new(super::default::Default::at_hex(
-                    self.active_hex,
-                ));
-                (Some(state), Action::Redraw)
-            }
-            gdk::keys::constants::Left | gdk::keys::constants::Up => {
-                // Draw the previous route, if any, by itself.
-                if let Some((_token, routes)) = &self.best_routes {
-                    let routes_vec = routes.routes();
-                    let num_routes = routes_vec.len();
-                    if num_routes < 2 {
-                        return (None, Action::None);
-                    }
-                    if let Some(curr_ix) = self.active_route {
-                        if curr_ix == 0 {
-                            self.active_route = None;
-                        } else {
-                            self.active_route = Some(curr_ix - 1);
-                        }
-                    } else {
-                        self.active_route = Some(num_routes - 1);
-                    }
-                    self.update_window_title(window, content);
-                    (None, Action::Redraw)
-                } else {
-                    (None, Action::None)
-                }
-            }
-            gdk::keys::constants::Right | gdk::keys::constants::Down => {
-                // Draw the next route, if any, by itself.
-                if let Some((_token, routes)) = &self.best_routes {
-                    let num_routes = routes.routes().len();
-                    if num_routes < 2 {
-                        return (None, Action::None);
-                    }
-                    if let Some(curr_ix) = self.active_route {
-                        if curr_ix == num_routes - 1 {
-                            self.active_route = None;
-                        } else {
-                            self.active_route = Some(curr_ix + 1);
-                        }
-                    } else {
-                        self.active_route = Some(0);
-                    }
-                    self.update_window_title(window, content);
-                    (None, Action::Redraw)
-                } else {
-                    (None, Action::None)
-                }
-            }
-            _ => (None, Action::None),
-        }
-    }
 }
 
 /// Returns the companies that have placed tokens on the map.
-fn valid_companies(content: &Content) -> Vec<&Company> {
-    let companies = content.games.active().companies();
-    let placed = content.map.unique_placed_tokens();
+fn valid_companies(assets: &Assets) -> Vec<&Company> {
+    let companies = assets.games.active().companies();
+    let placed = assets.map.unique_placed_tokens();
     let placed_names: Vec<&str> = placed
         .iter()
-        .filter_map(|token| content.map.try_token_name(token))
+        .filter_map(|token| assets.map.try_token_name(token))
         .collect();
     let companies: Vec<&Company> = companies
         .iter()

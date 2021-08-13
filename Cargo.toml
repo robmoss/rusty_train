@@ -56,3 +56,7 @@ test = true
 [[example]]
 name = "save_tiles"
 test = true
+
+[[example]]
+name = "offline_ui"
+test = true

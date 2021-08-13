@@ -45,23 +45,6 @@ The current `ReplaceTile` state should be separated into two states:
 - An `UpgradeTile` state that describes the current tile's properties (see above) and only accepts valid upgrades.
   Whenever the candidate tile is changed or rotated, the hex border colour could be used to indicate whether the current configuration is a valid upgrade.
 
-## Decouple UI states from GUI
-
-The intent is to support generating screenshots of the different UI states without having to launch a GTK application.
-
-Perhaps the simplest way to achieve this is to have each separate event-handler response implemented as a separate method, which would allow us to generate screenshots along the lines of:
-
-```rust
-let surface = cairo::ImageSurface(...);
-let ctx = cairo::Context::new(&surface)?;
-let mut state = EditTokens::blah(...);
-let content = new_dummy_content(...);
-state.select_next_token_space();
-state.select_next_token();
-state.draw(&content, &ctx);
-save_png(surface, ...);
-```
-
 ## Undo/redo
 
 Any UI event-handler that modifies the map should return an `Action` or `Command` enum that knows how to make **and** revert this modification to the map.
@@ -70,23 +53,6 @@ Performing an action other than undo or redo would clear the future actions, and
 
 The [Command pattern](https://rust-unofficial.github.io/patterns/patterns/behavioural/command.html) might be useful here.
 Also see [these](https://redd.it/muei0l) [two](https://redd.it/mtknz0) `/r/rust` discussions about implementing undo/redo, and the [undo crate](https://github.com/evenorog/undo).
-
-## UI state keymaps
-
-Have each state return a `HashMap` or `BTreeMap` that maps specific mouse and keyboard events to handler objects that include a short name, a description, and a function that updates the current state or returns a new state.
-
-```rust
-pub enum UiEvent = { ... }
-pub struct EventHandler {
-    name: String,
-    description: String,
-    handler: Fn(UiEvent) -> UiEventResponse,
-}
-```
-
-This would allow us to generate an automated description of the active key bindings and provide live help documentation in the UI.
-
-But what type must the handler function have, and how do we ensure it only ever receives a (mutable) state value of the correct state type?
 
 ## Port to GTK 4
 

@@ -5,23 +5,6 @@ use gtk::DrawingArea;
 
 use navig18xx::prelude::*;
 
-pub fn build_ui(application: &gtk::Application) {
-    // NOTE: make this more like the doc example in n18ui.
-
-    let games: Vec<Box<dyn Game>> = vec![
-        Box::new(navig18xx::game::new_1861()),
-        Box::new(navig18xx::game::new_1867()),
-    ];
-
-    // NOTE: instead of using Rc<RefCell<UI>> to share a mutable UI value, use
-    // channels to send messages to a single event-handler that owns and
-    // mutates the UI state.
-    let hex_width = 125.0;
-    let hex = Hex::new(hex_width);
-    let state = UI::new(hex, games);
-    run(application, state);
-}
-
 pub fn main() {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
@@ -43,7 +26,7 @@ pub fn main() {
         gtk::Application::new(Some("rusty_train.bin"), Default::default());
 
     application.connect_activate(|app| {
-        build_ui(app);
+        build(app);
     });
 
     application.run();
@@ -55,14 +38,39 @@ pub enum UiEvent {
     PingCurrentState(navig18xx::ui::PingDest),
 }
 
-pub fn run(application: &gtk::Application, mut state: UI) {
+pub fn build(application: &gtk::Application) {
+    let games: Vec<Box<dyn Game>> = vec![
+        Box::new(navig18xx::game::new_1861()),
+        Box::new(navig18xx::game::new_1867()),
+    ];
+
     let window = gtk::ApplicationWindow::new(application);
     let bar = gtk::HeaderBar::new();
     let adj: Option<&gtk::Adjustment> = None;
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
 
-    let (width, height) = state.map_size();
+    // Create a second channel for sending "pings", which can be used to
+    // trigger non-UI events, such as messages from tasks in other threads.
+    // We provide the sender to each `state` method, so that they can make use
+    // of it as necessary.
+    let (ping_tx, ping_rx) =
+        glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
+    let win = window.clone().upcast::<gtk::Window>();
+    let controller = navig18xx::ui::control::Gtk3Controller::new(
+        win,
+        drawing_area.clone(),
+        ping_tx,
+    );
+    let mut ui = navig18xx::ui::UserInterface::new(
+        games,
+        controller,
+        Default::default(),
+    );
+    ui.draw();
+
+    let (width, height) = ui.map_size();
 
     bar.set_title(Some("Rusty Train"));
     bar.set_decoration_layout(Some("menu:close"));
@@ -77,7 +85,7 @@ pub fn run(application: &gtk::Application, mut state: UI) {
         glib::MainContext::sync_channel(glib::PRIORITY_DEFAULT, 100);
 
     // Let the UI draw on the window.
-    let surface = state.surface();
+    let surface = ui.canvas.surface();
     drawing_area.connect_draw(move |_da, ctx| {
         let surf = surface.read().expect("Could not access drawing surface");
         ctx.set_source_surface(&surf, 0.0, 0.0).unwrap();
@@ -105,15 +113,6 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     });
     window.add_events(gdk::EventMask::KEY_PRESS_MASK);
 
-    let area_ = drawing_area.clone();
-    let win_ = window.clone();
-
-    // Create a second channel for sending unit values, which can be used to
-    // trigger non-UI events, such as messages from tasks in other threads.
-    // We provide the sender to each `state` method, so that they can make use
-    // of it as necessary.
-    let (ping_tx, ping_rx) =
-        glib::MainContext::channel(glib::PRIORITY_DEFAULT);
     // Pass each "ping" event to the current UI state.
     ping_rx.attach(None, move |dest| {
         tx.send(UiEvent::PingCurrentState(dest))
@@ -121,19 +120,15 @@ pub fn run(application: &gtk::Application, mut state: UI) {
         glib::source::Continue(true)
     });
 
+    // Dispatch events to the appropriate handler.
+    // Note that this closure owns `ui_state`.
     rx.attach(None, move |event| {
-        let action = match event {
-            UiEvent::ButtonPress(event) => {
-                state.button_press_action(&win_, &area_, &event, &ping_tx)
-            }
-            UiEvent::KeyPress(event) => {
-                state.key_press_action(&win_, &area_, &event, &ping_tx)
-            }
-            UiEvent::PingCurrentState(dest) => {
-                state.ping(dest, &win_, &area_, &ping_tx)
-            }
+        let response = match event {
+            UiEvent::ButtonPress(event) => ui.handle_button_press(&event),
+            UiEvent::KeyPress(event) => ui.handle_key_press(&event),
+            UiEvent::PingCurrentState(dest) => ui.ping(dest),
         };
-        state.handle_action(&win_, &area_, action);
+        ui.respond(response);
         glib::source::Continue(true)
     });
 

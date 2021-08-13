@@ -450,6 +450,9 @@ pub fn draw_tile_at(
 /// Draw an arbitrary tile and tokens at the specified map hex, rather than
 /// the tile and tokens that are currently placed at the map hex (if any).
 ///
+/// Note that the rotation `radians` is applied **in addition to** the
+/// currently-placed tile's rotation (if any).
+///
 /// This only draws tokens for which there is a matching token space (i.e., a
 /// matching city index and a matching token index).
 /// It ignores tokens spaces that do not belong to the provided tile, and
@@ -467,13 +470,23 @@ pub fn draw_tile_and_tokens_at<'a, T>(
     T: IntoIterator<Item = (&'a TokenSpace, &'a Token)>,
 {
     let m = map.prepare_to_draw(*addr, hex, ctx);
+    // Retrieve the original tile's rotation, which has been applied.
+    let orig_rotn =
+        map.hex_state(*addr).map(|hs| hs.radians()).unwrap_or(0.0);
+    // Apply this additional rotation to the specified tile.
     ctx.rotate(radians);
+    // Account for the effective rotation (i.e., the combination of the
+    // original tile and the specified tile) so that it can be corrected for
+    // by `token.draw()`, below.
+    let token_rotn = radians + orig_rotn;
     tile.draw(ctx, hex);
     for (token_space, token) in tokens.into_iter() {
         if tile.define_token_space(token_space, hex, ctx) {
             let tok_name = map.try_token_name(token);
             if let Some(name) = tok_name {
-                token.draw(hex, ctx, name, radians);
+                // NOTE: `token_rotn` is the rotation (in radians) that will
+                // be *reversed* when drawing the token.
+                token.draw(hex, ctx, name, token_rotn);
             } else {
                 debug!("Invalid token for this map: {:?}", token);
             }

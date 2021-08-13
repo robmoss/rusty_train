@@ -642,7 +642,7 @@ impl From<&Path> for Route {
 }
 
 /// The trains owned by a single company, which may operate routes.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Trains {
     trains: BTreeMap<Train, usize>,
     train_vec: Vec<Train>,

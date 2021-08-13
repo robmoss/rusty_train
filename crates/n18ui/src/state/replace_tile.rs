@@ -5,19 +5,13 @@
 //!
 //! # Placed tokens
 //!
-//! This mode attempts to draw all of the tokens placed on the original tile.
-//! Replacement tiles may not have a token space to match each token space on
-//! the original tile, and so not all of the placed tokens may be drawn.
-//! Note that each token space is identified by two indices: one for the city
-//! and one for the token space in that city.
-//! So even if the replacement tile has a sufficient number of token spaces,
-//! it isn't clear how to identify an appropriate "equivalent" token space.
+//! This mode places all tokens from the original tile on the replacement
+//! tile, preserving their track connectivity, whenever possible.
+//! When this is not possible, this mode places **no tokens** on the
+//! replacement tile.
 //!
-//! For now, this mode only draws tokens for which there is a matching token
-//! space (i.e., a matching city index and a matching token index).
-//!
-//! Once a replacement tile has been selected, the user may need to manually
-//! place tokens on this tile.
+//! See [try_placing_tokens](n18map::map::try_placing_tokens) and the
+//! [n18tile::ekmf] module for further details about placing tokens.
 //!
 //! # Upgrading tiles
 //!
@@ -32,13 +26,14 @@
 //! replacement tile if it satisfies all of these connections with its chosen
 //! rotation.
 
-use super::{Action, State};
-
 use cairo::Context;
+use log::info;
 
-use crate::{Content, Ping};
 use n18hex::RotateCW;
 use n18map::{HexAddress, Map};
+use n18tile::Tile;
+
+use crate::{Assets, UiState};
 
 /// Replacing one tile with another.
 pub struct ReplaceTile {
@@ -46,39 +41,164 @@ pub struct ReplaceTile {
     candidates: Vec<usize>,
     selected: usize,
     show_original: bool,
-    rotation: RotateCW,
+    extra_rotation: RotateCW,
+    original_rotation: RotateCW,
 }
 
 impl ReplaceTile {
-    pub(super) fn with_any(map: &Map, addr: HexAddress) -> Self {
+    pub fn with_any(map: &Map, addr: HexAddress) -> Self {
         let candidates: Vec<usize> = (0..(map.num_tiles())).collect();
         ReplaceTile {
             active_hex: addr,
             candidates,
             selected: 0,
             show_original: false,
-            rotation: RotateCW::Zero,
+            extra_rotation: RotateCW::Zero,
+            original_rotation: RotateCW::Zero,
         }
     }
 
-    pub(super) fn with_candidates(
-        addr: HexAddress,
-        candidates: Vec<usize>,
-    ) -> Self {
+    pub fn with_candidates(addr: HexAddress, candidates: Vec<usize>) -> Self {
         ReplaceTile {
             active_hex: addr,
             candidates,
             selected: 0,
             show_original: false,
-            rotation: RotateCW::Zero,
+            extra_rotation: RotateCW::Zero,
+            original_rotation: RotateCW::Zero,
+        }
+    }
+
+    pub fn maybe_upgrade(assets: &Assets, addr: HexAddress) -> Option<Self> {
+        if let Some(tile) = assets.map.tile_at(addr) {
+            Self::maybe_upgrade_tile(assets, addr, tile)
+        } else {
+            Self::maybe_place_on_empty(assets, addr)
+        }
+    }
+
+    fn maybe_upgrade_tile(
+        assets: &Assets,
+        addr: HexAddress,
+        tile: &Tile,
+    ) -> Option<Self> {
+        let candidates: Vec<usize> = assets
+            .map
+            .available_tiles_iter()
+            .enumerate()
+            .filter(|(_ix, t)| {
+                assets.map.can_upgrade_to(addr, t) && tile.can_upgrade_to(t)
+            })
+            .map(|(ix, _t)| ix)
+            .collect();
+        if candidates.is_empty() {
+            info!("No candidates for tile {} at {}", tile.name, addr);
+            None
+        } else {
+            let mut state = Self::with_candidates(addr, candidates);
+            // NOTE: record the current tile's rotation.
+            if let Some(hs) = assets.map.hex_state(addr) {
+                state.original_rotation = *hs.rotation();
+            }
+            Some(state)
+        }
+    }
+
+    fn maybe_place_on_empty(
+        assets: &Assets,
+        addr: HexAddress,
+    ) -> Option<Self> {
+        let candidates: Vec<usize> = assets
+            .map
+            .available_tiles_iter()
+            .enumerate()
+            .filter(|(_ix, t)| assets.map.can_place_on_empty(addr, t))
+            .map(|(ix, _t)| ix)
+            .collect();
+        if candidates.is_empty() {
+            info!("No candidates for empty hex {}", addr);
+            None
+        } else {
+            Some(Self::with_candidates(addr, candidates))
+        }
+    }
+
+    pub fn active_hex(&self) -> HexAddress {
+        self.active_hex
+    }
+
+    pub fn net_rotation(&self) -> RotateCW {
+        self.original_rotation + self.extra_rotation
+    }
+
+    pub fn place_candidate(&self, map: &mut Map) -> bool {
+        if self.show_original {
+            false
+        } else {
+            // Replace the original tile with the current selection.
+            let tile_ix = self.candidates[self.selected];
+            let tile_name = map.nth_tile(tile_ix).name.clone();
+            // NOTE: the true rotation of the candidate is the sum of these
+            // two rotations, because candidates are drawn with respect to the
+            // original tile's rotation (if any).
+            let tile_rotation = self.net_rotation();
+            map.place_tile(self.active_hex, &tile_name, tile_rotation);
+            true
+        }
+    }
+
+    pub fn toggle_original_tile(&mut self) {
+        self.show_original = !self.show_original;
+    }
+
+    pub fn select_previous_candidate(&mut self) -> bool {
+        if self.show_original {
+            false
+        } else {
+            if self.selected == 0 {
+                self.selected = self.candidates.len() - 1
+            } else {
+                self.selected -= 1
+            }
+            true
+        }
+    }
+
+    pub fn select_next_candidate(&mut self) -> bool {
+        if self.show_original {
+            false
+        } else {
+            self.selected += 1;
+            if self.selected >= self.candidates.len() {
+                self.selected = 0;
+            }
+            true
+        }
+    }
+
+    pub fn rotate_candidate_anti_cw(&mut self) -> bool {
+        if self.show_original {
+            false
+        } else {
+            self.extra_rotation = self.extra_rotation.rotate_anti_cw();
+            true
+        }
+    }
+
+    pub fn rotate_candidate_cw(&mut self) -> bool {
+        if self.show_original {
+            false
+        } else {
+            self.extra_rotation = self.extra_rotation.rotate_cw();
+            true
         }
     }
 }
 
-impl State for ReplaceTile {
-    fn draw(&self, content: &Content, ctx: &Context) {
-        let hex = &content.hex;
-        let map = &content.map;
+impl UiState for ReplaceTile {
+    fn draw(&self, assets: &Assets, ctx: &Context) {
+        let hex = &assets.hex;
+        let map = &assets.map;
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_hex_backgrounds(hex, ctx, &mut hex_iter);
@@ -90,33 +210,26 @@ impl State for ReplaceTile {
             let tile_ix = self.candidates[self.selected];
             let tile = &map.nth_tile(tile_ix);
 
-            // Apply the appropriate tile rotation.
-            let map_hex = map.hex_state(self.active_hex);
-            let radians = self.rotation.radians()
-                + map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
-
             // Draw the replacement tile and placed tokens, if any, in
             // matching spaces (i.e., matching city index and token index).
             // See the module doc comment, above, for details.
+            let map_hex = map.hex_state(self.active_hex);
             if let Some(hs) = map_hex {
                 let tokens = n18map::map::try_placing_tokens(
                     hs.tile(map),
                     hs.rotation(),
                     hs.tokens(),
                     tile,
-                    &self.rotation,
+                    &self.net_rotation(),
                 )
                 .unwrap_or_else(std::collections::BTreeMap::new);
-                // NOTE: undo the rotation of the original tile, so that the
-                // tokens are drawn with the correct rotation.
-                ctx.rotate(-hs.rotation().radians());
                 n18brush::draw_tile_and_tokens_at(
                     hex,
                     ctx,
                     map,
                     &self.active_hex,
                     tile,
-                    self.rotation.radians(),
+                    self.extra_rotation.radians(),
                     &tokens,
                 );
             } else {
@@ -126,7 +239,7 @@ impl State for ReplaceTile {
                     map,
                     &self.active_hex,
                     tile,
-                    radians,
+                    self.extra_rotation.radians(),
                 );
             };
         }
@@ -143,80 +256,5 @@ impl State for ReplaceTile {
             &Some(self.active_hex),
             border,
         );
-    }
-
-    fn key_press(
-        &mut self,
-        content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        event: &crate::KeyPress,
-        _ping_tx: &Ping,
-    ) -> (Option<Box<dyn State>>, Action) {
-        let map = &mut content.map;
-        match event.key {
-            gdk::keys::constants::Escape => (
-                Some(Box::new(super::default::Default::at_hex(Some(
-                    self.active_hex,
-                )))),
-                Action::Redraw,
-            ),
-            gdk::keys::constants::Return => {
-                if self.show_original {
-                    (None, Action::None)
-                } else {
-                    // Replace the original tile with the current selection.
-                    let tile_ix = self.candidates[self.selected];
-                    let tile_name = map.nth_tile(tile_ix).name.clone();
-                    map.place_tile(
-                        self.active_hex,
-                        &tile_name,
-                        self.rotation,
-                    );
-                    (
-                        Some(Box::new(super::default::Default::at_hex(
-                            Some(self.active_hex),
-                        ))),
-                        Action::Redraw,
-                    )
-                }
-            }
-            gdk::keys::constants::o | gdk::keys::constants::O => {
-                self.show_original = !self.show_original;
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::Up => {
-                if self.show_original {
-                    (None, Action::None)
-                } else {
-                    if self.selected == 0 {
-                        self.selected = self.candidates.len() - 1
-                    } else {
-                        self.selected -= 1
-                    }
-                    (None, Action::Redraw)
-                }
-            }
-            gdk::keys::constants::Down => {
-                if self.show_original {
-                    (None, Action::None)
-                } else {
-                    self.selected += 1;
-                    if self.selected >= self.candidates.len() {
-                        self.selected = 0;
-                    }
-                    (None, Action::Redraw)
-                }
-            }
-            gdk::keys::constants::less | gdk::keys::constants::comma => {
-                self.rotation = self.rotation.rotate_anti_cw();
-                (None, Action::Redraw)
-            }
-            gdk::keys::constants::greater | gdk::keys::constants::period => {
-                self.rotation = self.rotation.rotate_cw();
-                (None, Action::Redraw)
-            }
-            _ => (None, Action::None),
-        }
     }
 }
