@@ -1,7 +1,7 @@
 use crate::{City, Connection, Connections, Dit, Draw, Label, Track};
 use cairo::Context;
-use n18hex::{Colour, Hex, HexColour, HexCorner, HexPosition};
-use std::collections::BTreeMap;
+use n18hex::{Colour, Hex, HexColour, HexCorner, HexFace, HexPosition};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DrawLayer {
@@ -184,6 +184,143 @@ impl Tile {
 
     pub fn connections(&self, from: &Connection) -> Option<&[Connection]> {
         self.conns.from(from)
+    }
+
+    /// Returns all connections that can be reached from `start`.
+    pub fn all_connections_from<T>(&self, start: T) -> BTreeSet<Connection>
+    where
+        T: Into<Connection>,
+    {
+        let start = start.into();
+        self.conns.connections_from(&start)
+    }
+
+    /// Returns the hexagon faces that are connected to `start`.
+    pub fn connected_faces<T>(&self, start: T) -> BTreeSet<HexFace>
+    where
+        T: Into<Connection>,
+    {
+        self.all_connections_from(start)
+            .into_iter()
+            .filter_map(|conn| {
+                if let Connection::Face { face } = conn {
+                    Some(face)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    /// Returns the index of each dit that is connected to `start`.
+    pub fn connected_dits<T>(&self, start: T) -> BTreeSet<usize>
+    where
+        T: Into<Connection>,
+    {
+        self.all_connections_from(start)
+            .into_iter()
+            .filter_map(|conn| {
+                if let Connection::Dit { ix } = conn {
+                    Some(ix)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    /// Returns the index of each city that is connected to `start`.
+    pub fn connected_cities<T>(&self, start: T) -> BTreeSet<usize>
+    where
+        T: Into<Connection>,
+    {
+        self.all_connections_from(start)
+            .into_iter()
+            .filter_map(|conn| {
+                if let Connection::City { ix } = conn {
+                    Some(ix)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    /// Returns true if `start` is connected to each hexagon face in `dests`,
+    /// and is not connected to any hexagon face not included in `dests`.
+    pub fn connected_faces_are<T>(&self, start: T, dests: &[HexFace]) -> bool
+    where
+        T: Into<Connection>,
+    {
+        let want_faces: BTreeSet<HexFace> = dests.iter().copied().collect();
+        let faces = self.connected_faces(start);
+        want_faces == faces
+    }
+
+    /// Returns true if `start` is not connected to any other hexagon face.
+    pub fn no_connected_faces<T>(&self, start: T) -> bool
+    where
+        T: Into<Connection>,
+    {
+        self.connected_faces_are(start, &[])
+    }
+
+    /// Returns the index of each dit connected to `start`, if `start` is only
+    /// connected to each dit in `dits` (identified by their revenue).
+    /// Otherwise, returns `None`.
+    pub fn connected_dits_are<T>(
+        &self,
+        start: T,
+        dits: &[usize],
+    ) -> Option<Vec<usize>>
+    where
+        T: Into<Connection>,
+    {
+        let mut want_revenues: Vec<usize> = dits.into();
+        want_revenues.sort_unstable();
+        let (found_revenues, found_ixs): (Vec<_>, Vec<_>) = self
+            .connected_dits(start)
+            .into_iter()
+            .map(|ix| (self.conns.dits()[ix].revenue, ix))
+            .unzip();
+
+        // Check whether we obtained the desired results.
+        if want_revenues == found_revenues {
+            Some(found_ixs)
+        } else {
+            None
+        }
+    }
+
+    /// Returns the index of each city connected to `start`, if `start` is
+    /// only connected to each city in `cities` (identified by their revenue
+    /// and number of token spaces, respectively).
+    /// Otherwise, returns `None`.
+    pub fn connected_cities_are<T>(
+        &self,
+        start: T,
+        cities: &[(usize, usize)],
+    ) -> Option<Vec<usize>>
+    where
+        T: Into<Connection>,
+    {
+        let mut want_rev_space: Vec<(usize, usize)> = cities.into();
+        want_rev_space.sort_unstable();
+        let (found_rev_space, found_ixs): (Vec<_>, Vec<_>) = self
+            .connected_cities(start)
+            .into_iter()
+            .map(|ix| {
+                let city = self.cities[ix];
+                ((city.revenue, city.tokens.count()), ix)
+            })
+            .unzip();
+
+        // Check whether we obtained the desired results.
+        if want_rev_space == found_rev_space {
+            Some(found_ixs)
+        } else {
+            None
+        }
     }
 
     // TODO: verify labels (e.g., one revenue label for each revenue ix)

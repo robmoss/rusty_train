@@ -1,5 +1,8 @@
 use super::*;
 
+/// Tests that check track connections for individual tiles.
+mod connectivity;
+
 #[test]
 fn compare_tile_fns() {
     let catalogue_tiles = tile_catalogue();

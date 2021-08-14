@@ -1,7 +1,7 @@
 use crate::city::City;
 use crate::track::{Track, TrackEnd};
 use n18hex::{Hex, HexFace};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Connection {
@@ -9,6 +9,12 @@ pub enum Connection {
     Dit { ix: usize },
     City { ix: usize },
     Face { face: HexFace },
+}
+
+impl From<HexFace> for Connection {
+    fn from(face: HexFace) -> Self {
+        Connection::Face { face }
+    }
 }
 
 impl Connection {
@@ -214,6 +220,51 @@ impl Connections {
         };
 
         conns_opt.map(|cs| cs.as_slice())
+    }
+
+    /// Returns all connections that can be reached from `start`.
+    ///
+    /// Note that this returns a collection rather than an iterator because it
+    /// must record every visited connection to avoid repetition, and so there
+    /// is no gain to collect all of the visited connections and then discard
+    /// them.
+    pub fn connections_from(
+        &self,
+        start: &Connection,
+    ) -> BTreeSet<Connection> {
+        let mut visited: BTreeSet<Connection> = BTreeSet::new();
+        let mut to_visit: Vec<&Connection> = match self.from(start) {
+            Some(conns) => conns.iter().collect(),
+            None => vec![],
+        };
+        while !to_visit.is_empty() {
+            let conn = to_visit.pop().unwrap();
+            if visited.contains(conn) {
+                continue;
+            }
+            visited.insert(*conn);
+            // NOTE: if this is one end of a track segment, continue exploring
+            // from the other end, making sure to record both ends.
+            let conn = if let Some(new_conn) = conn.other_end() {
+                if visited.contains(&new_conn) {
+                    continue;
+                }
+                visited.insert(new_conn);
+                new_conn
+            } else {
+                *conn
+            };
+            // NOTE: stop exploring once we reach the tile edge.
+            if let Connection::Face { .. } = conn {
+                continue;
+            }
+            if let Some(conns) = self.from(&conn) {
+                for next_conn in conns {
+                    to_visit.push(next_conn)
+                }
+            }
+        }
+        visited
     }
 }
 
