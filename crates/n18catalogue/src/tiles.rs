@@ -82,8 +82,14 @@ pub enum Kind {
     _624,
     _625,
     _626,
+    _635,
+    _636,
     _637,
+    _638,
     _639,
+    _640,
+    _641,
+    _642,
     _801,
     _911,
     X1,
@@ -157,8 +163,14 @@ impl Kind {
             Kind::_624,
             Kind::_625,
             Kind::_626,
+            Kind::_635,
+            Kind::_636,
             Kind::_637,
+            Kind::_638,
             Kind::_639,
+            Kind::_640,
+            Kind::_641,
+            Kind::_642,
             Kind::_801,
             Kind::_911,
             Kind::X1,
@@ -766,6 +778,42 @@ impl Kind {
                 vec![],
                 hex,
             ),
+            Kind::_635 => Tile::new(
+                Green,
+                "635",
+                vec![
+                    Track::hard_l(Bottom).with_span(0.0, 0.5),
+                    Track::hard_l(Bottom).with_span(0.5, 1.0),
+                    Track::hard_l(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_l(UpperLeft).with_span(0.5, 1.0),
+                    Track::hard_l(UpperRight).with_span(0.0, 0.5),
+                    Track::hard_l(UpperRight).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::single_at_corner(40, &BottomLeft),
+                    City::single_at_corner(40, &TopLeft),
+                    City::single_at_corner(40, &Right),
+                ],
+                hex,
+            )
+            .label(Label::City("K".to_string()), Left.to_centre(0.25))
+            .label(Label::Revenue(0), TopRight.to_centre(0.15)),
+            Kind::_636 => Tile::new(
+                Brown,
+                "636",
+                vec![
+                    Track::mid(Bottom),
+                    Track::mid(LowerLeft),
+                    Track::mid(UpperLeft),
+                    Track::mid(Top),
+                    Track::mid(LowerRight),
+                    Track::mid(UpperRight),
+                ],
+                vec![City::triple(50).rotate(Rotation::HalfTurn)],
+                hex,
+            )
+            .label(Label::City("K".to_string()), TopRight.to_centre(0.08))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
             Kind::_637 => Tile::new(
                 Green,
                 "637",
@@ -786,6 +834,22 @@ impl Kind {
             )
             .label(Label::City("M".to_string()), Left.to_centre(0.25))
             .label(Label::Revenue(0), TopRight.to_centre(0.15)),
+            Kind::_638 => Tile::new(
+                Brown,
+                "638",
+                vec![
+                    Track::mid(Bottom),
+                    Track::mid(LowerLeft),
+                    Track::mid(UpperLeft),
+                    Track::mid(Top),
+                    Track::mid(LowerRight),
+                    Track::mid(UpperRight),
+                ],
+                vec![City::triple(70).rotate(Rotation::HalfTurn)],
+                hex,
+            )
+            .label(Label::City("M".to_string()), TopRight.to_centre(0.08))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
             Kind::_639 => Tile::new(
                 Grey,
                 "639",
@@ -802,6 +866,48 @@ impl Kind {
             )
             .label(Label::City("M".to_string()), TopRight.to_centre(0.05))
             .label(Label::Revenue(0), Right.to_centre(0.08)),
+            Kind::_640 => Tile::new(
+                Grey,
+                "640",
+                vec![
+                    Track::mid(Bottom),
+                    Track::mid(LowerLeft),
+                    Track::mid(UpperLeft),
+                    Track::mid(Top),
+                    Track::mid(LowerRight),
+                    Track::mid(UpperRight),
+                ],
+                vec![City::triple(60).rotate(Rotation::HalfTurn)],
+                hex,
+            )
+            .label(Label::City("Kh".to_string()), TopRight.to_centre(0.08))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
+            Kind::_641 => Tile::new(
+                Brown,
+                "641",
+                vec![
+                    Track::mid(Bottom),
+                    Track::mid(LowerLeft),
+                    Track::mid(LowerRight),
+                ],
+                vec![City::triple(50).rotate(Rotation::HalfTurn)],
+                hex,
+            )
+            .label(Label::City("S".to_string()), Top.to_centre(0.08))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
+            Kind::_642 => Tile::new(
+                Grey,
+                "642",
+                vec![
+                    Track::mid(Bottom),
+                    Track::mid(LowerLeft),
+                    Track::mid(LowerRight),
+                ],
+                vec![City::triple(70).rotate(Rotation::HalfTurn)],
+                hex,
+            )
+            .label(Label::City("S".to_string()), Top.to_centre(0.08))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.1)),
             Kind::_801 => Tile::new(
                 Brown,
                 "801",
