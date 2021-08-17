@@ -106,7 +106,7 @@ pub trait Game {
             .find(|(_ix, tok)| &tok.token == token)
             .map(|(ix, _tok)| ix);
         ix_opt.and_then(|ix| {
-            let next_ix = ix + 1;
+            let next_ix = ix - 1;
             if next_ix < companies.len() {
                 Some(&companies[next_ix].token)
             } else {
