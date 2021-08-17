@@ -86,10 +86,14 @@ impl Coord {
         self / self.magnitude()
     }
 
-    /// Returns a unit vector parallel to the line between `from` and `to`.
+    /// Returns a unit vector that is perpendicular to the line between `from`
+    /// and `to`.
     pub fn unit_normal(from: &Self, to: &Self) -> Self {
         let vec = (to - from).normalise();
-        Self { x: vec.y, y: vec.x }
+        Self {
+            x: -vec.y,
+            y: vec.x,
+        }
     }
 }
 
