@@ -8,9 +8,10 @@ use navig18xx::prelude::*;
 pub fn build_ui(application: &gtk::Application) {
     // NOTE: make this more like the doc example in n18ui.
 
-    let game = navig18xx::game::new_1867();
-    let game_box = Box::new(game);
-    let games: Vec<Box<dyn Game>> = vec![game_box];
+    let games: Vec<Box<dyn Game>> = vec![
+        Box::new(navig18xx::game::new_1861()),
+        Box::new(navig18xx::game::new_1867()),
+    ];
 
     // NOTE: instead of using Rc<RefCell<UI>> to share a mutable UI value, use
     // channels to send messages to a single event-handler that owns and
