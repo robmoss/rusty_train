@@ -60,6 +60,17 @@ impl Map {
         self.tiles.tile_iter()
     }
 
+    /// Returns an iterator over all tiles available to the player.
+    pub fn available_tiles_iter(&self) -> impl Iterator<Item = &Tile> {
+        self.tiles.iter().filter_map(|(tile, avail)| {
+            if *avail == Availability::Unavailable {
+                None
+            } else {
+                Some(tile)
+            }
+        })
+    }
+
     /// Returns an iterator over all tiles in the map catalogue, and their
     /// availability.
     ///

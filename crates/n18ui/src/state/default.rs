@@ -84,7 +84,7 @@ impl State for Default {
                 if let Some(addr) = self.active_hex {
                     if let Some(tile) = map.tile_at(addr) {
                         let candidates: Vec<usize> = map
-                            .tile_iter()
+                            .available_tiles_iter()
                             .enumerate()
                             .filter(|(_ix, t)| {
                                 map.can_upgrade_to(addr, t)
@@ -106,7 +106,7 @@ impl State for Default {
                     } else {
                         // NOTE: attempting to place a tile on an empty hex.
                         let candidates: Vec<usize> = map
-                            .tile_iter()
+                            .available_tiles_iter()
                             .enumerate()
                             .filter(|(_ix, t)| {
                                 map.can_place_on_empty(addr, t)
