@@ -239,11 +239,10 @@ impl<'a> Labeller<'a> {
     }
 
     /// Draws the text relative to the current point, with respect to the
-    /// specified horizontal and vertical alignments.
+    /// specified horizontal and vertical alignments, and returns `true`.
     ///
-    /// If there is no current point, the text will be drawn relative to the
-    /// origin `(0.0, 0.0)`.
-    pub fn draw_at_current_point(&self, text: &str) {
+    /// If there is no current point, this does not draw and returns `false`.
+    pub fn draw_at_current_point(&self, text: &str) -> bool {
         let size = self.size(text);
         let coord = Coord::from((0.0, 0.0));
         let coord = size.top_left(&coord, self.horiz, self.vert);
@@ -252,7 +251,7 @@ impl<'a> Labeller<'a> {
             .has_current_point()
             .expect("Context::has_current_point() failed");
         if !has_current_point {
-            self.context.move_to(0.0, 0.0)
+            return false;
         }
         self.context.rel_move_to(coord.x, coord.y);
         self.colour.apply_colour(self.context);
@@ -260,6 +259,7 @@ impl<'a> Labeller<'a> {
         pangocairo::update_layout(self.context, &self.layout);
         pangocairo::show_layout(self.context, &self.layout);
         self.context.new_path();
+        true
     }
 
     /// Returns the width and height of the space occupied by the layout.

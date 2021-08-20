@@ -352,9 +352,6 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
         // Don't highlight visits on off-board tiles that only show their
         // off-board track segments.
         if tile.only_draw_offboard_track() {
-            // NOTE: it's important to create a new path, so that there is no
-            // current point.
-            ctx.new_path();
             continue;
         }
 

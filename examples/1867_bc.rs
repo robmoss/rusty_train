@@ -365,7 +365,7 @@ fn draw_routes(
         example.context(),
     );
     // Draw the text, then restore the transformation matrix.
-    labeller.draw_at_current_point(&label_text);
+    labeller.draw(&label_text, (0.0, 0.0).into());
     example.context().set_matrix(m);
 
     Ok(())
