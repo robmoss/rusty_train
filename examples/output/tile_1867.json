@@ -2725,7 +2725,10 @@
           "to_centre": 0.25
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
     },
     {
       "name": "Port2",
@@ -2750,7 +2753,11 @@
           "to_centre": 0.3
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "UpperRight"
+      ]
     },
     {
       "name": "Sault Ste Marie Yw",
@@ -2813,7 +2820,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
     },
     {
       "name": "Sault Ste Marie Gn",
@@ -2876,7 +2887,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
     },
     {
       "name": "Sault Ste Marie Bn",
@@ -2939,7 +2954,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
     },
     {
       "name": "Sault Ste Marie Gy",
@@ -3002,7 +3021,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
     },
     {
       "name": "Maritime Provinces Yw",
@@ -3065,7 +3088,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerLeft",
+        "UpperLeft"
+      ]
     },
     {
       "name": "Maritime Provinces Gn",
@@ -3128,7 +3155,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerLeft",
+        "UpperLeft"
+      ]
     },
     {
       "name": "Maritime Provinces Bn",
@@ -3191,7 +3222,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerLeft",
+        "UpperLeft"
+      ]
     },
     {
       "name": "Maritime Provinces Gy",
@@ -3254,7 +3289,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerLeft",
+        "UpperLeft"
+      ]
     },
     {
       "name": "Maine Yw",
@@ -3317,7 +3356,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "Top"
+      ]
     },
     {
       "name": "Maine Gn",
@@ -3380,7 +3423,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "Top"
+      ]
     },
     {
       "name": "Maine Bn",
@@ -3443,7 +3490,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "Top"
+      ]
     },
     {
       "name": "Maine Gy",
@@ -3506,7 +3557,11 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "Top"
+      ]
     },
     {
       "name": "New England Yw",
@@ -3566,7 +3621,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
     },
     {
       "name": "New England Gn",
@@ -3626,7 +3684,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
     },
     {
       "name": "New England Bn",
@@ -3686,7 +3747,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
     },
     {
       "name": "New England Gy",
@@ -3746,7 +3810,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
     },
     {
       "name": "Buffalo Yw",
@@ -3798,7 +3865,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
     },
     {
       "name": "Buffalo Gn",
@@ -3850,7 +3920,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
     },
     {
       "name": "Buffalo Bn",
@@ -3902,7 +3975,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
     },
     {
       "name": "Buffalo Gy",
@@ -3954,7 +4030,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
     },
     {
       "name": "Detroit Yw",
@@ -4017,7 +4096,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
     },
     {
       "name": "Detroit Gn",
@@ -4080,7 +4162,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
     },
     {
       "name": "Detroit Bn",
@@ -4143,7 +4228,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
     },
     {
       "name": "Detroit Gy",
@@ -4206,7 +4294,10 @@
           ]
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
     },
     {
       "name": "Detroit2",
@@ -4216,7 +4307,10 @@
           "HardL": "LowerRight"
         }
       ],
-      "show_tile_name": false
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerRight"
+      ]
     },
     {
       "name": "Grey1",

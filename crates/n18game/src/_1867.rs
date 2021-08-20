@@ -812,6 +812,7 @@ fn sault_ste_marie(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single_at_corner(revenue, &HexCorner::Right)],
                 hex,
             )
+            .with_offboard_faces([UpperRight, LowerRight])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 20, ix == 0),
@@ -845,6 +846,7 @@ fn maritime_provinces(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single_at_corner(revenue, &HexCorner::Left)],
                 hex,
             )
+            .with_offboard_faces([LowerLeft, UpperLeft])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 30, ix == 0),
@@ -878,6 +880,7 @@ fn maine(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single_at_corner(revenue, &HexCorner::TopLeft)],
                 hex,
             )
+            .with_offboard_faces([UpperLeft, Top])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 20, ix == 0),
@@ -908,6 +911,7 @@ fn new_england(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single(revenue).in_dir(Direction::N, 0.4)],
                 hex,
             )
+            .with_offboard_faces([Top])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 30, ix == 0),
@@ -938,6 +942,7 @@ fn buffalo(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single(revenue)],
                 hex,
             )
+            .with_offboard_faces([UpperLeft])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 30, ix == 0),
@@ -971,6 +976,7 @@ fn detroit(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single_at_corner(revenue, &HexCorner::TopRight)],
                 hex,
             )
+            .with_offboard_faces([UpperRight])
             .label(
                 Label::PhaseRevenue(vec![
                     (HexColour::Yellow, 30, ix == 0),
@@ -983,13 +989,16 @@ fn detroit(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
             .label(Label::MapLocation(name.to_string()), off_centre(S, 0.22))
         })
         .collect();
-    tiles.push(Tile::new(
-        Red,
-        "Detroit2",
-        vec![Track::hard_l(LowerRight)],
-        vec![],
-        hex,
-    ));
+    tiles.push(
+        Tile::new(
+            Red,
+            "Detroit2",
+            vec![Track::hard_l(LowerRight)],
+            vec![],
+            hex,
+        )
+        .with_offboard_faces([LowerRight]),
+    );
     tiles
 }
 
@@ -1012,6 +1021,7 @@ fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
+        .with_offboard_faces([Top])
         .label(Label::Revenue(0), UpperLeft.to_centre(0.25)),
         Tile::new(
             Blue,
@@ -1025,6 +1035,7 @@ fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
             vec![],
             hex,
         )
+        .with_offboard_faces([UpperLeft, UpperRight])
         .label(Label::Revenue(0), Top.to_centre(0.3)),
     ];
 
