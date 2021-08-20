@@ -56,6 +56,9 @@ pub struct Tile {
     show_tile_name: bool,
     // Connections between tracks, dits, cities, and hex faces.
     conns: Connections,
+    // For an offboard tile, this identifies the tile faces that are connected
+    // to onboard tiles; for all other tiles, this is `None`.
+    offboard_faces: Option<Vec<HexFace>>,
 }
 
 impl Tile {
@@ -168,7 +171,24 @@ impl Tile {
             labels: vec![],
             show_tile_name: true,
             conns,
+            offboard_faces: None,
         }
+    }
+
+    /// Identifies the tile as an off-board tile that has `faces` adjacent to
+    /// on-board tiles.
+    pub fn with_offboard_faces<T>(mut self, faces: T) -> Self
+    where
+        T: IntoIterator<Item = HexFace>,
+    {
+        self.offboard_faces = Some(faces.into_iter().collect());
+        self
+    }
+
+    /// Returns the edges adjacent to on-board tiles, if this tile is an
+    /// off-board tile, otherwise returns `None`.
+    pub fn offboard_faces(&self) -> Option<Vec<HexFace>> {
+        self.offboard_faces.as_ref().cloned()
     }
 
     /// Do not display the tile name when drawing the tile.
@@ -435,24 +455,138 @@ impl Tile {
         &self.revenues
     }
 
+    /// Returns `true` if this tile is an off-board tile for which special
+    /// off-board track segments should be drawn, instead of drawing the
+    /// regular track segments, dits, and cities.
+    pub fn only_draw_offboard_track(&self) -> bool {
+        self.offboard_faces.is_some()
+    }
+
+    /// Defines the inner (foreground) layer of the off-board track segment
+    /// for the specified tile `face`, if such a segment should be drawn on
+    /// this face, and returns `true`.
+    ///
+    /// If no such segment should be drawn, this has no effect and returns
+    /// `false`.
+    pub fn define_offboard_track_inner_path(
+        &self,
+        ctx: &Context,
+        hex: &Hex,
+        face: &HexFace,
+    ) -> bool {
+        if let Some(ref faces) = self.offboard_faces {
+            if !faces.iter().any(|f| f == face) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Extract relevant theme settings.
+        let inner_w = hex.theme.track_inner.width.absolute(hex);
+        let outer_w = hex.theme.track_outer.width.absolute(hex);
+        let len = hex.theme.track_offboard_length.absolute(hex);
+
+        // Calculate reference coordinates.
+        let start = hex.midpoint(face);
+        let opposite = hex.midpoint(&face.opposite());
+        let end = &start + &(&opposite.normalise() * len);
+        let along_face = n18hex::Coord::unit_normal(&start, &end);
+
+        // Calculate points for the inner (foreground) style.
+        let inner_1 = &start + &(&along_face * (0.5 * inner_w));
+        let inner_2 = &start - &(&along_face * (0.5 * inner_w));
+        let inner_3 = start.interpolate(&end, inner_w / outer_w);
+
+        ctx.new_path();
+        ctx.move_to(inner_1.x, inner_1.y);
+        ctx.line_to(inner_2.x, inner_2.y);
+        ctx.line_to(inner_3.x, inner_3.y);
+
+        true
+    }
+
+    /// Draws the off-board track segment for the specified tile `face`, if
+    /// such a segment should be drawn on this face, and returns `true`.
+    ///
+    /// If no such segment should be drawn, this has no effect and returns
+    /// `false`.
+    pub fn draw_offboard_segment(
+        &self,
+        ctx: &Context,
+        hex: &Hex,
+        face: &HexFace,
+    ) -> bool {
+        if let Some(ref faces) = self.offboard_faces {
+            if !faces.iter().any(|f| f == face) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        // Extract relevant theme settings.
+        let inner_w = hex.theme.track_inner.width.absolute(hex);
+        let outer_w = hex.theme.track_outer.width.absolute(hex);
+        let len = hex.theme.track_offboard_length.absolute(hex);
+
+        // Calculate reference coordinates.
+        let start = hex.midpoint(face);
+        let opposite = hex.midpoint(&face.opposite());
+        let end = &start + &(&opposite.normalise() * len);
+        let along_face = n18hex::Coord::unit_normal(&start, &end);
+
+        ctx.new_path();
+
+        // Calculate points for the outer (background) style.
+        let outer_1 = &start + &(&along_face * (0.5 * outer_w));
+        let outer_2 = &start - &(&along_face * (0.5 * outer_w));
+        let outer_3 = end;
+        // NOTE: using the stroke colour to fill this path.
+        hex.theme.track_outer.stroke.apply_colour(ctx);
+        ctx.move_to(outer_1.x, outer_1.y);
+        ctx.line_to(outer_2.x, outer_2.y);
+        ctx.line_to(outer_3.x, outer_3.y);
+        ctx.fill().unwrap();
+
+        // Calculate points for the inner (foreground) style.
+        let inner_1 = &start + &(&along_face * (0.5 * inner_w));
+        let inner_2 = &start - &(&along_face * (0.5 * inner_w));
+        let inner_3 = start.interpolate(&end, inner_w / outer_w);
+        // NOTE: using the stroke colour to fill this path.
+        hex.theme.track_inner.stroke.apply_colour(ctx);
+        ctx.move_to(inner_1.x, inner_1.y);
+        ctx.line_to(inner_2.x, inner_2.y);
+        ctx.line_to(inner_3.x, inner_3.y);
+        ctx.fill().unwrap();
+
+        true
+    }
+
     pub fn draw(&self, ctx: &Context, hex: &Hex) {
         use DrawLayer::*;
 
         // Draw the tile background.
         hex.draw_background(self.colour, ctx);
-        // Draw the background for the bottom two layers.
-        self.layer_bg(&Under, ctx, hex);
-        self.layer_bg(&Normal, ctx, hex);
-        // Draw the foreground for the bottom-most layer.
-        self.layer_fg(&Under, ctx, hex);
-        // Draw the background of the covering layer.
-        self.layer_bg(&Over, ctx, hex);
-        // Draw the foreground of the normal and covering layers.
-        self.layer_fg(&Normal, ctx, hex);
-        self.layer_fg(&Over, ctx, hex);
-        // Draw the top-most layer.
-        self.layer_bg(&Topmost, ctx, hex);
-        self.layer_fg(&Topmost, ctx, hex);
+        if let Some(ref faces) = self.offboard_faces {
+            for face in faces {
+                self.draw_offboard_segment(ctx, hex, face);
+            }
+        } else {
+            // Draw the background for the bottom two layers.
+            self.layer_bg(&Under, ctx, hex);
+            self.layer_bg(&Normal, ctx, hex);
+            // Draw the foreground for the bottom-most layer.
+            self.layer_fg(&Under, ctx, hex);
+            // Draw the background of the covering layer.
+            self.layer_bg(&Over, ctx, hex);
+            // Draw the foreground of the normal and covering layers.
+            self.layer_fg(&Normal, ctx, hex);
+            self.layer_fg(&Over, ctx, hex);
+            // Draw the top-most layer.
+            self.layer_bg(&Topmost, ctx, hex);
+            self.layer_fg(&Topmost, ctx, hex);
+        }
         // Draw the tile name, except for special tiles such as those that are
         // part of the initial map and are not truly "tiles" as such.
         if self.show_tile_name {

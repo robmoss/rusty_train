@@ -20,8 +20,11 @@ fn test_draw_tiles() -> Result {
     let json_dir = output::Dir::Examples;
     let output_dir = output::Dir::Examples;
 
-    let try_files =
-        vec![("tile_catalogue.json", 6, 14), ("tile_1867.json", 8, 16)];
+    let try_files = vec![
+        ("tile_catalogue.json", 6, 14),
+        ("tile_1861.json", 8, 16),
+        ("tile_1867.json", 8, 16),
+    ];
     for (basename, rows, cols) in &try_files {
         let json_file = json_dir.join(basename);
         if !json_file.exists() {

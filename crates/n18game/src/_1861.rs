@@ -938,6 +938,7 @@ fn central_asia(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 ],
                 hex,
             )
+            .with_offboard_faces([UpperLeft])
             .label(Label::MapLocation(name.to_string()), off_centre(S, 0.15))
             .label(
                 Label::PhaseRevenue(vec![
@@ -955,7 +956,8 @@ fn central_asia(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
             vec![Track::gentle_l(Bottom), Track::hard_l(Bottom)],
             vec![],
             hex,
-        )])
+        )
+        .with_offboard_faces([LowerLeft, UpperLeft])])
         .collect()
 }
 
@@ -981,6 +983,7 @@ fn romania(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 ],
                 hex,
             )
+            .with_offboard_faces([UpperRight])
             .label(Label::MapLocation(name.to_string()), off_centre(S, 0.12))
             .label(
                 Label::PhaseRevenue(vec![
@@ -1002,7 +1005,8 @@ fn romania(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
             ],
             vec![],
             hex,
-        )])
+        )
+        .with_offboard_faces([Top, UpperRight, LowerRight])])
         .collect()
 }
 
@@ -1028,6 +1032,7 @@ fn caucasus(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 ],
                 hex,
             )
+            .with_offboard_faces([Top])
             .label(Label::MapLocation(name.to_string()), off_centre(S, 0.12))
             .label(
                 Label::PhaseRevenue(vec![
@@ -1051,14 +1056,16 @@ fn caucasus(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 ],
                 vec![],
                 hex,
-            ),
+            )
+            .with_offboard_faces([UpperLeft, Top, UpperRight]),
             Tile::new(
                 Red,
                 format!("{}3", name),
                 vec![Track::hard_l(UpperLeft), Track::gentle_l(UpperLeft)],
                 vec![],
                 hex,
-            ),
+            )
+            .with_offboard_faces([Top, UpperRight]),
         ])
         .collect()
 }
@@ -1084,6 +1091,7 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![City::single_at_face(revenue, &Top).with_fill(Red)],
                 hex,
             )
+            .with_offboard_faces([UpperRight, LowerRight])
             .label(
                 Label::MapLocation(name.to_string()),
                 off_centre(S60W, 0.35),
@@ -1105,7 +1113,8 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 vec![Track::gentle_r(Bottom), Track::hard_r(Bottom)],
                 vec![],
                 hex,
-            ),
+            )
+            .with_offboard_faces([UpperRight, LowerRight]),
             Tile::new(
                 Red,
                 format!("{}3", name),
@@ -1116,7 +1125,8 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
                 ],
                 vec![],
                 hex,
-            ),
+            )
+            .with_offboard_faces([UpperRight, LowerRight]),
         ])
         .collect()
 }

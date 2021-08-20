@@ -21,6 +21,10 @@ fn save_tiles(output_dir: &output::Dir) -> Result {
     let tiles = tile_catalogue();
     write_tiles(output_dir.join("tile_catalogue.json"), &tiles, pretty_json)?;
 
+    let game = navig18xx::game::new_1861();
+    let tiles = game.clone_tiles();
+    write_tiles(output_dir.join("tile_1861.json"), &tiles, pretty_json)?;
+
     let game = navig18xx::game::new_1867();
     let tiles = game.clone_tiles();
     write_tiles(output_dir.join("tile_1867.json"), &tiles, pretty_json)?;

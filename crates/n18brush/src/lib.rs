@@ -324,7 +324,15 @@ fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
         let m = map.prepare_to_draw(step.addr, hex, ctx);
         let tile = map.tile_at(step.addr).expect("Invalid step hex");
 
-        if let Connection::Track { ix, end: _ } = step.conn {
+        // For tiles that only show off-board track segments, highlight only
+        // these segments.
+        if tile.only_draw_offboard_track() {
+            if let Connection::Face { face } = step.conn {
+                if tile.define_offboard_track_inner_path(ctx, hex, &face) {
+                    ctx.fill().unwrap()
+                }
+            }
+        } else if let Connection::Track { ix, end: _ } = step.conn {
             let track = tile.tracks()[ix];
             track.define_path(hex, ctx);
             // NOTE: cover the inner (black) part of the track.
@@ -339,8 +347,18 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
     let source = ctx.source();
 
     for visit in visits {
-        let m = map.prepare_to_draw(visit.addr, hex, ctx);
         let tile = map.tile_at(visit.addr).expect("Invalid step hex");
+
+        // Don't highlight visits on off-board tiles that only show their
+        // off-board track segments.
+        if tile.only_draw_offboard_track() {
+            // NOTE: it's important to create a new path, so that there is no
+            // current point.
+            ctx.new_path();
+            continue;
+        }
+
+        let m = map.prepare_to_draw(visit.addr, hex, ctx);
         match visit.visits {
             StopLocation::City { ix } => {
                 let city = tile.cities()[ix];

@@ -565,6 +565,8 @@ pub struct Theme {
     pub track_outer: Draw,
     /// The inner (foreground) style for track segments.
     pub track_inner: Draw,
+    /// The length of off-board track segments.
+    pub track_offboard_length: Length,
     /// The outer (background) style for token spaces.
     pub token_space_outer: Draw,
     /// The inner (foreground) style for token spaces.
@@ -677,6 +679,7 @@ impl Default for Theme {
                 stroke: Colour::BLACK,
                 ..Default::default()
             },
+            track_offboard_length: Length::Relative(0.3),
             token_space_outer: Draw {
                 width: Length::Relative(0.03),
                 stroke: Colour::WHITE,

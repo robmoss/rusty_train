@@ -94,6 +94,8 @@ struct Tile {
         skip_serializing_if = "show_tile_name_skip"
     )]
     pub show_tile_name: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub offboard_faces: Option<Vec<HexFace>>,
 }
 
 /// By default, show tile names on the tile.
@@ -115,6 +117,9 @@ impl std::convert::From<&n18tile::Tile> for Tile {
             cities: src.cities().iter().map(|city| city.into()).collect(),
             labels: src.labels().iter().map(|lnp| lnp.into()).collect(),
             show_tile_name: src.is_tile_name_visible(),
+            offboard_faces: src
+                .offboard_faces()
+                .map(|faces| faces.into_iter().map(|f| f.into()).collect()),
         }
     }
 }
@@ -128,6 +133,7 @@ impl Default for Tile {
             cities: vec![],
             labels: vec![],
             show_tile_name: true,
+            offboard_faces: None,
         }
     }
 }
@@ -767,6 +773,12 @@ impl Tile {
             let posn = label.position();
             tile.label((&label.label_type).into(), posn)
         });
+        let tile = if let Some(ref faces) = self.offboard_faces {
+            let faces: Vec<_> = faces.iter().map(|f| f.into()).collect();
+            tile.with_offboard_faces(faces)
+        } else {
+            tile
+        };
         // Hide the tile name label if it should not be displayed.
         if !self.show_tile_name {
             tile.hide_tile_name()
@@ -1603,5 +1615,38 @@ mod tests {
             let de_tile2 = Tile::from(&new_tile);
             assert_eq!(de_tile, de_tile2, "Tiles differ: {}", de_tile.name);
         }
+    }
+
+    /// Tests that all game tiles (including those not available to players)
+    /// can be serialised and deserialised without introducing any inequality
+    /// with the original tile.
+    fn compare_all_game_tiles(game: impl n18game::Game) {
+        let hex = Hex::default();
+        let map = game.create_map(&hex);
+        for tile in map.tile_iter() {
+            let de_tile = Tile::from(tile);
+            let new_tile = de_tile.build(&hex);
+            assert_eq!(*tile, new_tile, "Tiles differ: {}", tile.name);
+            let de_tile2 = Tile::from(&new_tile);
+            assert_eq!(de_tile, de_tile2, "Tiles differ: {}", de_tile.name);
+
+            // Serialise the tile to a JSON string and check that we recover
+            // the original tile.
+            let json_str = serde_json::to_string(&de_tile).unwrap();
+            let de_tile3: Tile = serde_json::from_str(&json_str).unwrap();
+            assert_eq!(de_tile, de_tile3, "Tiles differ: {}", de_tile.name);
+            let new_tile2 = de_tile3.build(&hex);
+            assert_eq!(*tile, new_tile2, "Tiles differ: {}", tile.name);
+        }
+    }
+
+    #[test]
+    fn compare_1861_tiles() {
+        compare_all_game_tiles(n18game::new_1861())
+    }
+
+    #[test]
+    fn compare_1867_tiles() {
+        compare_all_game_tiles(n18game::new_1867())
     }
 }

@@ -1,0 +1,3928 @@
+{
+  "tiles": [
+    {
+      "name": "3",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.25
+          ]
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.25,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.3
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.3
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "9",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "57",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "58",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.5
+        }
+      ]
+    },
+    {
+      "name": "201",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "202",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "621",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.1
+        },
+        {
+          "Y": null,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "14",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "15",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "16",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleR": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "17",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "18",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "19",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "20",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "21",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "22",
+      "colour": "Green",
+      "track": [
+        {
+          "HardR": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "23",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "24",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "25",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "26",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "27",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "28",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "29",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "30",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "31",
+      "colour": "Green",
+      "track": [
+        {
+          "HardR": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "87",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.4
+        }
+      ]
+    },
+    {
+      "name": "88",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperRightFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "204",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "207",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Y": null,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "208",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Y": null,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "619",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "622",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Y": null,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "624",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "625",
+      "colour": "Green",
+      "track": [
+        {
+          "HardR": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "626",
+      "colour": "Green",
+      "track": [
+        {
+          "HardR": "LowerRight"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "635",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 40
+        },
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 40
+        },
+        {
+          "Single": "RightCorner",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "City": "K",
+          "location": "LeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "637",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 50
+        },
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 50
+        },
+        {
+          "Single": "RightCorner",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "City": "M",
+          "location": "LeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "39",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "40",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "GentleL": "UpperRight"
+        }
+      ]
+    },
+    {
+      "name": "41",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        }
+      ]
+    },
+    {
+      "name": "42",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardR": "Top"
+        }
+      ]
+    },
+    {
+      "name": "43",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        },
+        {
+          "GentleL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "44",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "45",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardR": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "46",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "47",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "LowerLeft"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "63",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "611",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.125
+        }
+      ]
+    },
+    {
+      "name": "623",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "636",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 50,
+          "rotate": "HalfTurn"
+        }
+      ],
+      "labels": [
+        {
+          "City": "K",
+          "location": "TopRightCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "638",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 70,
+          "rotate": "HalfTurn"
+        }
+      ],
+      "labels": [
+        {
+          "City": "M",
+          "location": "TopRightCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "641",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 50,
+          "rotate": "HalfTurn"
+        }
+      ],
+      "labels": [
+        {
+          "City": "S",
+          "location": "TopFace",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "801",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "RightCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "911",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "639",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Quad": "Centre",
+          "revenue": 100
+        }
+      ],
+      "labels": [
+        {
+          "City": "M",
+          "location": "TopRightCorner",
+          "to_centre": 0.05
+        },
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.08
+        }
+      ]
+    },
+    {
+      "name": "640",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 60,
+          "rotate": "HalfTurn"
+        }
+      ],
+      "labels": [
+        {
+          "City": "Kh",
+          "location": "TopRightCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "642",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 70,
+          "rotate": "HalfTurn"
+        }
+      ],
+      "labels": [
+        {
+          "City": "S",
+          "location": "TopFace",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "Tver",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleL": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "Centre",
+          "nudge": [
+            "N30E",
+            0.25
+          ]
+        },
+        {
+          "MapLocation": "Tver",
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Nizhnii Novgorod",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "LowerLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "LowerLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30,
+          "nudge": [
+            "S",
+            0.25
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Y": null,
+          "location": "RightCorner",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Nizhnii Novgorod",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Moscow",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.0,
+            0.3
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.0,
+            0.3
+          ]
+        },
+        {
+          "Straight": "UpperRight",
+          "span": [
+            0.0,
+            0.3
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomFace",
+          "revenue": 40,
+          "nudge": [
+            "N",
+            0.2
+          ],
+          "fill_colour": "Yellow"
+        },
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 40,
+          "nudge": [
+            "S60E",
+            0.2
+          ],
+          "fill_colour": "Yellow"
+        },
+        {
+          "Single": "UpperRightFace",
+          "revenue": 40,
+          "nudge": [
+            "S60W",
+            0.2
+          ],
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "nudge": [
+            "S60E",
+            0.15
+          ]
+        },
+        {
+          "City": "M",
+          "location": "LowerRightFace",
+          "nudge": [
+            "S60W",
+            0.15
+          ]
+        },
+        {
+          "MapLocation": "Moscow",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kiev",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.0,
+            0.3
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.0,
+            0.3
+          ]
+        },
+        {
+          "Straight": "UpperRight",
+          "span": [
+            0.0,
+            0.3
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomFace",
+          "revenue": 30,
+          "nudge": [
+            "N",
+            0.2
+          ]
+        },
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 30,
+          "nudge": [
+            "S60E",
+            0.2
+          ],
+          "fill_colour": "Yellow"
+        },
+        {
+          "Single": "UpperRightFace",
+          "revenue": 30,
+          "nudge": [
+            "S60W",
+            0.2
+          ],
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "nudge": [
+            "S60E",
+            0.15
+          ]
+        },
+        {
+          "City": "K",
+          "location": "LowerRightFace",
+          "nudge": [
+            "S60W",
+            0.15
+          ]
+        },
+        {
+          "MapLocation": "Kiev",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "St Petersburg",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "LowerLeft",
+          "span": [
+            0.0,
+            0.3
+          ]
+        },
+        {
+          "GentleL": "LowerRight",
+          "span": [
+            0.0,
+            0.3
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "LowerLeftFace",
+          "revenue": 40,
+          "nudge": [
+            "N60E",
+            0.15
+          ],
+          "fill_colour": "Yellow"
+        },
+        {
+          "Single": "LowerRightFace",
+          "revenue": 40,
+          "nudge": [
+            "N60W",
+            0.15
+          ],
+          "fill_colour": "Grey"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomFace",
+          "to_centre": 0.15
+        },
+        {
+          "City": "S",
+          "location": "RightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "St Petersburg",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Vilnius",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Vilnius",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Minsk",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Minsk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Gomel",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Gomel",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Chernigov",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Chernigov",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kursk",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Kursk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Alexan­drovsk",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Alexan­drovsk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Tula",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Tula",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Yaroslavl",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Yaroslavl",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Lugansk",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Lugansk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Penza",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Penza",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Simbirsk",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Simbirsk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Saratov",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Saratov",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ekaterin­oslav",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Ekaterin­oslav",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kazan",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Kazan",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ufa",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Ufa",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Perm",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Perm",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Voronezh",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Voronezh",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Astrakhan",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.525
+          ]
+        },
+        {
+          "MapLocation": "Astrakhan",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Riga",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.525
+          ]
+        },
+        {
+          "MapLocation": "Riga",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Odessa",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.525
+          ]
+        },
+        {
+          "MapLocation": "Odessa",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kharkov",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Yellow"
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.525
+          ]
+        },
+        {
+          "City": "Kh",
+          "location": "RightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "Kharkov",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Samara",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "Y": null,
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.525
+          ]
+        },
+        {
+          "MapLocation": "Samara",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Smolensk",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Smolensk",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Yuzovka",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Yuzovka",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Rostov",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Rostov",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Tsaritsyn",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0,
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Tsaritsyn",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Central Asia Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 10,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Central Asia",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.15
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              true
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              40,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Central Asia Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 20,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Central Asia",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.15
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              40,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Central Asia Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 30,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Central Asia",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.15
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              true
+            ],
+            [
+              "Grey",
+              40,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Central Asia Gy",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 40,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Central Asia",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.15
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              40,
+              true
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Central Asia2",
+      "colour": "Red",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerLeft",
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Romania Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 10,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Romania",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              true
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              30,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Romania Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 20,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Romania",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              30,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Romania Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 30,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Romania",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              true
+            ],
+            [
+              "Grey",
+              30,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Romania Gy",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 30,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Romania",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ],
+            [
+              "Grey",
+              30,
+              true
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Romania2",
+      "colour": "Red",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Caucasus Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 10,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Caucasus",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              true
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ],
+            [
+              "Grey",
+              60,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
+    },
+    {
+      "name": "Caucasus Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 20,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Caucasus",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ],
+            [
+              "Grey",
+              60,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
+    },
+    {
+      "name": "Caucasus Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 40,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Caucasus",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              true
+            ],
+            [
+              "Grey",
+              60,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
+    },
+    {
+      "name": "Caucasus Gy",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopRightCorner",
+          "revenue": 60,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Caucasus",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.12
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              10,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ],
+            [
+              "Grey",
+              60,
+              true
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.215
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top"
+      ]
+    },
+    {
+      "name": "Caucasus2",
+      "colour": "Red",
+      "track": [
+        {
+          "GentleR": "LowerLeft"
+        },
+        {
+          "Straight": "LowerLeft"
+        },
+        {
+          "GentleL": "LowerLeft"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "Top",
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Caucasus3",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperLeft"
+        },
+        {
+          "GentleL": "UpperLeft"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Poland Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopFace",
+          "revenue": 30,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Poland",
+          "location": "Centre",
+          "nudge": [
+            "S60W",
+            0.35
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              true
+            ],
+            [
+              "Green",
+              40,
+              false
+            ],
+            [
+              "Brown",
+              50,
+              false
+            ],
+            [
+              "Grey",
+              70,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Poland Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopFace",
+          "revenue": 40,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Poland",
+          "location": "Centre",
+          "nudge": [
+            "S60W",
+            0.35
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              40,
+              true
+            ],
+            [
+              "Brown",
+              50,
+              false
+            ],
+            [
+              "Grey",
+              70,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Poland Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopFace",
+          "revenue": 50,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Poland",
+          "location": "Centre",
+          "nudge": [
+            "S60W",
+            0.35
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              40,
+              false
+            ],
+            [
+              "Brown",
+              50,
+              true
+            ],
+            [
+              "Grey",
+              70,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Poland Gy",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "Top",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopFace",
+          "revenue": 70,
+          "fill_colour": "Red"
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Poland",
+          "location": "Centre",
+          "nudge": [
+            "S60W",
+            0.35
+          ]
+        },
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              40,
+              false
+            ],
+            [
+              "Brown",
+              50,
+              false
+            ],
+            [
+              "Grey",
+              70,
+              true
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Poland2",
+      "colour": "Red",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Poland3",
+      "colour": "Red",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Grey1",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardL": "Bottom"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Grey2",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardR": "UpperLeft"
+        },
+        {
+          "GentleR": "UpperLeft"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Grey3",
+      "colour": "Grey",
+      "track": [
+        {
+          "Straight": "LowerRight",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.8
+          ]
+        },
+        {
+          "Straight": "LowerRight",
+          "span": [
+            0.8,
+            1.0
+          ]
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Daugavpils",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ekat Yw",
+      "colour": "Grey",
+      "track": [
+        {
+          "GentleR": "UpperLeft",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "GentleR": "UpperLeft",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "HardR": "UpperLeft",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 40,
+          "nudge": [
+            "S30E",
+            0.2
+          ],
+          "fill_colour": "Green"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomRightCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Ekaterin­burg",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ekat Gr",
+      "colour": "Grey",
+      "track": [
+        {
+          "GentleR": "UpperLeft",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "GentleR": "UpperLeft",
+          "span": [
+            0.3,
+            1.0
+          ]
+        },
+        {
+          "HardR": "UpperLeft",
+          "span": [
+            0.3,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 40,
+          "nudge": [
+            "S30E",
+            0.2
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomRightCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Ekaterin­burg",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.525
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "8 initial",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        }
+      ],
+      "show_tile_name": false
+    }
+  ]
+}
