@@ -35,9 +35,8 @@
 use super::{Action, State};
 
 use cairo::Context;
-use gtk::Inhibit;
 
-use crate::Content;
+use crate::{Content, Ping};
 use n18map::{HexAddress, Map, RotateCW};
 
 /// Replacing one tile with another.
@@ -141,7 +140,8 @@ impl State for ReplaceTile {
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
         let key = event.keyval();
         match key {
@@ -149,12 +149,11 @@ impl State for ReplaceTile {
                 Some(Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
                 )))),
-                Inhibit(false),
                 Action::Redraw,
             ),
             gdk::keys::constants::Return => {
                 if self.show_original {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 } else {
                     // Replace the original tile with the current selection.
                     let tile_ix = self.candidates[self.selected];
@@ -168,57 +167,46 @@ impl State for ReplaceTile {
                         Some(Box::new(super::default::Default::at_hex(
                             Some(self.active_hex),
                         ))),
-                        Inhibit(false),
                         Action::Redraw,
                     )
                 }
             }
             gdk::keys::constants::o | gdk::keys::constants::O => {
                 self.show_original = !self.show_original;
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::Up => {
                 if self.show_original {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 } else {
                     if self.selected == 0 {
                         self.selected = self.candidates.len() - 1
                     } else {
                         self.selected -= 1
                     }
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 }
             }
             gdk::keys::constants::Down => {
                 if self.show_original {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 } else {
                     self.selected += 1;
                     if self.selected >= self.candidates.len() {
                         self.selected = 0;
                     }
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 }
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
                 self.rotation = self.rotation.rotate_anti_cw();
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
                 self.rotation = self.rotation.rotate_cw();
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
-            _ => (None, Inhibit(false), Action::None),
+            _ => (None, Action::None),
         }
-    }
-
-    fn button_press(
-        &mut self,
-        _content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        (None, Inhibit(false), Action::None)
     }
 }

@@ -1,7 +1,6 @@
 use cairo::Context;
-use gtk::Inhibit;
 
-use super::{Action, Content};
+use super::{Action, Content, Ping};
 
 pub mod default;
 pub mod edit_tokens;
@@ -21,18 +20,34 @@ pub trait State {
     /// Responds to a key being pressed, and returns the new state.
     fn key_press(
         &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action);
+        _content: &mut Content,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
+        _event: &gdk::EventKey,
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        (None, Action::None)
+    }
 
     /// Responds to a mouse button being clicked, and returns the new state.
     fn button_press(
         &mut self,
-        content: &mut Content,
-        window: &gtk::ApplicationWindow,
-        area: &gtk::DrawingArea,
-        event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action);
+        _content: &mut Content,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
+        _event: &gdk::EventButton,
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        (None, Action::None)
+    }
+
+    fn ping(
+        &mut self,
+        _content: &mut Content,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        (None, Action::None)
+    }
 }

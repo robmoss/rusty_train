@@ -211,15 +211,49 @@ pub trait Game {
     /// Defines the elements that cannot be shared between routes.
     fn multiple_routes_conflicts(&self) -> ConflictRule;
 
-    /// Finds a path from the currently-selected token that yields the maximum
+    /// Returns a closure that finds routes for the currently-selected
+    /// token that yield the maximum revenue.
+    ///
+    /// The returned closure implements `Send`, so it can be sent to another
+    /// thread.
+    /// Note that the [Map] and [Trains] arguments are passed *by value*,
+    /// unlike the [Game::best_routes] method where they are passed *by
+    /// reference*.
+    ///
+    /// # Default implementation
+    ///
+    /// The default implementation calls [default_best_routes].
+    /// While this should be sufficient for many 18xx games, some games may
+    /// need to override this method.
+    fn best_routes_closure(
+        &self,
+        map: Map,
+        token: Token,
+        trains: Trains,
+        bonus_options: Vec<bool>,
+    ) -> Box<dyn FnOnce() -> Option<Routes> + Send> {
+        let bonuses = self.bonuses(&bonus_options);
+        let conflict_rule = self.single_route_conflicts();
+        let route_conflict_rule = self.multiple_routes_conflicts();
+
+        Box::new(move || {
+            default_best_routes(
+                &map,
+                token,
+                &trains,
+                bonuses,
+                conflict_rule,
+                route_conflict_rule,
+            )
+        })
+    }
+
+    /// Finds routes for the currently-selected token that yield the maximum
     /// revenue.
     ///
     /// # Default implementation
     ///
-    /// The default implementation finds all valid paths with
-    /// [paths_for_token](n18route::paths_for_token) and selects the best
-    /// combination with [select_routes](n18route::Trains::select_routes).
-    ///
+    /// The default implementation calls [default_best_routes].
     /// While this should be sufficient for many 18xx games, some games may
     /// need to override this method.
     fn best_routes(
@@ -229,42 +263,18 @@ pub trait Game {
         trains: &Trains,
         bonus_options: Vec<bool>,
     ) -> Option<Routes> {
-        if trains.is_empty() {
-            return None;
-        }
-
-        let start = std::time::Instant::now();
-        info!("");
-        info!("Searching for the best routes ...");
-
-        let path_limit = trains.path_limit();
-        let criteria = n18route::Criteria {
-            token,
-            path_limit,
-            conflict_rule: self.single_route_conflicts(),
-            route_conflict_rule: self.multiple_routes_conflicts(),
-        };
-
-        let paths = n18route::paths_for_token(map, &criteria);
-        info!(
-            "Enumerated {} routes in {}",
-            paths.len(),
-            start.elapsed().as_secs_f64()
-        );
-
-        let now = std::time::Instant::now();
         let bonuses = self.bonuses(&bonus_options);
-        let routes = trains.select_routes(paths, bonuses);
+        let conflict_rule = self.single_route_conflicts();
+        let route_conflict_rule = self.multiple_routes_conflicts();
 
-        info!(
-            "Calculated (train, path) revenues in {}",
-            now.elapsed().as_secs_f64()
-        );
-        info!(
-            "Searching for the best routes took {}",
-            start.elapsed().as_secs_f64()
-        );
-        routes
+        default_best_routes(
+            map,
+            token,
+            trains,
+            bonuses,
+            conflict_rule,
+            route_conflict_rule,
+        )
     }
 
     /// Returns all game tiles, including special tiles that players cannot
@@ -360,6 +370,58 @@ pub trait Game {
         state.map.update_map(&mut map);
         Some(map)
     }
+}
+
+/// The default implementation for finding routes that earn the most revenue.
+///
+/// This finds all valid paths with [n18route::paths_for_token] and selects
+/// the best combination with [n18route::Trains::select_routes].
+///
+/// While this should be sufficient for many 18xx games, some games may
+/// need to use a different approach.
+pub fn default_best_routes(
+    map: &Map,
+    token: Token,
+    trains: &Trains,
+    bonuses: Vec<Bonus>,
+    conflict_rule: ConflictRule,
+    route_conflict_rule: ConflictRule,
+) -> Option<Routes> {
+    if trains.is_empty() {
+        return None;
+    }
+
+    let start = std::time::Instant::now();
+    info!("");
+    info!("Searching for the best routes ...");
+
+    let path_limit = trains.path_limit();
+    let criteria = n18route::Criteria {
+        token,
+        path_limit,
+        conflict_rule,
+        route_conflict_rule,
+    };
+
+    let paths = n18route::paths_for_token(map, &criteria);
+    info!(
+        "Enumerated {} routes in {}",
+        paths.len(),
+        start.elapsed().as_secs_f64()
+    );
+
+    let now = std::time::Instant::now();
+    let routes = trains.select_routes(paths, bonuses);
+
+    info!(
+        "Calculated (train, path) revenues in {}",
+        now.elapsed().as_secs_f64()
+    );
+    info!(
+        "Searching for the best routes took {}",
+        start.elapsed().as_secs_f64()
+    );
+    routes
 }
 
 /// Describes the current game state.

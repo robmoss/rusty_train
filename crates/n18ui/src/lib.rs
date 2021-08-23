@@ -4,7 +4,7 @@
 //! See the `rusty_train` code for an example of how to use the [UI] struct.
 //!
 use cairo::{Context, ImageSurface};
-use gtk::prelude::{GtkWindowExt, Inhibit, WidgetExt};
+use gtk::prelude::{GtkWindowExt, WidgetExt};
 use log::info;
 use std::sync::{Arc, RwLock};
 
@@ -18,6 +18,10 @@ pub mod dialog;
 pub mod state;
 /// Various utility UI functions.
 pub mod util;
+
+/// The channel type used to send "pings" to update the UI state in response
+/// to events other than UI events.
+pub type Ping = glib::Sender<()>;
 
 use state::State;
 
@@ -121,16 +125,6 @@ pub enum Action {
     /// Decrease the hex size.
     ZoomOut,
 }
-
-// TODO: collect hex, map, window, area, event into a struct Event<T>
-// where T is EventKey or EventButton?
-// pub struct Event<'a, T> {
-//     hex: &'a Hex,
-//     map: &'a mut Map,
-//     window: &'a gtk::ApplicationWindow,
-//     area: &'a gtk::DrawingArea,
-//     event: &'a T,
-// }
 
 /// Draws the state onto the provided context.
 fn draw_state(state: &dyn State, content: &Content, ctx: &Context) {
@@ -366,7 +360,8 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Inhibit, Action) {
+        ping_tx: &Ping,
+    ) -> Action {
         // Note: use &* because Box<T> implements Deref<Target = T>.
         // So &*curr_state converts from Box<dyn State> to &dyn State.
         let action = global_keymap(
@@ -376,36 +371,30 @@ impl UI {
             area,
             event,
         );
-        let (new_state_opt, inhibit, action) =
-            if let Some((reset_state, inhibit, action)) = action {
+        let (new_state_opt, action) =
+            if let Some((reset_state, action)) = action {
                 match reset_state {
-                    ResetState::No => (None, inhibit, action),
+                    ResetState::No => (None, action),
                     ResetState::Yes => {
                         let b: Box<dyn State> = Box::new(
                             state::default::Default::new(&self.content.map),
                         );
-                        (Some(b), inhibit, action)
+                        (Some(b), action)
                     }
                 }
             } else {
-                self.state.key_press(&mut self.content, window, area, event)
+                self.state.key_press(
+                    &mut self.content,
+                    window,
+                    area,
+                    event,
+                    ping_tx,
+                )
             };
         if let Some(new_state) = new_state_opt {
             self.state = new_state;
         }
-        (inhibit, action)
-    }
-
-    /// Responds to a key being pressed.
-    pub fn key_press(
-        &mut self,
-        window: &gtk::ApplicationWindow,
-        area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
-    ) -> Inhibit {
-        let (inhibit, action) = self.key_press_action(window, area, event);
-        self.handle_action(window, area, action);
-        inhibit
+        action
     }
 
     /// Responds to a mouse button being clicked.
@@ -414,26 +403,35 @@ impl UI {
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         event: &gdk::EventButton,
-    ) -> (Inhibit, Action) {
-        let (new_state_opt, inhibit, action) =
-            self.state
-                .button_press(&mut self.content, window, area, event);
+        ping_tx: &Ping,
+    ) -> Action {
+        let (new_state_opt, action) = self.state.button_press(
+            &mut self.content,
+            window,
+            area,
+            event,
+            ping_tx,
+        );
         if let Some(new_state) = new_state_opt {
             self.state = new_state;
         }
-        (inhibit, action)
+        action
     }
 
-    /// Responds to a mouse button being clicked.
-    pub fn button_press(
+    /// Responds to an event triggered by something other than a UI event
+    /// (e.g., a message from a task running in a separate thread).
+    pub fn ping(
         &mut self,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
-        event: &gdk::EventButton,
-    ) -> Inhibit {
-        let (inhibit, action) = self.button_press_action(window, area, event);
-        self.handle_action(window, area, action);
-        inhibit
+        ping_tx: &Ping,
+    ) -> Action {
+        let (new_state_opt, action) =
+            self.state.ping(&mut self.content, window, area, ping_tx);
+        if let Some(new_state) = new_state_opt {
+            self.state = new_state;
+        }
+        action
     }
 }
 
@@ -462,14 +460,14 @@ pub fn global_keymap(
     window: &gtk::ApplicationWindow,
     area: &gtk::DrawingArea,
     event: &gdk::EventKey,
-) -> Option<(ResetState, Inhibit, Action)> {
+) -> Option<(ResetState, Action)> {
     let key = event.keyval();
     let modifiers = event.state();
     let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
     match (key, ctrl) {
         (gdk::keys::constants::q, false)
         | (gdk::keys::constants::Q, false) => {
-            Some((ResetState::No, Inhibit(false), Action::Quit))
+            Some((ResetState::No, Action::Quit))
         }
         (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
             // Prompt the user to select a game, and load its starting map.
@@ -484,14 +482,10 @@ pub fn global_keymap(
                     content.map =
                         content.games.active().create_map(&content.hex);
                     window.set_title(content.games.active().name());
-                    return Some((
-                        ResetState::Yes,
-                        Inhibit(false),
-                        Action::ResetGame,
-                    ));
+                    return Some((ResetState::Yes, Action::ResetGame));
                 }
             }
-            Some((ResetState::No, Inhibit(false), Action::None))
+            Some((ResetState::No, Action::None))
         }
         (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
             match util::load_game(window, content) {
@@ -501,11 +495,11 @@ pub fn global_keymap(
                         _ => ResetState::Yes,
                     };
                     window.set_title(content.games.active().name());
-                    Some((reset, Inhibit(false), action))
+                    Some((reset, action))
                 }
                 Err(error) => {
                     eprintln!("Error loading map: {}", error);
-                    Some((ResetState::No, Inhibit(false), Action::None))
+                    Some((ResetState::No, Action::None))
                 }
             }
         }
@@ -517,31 +511,31 @@ pub fn global_keymap(
                         Action::None => ResetState::No,
                         _ => ResetState::Yes,
                     };
-                    Some((reset, Inhibit(false), action))
+                    Some((reset, action))
                 }
                 Err(error) => {
                     eprintln!("Error saving map: {}", error);
-                    Some((ResetState::No, Inhibit(false), Action::None))
+                    Some((ResetState::No, Action::None))
                 }
             }
         }
         (gdk::keys::constants::s, false)
         | (gdk::keys::constants::S, false) => {
             match util::save_screenshot(state, window, area, content) {
-                Ok(action) => Some((ResetState::No, Inhibit(false), action)),
+                Ok(action) => Some((ResetState::No, action)),
                 Err(error) => {
                     eprintln!("Error saving screenshot: {}", error);
-                    Some((ResetState::No, Inhibit(false), Action::None))
+                    Some((ResetState::No, Action::None))
                 }
             }
         }
         (gdk::keys::constants::plus, false)
         | (gdk::keys::constants::equal, false) => {
-            Some((ResetState::No, Inhibit(false), Action::ZoomIn))
+            Some((ResetState::No, Action::ZoomIn))
         }
         (gdk::keys::constants::minus, false)
         | (gdk::keys::constants::underscore, false) => {
-            Some((ResetState::No, Inhibit(false), Action::ZoomOut))
+            Some((ResetState::No, Action::ZoomOut))
         }
         _ => None,
     }

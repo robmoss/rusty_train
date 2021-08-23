@@ -18,7 +18,7 @@ pub enum Orientation {
 }
 
 /// A grid of hexes, each of which may contain a [Tile].
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Map {
     /// The tokens that can be placed on the map.
     tokens: Tokens,

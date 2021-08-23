@@ -22,5 +22,6 @@ cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
 # Use features provided by GTK 3.20 (native file choosers).
 gtk = { version = "0.14", features = ["v3_20"] }
 gdk = "0.14"
+glib = "0.14"
 chrono = "0.4"
 log = "0.4"

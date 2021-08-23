@@ -1,11 +1,10 @@
 //! Defines the starting UI state.
 use cairo::Context;
-use gtk::Inhibit;
 
 use n18hex::theme::Text;
 use n18hex::Coord;
 
-use super::{Action, State};
+use super::State;
 use crate::Content;
 
 /// The starting UI state: no game, no map.
@@ -38,25 +37,5 @@ impl State for Start {
         let labeller =
             Text::new().font_size(16.0).labeller(ctx, &content.hex);
         labeller.draw(usage_str, Coord::from((20.0, 20.0)));
-    }
-
-    fn key_press(
-        &mut self,
-        _content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        _event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        (None, Inhibit(false), Action::None)
-    }
-
-    fn button_press(
-        &mut self,
-        _content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        (None, Inhibit(false), Action::None)
     }
 }

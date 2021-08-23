@@ -671,6 +671,7 @@ dependencies = [
  "cairo-rs",
  "chrono",
  "gdk",
+ "glib",
  "gtk",
  "log",
  "n18brush",

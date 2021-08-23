@@ -52,6 +52,7 @@ pub fn main() {
 pub enum UiEvent {
     ButtonPress { event: gdk::EventButton },
     KeyPress { event: gdk::EventKey },
+    PingCurrentState,
 }
 
 pub fn run(application: &gtk::Application, mut state: UI) {
@@ -71,6 +72,7 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     // Set the minimum size of the drawing area to the required canvas size.
     drawing_area.set_size_request(width, height);
 
+    // Create a channel to pass UI events to the `state` event handlers.
     let (tx, rx) =
         glib::MainContext::sync_channel(glib::PRIORITY_DEFAULT, 100);
 
@@ -97,8 +99,9 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     drawing_area.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
 
     // Let the UI handle keyboard events.
+    let tx_ = tx.clone();
     window.connect_key_press_event(move |_widget, event| {
-        tx.send(UiEvent::KeyPress {
+        tx_.send(UiEvent::KeyPress {
             event: event.clone(),
         })
         .expect("Could not send KeyPress event");
@@ -108,14 +111,29 @@ pub fn run(application: &gtk::Application, mut state: UI) {
 
     let area_ = drawing_area.clone();
     let win_ = window.clone();
+
+    // Create a second channel for sending unit values, which can be used to
+    // trigger non-UI events, such as messages from tasks in other threads.
+    // We provide the sender to each `state` method, so that they can make use
+    // of it as necessary.
+    let (ping_tx, ping_rx) =
+        glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+    // Pass each "ping" event to the current UI state.
+    ping_rx.attach(None, move |()| {
+        tx.send(UiEvent::PingCurrentState)
+            .expect("Could not send Ping event");
+        glib::source::Continue(true)
+    });
+
     rx.attach(None, move |event| {
-        let (_inhibit, action) = match event {
+        let action = match event {
             UiEvent::ButtonPress { event } => {
-                state.button_press_action(&win_, &area_, &event)
+                state.button_press_action(&win_, &area_, &event, &ping_tx)
             }
             UiEvent::KeyPress { event } => {
-                state.key_press_action(&win_, &area_, &event)
+                state.key_press_action(&win_, &area_, &event, &ping_tx)
             }
+            UiEvent::PingCurrentState => state.ping(&win_, &area_, &ping_tx),
         };
         state.handle_action(&win_, &area_, action);
         glib::source::Continue(true)

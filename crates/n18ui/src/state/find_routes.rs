@@ -2,10 +2,10 @@
 use super::{Action, State};
 
 use cairo::Context;
-use gtk::prelude::{GtkWindowExt, Inhibit};
+use gtk::prelude::GtkWindowExt;
 
 use crate::dialog::{select_item, select_trains};
-use crate::Content;
+use crate::{Content, Ping};
 use n18game::Company;
 use n18map::HexAddress;
 use n18route::Routes;
@@ -18,6 +18,8 @@ pub struct FindRoutes {
     best_routes: Option<(Token, Routes)>,
     original_window_title: Option<String>,
     active_route: Option<usize>,
+    receiver: std::sync::mpsc::Receiver<Option<(Token, Routes)>>,
+    finished: bool,
 }
 
 impl FindRoutes {
@@ -25,6 +27,7 @@ impl FindRoutes {
         content: &Content,
         active_hex: Option<&HexAddress>,
         window: &gtk::ApplicationWindow,
+        ping_tx: &Ping,
     ) -> Option<Self> {
         // Select a company from those that have placed tokens on the map.
         let companies = valid_companies(content);
@@ -49,12 +52,30 @@ impl FindRoutes {
         let (trains, bonuses) =
             select_trains(window, content.games.active(), abbrev)?;
 
-        // Find the best routes.
-        let best_routes = content
-            .games
-            .active()
-            .best_routes(&content.map, token, &trains, bonuses)
-            .map(|routes| (token, routes));
+        // Search for the best routes in a separate thread, to avoid making
+        // the user interface unresponsive, and provide this thread with a
+        // cloned `ping_tx` so that it can ping this state when the
+        // route-finding has finished.
+        let ping_tx = ping_tx.clone();
+        // NOTE: we also need to clone the map, because the thread cannot take
+        // a reference unless we somehow define an appropriate lifetime.
+        let map = content.map.clone();
+        // Create a channel from which to retrieve the best routes.
+        let (sender, receiver) = std::sync::mpsc::sync_channel(1);
+
+        // Spawn the new thread.
+        let active_game = content.games.active();
+        let search_fn =
+            active_game.best_routes_closure(map, token, trains, bonuses);
+        std::thread::spawn(move || {
+            // Find the best routes.
+            let best_routes = search_fn().map(|routes| (token, routes));
+            // Send the best routes back to this state.
+            sender.send(best_routes).unwrap();
+            // Ping this state so that it can retrieve the best routes.
+            ping_tx.send(()).unwrap();
+        });
+
         let active_route = None;
 
         let original_window_title =
@@ -62,9 +83,11 @@ impl FindRoutes {
         let state = FindRoutes {
             active_hex: active_hex.copied(),
             abbrev: abbrev.to_string(),
-            best_routes,
+            best_routes: None,
             original_window_title,
             active_route,
+            receiver,
+            finished: false,
         };
 
         // Update the window title.
@@ -81,6 +104,11 @@ impl FindRoutes {
         window: &gtk::ApplicationWindow,
         content: &Content,
     ) {
+        if !self.finished {
+            let title = format!("{}: searching ...", self.abbrev);
+            window.set_title(&title);
+            return;
+        }
         let title = if let Some((_token, routes)) = &self.best_routes {
             if let Some(ix) = self.active_route {
                 let route = &routes.train_routes[ix];
@@ -123,6 +151,14 @@ impl State for FindRoutes {
         let mut hex_iter = map.hex_iter(hex, ctx);
 
         n18brush::draw_map(hex, ctx, &mut hex_iter);
+        if !self.finished {
+            // NOTE: fade out the entire map and return.
+            let fill = n18hex::Colour::WHITE.with_alpha(159);
+            fill.apply_colour(ctx);
+            ctx.paint().unwrap();
+            return;
+        }
+
         // Slightly fade hexes that are not part of any route.
         if let Some((_token, routes)) = &self.best_routes {
             let hexes: std::collections::BTreeSet<&HexAddress> = routes
@@ -185,7 +221,11 @@ impl State for FindRoutes {
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        if !self.finished {
+            return (None, Action::None);
+        }
         let key = event.keyval();
         match key {
             gdk::keys::constants::Escape | gdk::keys::constants::Return => {
@@ -198,7 +238,7 @@ impl State for FindRoutes {
                 let state = Box::new(super::default::Default::at_hex(
                     self.active_hex,
                 ));
-                (Some(state), Inhibit(false), Action::Redraw)
+                (Some(state), Action::Redraw)
             }
             gdk::keys::constants::Left | gdk::keys::constants::Up => {
                 // Draw the previous route, if any, by itself.
@@ -215,9 +255,9 @@ impl State for FindRoutes {
                         self.active_route = Some(num_routes - 1);
                     }
                     self.set_window_title(window, content);
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::Right | gdk::keys::constants::Down => {
@@ -234,22 +274,26 @@ impl State for FindRoutes {
                         self.active_route = Some(0);
                     }
                     self.set_window_title(window, content);
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
-            _ => (None, Inhibit(false), Action::None),
+            _ => (None, Action::None),
         }
     }
 
-    fn button_press(
+    fn ping(
         &mut self,
-        _content: &mut Content,
-        _window: &gtk::ApplicationWindow,
+        content: &mut Content,
+        window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        (None, Inhibit(false), Action::None)
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        let best_routes = self.receiver.recv().unwrap();
+        self.best_routes = best_routes;
+        self.finished = true;
+        self.set_window_title(window, content);
+        (None, Action::Redraw)
     }
 }

@@ -1,10 +1,9 @@
 //! Selects tiles and switches to editing and route-finding modes.
 use cairo::Context;
-use gtk::Inhibit;
 use log::info;
 
 use super::{Action, State};
-use crate::Content;
+use crate::{Content, Ping};
 use n18map::{HexAddress, Map};
 
 /// The default state: selecting a tile.
@@ -49,7 +48,8 @@ impl State for Default {
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
         let key = event.keyval();
         match key {
@@ -58,9 +58,9 @@ impl State for Default {
                     let state = Box::new(
                         super::replace_tile::ReplaceTile::with_any(map, addr),
                     );
-                    (Some(state), Inhibit(false), Action::Redraw)
+                    (Some(state), Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::p | gdk::keys::constants::P => {
@@ -75,9 +75,9 @@ impl State for Default {
                         .games
                         .active_mut()
                         .set_phase_ix(&mut content.map, phase);
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::u | gdk::keys::constants::U => {
@@ -98,10 +98,10 @@ impl State for Default {
                                     addr, candidates,
                                 ),
                             );
-                            (Some(state), Inhibit(false), Action::Redraw)
+                            (Some(state), Action::Redraw)
                         } else {
                             info!("No upgrade candidates for {}", tile.name);
-                            (None, Inhibit(false), Action::None)
+                            (None, Action::None)
                         }
                     } else {
                         // NOTE: attempting to place a tile on an empty hex.
@@ -119,14 +119,14 @@ impl State for Default {
                                     addr, candidates,
                                 ),
                             );
-                            (Some(state), Inhibit(false), Action::Redraw)
+                            (Some(state), Action::Redraw)
                         } else {
                             info!("No placement candidates for empty hex");
-                            (None, Inhibit(false), Action::None)
+                            (None, Action::None)
                         }
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::t | gdk::keys::constants::T => {
@@ -134,16 +134,12 @@ impl State for Default {
                     if let Some(state) =
                         super::edit_tokens::EditTokens::try_new(map, addr)
                     {
-                        (
-                            Some(Box::new(state)),
-                            Inhibit(false),
-                            Action::Redraw,
-                        )
+                        (Some(Box::new(state)), Action::Redraw)
                     } else {
-                        (None, Inhibit(false), Action::None)
+                        (None, Action::None)
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::r | gdk::keys::constants::R => {
@@ -153,11 +149,12 @@ impl State for Default {
                     content,
                     self.active_hex.as_ref(),
                     window,
+                    ping_tx,
                 );
                 if let Some(state) = state_opt {
-                    (Some(Box::new(state)), Inhibit(false), Action::Redraw)
+                    (Some(Box::new(state)), Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::Left => {
@@ -165,52 +162,52 @@ impl State for Default {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.prev_col(addr);
                     if new_addr == addr {
-                        (None, Inhibit(false), Action::None)
+                        (None, Action::None)
                     } else {
                         self.active_hex = Some(new_addr);
-                        (None, Inhibit(false), Action::Redraw)
+                        (None, Action::Redraw)
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::Right => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.next_col(addr);
                     if new_addr == addr {
-                        (None, Inhibit(false), Action::None)
+                        (None, Action::None)
                     } else {
                         self.active_hex = Some(new_addr);
-                        (None, Inhibit(false), Action::Redraw)
+                        (None, Action::Redraw)
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::Up => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.prev_row(addr);
                     if new_addr == addr {
-                        (None, Inhibit(false), Action::None)
+                        (None, Action::None)
                     } else {
                         self.active_hex = Some(new_addr);
-                        (None, Inhibit(false), Action::Redraw)
+                        (None, Action::Redraw)
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::Down => {
                 if let Some(addr) = self.active_hex {
                     let new_addr = map.next_row(addr);
                     if new_addr == addr {
-                        (None, Inhibit(false), Action::None)
+                        (None, Action::None)
                     } else {
                         self.active_hex = Some(new_addr);
-                        (None, Inhibit(false), Action::Redraw)
+                        (None, Action::Redraw)
                     }
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
@@ -218,9 +215,9 @@ impl State for Default {
                     if let Some(hs) = map.hex_mut(addr) {
                         hs.rotate_anti_cw()
                     }
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
@@ -228,9 +225,9 @@ impl State for Default {
                     if let Some(hs) = map.hex_mut(addr) {
                         hs.rotate_cw()
                     }
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
             gdk::keys::constants::BackSpace
@@ -238,12 +235,12 @@ impl State for Default {
                 if let Some(addr) = self.active_hex {
                     // TODO: allow this action to be undone?
                     map.remove_tile(addr);
-                    (None, Inhibit(false), Action::Redraw)
+                    (None, Action::Redraw)
                 } else {
-                    (None, Inhibit(false), Action::None)
+                    (None, Action::None)
                 }
             }
-            _ => (None, Inhibit(false), Action::None),
+            _ => (None, Action::None),
         }
     }
 
@@ -253,7 +250,8 @@ impl State for Default {
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
         let hex = &content.hex;
         let map = &mut content.map;
         // Allow the user to select hexes with a single click of any button.
@@ -268,9 +266,9 @@ impl State for Default {
         });
         if let Some(a) = addr {
             self.active_hex = Some(*a);
-            (None, Inhibit(false), Action::Redraw)
+            (None, Action::Redraw)
         } else {
-            (None, Inhibit(false), Action::None)
+            (None, Action::None)
         }
     }
 }

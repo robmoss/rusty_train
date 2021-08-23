@@ -2,9 +2,8 @@
 use super::{Action, State};
 
 use cairo::Context;
-use gtk::Inhibit;
 
-use crate::Content;
+use crate::{Content, Ping};
 use n18hex::HexColour;
 use n18map::{HexAddress, Map, TokensTable};
 use n18tile::TokenSpace;
@@ -75,7 +74,8 @@ impl State for EditTokens {
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
         event: &gdk::EventKey,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
         let key = event.keyval();
         match key {
@@ -93,7 +93,6 @@ impl State for EditTokens {
                     Some(Box::new(super::default::Default::at_hex(Some(
                         self.active_hex,
                     )))),
-                    Inhibit(false),
                     Action::Redraw,
                 )
             }
@@ -102,7 +101,6 @@ impl State for EditTokens {
                 Some(Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,
                 )))),
-                Inhibit(false),
                 Action::Redraw,
             ),
             gdk::keys::constants::Left => {
@@ -111,14 +109,14 @@ impl State for EditTokens {
                 } else {
                     self.selected -= 1
                 }
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::Right => {
                 self.selected += 1;
                 if self.selected >= self.token_spaces.len() {
                     self.selected = 0
                 }
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::Up => {
                 let token_space = &self.token_spaces[self.selected];
@@ -132,7 +130,7 @@ impl State for EditTokens {
                         .unwrap_or_else(|| game.first_token());
                     hs.set_token_at(token_space, *next);
                 }
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::Down => {
                 let token_space = &self.token_spaces[self.selected];
@@ -146,7 +144,7 @@ impl State for EditTokens {
                         .unwrap_or_else(|| game.last_token());
                     hs.set_token_at(token_space, *next);
                 };
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
             gdk::keys::constants::_0
             | gdk::keys::constants::KP_0
@@ -156,19 +154,9 @@ impl State for EditTokens {
                 if let Some(hs) = map.hex_mut(self.active_hex) {
                     hs.remove_token_at(token_space)
                 }
-                (None, Inhibit(false), Action::Redraw)
+                (None, Action::Redraw)
             }
-            _ => (None, Inhibit(false), Action::None),
+            _ => (None, Action::None),
         }
-    }
-
-    fn button_press(
-        &mut self,
-        _content: &mut Content,
-        _window: &gtk::ApplicationWindow,
-        _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
-    ) -> (Option<Box<dyn State>>, Inhibit, Action) {
-        (None, Inhibit(false), Action::None)
     }
 }
