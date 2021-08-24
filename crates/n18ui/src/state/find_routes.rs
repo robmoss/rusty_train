@@ -245,6 +245,9 @@ impl State for FindRoutes {
                 if let Some((_token, routes)) = &self.best_routes {
                     let routes_vec = routes.routes();
                     let num_routes = routes_vec.len();
+                    if num_routes < 2 {
+                        return (None, Action::None);
+                    }
                     if let Some(curr_ix) = self.active_route {
                         if curr_ix == 0 {
                             self.active_route = None;
@@ -264,6 +267,9 @@ impl State for FindRoutes {
                 // Draw the next route, if any, by itself.
                 if let Some((_token, routes)) = &self.best_routes {
                     let num_routes = routes.routes().len();
+                    if num_routes < 2 {
+                        return (None, Action::None);
+                    }
                     if let Some(curr_ix) = self.active_route {
                         if curr_ix == num_routes - 1 {
                             self.active_route = None;
