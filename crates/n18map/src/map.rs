@@ -1168,6 +1168,123 @@ impl HexAddress {
             2 * self.row + 2
         }
     }
+
+    /// Returns the address of the hex that is adjacent to the specified face
+    /// (in terms of map orientation, not tile orientation) of this hex,
+    /// without doing bounds checking.
+    pub fn adjacent_unchecked(&self, face: HexFace) -> HexAddress {
+        self.adjacent(face).unwrap()
+    }
+
+    /// Returns the address of the hex that is adjacent to the specified face
+    /// (in terms of map orientation, not tile orientation) of this hex.
+    pub fn adjacent(&self, face: HexFace) -> Option<HexAddress> {
+        let is_upper = self.col % 2 == 0;
+
+        match face {
+            HexFace::Top => {
+                if self.row > 0 {
+                    Some((self.row - 1, self.col).into())
+                } else {
+                    None
+                }
+            }
+            HexFace::UpperRight => {
+                if is_upper {
+                    if self.row > 0 {
+                        Some((self.row - 1, self.col + 1).into())
+                    } else {
+                        None
+                    }
+                } else {
+                    Some((self.row, self.col + 1).into())
+                }
+            }
+            HexFace::LowerRight => {
+                if is_upper {
+                    Some((self.row, self.col + 1).into())
+                } else {
+                    Some((self.row + 1, self.col + 1).into())
+                }
+            }
+            HexFace::Bottom => Some((self.row + 1, self.col).into()),
+            HexFace::LowerLeft => {
+                if self.col > 0 {
+                    if is_upper {
+                        Some((self.row, self.col - 1).into())
+                    } else {
+                        Some((self.row + 1, self.col - 1).into())
+                    }
+                } else {
+                    None
+                }
+            }
+            HexFace::UpperLeft => {
+                if self.col > 0 {
+                    if is_upper {
+                        if self.row > 0 {
+                            Some((self.row - 1, self.col - 1).into())
+                        } else {
+                            None
+                        }
+                    } else {
+                        Some((self.row, self.col - 1).into())
+                    }
+                } else {
+                    None
+                }
+            }
+        }
+    }
+
+    /// Calls a closure on this hex address, and returns the hex address.
+    pub fn do_here<F>(&self, mut f: F) -> &HexAddress
+    where
+        F: FnMut(&Self),
+    {
+        f(self);
+        self
+    }
+
+    /// Calls a closure on the address of the hex that is adjacent to the
+    /// specified face (in terms of map orientation, not tile orientation) of
+    /// this hex, without doing bounds checking, and returns the new hex
+    /// address.
+    ///
+    /// This is short-hand for calling
+    /// [adjacent_unchecked](HexAddress::adjacent_unchecked) and
+    /// [do_here](HexAddress::do_here), then returning the new hex address.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use n18hex::HexFace;
+    /// use n18map::{HexAddress, Map, RotateCW};
+    ///
+    /// fn place_connected_track(map: &mut Map, starting_city: HexAddress) {
+    ///     starting_city
+    ///         // Move to the hex below and place tile 8.
+    ///         .move_and_do(HexFace::Bottom, |&addr| {
+    ///             let _ = map.place_tile(addr, "8", RotateCW::Five);
+    ///         })
+    ///         // Move to the hex on the lower right and place tile 9.
+    ///         .move_and_do(HexFace::LowerRight, |&addr| {
+    ///             let _ = map.place_tile(addr, "9", RotateCW::Two);
+    ///         })
+    ///         // Move to the hex on the lower right and place tile 9.
+    ///         .move_and_do(HexFace::LowerRight, |&addr| {
+    ///             let _ = map.place_tile(addr, "9", RotateCW::Two);
+    ///         });
+    /// }
+    /// ```
+    pub fn move_and_do<F>(&self, face: HexFace, f: F) -> HexAddress
+    where
+        F: FnMut(&Self),
+    {
+        let addr = self.adjacent_unchecked(face);
+        addr.do_here(f);
+        addr
+    }
 }
 
 impl std::fmt::Display for HexAddress {
