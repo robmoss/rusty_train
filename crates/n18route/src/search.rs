@@ -439,7 +439,7 @@ fn depth_first_search(
     // implementation for (HexAddress, usize) to ensure that we only explore
     // it in a single (and arbitrary, but consistent) direction.
     if let Connection::City { ix: city_ix } = conn {
-        let token_tbl = map.hex(addr).unwrap().tokens();
+        let token_tbl = map.hex_state(addr).unwrap().tokens();
         let has_token = token_tbl.iter().any(|(&space, &tok)| {
             space.city_ix() == city_ix && tok == query.criteria.token
         });
@@ -491,7 +491,7 @@ fn depth_first_search(
                 let token_spaces = tile.city_token_spaces(city_ix);
                 // NOTE: we must only check tokens associated with this city.
                 let city_tokens: Vec<_> = map
-                    .hex(addr)
+                    .hex_state(addr)
                     .unwrap()
                     .tokens()
                     .iter()

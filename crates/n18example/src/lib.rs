@@ -105,7 +105,7 @@ impl Example {
                     .iter()
                     .map(|(ix, name)| (*ix, self.map.token(name)))
                     .collect();
-                let map_hex = self.map.hex_mut(addr).unwrap();
+                let map_hex = self.map.hex_state_mut(addr).unwrap();
                 for (ix, token) in &place_toks {
                     map_hex.set_token_at(&tok_spaces[*ix], *token)
                 }

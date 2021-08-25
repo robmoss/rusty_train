@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::map::{HexAddress, Map, MapHex, RotateCW};
+use crate::map::{HexAddress, Map, MapTile, RotateCW};
 use n18tile::Tile;
 use n18token::Tokens;
 
@@ -50,8 +50,8 @@ impl From<Vec<TileDescr>> for Descr {
     }
 }
 
-impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
-    fn from(src: (&Map, HexAddress, &MapHex)) -> TileDescr {
+impl From<(&Map, HexAddress, &MapTile)> for TileDescr {
+    fn from(src: (&Map, HexAddress, &MapTile)) -> TileDescr {
         let map = src.0;
         let addr = src.1;
         let map_hex = src.2;
@@ -82,9 +82,9 @@ impl From<(&Map, HexAddress, &MapHex)> for TileDescr {
 /// Describes the current state of an existing map.
 impl From<&Map> for Descr {
     fn from(map: &Map) -> Descr {
-        let tile_hexes =
-            map.hexes().iter().map(|addr| (*addr, map.hex(*addr)));
-        let tile_descrs = tile_hexes
+        let tile_descrs = map
+            .hex_address_iter()
+            .map(|addr| (*addr, map.hex_state(*addr)))
             .map(|(addr, map_hex)| {
                 let tile_opt: Option<TileDescr> =
                     map_hex.map(|mh| (map, addr, mh).into());
@@ -135,7 +135,8 @@ impl Descr {
                         (space_ix, token)
                     })
                     .collect();
-                let hex_state = map.hex_mut(*addr).expect("No hex state");
+                let hex_state =
+                    map.hex_state_mut(*addr).expect("No hex state");
                 for (space_ix, token) in tile_tokens {
                     hex_state.set_token_at(&spaces[*space_ix], token);
                 }
@@ -342,7 +343,7 @@ pub mod tests {
                 }
 
                 // Check that the tile rotations match.
-                let hex_state = map.hex(*addr);
+                let hex_state = map.hex_state(*addr);
                 assert!(hex_state.is_some());
                 let rot = hex_state.unwrap().rotation();
                 assert_eq!(rot, &tile_descr.rotation);

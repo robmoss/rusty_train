@@ -103,7 +103,7 @@ fn find_routes_for_phase(
     // green phases) or a central token space (brown and grey phases).
     let token = map.token("KB");
     let token_spaces = map.tile_at(moscow()).unwrap().token_spaces();
-    let hex_state = map.hex_mut(moscow()).unwrap();
+    let hex_state = map.hex_state_mut(moscow()).unwrap();
     hex_state.set_token_at(&token_spaces[2], token);
 
     // Run the train(s) and identify the optimal revenue.

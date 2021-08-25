@@ -90,7 +90,7 @@ impl State for ReplaceTile {
             let tile = &map.nth_tile(tile_ix);
 
             // Apply the appropriate tile rotation.
-            let map_hex = map.hex(self.active_hex);
+            let map_hex = map.hex_state(self.active_hex);
             let radians = self.rotation.radians()
                 + map_hex.map(|hs| -hs.radians()).unwrap_or(0.0);
 

@@ -361,7 +361,7 @@ fn highlight_visits(hex: &Hex, ctx: &Context, map: &Map, visits: &[Visit]) {
                 let city = tile.cities()[ix];
                 city.draw_fg(hex, ctx);
                 // Draw the tokens first.
-                if let Some(hex_state) = map.hex(visit.addr) {
+                if let Some(hex_state) = map.hex_state(visit.addr) {
                     let rotn = hex_state.radians();
                     let tokens_table = hex_state.tokens();
                     for (token_space, map_token) in tokens_table.iter() {

@@ -212,7 +212,7 @@ impl State for Default {
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
                 if let Some(addr) = self.active_hex {
-                    if let Some(hs) = map.hex_mut(addr) {
+                    if let Some(hs) = map.hex_state_mut(addr) {
                         hs.rotate_anti_cw()
                     }
                     (None, Action::Redraw)
@@ -222,7 +222,7 @@ impl State for Default {
             }
             gdk::keys::constants::greater | gdk::keys::constants::period => {
                 if let Some(addr) = self.active_hex {
-                    if let Some(hs) = map.hex_mut(addr) {
+                    if let Some(hs) = map.hex_state_mut(addr) {
                         hs.rotate_cw()
                     }
                     (None, Action::Redraw)
@@ -256,9 +256,8 @@ impl State for Default {
         let map = &mut content.map;
         // Allow the user to select hexes with a single click of any button.
         let (x, y) = event.position();
-        let hexes = map.hexes();
         let ctx = hex.context();
-        let addr = hexes.iter().find(|addr| {
+        let addr = map.hex_address_iter().find(|addr| {
             let m = map.prepare_to_draw(**addr, hex, ctx);
             hex.define_boundary(ctx);
             ctx.set_matrix(m);

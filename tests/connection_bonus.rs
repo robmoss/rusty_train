@@ -83,7 +83,7 @@ fn test_connection_bonus_between_two_dits() {
     let toronto = "F16".parse().unwrap();
     let hex_tile = map.tile_at(toronto).unwrap();
     let token_space = hex_tile.token_spaces()[1];
-    let map_hex = map.hex_mut(toronto).unwrap();
+    let map_hex = map.hex_state_mut(toronto).unwrap();
     map_hex.set_token_at(&token_space, company_token);
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);

@@ -27,12 +27,9 @@ pub struct Map {
     barriers: Vec<(HexAddress, HexFace)>,
     /// All tiles that might be placed on the map.
     tiles: Catalogue,
-    /// The map state: which tiles are placed on which hexes.
-    state: BTreeMap<HexAddress, MapHex>,
-    /// All hexes on which a tile might be placed.
-    hexes: Vec<HexAddress>,
-    /// All hexes, stored by key to simplify lookup.
-    hexes_tbl: BTreeMap<HexAddress, ()>,
+    /// The map state: the tile (if any) placed on each map hex, and other
+    /// tile-related details, such as the tile's rotation and placed tokens.
+    hexes: BTreeMap<HexAddress, Option<MapTile>>,
     /// City labels that apply to map hexes.
     labels_tbl: BTreeMap<HexAddress, Vec<Label>>,
     /// The minimum row number for which there is a hex.
@@ -46,11 +43,6 @@ pub struct Map {
     /// The orientation of the hexagonal grid.
     orientation: Orientation,
 }
-
-// TODO: map::for_1867() -> Map
-// - need support for read-only tiles
-// - extra route logic (e.g., Timmins): F: Fn(&Route, usize) -> usize ???
-//   (https://stackoverflow.com/a/54182204)
 
 impl Map {
     /// Returns an iterator over all tiles in the map catalogue.
@@ -84,9 +76,11 @@ impl Map {
     /// Returns how many copies of the specified tile are currently placed on
     /// the map.
     fn number_placed(&self, tile_ix: usize) -> usize {
-        self.state
+        self.hexes
             .values()
-            .filter(|map_hex| map_hex.tile_ix == tile_ix)
+            .filter_map(|map_hex| {
+                map_hex.as_ref().map(|map_hex| map_hex.tile_ix == tile_ix)
+            })
             .count()
     }
 
@@ -194,30 +188,47 @@ impl Map {
         self.barriers.push((addr, face))
     }
 
-    pub fn hexes(&self) -> &[HexAddress] {
-        self.hexes.as_slice()
+    /// Returns an iterator over the valid hex addresses for this map.
+    pub fn hex_address_iter(&self) -> impl Iterator<Item = &HexAddress> {
+        self.hexes.keys()
     }
 
+    /// Returns a valid hex address, if the map contains at least one hex.
     pub fn default_hex(&self) -> Option<HexAddress> {
-        if self.hexes.is_empty() {
-            None
-        } else {
-            Some(self.hexes[0])
-        }
+        self.hexes.keys().next().copied()
     }
 
     // TODO: replace with methods that retrieve specific details?
     // Tokens, Rotation, Tile name, Replaceable ...
 
-    pub fn hex(&self, addr: HexAddress) -> Option<&MapHex> {
-        self.state.get(&addr)
+    /// Returns a reference to the state of a map hex.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `addr` is not a valid hex address for this map.
+    pub fn hex_state(&self, addr: HexAddress) -> Option<&MapTile> {
+        self.hexes
+            .get(&addr)
+            .unwrap_or_else(|| panic!("Invalid address {:#?}", addr))
+            .as_ref()
     }
 
     // TODO: replace with methods that replace/update specific details?
     // Tokens, Rotation, Tile name, Replaceable ...
 
-    pub fn hex_mut(&mut self, addr: HexAddress) -> Option<&mut MapHex> {
-        self.state.get_mut(&addr)
+    /// Returns a mutable reference to the state of a map hex.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `addr` is not a valid hex address for this map.
+    pub fn hex_state_mut(
+        &mut self,
+        addr: HexAddress,
+    ) -> Option<&mut MapTile> {
+        self.hexes
+            .get_mut(&addr)
+            .unwrap_or_else(|| panic!("Invalid address {:#?}", addr))
+            .as_mut()
     }
 
     /// Returns the map locations where a matching token has been placed.
@@ -229,12 +240,14 @@ impl Map {
         // to each other, so we need to check each of these spaces for a
         // matching token.
         let mut placed: Vec<(&HexAddress, &TokenSpace)> = vec![];
-        self.state.iter().for_each(|(addr, state)| {
-            state.tokens.iter().for_each(|(token_space, token)| {
-                if t == token {
-                    placed.push((addr, token_space))
-                }
-            })
+        self.hexes.iter().for_each(|(addr, state_opt)| {
+            if let Some(state) = state_opt {
+                state.tokens.iter().for_each(|(token_space, token)| {
+                    if t == token {
+                        placed.push((addr, token_space))
+                    }
+                })
+            }
         });
         placed
     }
@@ -242,10 +255,12 @@ impl Map {
     /// Returns the set of unique tokens that are currently placed on the map.
     pub fn unique_placed_tokens(&self) -> BTreeSet<&Token> {
         let mut placed: BTreeSet<&Token> = BTreeSet::new();
-        self.state.iter().for_each(|(_addr, state)| {
-            state.tokens.iter().for_each(|(_space, token)| {
-                let _ = placed.insert(token);
-            })
+        self.hexes.iter().for_each(|(_addr, state_opt)| {
+            if let Some(state) = state_opt {
+                state.tokens.iter().for_each(|(_space, token)| {
+                    let _ = placed.insert(token);
+                })
+            }
         });
         placed
     }
@@ -257,8 +272,7 @@ impl Map {
         addr: HexAddress,
         tile_face: HexFace,
     ) -> Option<HexFace> {
-        self.state
-            .get(&addr)
+        self.hex_state(addr)
             .map(|hs| hs.rotation.count_turns())
             .map(|turns| {
                 let mut hex_face = tile_face;
@@ -277,8 +291,7 @@ impl Map {
         addr: HexAddress,
         tile_face: HexFace,
     ) -> Option<HexFace> {
-        self.state
-            .get(&addr)
+        self.hex_state(addr)
             .map(|hs| hs.rotation.count_turns())
             .map(|turns| {
                 let mut hex_face = tile_face;
@@ -292,6 +305,8 @@ impl Map {
 
     /// Returns the address of the hex that is adjacent to the specified face
     /// (in terms of map orientation, not tile orientation) of the given tile.
+    ///
+    /// If there is no such hex on this map, returns `None`.
     fn adjacent_address(
         &self,
         addr: HexAddress,
@@ -303,7 +318,7 @@ impl Map {
         // Similar conditions apply for the lower-right and lower-right sides.
         let is_upper = addr.col % 2 == 0;
 
-        match map_face {
+        let addr = match map_face {
             HexFace::Top => {
                 if addr.row > 0 {
                     Some((addr.row - 1, addr.col).into())
@@ -356,7 +371,10 @@ impl Map {
                     None
                 }
             }
-        }
+        };
+
+        // NOTE: ensure that this address is valid.
+        addr.filter(|addr| self.hexes.contains_key(addr))
     }
 
     /// Returns details of the tile that is adjacent to the specified face:
@@ -365,6 +383,8 @@ impl Map {
     /// - The face **relative to this tile's orientation** that is adjacent;
     ///   and
     /// - The tile itself.
+    ///
+    /// If there is no adjacent tile, returns `None`.
     pub fn adjacent_face(
         &self,
         addr: HexAddress,
@@ -391,6 +411,7 @@ impl Map {
         }
     }
 
+    /// Creates a new map.
     pub fn new(
         tiles: Catalogue,
         tokens: Tokens,
@@ -401,8 +422,6 @@ impl Map {
         }
 
         let barriers = vec![];
-        let state = BTreeMap::new();
-        let hexes_tbl = hexes.iter().map(|addr| (*addr, ())).collect();
         let labels_tbl = BTreeMap::new();
         let min_col = hexes.iter().map(|hc| hc.col).min().unwrap();
         let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
@@ -410,14 +429,14 @@ impl Map {
         let max_row = hexes.iter().map(|hc| hc.row).max().unwrap();
         // Note: we currently only support vertical columns.
         let orientation = Orientation::VerticalColumns;
+        let hexes: BTreeMap<HexAddress, Option<MapTile>> =
+            hexes.into_iter().map(|addr| (addr, None)).collect();
 
         Map {
             tokens,
             barriers,
             tiles,
-            state,
             hexes,
-            hexes_tbl,
             labels_tbl,
             min_row,
             max_row,
@@ -427,10 +446,55 @@ impl Map {
         }
     }
 
-    pub fn tile_at(&self, hex: HexAddress) -> Option<&Tile> {
-        self.state.get(&hex).map(|hs| &self.tiles[hs.tile_ix].0)
+    /// Returns the current tile, if any, placed at the specified hex address.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `addr` is not a valid hex address for this map.
+    pub fn tile_at(&self, addr: HexAddress) -> Option<&Tile> {
+        self.hex_state(addr).map(|hs| &self.tiles[hs.tile_ix].0)
     }
 
+    /// Replaces the existing tile `old` at the specified map hex `addr` with
+    /// the tile `new`, placed with rotation `rot`.
+    ///
+    /// Returns `Some(false)` if the tile `old` was not placed at the map hex,
+    /// `Some(true)` if the tile `old` was replaced by the tile `new`, and
+    /// `None` if `addr` or `new` were invalid.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `addr` is not a valid hex address for this map.
+    pub fn replace_tile(
+        &mut self,
+        addr: HexAddress,
+        old: &str,
+        new: &str,
+        rot: RotateCW,
+    ) -> Option<bool> {
+        let do_replace = if let Some(hs) = self.hex_state(addr) {
+            if !hs.replaceable {
+                // This tile cannot be replaced.
+                return Some(false);
+            }
+            let curr_tile_name = self.tiles[hs.tile_ix].0.name.as_str();
+            curr_tile_name == old
+        } else {
+            return None;
+        };
+        if do_replace {
+            Some(self.place_tile(addr, new, rot))
+        } else {
+            Some(false)
+        }
+    }
+
+    /// Places `tile` at the specified map hex `addr` with rotation `rot` and returns `true`.
+    /// If the tile cannot be placed, returns `false`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `addr` is not a valid hex address for this map.
     pub fn place_tile(
         &mut self,
         hex: HexAddress,
@@ -442,7 +506,9 @@ impl Map {
         } else {
             return false;
         };
-        if let Some(hex_state) = self.state.get_mut(&hex) {
+
+        // NOTE: hex_mut() panics if `hex` is an invalid address.
+        if let Some(hex_state) = self.hex_state_mut(hex) {
             if !hex_state.replaceable {
                 // This tile cannot be replaced.
                 return false;
@@ -452,21 +518,26 @@ impl Map {
             hex_state.tile_ix = tile_ix;
             hex_state.rotation = rot;
         } else {
-            self.state.insert(
+            self.hexes.insert(
                 hex,
-                MapHex {
+                Some(MapTile {
                     tile_ix,
                     rotation: rot,
                     tokens: BTreeMap::new(),
                     replaceable: true,
-                },
+                }),
             );
         }
         true
     }
 
+    /// Removes the current tile, if any, from the specified map hex.
     pub fn remove_tile(&mut self, addr: HexAddress) {
-        self.state.remove(&addr);
+        // NOTE: must ensure that this is a valid hex address.
+        // Otherwise, this would add a new hex to the map.
+        if self.hexes.contains_key(&addr) {
+            self.hexes.insert(addr, None);
+        }
     }
 
     /// Defines labels for a specific map hex, such as [Label::Y] or
@@ -535,6 +606,11 @@ impl Map {
         }
     }
 
+    /// Returns the coordinates for the centre of a map hex.
+    ///
+    /// Note that this accepts any valid row and column, so it can be used to
+    /// locate the centre of hexes that are not part of the map itself, but
+    /// which lie within the map's bounding box.
     fn hex_centre(
         &self,
         row: usize,
@@ -603,6 +679,32 @@ impl Map {
         }
     }
 
+    /// Translates and rotates the provided context `ctx` in preparation for
+    /// drawing on the map hex `addr`, and returns the context's original
+    /// matrix so that it can be restored afterwards.
+    ///
+    /// Note that this function accepts any hex address `addr` with a valid row
+    /// and column.
+    /// This means that it can be used for drawing on hexes that are not part
+    /// of the map itself, but which lie within the map's bounding box.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use cairo::Context;
+    /// use n18hex::Hex;
+    /// use n18map::{HexAddress, Map};
+    ///
+    /// // Draw a thick black border around the specified map hex.
+    /// fn outline_hex(map: &Map, addr: HexAddress, hex:&Hex, ctx: &Context) {
+    ///     let m = map.prepare_to_draw(addr, hex, ctx);
+    ///     ctx.set_source_rgb(0.0, 0.0, 0.0);
+    ///     ctx.set_line_width(hex.max_d * 0.05);
+    ///     hex.define_boundary(ctx);
+    ///     ctx.stroke().unwrap();
+    ///     ctx.set_matrix(m);
+    /// }
+    /// ```
     pub fn prepare_to_draw(
         &self,
         addr: HexAddress,
@@ -620,14 +722,24 @@ impl Map {
         let m = ctx.matrix();
         ctx.translate(x, y);
 
-        if let Some(hex_state) = self.state.get(&addr) {
-            ctx.rotate(angle + hex_state.rotation.radians());
-        }
+        // NOTE: check whether this hex address is a valid map hex before
+        // attempting to retrieve the current tile rotation, so that we allow
+        // the caller to draw in hexes that are not part of the map itself.
+        let tile_angle = if self.hexes.contains_key(&addr) {
+            if let Some(hex_state) = self.hex_state(addr) {
+                hex_state.rotation.radians()
+            } else {
+                0.0
+            }
+        } else {
+            0.0
+        };
+        ctx.rotate(angle + tile_angle);
 
         m
     }
 
-    /// Iterates over all map hexes.
+    /// Returns an iterator over all map hexes.
     ///
     /// At each iteration, the transformation matrix will be updated to
     /// account for the current hex's location and orientation.
@@ -654,7 +766,7 @@ impl Map {
     /// ctx.set_line_width(hex.max_d * 0.05);
     /// for h_state in map.hex_iter(&hex, ctx) {
     ///     hex.define_boundary(ctx);
-    ///     ctx.stroke();
+    ///     ctx.stroke().unwrap();
     /// }
     /// ```
     pub fn hex_iter<'a>(
@@ -665,18 +777,28 @@ impl Map {
         HexIter::new(hex, ctx, self)
     }
 
+    /// Returns an iterator over all map hexes for which the provided closure
+    /// returns `true`.
+    ///
+    /// At each iteration, the transformation matrix will be updated to
+    /// account for the current hex's location and orientation.
     pub fn hex_subset_iter<'a, P: FnMut(&HexAddress) -> bool>(
         &'a self,
         hex: &'a Hex,
         ctx: &'a Context,
         mut include: P,
     ) -> HexIter<'a> {
-        let incl: Vec<bool> =
-            self.hexes.iter().map(|addr| include(addr)).collect();
-        HexIter::new_subset(hex, ctx, self, incl)
+        let include: BTreeSet<HexAddress> = self
+            .hexes
+            .keys()
+            .filter_map(
+                |&addr| if include(&addr) { Some(addr) } else { None },
+            )
+            .collect();
+        HexIter::new_subset(hex, ctx, self, include)
     }
 
-    /// Iterates over all map hexes that do not contain a tile.
+    /// Returns an iterator over all map hexes that do not contain a tile.
     ///
     /// At each iteration, the transformation matrix will be updated to
     /// account for the current hex's location and orientation.
@@ -713,7 +835,7 @@ impl Map {
         HexIter::new(hex, ctx, self).into()
     }
 
-    /// Iterates over all map hexes that contain a tile.
+    /// Returns an iterator over all map hexes that contain a tile.
     ///
     /// At each iteration, the transformation matrix will be updated to
     /// account for the current hex's location and orientation.
@@ -756,7 +878,7 @@ impl Map {
 
     pub fn next_col(&self, mut addr: HexAddress) -> HexAddress {
         addr.col += 1;
-        if !self.hexes_tbl.contains_key(&addr) {
+        if !self.hexes.contains_key(&addr) {
             // TODO: keep searching (i.e., jump over holes)?
             addr.col -= 1;
         }
@@ -768,7 +890,7 @@ impl Map {
             return addr;
         }
         addr.col -= 1;
-        if !self.hexes_tbl.contains_key(&addr) {
+        if !self.hexes.contains_key(&addr) {
             // TODO: keep searching (i.e., jump over holes)?
             addr.col += 1;
         }
@@ -777,7 +899,7 @@ impl Map {
 
     pub fn next_row(&self, mut addr: HexAddress) -> HexAddress {
         addr.row += 1;
-        if !self.hexes_tbl.contains_key(&addr) {
+        if !self.hexes.contains_key(&addr) {
             // TODO: keep searching (i.e., jump over holes)?
             addr.row -= 1;
         }
@@ -789,7 +911,7 @@ impl Map {
             return addr;
         }
         addr.row -= 1;
-        if !self.hexes_tbl.contains_key(&addr) {
+        if !self.hexes.contains_key(&addr) {
             // TODO: keep searching (i.e., jump over holes)?
             addr.row += 1;
         }
@@ -817,19 +939,15 @@ pub struct HexIter<'a> {
     x0: f64,
     y0: f64,
     angle: f64,
-    ix: usize,
+    iter: std::collections::btree_map::Iter<'a, HexAddress, Option<MapTile>>,
     m: cairo::Matrix,
-    include: Vec<bool>,
+    include: Option<BTreeSet<HexAddress>>,
 }
 
 impl<'a> HexIter<'a> {
-    pub fn reset_matrix(&self) {
-        self.ctx.set_matrix(self.m)
-    }
-
     pub fn restart(&mut self) {
         self.ctx.set_matrix(self.m);
-        self.ix = 0;
+        self.iter = self.map.hexes.iter();
     }
 
     pub fn map(&self) -> &Map {
@@ -837,19 +955,10 @@ impl<'a> HexIter<'a> {
     }
 
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {
-        let include = vec![true; map.hexes.len()];
-        Self::new_subset(hex, ctx, map, include)
-    }
-
-    fn new_subset(
-        hex: &'a Hex,
-        ctx: &'a Context,
-        map: &'a Map,
-        include: Vec<bool>,
-    ) -> Self {
         let angle = map.hex_angle();
         let x0 = map.hex_x0(hex);
         let y0 = map.hex_y0(hex);
+        let iter = map.hexes.iter();
 
         Self {
             hex,
@@ -858,9 +967,33 @@ impl<'a> HexIter<'a> {
             x0,
             y0,
             angle,
-            ix: 0,
+            iter,
             m: ctx.matrix(),
-            include,
+            include: None,
+        }
+    }
+
+    fn new_subset(
+        hex: &'a Hex,
+        ctx: &'a Context,
+        map: &'a Map,
+        include: BTreeSet<HexAddress>,
+    ) -> Self {
+        let angle = map.hex_angle();
+        let x0 = map.hex_x0(hex);
+        let y0 = map.hex_y0(hex);
+        let iter = map.hexes.iter();
+
+        Self {
+            hex,
+            ctx,
+            map,
+            x0,
+            y0,
+            angle,
+            iter,
+            m: ctx.matrix(),
+            include: Some(include),
         }
     }
 
@@ -883,16 +1016,24 @@ impl<'a> Iterator for HexIter<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         // Find the next address that should be returned.
-        while self.ix < self.map.hexes.len() && !self.include[self.ix] {
-            self.ix += 1;
+        let mut entry_opt = self.iter.next();
+        while let Some((addr, _hs_opt)) = entry_opt {
+            if let Some(ref addrs) = self.include {
+                if addrs.contains(addr) {
+                    break;
+                }
+            } else {
+                break;
+            }
+            entry_opt = self.iter.next();
         }
-        if self.ix >= self.map.hexes.len() {
+        let (&addr, hex_state_opt) = if let Some(entry) = entry_opt {
+            (entry.0, entry.1)
+        } else {
             // NOTE: restore the original matrix.
             self.ctx.set_matrix(self.m);
             return None;
-        }
-        let addr = self.map.hexes[self.ix];
-        self.ix += 1;
+        };
 
         let (x, y) = if let Some((x, y)) = self.hex_centre(addr) {
             (x, y)
@@ -905,7 +1046,7 @@ impl<'a> Iterator for HexIter<'a> {
         self.ctx.set_matrix(self.m);
         self.ctx.translate(x, y);
 
-        if let Some(hex_state) = self.map.state.get(&addr) {
+        if let Some(hex_state) = hex_state_opt {
             self.ctx.rotate(self.angle + hex_state.rotation.radians());
             let tile_state = Some((
                 &self.map.tiles[hex_state.tile_ix].0,
@@ -936,10 +1077,6 @@ pub struct EmptyHexIter<'a> {
 impl<'a> EmptyHexIter<'a> {
     fn new(iter: HexIter<'a>) -> Self {
         EmptyHexIter { iter }
-    }
-
-    pub fn reset_matrix(&self) {
-        self.iter.reset_matrix()
     }
 
     pub fn restart(&mut self) {
@@ -976,10 +1113,6 @@ pub struct TileHexIter<'a> {
 impl<'a> TileHexIter<'a> {
     fn new(iter: HexIter<'a>) -> Self {
         TileHexIter { iter }
-    }
-
-    pub fn reset_matrix(&self) {
-        self.iter.reset_matrix()
     }
 
     pub fn restart(&mut self) {
@@ -1091,9 +1224,9 @@ impl RotateCW {
     }
 }
 
-/// The state of a hex in a `Map`.
+/// Describes the placement of a specific tile on a map hex.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct MapHex {
+pub struct MapTile {
     tile_ix: usize,
     rotation: RotateCW,
     tokens: TokensTable,
@@ -1102,7 +1235,7 @@ pub struct MapHex {
     replaceable: bool,
 }
 
-impl MapHex {
+impl MapTile {
     pub fn tile<'a>(&self, map: &'a Map) -> &'a Tile {
         &map.tiles[self.tile_ix].0
     }
