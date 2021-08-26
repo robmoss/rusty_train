@@ -143,16 +143,30 @@ fn track_contained_in_hex() {
     }
 }
 
+/// Ensure that a negative span value results in a panic.
 #[test]
-fn invalid_span_escapes_hex() {
-    let hex = Hex::new(HEX_DIAMETER);
-    let ctx = hex.context();
-    let dt = 0.1;
-
-    let t = Track::gentle_r(HexFace::LowerLeft).with_span(-0.5, 0.5);
-    assert!(!no_escape(&t, &hex, dt, ctx));
+#[should_panic]
+fn invalid_span_negative() {
+    let _ = Track::gentle_r(HexFace::LowerLeft).with_span(-0.5, 0.5);
 }
 
+/// Ensure that a positive span value > 1.0 results in a panic.
+#[test]
+#[should_panic]
+fn invalid_span_positive() {
+    let _ = Track::gentle_r(HexFace::LowerLeft).with_span(0.0, 1.5);
+}
+
+/// Ensure that specifying the larger of the two span limits first results in
+/// a panic.
+#[test]
+#[should_panic]
+fn invalid_span_order() {
+    let _ = Track::gentle_r(HexFace::LowerLeft).with_span(0.6, 0.5);
+}
+
+/// Ensure that the coordinates returned by Track::coords() all lie within the
+/// drawn track segment.
 #[test]
 fn coords_contained_in_track() {
     let hex = Hex::new(HEX_DIAMETER);
@@ -170,9 +184,41 @@ fn coords_contained_in_track() {
                 {
                     let t = Track::new(*face, *curve, *x0, *x1, None, None);
                     t.define_boundary(&hex, ctx);
+                    // NOTE: with the default line cap (butt), setting x0 = x1
+                    // doesn't draw anything, and so none of the coordinates
+                    // will lie within the stroke.
                     assert!(t.coords(&hex, dt).all(|coord| ctx
                         .in_stroke(coord.x, coord.y)
                         .unwrap()))
+                }
+            }
+        }
+    }
+}
+
+/// Ensure that the coordinates returned by Track::coords() all lie within the
+/// tile hexagon.
+#[test]
+fn valid_spans_no_escape() {
+    let hex = Hex::new(HEX_DIAMETER);
+    let ctx = hex.context();
+    let dt = 0.1;
+
+    use HexFace::*;
+    use TrackCurve::*;
+
+    for face in &[Top, UpperRight, LowerRight, Bottom, LowerLeft, UpperLeft] {
+        for curve in &[Straight, GentleL, HardL, GentleR, HardR] {
+            for x0 in &[0.0, 0.25, 0.5, 0.75] {
+                for x1 in &[
+                    1.0,
+                    1.0 - 0.25 * x0,
+                    1.0 - 0.5 * x0,
+                    1.0 - 0.75 * x0,
+                    *x0,
+                ] {
+                    let t = Track::new(*face, *curve, *x0, *x1, None, None);
+                    assert!(no_escape(&t, &hex, dt, ctx))
                 }
             }
         }

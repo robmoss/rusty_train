@@ -188,8 +188,38 @@ impl Track {
         self
     }
 
+    /// Restricts the track segment to a subset of the full segment.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `x0` or `x1` are not contained within the unit interval, or
+    /// if `x1 < x0`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use n18tile::Track;
+    ///
+    /// fn only_first_half(mut track: Track) -> Track {
+    ///     track.with_span(0.0, 0.5)
+    /// }
+    ///
+    /// fn only_second_half(mut track: Track) -> Track {
+    ///     track.with_span(0.5, 1.0)
+    /// }
+    ///
+    /// fn only_middle_half(mut track: Track) -> Track {
+    ///     track.with_span(0.25, 0.75)
+    /// }
+    /// ```
     pub fn with_span(mut self, x0: f64, x1: f64) -> Self {
-        // TODO: check x0 and x1.
+        assert!(x0.is_finite());
+        assert!(x0 >= 0.0);
+        assert!(x0 <= 1.0);
+        assert!(x1.is_finite());
+        assert!(x1 >= 0.0);
+        assert!(x1 <= 1.0);
+        assert!(x1 >= x0);
         self.x0 = x0;
         self.x1 = x1;
         self
