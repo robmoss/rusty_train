@@ -211,6 +211,19 @@ impl State for Default {
                 }
             }
             gdk::keys::constants::less | gdk::keys::constants::comma => {
+                // NOTE: unlike upgrading a tile, when rotating the current
+                // tile we should not try moving the currently-placed tokens
+                // to maintain their connectivity.
+                // This cannot be done without either:
+                // (a) losing information; or
+                // (b) recording additional state information.
+                // For example, in the event that the tokens cannot be
+                // successfully placed, they would be removed unless we
+                // separately recorded the "original" token configuration for
+                // the current tile.
+                // This additional state information should then presumably be
+                // discarded once the user chooses *any* action except further
+                // rotations of the current tile.
                 if let Some(addr) = self.active_hex {
                     if let Some(hs) = map.hex_state_mut(addr) {
                         hs.rotate_anti_cw()

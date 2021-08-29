@@ -99,15 +99,25 @@ impl State for ReplaceTile {
             // matching spaces (i.e., matching city index and token index).
             // See the module doc comment, above, for details.
             if let Some(hs) = map_hex {
-                let tokens = hs.tokens();
+                let tokens = n18map::map::try_placing_tokens(
+                    hs.tile(map),
+                    hs.rotation(),
+                    hs.tokens(),
+                    tile,
+                    &self.rotation,
+                )
+                .unwrap_or_else(std::collections::BTreeMap::new);
+                // NOTE: undo the rotation of the original tile, so that the
+                // tokens are drawn with the correct rotation.
+                ctx.rotate(-hs.rotation().radians());
                 n18brush::draw_tile_and_tokens_at(
                     hex,
                     ctx,
                     map,
                     &self.active_hex,
                     tile,
-                    radians,
-                    tokens,
+                    self.rotation.radians(),
+                    &tokens,
                 );
             } else {
                 n18brush::draw_tile_at(

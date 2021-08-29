@@ -70,6 +70,28 @@ fn init_logging() {
     .init();
 }
 
+fn place_moscow_token(map: &mut Map, token: Token) {
+    let token_spaces = map.tile_at(moscow()).unwrap().token_spaces();
+    let hex_state = map.hex_state_mut(moscow()).unwrap();
+    hex_state.set_token_at(&token_spaces[2], token);
+}
+
+fn check_moscow_token(map: &Map, token: Token) {
+    let hex_state = map.hex_state(moscow()).unwrap();
+    let maybe_space = hex_state.tokens().iter().find_map(|(ts, &tok)| {
+        if tok == token {
+            Some(ts)
+        } else {
+            None
+        }
+    });
+    if let Some(tok_space) = maybe_space {
+        println!("Moscow token at {:?}", tok_space);
+    } else {
+        panic!("Moscow token is missing");
+    }
+}
+
 fn find_routes_for_phase(
     phase_name: &str,
     train_name: &str,
@@ -83,28 +105,30 @@ fn find_routes_for_phase(
     let mut map = game.create_map(&hex);
     game.set_phase_name(&mut map, phase_name);
 
+    // Place a token on the starting (yellow) Moscow tile.
+    // It should remain in place with each tile upgrade.
+    let token = map.token("KB");
+    place_moscow_token(&mut map, token);
+
     // Place tiles as appropriate for the chosen game phase.
     let phase_num = 2 + game.phase_ix();
     place_yellow_tiles(&mut map);
     if phase_num >= 3 {
         place_green_tiles(&mut map);
+        check_moscow_token(&map, token);
     }
     if phase_num >= 5 {
         place_brown_tiles(&mut map);
+        check_moscow_token(&map, token);
     }
     if phase_num >= 6 {
         place_grey_tiles(&mut map);
+        check_moscow_token(&map, token);
     }
     if phase_num >= 7 {
         place_skip_nizhnii_tiles(&mut map);
+        check_moscow_token(&map, token);
     }
-
-    // Place a KB token in Moscow on the upper-right token space (yellow and
-    // green phases) or a central token space (brown and grey phases).
-    let token = map.token("KB");
-    let token_spaces = map.tile_at(moscow()).unwrap().token_spaces();
-    let hex_state = map.hex_state_mut(moscow()).unwrap();
-    hex_state.set_token_at(&token_spaces[2], token);
 
     // Run the train(s) and identify the optimal revenue.
     let trains = Trains::new(vec![*game.train(train_name)]);

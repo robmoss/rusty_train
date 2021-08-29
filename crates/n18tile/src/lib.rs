@@ -16,6 +16,10 @@ pub mod connection;
 /// Tiles that can contain track segments, cities, and token spaces.
 pub mod tile;
 
+pub mod upgrade;
+
+pub mod ekmf;
+
 #[doc(inline)]
 pub use city::{City, Rotation, Tokens};
 

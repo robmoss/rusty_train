@@ -489,16 +489,32 @@ impl Map {
             return false;
         };
 
+        let new_tokens = if let Some(hex_state) = self.hex_state(hex) {
+            // See if we can place each token from the original tile on the
+            // new tile in such a way so as to preserve their connectivity
+            // with adjacent hexes.
+            let orig_tile = &self.tiles[hex_state.tile_ix].0;
+            let orig_rotn = &hex_state.rotation;
+            let tokens = &hex_state.tokens;
+            let new_tile = &self.tiles[tile_ix].0;
+            let new_rotn = &rot;
+            try_placing_tokens(
+                orig_tile, orig_rotn, tokens, new_tile, new_rotn,
+            )
+            .unwrap_or_else(BTreeMap::new)
+        } else {
+            BTreeMap::new()
+        };
+
         // NOTE: hex_mut() panics if `hex` is an invalid address.
         if let Some(hex_state) = self.hex_state_mut(hex) {
             if !hex_state.replaceable {
                 // This tile cannot be replaced.
                 return false;
             }
-            // NOTE: leave the tokens as-is!
-            // TODO: presumably this is correct behaviour?
             hex_state.tile_ix = tile_ix;
             hex_state.rotation = rot;
+            hex_state.tokens = new_tokens
         } else {
             self.hexes.insert(
                 hex,
@@ -909,6 +925,38 @@ impl Map {
 
 /// The state of each token space on a tile.
 pub type TokensTable = BTreeMap<TokenSpace, Token>;
+
+/// Attempts to place each token from `old_tile` on `new_tile` in such a way
+/// so as to preserve each token's connectivity with adjacent hexes.
+///
+/// This is a wrapper around [n18tile::upgrade::try_placing_tokens] that
+/// accepts and returns [TokensTable] values, which contain [Token] values
+/// rather than token indices (`usize`).
+pub fn try_placing_tokens(
+    orig_tile: &Tile,
+    orig_rotn: &RotateCW,
+    tokens: &TokensTable,
+    new_tile: &Tile,
+    new_rotn: &RotateCW,
+) -> Option<TokensTable> {
+    let token_list: Vec<Token> = tokens.values().copied().collect();
+    // Create a new table that maps token spaces to token indices.
+    let tokens: BTreeMap<TokenSpace, usize> = tokens
+        .keys()
+        .enumerate()
+        .map(|(ix, &token_space)| (token_space, ix))
+        .collect();
+    n18tile::upgrade::try_placing_tokens(
+        orig_tile, orig_rotn, &tokens, new_tile, new_rotn,
+    )
+    .map(|token_index| {
+        // Convert token indices back into Token values.
+        token_index
+            .into_iter()
+            .map(|(token_space, ix)| (token_space, token_list[ix]))
+            .collect()
+    })
+}
 
 /// The state of a tile on the map.
 pub type TileState<'a> = (&'a Tile, &'a TokensTable);
