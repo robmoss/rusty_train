@@ -8,6 +8,5 @@ pub use descr::{Descr, TileDescr};
 
 #[doc(inline)]
 pub use map::{
-    EmptyHexIter, HexAddress, HexIter, Map, RotateCW, TileHexIter,
-    TokensTable,
+    EmptyHexIter, HexAddress, HexIter, Map, TileHexIter, TokensTable,
 };

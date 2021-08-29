@@ -2,7 +2,8 @@
 
 use std::collections::BTreeMap;
 
-use crate::map::{HexAddress, Map, MapTile, RotateCW};
+use crate::map::{HexAddress, Map, MapTile};
+use n18hex::RotateCW;
 use n18tile::Tile;
 use n18token::Tokens;
 

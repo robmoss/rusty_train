@@ -7,8 +7,8 @@ use std::collections::BTreeMap;
 
 use super::Company;
 use n18catalogue::{Builder, Catalogue, Kind};
-use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition};
-use n18map::{HexAddress, Map, RotateCW};
+use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition, RotateCW};
+use n18map::{HexAddress, Map};
 use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Token, TokenStyle};

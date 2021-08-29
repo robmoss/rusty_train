@@ -1142,9 +1142,9 @@ struct Descr {
     tiles: Vec<HexAddress>,
 }
 
-impl std::convert::From<&n18map::RotateCW> for TileRotation {
-    fn from(src: &n18map::RotateCW) -> Self {
-        use n18map::RotateCW::*;
+impl std::convert::From<&n18hex::RotateCW> for TileRotation {
+    fn from(src: &n18hex::RotateCW) -> Self {
+        use n18hex::RotateCW::*;
 
         match src {
             Zero => TileRotation::Zero,
@@ -1157,10 +1157,10 @@ impl std::convert::From<&n18map::RotateCW> for TileRotation {
     }
 }
 
-impl std::convert::From<&TileRotation> for n18map::RotateCW {
+impl std::convert::From<&TileRotation> for n18hex::RotateCW {
     fn from(src: &TileRotation) -> Self {
         use self::TileRotation::*;
-        use n18map::RotateCW;
+        use n18hex::RotateCW;
 
         match src {
             Zero => RotateCW::Zero,

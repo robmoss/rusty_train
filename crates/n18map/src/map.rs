@@ -2,7 +2,7 @@ use cairo::Context;
 use std::collections::{BTreeMap, BTreeSet};
 
 use n18catalogue::{Availability, Catalogue};
-use n18hex::{Hex, HexColour, HexFace, PI};
+use n18hex::{Hex, HexColour, HexFace, RotateCW, PI};
 use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
 
@@ -272,16 +272,7 @@ impl Map {
         addr: HexAddress,
         tile_face: HexFace,
     ) -> Option<HexFace> {
-        self.hex_state(addr)
-            .map(|hs| hs.rotation.count_turns())
-            .map(|turns| {
-                let mut hex_face = tile_face;
-                for _ in 0..turns {
-                    // NOTE: turn clockwise
-                    hex_face = hex_face.clockwise()
-                }
-                hex_face
-            })
+        self.hex_state(addr).map(|hs| tile_face + hs.rotation)
     }
 
     /// Returns the hex face **relative to the tile's orientation** that
@@ -291,16 +282,7 @@ impl Map {
         addr: HexAddress,
         tile_face: HexFace,
     ) -> Option<HexFace> {
-        self.hex_state(addr)
-            .map(|hs| hs.rotation.count_turns())
-            .map(|turns| {
-                let mut hex_face = tile_face;
-                for _ in 0..turns {
-                    // NOTE: turn anti-clockwise
-                    hex_face = hex_face.anti_clockwise()
-                }
-                hex_face
-            })
+        self.hex_state(addr).map(|hs| tile_face - hs.rotation)
     }
 
     /// Returns the address of the hex that is adjacent to the specified face
@@ -1157,73 +1139,6 @@ impl<'a> From<HexIter<'a>> for TileHexIter<'a> {
     }
 }
 
-/// The rotation of a `Tile`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum RotateCW {
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-}
-
-impl RotateCW {
-    pub fn radians(&self) -> f64 {
-        use RotateCW::*;
-
-        match self {
-            Zero => 0.0,
-            One => n18hex::PI_2_6,
-            Two => n18hex::PI_4_6,
-            Three => n18hex::PI,
-            Four => -n18hex::PI_4_6,
-            Five => -n18hex::PI_2_6,
-        }
-    }
-
-    /// Returns the number of single clock-wise rotations that are equivalent
-    /// to this rotation value.
-    pub fn count_turns(&self) -> usize {
-        use RotateCW::*;
-
-        match self {
-            Zero => 0,
-            One => 1,
-            Two => 2,
-            Three => 3,
-            Four => 4,
-            Five => 5,
-        }
-    }
-
-    pub fn rotate_cw(&self) -> Self {
-        use RotateCW::*;
-
-        match self {
-            Zero => One,
-            One => Two,
-            Two => Three,
-            Three => Four,
-            Four => Five,
-            Five => Zero,
-        }
-    }
-
-    pub fn rotate_anti_cw(&self) -> Self {
-        use RotateCW::*;
-
-        match self {
-            Zero => Five,
-            One => Zero,
-            Two => One,
-            Three => Two,
-            Four => Three,
-            Five => Four,
-        }
-    }
-}
-
 /// Describes the placement of a specific tile on a map hex.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MapTile {
@@ -1391,8 +1306,8 @@ impl HexAddress {
     /// # Examples
     ///
     /// ```rust
-    /// use n18hex::HexFace;
-    /// use n18map::{HexAddress, Map, RotateCW};
+    /// use n18hex::{HexFace, RotateCW};
+    /// use n18map::{HexAddress, Map};
     ///
     /// fn place_connected_track(map: &mut Map, starting_city: HexAddress) {
     ///     starting_city

@@ -40,6 +40,9 @@ pub use n18hex::HexFace;
 pub use n18hex::HexPosition;
 
 #[doc(inline)]
+pub use n18hex::RotateCW;
+
+#[doc(inline)]
 pub use n18hex::Delta;
 
 #[doc(inline)]
@@ -119,9 +122,6 @@ pub use n18map::Map;
 
 #[doc(inline)]
 pub use n18map::HexAddress;
-
-#[doc(inline)]
-pub use n18map::RotateCW;
 
 #[doc(inline)]
 pub use n18map::TokensTable;

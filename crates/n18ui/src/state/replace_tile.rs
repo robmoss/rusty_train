@@ -37,7 +37,8 @@ use super::{Action, State};
 use cairo::Context;
 
 use crate::{Content, Ping};
-use n18map::{HexAddress, Map, RotateCW};
+use n18hex::RotateCW;
+use n18map::{HexAddress, Map};
 
 /// Replacing one tile with another.
 pub struct ReplaceTile {

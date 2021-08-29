@@ -556,7 +556,8 @@ fn depth_first_search(
 mod tests {
     use super::{Criteria, PathLimit, Query};
     use crate::conflict::ConflictRule;
-    use n18map::{Descr, HexAddress, Map, RotateCW, TileDescr};
+    use n18hex::RotateCW;
+    use n18map::{Descr, HexAddress, Map, TileDescr};
     use n18tile::Connection;
     use n18token::{Token, Tokens};
 

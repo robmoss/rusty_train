@@ -151,6 +151,69 @@ impl HexFace {
             HexFace::UpperLeft => (HexCorner::Left, HexCorner::TopLeft),
         }
     }
+
+    fn from_ordinal(value: usize) -> Self {
+        use HexFace::*;
+        match value % 6 {
+            0 => Top,
+            1 => UpperRight,
+            2 => LowerRight,
+            3 => Bottom,
+            4 => LowerLeft,
+            _ => UpperLeft,
+        }
+    }
+
+    fn as_ordinal(&self) -> usize {
+        use HexFace::*;
+        match self {
+            Top => 0,
+            UpperRight => 1,
+            LowerRight => 2,
+            Bottom => 3,
+            LowerLeft => 4,
+            UpperLeft => 5,
+        }
+    }
+}
+
+impl std::ops::Add<RotateCW> for HexFace {
+    type Output = Self;
+
+    fn add(self, rotn: RotateCW) -> Self::Output {
+        let value = self.as_ordinal() + rotn.count_turns();
+        HexFace::from_ordinal(value)
+    }
+}
+
+impl std::ops::Add<&RotateCW> for HexFace {
+    type Output = Self;
+
+    fn add(self, rotn: &RotateCW) -> Self::Output {
+        self + *rotn
+    }
+}
+
+impl std::ops::Sub<RotateCW> for HexFace {
+    type Output = Self;
+
+    fn sub(self, rotn: RotateCW) -> Self::Output {
+        match rotn {
+            RotateCW::Zero => self,
+            _ => {
+                let value = self.as_ordinal() + 6 - rotn.count_turns();
+                HexFace::from_ordinal(value)
+            }
+        }
+    }
+}
+
+impl std::ops::Sub<&RotateCW> for HexFace {
+    type Output = Self;
+
+    fn sub(self, rotn: &RotateCW) -> Self::Output {
+        self - *rotn
+    }
 }
 
 /// The hexagon corners.
@@ -630,6 +693,74 @@ impl Hex {
     }
 }
 
+/// The six rotational symmetries of a hexagon, which change the orientation
+/// of the hexagon faces.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum RotateCW {
+    Zero,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+}
+
+impl RotateCW {
+    pub fn radians(&self) -> f64 {
+        use RotateCW::*;
+
+        match self {
+            Zero => 0.0,
+            One => PI_2_6,
+            Two => PI_4_6,
+            Three => PI,
+            Four => -PI_4_6,
+            Five => -PI_2_6,
+        }
+    }
+
+    /// Returns the number of single clock-wise rotations that are equivalent
+    /// to this rotation value.
+    pub fn count_turns(&self) -> usize {
+        use RotateCW::*;
+
+        match self {
+            Zero => 0,
+            One => 1,
+            Two => 2,
+            Three => 3,
+            Four => 4,
+            Five => 5,
+        }
+    }
+
+    pub fn rotate_cw(&self) -> Self {
+        use RotateCW::*;
+
+        match self {
+            Zero => One,
+            One => Two,
+            Two => Three,
+            Three => Four,
+            Four => Five,
+            Five => Zero,
+        }
+    }
+
+    pub fn rotate_anti_cw(&self) -> Self {
+        use RotateCW::*;
+
+        match self {
+            Zero => Five,
+            One => Zero,
+            Two => One,
+            Three => Two,
+            Four => Three,
+            Five => Four,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
 
@@ -663,5 +794,20 @@ mod test {
             .coord(&hex);
         let diff = (&expect - &result).magnitude();
         assert!(diff < epsilon);
+    }
+
+    /// Tests that adding a RotateCW to a HexFace returns the correct HexFace.
+    #[test]
+    fn hex_face_rotation() {
+        use RotateCW::*;
+        let faces: Vec<HexFace> = (0..6).map(HexFace::from_ordinal).collect();
+        let rotns: Vec<RotateCW> = vec![Zero, One, Two, Three, Four, Five];
+        for (ix, &face) in faces.iter().enumerate() {
+            for rotn in &rotns {
+                let new_face = face + rotn;
+                let expected = faces[(ix + rotn.count_turns()) % 6];
+                assert_eq!(new_face, expected);
+            }
+        }
     }
 }
