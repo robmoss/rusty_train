@@ -474,6 +474,7 @@ enum LabelType {
     Y(()),
     TileName(()),
     MapLocation(String),
+    Note(String),
     Revenue(usize),
     PhaseRevenue(Vec<(HexColour, usize, bool)>),
 }
@@ -487,6 +488,7 @@ impl std::convert::From<&n18tile::Label> for LabelType {
             L::Y => LabelType::Y(()),
             L::TileName => LabelType::TileName(()),
             L::MapLocation(ref name) => LabelType::MapLocation(name.clone()),
+            L::Note(ref text) => LabelType::Note(text.clone()),
             L::Revenue(revenue) => LabelType::Revenue(*revenue),
             L::PhaseRevenue(revenues) => {
                 let revs = revenues
@@ -797,6 +799,7 @@ impl From<&LabelType> for n18tile::Label {
             LabelType::MapLocation(ref name) => {
                 n18tile::Label::MapLocation(name.clone())
             }
+            LabelType::Note(ref text) => n18tile::Label::Note(text.clone()),
             LabelType::Revenue(ix) => n18tile::Label::Revenue(*ix),
             LabelType::PhaseRevenue(revenues) => {
                 let revs = revenues

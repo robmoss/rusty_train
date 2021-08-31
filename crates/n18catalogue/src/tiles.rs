@@ -1,10 +1,6 @@
 use n18hex::{Direction, Hex};
 use n18tile::{City, Label, Rotation, Tile, Track};
 
-// TODO: define an enum Kind with a no-arg variant for each tile?
-// then have Kind::_3::build(hex) -> Tile
-// This way we only have to worry about duplicated in subset() ...
-
 /// Predefined tiles, named as per the [18xx Tile
 /// Database](http://www.fwtwr.com/18xx/tiles/).
 ///
@@ -797,6 +793,7 @@ impl Kind {
                 hex,
             )
             .label(Label::City("K".to_string()), Left.to_centre(0.25))
+            .label(Label::Note("R40".to_string()), Centre(None))
             .label(Label::Revenue(0), TopRight.to_centre(0.15)),
             Kind::_636 => Tile::new(
                 Brown,

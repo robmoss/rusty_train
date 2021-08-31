@@ -613,6 +613,8 @@ pub struct Theme {
     pub y_label: Text,
     /// The text settings for location labels.
     pub location_label: Text,
+    /// The text settings for note labels.
+    pub note_label: Text,
     /// The text settings for revenue labels.
     pub revenue_label: Text,
     /// The text settings for phase revenue labels.
@@ -759,6 +761,12 @@ impl Default for Theme {
                 horiz: AlignH::Centre,
                 vert: AlignV::Top,
                 max_width: Some(80.0),
+                ..Default::default()
+            },
+            note_label: Text {
+                family: FontFamily::Sans,
+                font_size: 10.0,
+                align: pango::Alignment::Center,
                 ..Default::default()
             },
             revenue_label: Text {

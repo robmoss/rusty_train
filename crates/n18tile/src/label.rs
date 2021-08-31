@@ -12,6 +12,7 @@ pub enum Label {
     Y,
     TileName,
     MapLocation(String),
+    Note(String),
     Revenue(usize),
     PhaseRevenue(Vec<(HexColour, usize, bool)>),
 }
@@ -32,6 +33,7 @@ impl Label {
             Self::MapLocation(_) => &hex.theme.location_label,
             Self::Revenue(_) => &hex.theme.revenue_label,
             Self::PhaseRevenue(_) => &hex.theme.phase_revenue_label,
+            Self::Note(_) => &hex.theme.note_label,
         };
         let mut labeller = style.labeller(ctx, hex);
         let coord = pos.coord(hex);
@@ -43,7 +45,7 @@ impl Label {
         labeller.valign(vert);
 
         match self {
-            Self::City(name) => {
+            Self::City(name) | Self::Note(name) => {
                 labeller.draw(name, coord);
             }
             Self::Y => {

@@ -878,6 +878,10 @@
           "to_centre": 0.25
         },
         {
+          "Note": "R40",
+          "location": "Centre"
+        },
+        {
           "Revenue": 0,
           "location": "TopRightCorner",
           "to_centre": 0.15
