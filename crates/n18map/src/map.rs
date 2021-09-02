@@ -53,6 +53,12 @@ impl Map {
     }
 
     /// Returns an iterator over all tiles available to the player.
+    ///
+    /// Note that this returns all tiles that indicated as being available to
+    /// the player.
+    /// To obtain only those tiles that are currently available to be placed
+    /// on the map in its current state, see
+    /// [available_tiles](Map::available_tiles).
     pub fn available_tiles_iter(&self) -> impl Iterator<Item = &Tile> {
         self.tiles.iter().filter_map(|(tile, avail)| {
             if *avail == Availability::Unavailable {
