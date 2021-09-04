@@ -24,8 +24,13 @@ pub enum Label {
     /// Displays the revenue associated with the tile's nth revenue centre.
     Revenue(usize),
     /// Displays a revenue (`usize`) for each game phase (identified by
-    /// [HexColour]) and highlights the active phase (`bool`).
+    /// [HexColour]) in a horizontal stack of boxes, and highlights the active
+    /// phase (`bool`).
     PhaseRevenue(Vec<(HexColour, usize, bool)>),
+    /// Displays a revenue (`usize`) for each game phase (identified by
+    /// [HexColour]) in a vertical stack of boxes, and highlights the active
+    /// phase (`bool`).
+    PhaseRevenueVert(Vec<(HexColour, usize, bool)>),
 }
 
 impl Label {
@@ -43,6 +48,7 @@ impl Label {
             Self::MapLocation(_) => false,
             Self::Revenue(_) => false,
             Self::PhaseRevenue(_) => false,
+            Self::PhaseRevenueVert(_) => false,
             Self::Note(_) => false,
         }
     }
@@ -62,6 +68,7 @@ impl Label {
             Self::MapLocation(_) => &hex.theme.location_label,
             Self::Revenue(_) => &hex.theme.revenue_label,
             Self::PhaseRevenue(_) => &hex.theme.phase_revenue_label,
+            Self::PhaseRevenueVert(_) => &hex.theme.phase_revenue_label,
             Self::Note(_) => &hex.theme.note_label,
         };
         let mut labeller = style.labeller(ctx, hex);
@@ -132,45 +139,11 @@ impl Label {
                 labeller.draw(&label_text, centre);
             }
             Self::PhaseRevenue(amounts) => {
-                let boxes: Vec<(HexColour, String)> = amounts
-                    .iter()
-                    .map(|(colour, amount, _active)| {
-                        (*colour, format!("{}", amount))
-                    })
-                    .collect();
-                let active_box = amounts
-                    .iter()
-                    .enumerate()
-                    .find_map(
-                        |(ix, (_colour, _amount, active))| {
-                            if *active {
-                                Some(ix)
-                            } else {
-                                None
-                            }
-                        },
-                    )
-                    .expect("No active revenue box");
-                let (box_width, box_height) = boxes
-                    .iter()
-                    .map(|(_colour, text)| {
-                        let size = labeller.size(text);
-                        (size.width, size.height)
-                    })
-                    .fold(
-                        (0.0, 0.0),
-                        |(curr_w, curr_h): (f64, f64), (new_w, new_h)| {
-                            (curr_w.max(new_w), curr_h.max(new_h))
-                        },
-                    );
-
-                // Add a margin around the text.
-                let margin_width =
-                    hex.theme.phase_revenue_margin_x.absolute(hex);
-                let margin_height =
-                    hex.theme.phase_revenue_margin_y.absolute(hex);
-                let box_width = box_width + 2.0 * margin_width;
-                let box_height = box_height + 2.0 * margin_height;
+                let boxes = get_boxes(amounts);
+                let active_box =
+                    active_box_ix(amounts).expect("No active revenue box");
+                let (box_width, box_height) =
+                    box_dims(&boxes, hex, &labeller);
                 let net_width = box_width * boxes.len() as f64;
 
                 // Determine the top-left point of these boxes.
@@ -210,6 +183,51 @@ impl Label {
                 Colour::BLACK.apply_colour(ctx);
                 ctx.stroke().unwrap();
             }
+            Self::PhaseRevenueVert(amounts) => {
+                let boxes = get_boxes(amounts);
+                let active_box =
+                    active_box_ix(amounts).expect("No active revenue box");
+                let (box_width, box_height) =
+                    box_dims(&boxes, hex, &labeller);
+                let net_height = box_height * boxes.len() as f64;
+
+                // Determine the top-left point of these boxes.
+                let mut origin = coord;
+                origin.x += horiz.hjust() * box_width;
+                origin.y += vert.vjust() * net_height;
+
+                // NOTE: override the text alignment, we will manually centre
+                // the text in each box.
+                labeller.halign(n18hex::theme::AlignH::Left);
+                labeller.valign(n18hex::theme::AlignV::Top);
+
+                // Draw the background and text for each box.
+                boxes.iter().enumerate().for_each(
+                    |(ix, (bg_colour, text))| {
+                        let dy = ix as f64 * box_height;
+                        let x0 = origin.x;
+                        let y0 = origin.y + dy;
+
+                        // Draw the background.
+                        ctx.rectangle(x0, y0, box_width, box_height);
+                        hex.theme.apply_hex_colour(ctx, *bg_colour);
+                        ctx.fill().unwrap();
+
+                        // Centre the label text in the box.
+                        let size = labeller.size(text);
+                        let x = x0 - size.dx + 0.5 * (box_width - size.width);
+                        let y =
+                            y0 - size.dy + 0.5 * (box_height - size.height);
+                        labeller.draw(text, (x, y).into());
+                    },
+                );
+
+                // Draw a border around the active box.
+                let dx = active_box as f64 * box_height;
+                ctx.rectangle(origin.x, origin.y + dx, box_width, box_height);
+                Colour::BLACK.apply_colour(ctx);
+                ctx.stroke().unwrap();
+            }
         };
     }
 
@@ -225,6 +243,56 @@ impl Label {
         labeller.valign(vert);
         labeller.draw(name, coord);
     }
+}
+
+/// Returns a vector of `(colour, label_text)` pairs for each phase of a phase
+/// revenue label.
+fn get_boxes(
+    amounts: &[(HexColour, usize, bool)],
+) -> Vec<(HexColour, String)> {
+    amounts
+        .iter()
+        .map(|(colour, amount, _active)| (*colour, format!("{}", amount)))
+        .collect()
+}
+
+/// Returns the index of the active phase revenue box, if any.
+fn active_box_ix(amounts: &[(HexColour, usize, bool)]) -> Option<usize> {
+    amounts.iter().enumerate().find_map(
+        |(ix, (_colour, _amount, active))| {
+            if *active {
+                Some(ix)
+            } else {
+                None
+            }
+        },
+    )
+}
+
+/// Returns the width and height, respectively, of each phase revenue box,
+/// including margins.
+fn box_dims(
+    boxes: &[(HexColour, String)],
+    hex: &Hex,
+    labeller: &n18hex::theme::Labeller<'_>,
+) -> (f64, f64) {
+    let (box_width, box_height) = boxes
+        .iter()
+        .map(|(_colour, text)| {
+            let size = labeller.size(text);
+            (size.width, size.height)
+        })
+        .fold(
+            (0.0, 0.0),
+            |(curr_w, curr_h): (f64, f64), (new_w, new_h)| {
+                (curr_w.max(new_w), curr_h.max(new_h))
+            },
+        );
+    let margin_width = hex.theme.phase_revenue_margin_x.absolute(hex);
+    let margin_height = hex.theme.phase_revenue_margin_y.absolute(hex);
+    let box_width = box_width + 2.0 * margin_width;
+    let box_height = box_height + 2.0 * margin_height;
+    (box_width, box_height)
 }
 
 /// The horizontal alignment for a label relative to its position coordinates.

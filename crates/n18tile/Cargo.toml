@@ -11,3 +11,7 @@ edition = "2018"
 n18hex = { path = "../n18hex" }
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
+
+[[example]]
+name = "custom_tile"
+test = true

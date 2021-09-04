@@ -477,6 +477,7 @@ enum LabelType {
     Note(String),
     Revenue(usize),
     PhaseRevenue(Vec<(HexColour, usize, bool)>),
+    PhaseRevenueVert(Vec<(HexColour, usize, bool)>),
 }
 
 impl std::convert::From<&n18tile::Label> for LabelType {
@@ -498,6 +499,15 @@ impl std::convert::From<&n18tile::Label> for LabelType {
                     })
                     .collect();
                 LabelType::PhaseRevenue(revs)
+            }
+            L::PhaseRevenueVert(revenues) => {
+                let revs = revenues
+                    .iter()
+                    .map(|(colour, revenue, active)| {
+                        ((*colour).into(), *revenue, *active)
+                    })
+                    .collect();
+                LabelType::PhaseRevenueVert(revs)
             }
         }
     }
@@ -811,6 +821,15 @@ impl From<&LabelType> for n18tile::Label {
                     })
                     .collect();
                 n18tile::Label::PhaseRevenue(revs)
+            }
+            LabelType::PhaseRevenueVert(revenues) => {
+                let revs = revenues
+                    .iter()
+                    .map(|(colour, revenue, active)| {
+                        (colour.into(), *revenue, *active)
+                    })
+                    .collect();
+                n18tile::Label::PhaseRevenueVert(revs)
             }
         }
     }
