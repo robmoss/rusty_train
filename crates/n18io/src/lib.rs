@@ -471,7 +471,7 @@ impl Default for City {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
 enum LabelType {
     City(String),
-    Y(()),
+    CityKind(String),
     TileName(()),
     MapLocation(String),
     Note(String),
@@ -485,7 +485,7 @@ impl std::convert::From<&n18tile::Label> for LabelType {
 
         match src {
             L::City(ref name) => LabelType::City(name.clone()),
-            L::Y => LabelType::Y(()),
+            L::CityKind(ref name) => LabelType::CityKind(name.clone()),
             L::TileName => LabelType::TileName(()),
             L::MapLocation(ref name) => LabelType::MapLocation(name.clone()),
             L::Note(ref text) => LabelType::Note(text.clone()),
@@ -794,7 +794,9 @@ impl From<&LabelType> for n18tile::Label {
     fn from(lt: &LabelType) -> Self {
         match lt {
             LabelType::City(ref name) => n18tile::Label::City(name.clone()),
-            LabelType::Y(()) => n18tile::Label::Y,
+            LabelType::CityKind(ref name) => {
+                n18tile::Label::CityKind(name.clone())
+            }
             LabelType::TileName(()) => n18tile::Label::TileName,
             LabelType::MapLocation(ref name) => {
                 n18tile::Label::MapLocation(name.clone())

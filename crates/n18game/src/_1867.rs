@@ -185,11 +185,11 @@ fn initial_tiles() -> BTreeMap<HexAddress, (&'static str, RotateCW)> {
 
 fn hex_labels() -> Vec<(HexAddress, Label)> {
     vec![
-        ((3, 14).into(), Label::Y),
+        ((3, 14).into(), Label::y()),
         ((5, 9).into(), Label::City("O".to_string())),
-        ((5, 9).into(), Label::Y),
-        ((7, 3).into(), Label::Y),
-        ((8, 4).into(), Label::Y),
+        ((5, 9).into(), Label::y()),
+        ((7, 3).into(), Label::y()),
+        ((8, 4).into(), Label::y()),
         ((5, 11).into(), Label::City("M".to_string())),
         ((7, 5).into(), Label::City("T".to_string())),
     ]
@@ -742,12 +742,12 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         })
         .chain(cities_y.into_iter().map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
-                .label(Label::Y, y_label_pos)
+                .label(Label::y(), y_label_pos)
                 .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(cities_oy.into_iter().map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
-                .label(Label::Y, oy_y_label_pos)
+                .label(Label::y(), oy_y_label_pos)
                 .label(Label::City("O".to_string()), oy_o_label_pos)
                 .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))

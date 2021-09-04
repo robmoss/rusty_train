@@ -633,7 +633,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), TopLeft.to_centre(0.25))
-            .label(Label::Y, LowerLeft.to_centre(0.2)),
+            .label(Label::y(), LowerLeft.to_centre(0.2)),
             Kind::_202 => Tile::new(
                 Yellow,
                 "202",
@@ -642,7 +642,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), TopLeft.to_centre(0.25))
-            .label(Label::Y, LowerLeft.to_centre(0.2)),
+            .label(Label::y(), LowerLeft.to_centre(0.2)),
             Kind::_204 => Tile::new(
                 Green,
                 "204",
@@ -669,7 +669,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), TopLeft.to_centre(0.15))
-            .label(Label::Y, TopRight.to_centre(0.15)),
+            .label(Label::y(), TopRight.to_centre(0.15)),
             Kind::_208 => Tile::new(
                 Green,
                 "208",
@@ -683,7 +683,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), BottomLeft.to_centre(0.15))
-            .label(Label::Y, TopLeft.to_centre(0.15)),
+            .label(Label::y(), TopLeft.to_centre(0.15)),
             Kind::_611 => Tile::new(
                 Brown,
                 "611",
@@ -722,7 +722,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), UpperLeft.to_centre(0.1))
-            .label(Label::Y, LowerLeft.to_centre(0.2)),
+            .label(Label::y(), LowerLeft.to_centre(0.2)),
             Kind::_622 => Tile::new(
                 Green,
                 "622",
@@ -736,7 +736,7 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), TopRight.to_centre(0.15))
-            .label(Label::Y, BottomLeft.to_centre(0.15)),
+            .label(Label::y(), BottomLeft.to_centre(0.15)),
             Kind::_623 => Tile::new(
                 Brown,
                 "623",
@@ -751,7 +751,7 @@ impl Kind {
                 vec![City::double(50)],
                 hex,
             )
-            .label(Label::Y, TopRight.to_centre(0.15))
+            .label(Label::y(), TopRight.to_centre(0.15))
             .label(Label::Revenue(0), TopLeft.to_centre(0.15)),
             Kind::_624 => Tile::new(
                 Green,
@@ -917,7 +917,7 @@ impl Kind {
                 vec![City::double(50)],
                 hex,
             )
-            .label(Label::Y, Right.to_centre(0.2))
+            .label(Label::y(), Right.to_centre(0.2))
             .label(Label::Revenue(0), TopRight.to_centre(0.15)),
             Kind::_911 => Tile::new(
                 Brown,

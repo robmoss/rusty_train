@@ -544,7 +544,7 @@ impl Map {
         }
     }
 
-    /// Defines labels for a specific map hex, such as [Label::Y] or
+    /// Defines labels for a specific map hex, such as [Label::CityKind] and
     /// [Label::City], which are used to identify valid upgrade tiles.
     ///
     /// # Multiple labels
@@ -591,20 +591,17 @@ impl Map {
     /// Check whether a tile can be upgraded to another tile.
     pub fn can_upgrade_to(&self, addr: HexAddress, tile: &Tile) -> bool {
         if let Some(hex_labels) = self.labels_tbl.get(&addr) {
-            // Check that the tile has one label in common with this hex.
+            // Check that the tile has at least one tile-restriction label in
+            // common with this hex.
             tile.labels()
                 .iter()
-                .filter(|(label, _posn)| {
-                    matches!(label, Label::City(_) | Label::Y)
-                })
+                .filter(|(label, _posn)| label.is_tile_restriction())
                 .any(|(label, _posn)| hex_labels.contains(label))
         } else {
-            // Check that this tile has no City or Y labels.
+            // Check that this tile has no tile-restriction labels.
             tile.labels()
                 .iter()
-                .filter(|(label, _posn)| {
-                    matches!(label, Label::City(_) | Label::Y)
-                })
+                .filter(|(label, _posn)| label.is_tile_restriction())
                 .count()
                 == 0
         }

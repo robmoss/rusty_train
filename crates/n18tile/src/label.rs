@@ -8,16 +8,45 @@ use n18hex::{
 /// The different types of labels that may appear on a tile.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Label {
+    /// A unique identifier for tiles that can only be placed on a single map
+    /// hex, corresponding to a particular city.
     City(String),
-    Y,
+    /// An identifier for tiles that can only be placed on a single kind of
+    /// city (e.g., "Y", "YY"), which generally applies to multiple map hexes.
+    CityKind(String),
+    /// The tile name, typically shown in the bottom-right corner of a tile.
     TileName,
+    /// A map location (i.e., city or town name), typically used to identify
+    /// towns and cities on a map before they are covered with tiles.
     MapLocation(String),
+    /// Tile-specific notes, such as construction costs.
     Note(String),
+    /// Displays the revenue associated with the tile's nth revenue centre.
     Revenue(usize),
+    /// Displays a revenue (`usize`) for each game phase (identified by
+    /// [HexColour]) and highlights the active phase (`bool`).
     PhaseRevenue(Vec<(HexColour, usize, bool)>),
 }
 
 impl Label {
+    /// Returns a new city kind label "Y".
+    pub fn y() -> Self {
+        Label::CityKind("Y".to_string())
+    }
+
+    /// Returns `true` if this label restricts placing and/or upgrading tiles.
+    pub fn is_tile_restriction(&self) -> bool {
+        match self {
+            Self::City(_) => true,
+            Self::CityKind(_) => true,
+            Self::TileName => false,
+            Self::MapLocation(_) => false,
+            Self::Revenue(_) => false,
+            Self::PhaseRevenue(_) => false,
+            Self::Note(_) => false,
+        }
+    }
+
     /// Draw this label on a tile.
     pub fn draw(
         &self,
@@ -28,7 +57,7 @@ impl Label {
     ) {
         let style = match self {
             Self::City(_) => &hex.theme.city_label,
-            Self::Y => &hex.theme.y_label,
+            Self::CityKind(_) => &hex.theme.city_kind_label,
             Self::TileName => &hex.theme.tile_label,
             Self::MapLocation(_) => &hex.theme.location_label,
             Self::Revenue(_) => &hex.theme.revenue_label,
@@ -45,12 +74,8 @@ impl Label {
         labeller.valign(vert);
 
         match self {
-            Self::City(name) | Self::Note(name) => {
-                labeller.draw(name, coord);
-            }
-            Self::Y => {
-                let label_text = "Y";
-                labeller.draw(label_text, coord);
+            Self::City(text) | Self::CityKind(text) | Self::Note(text) => {
+                labeller.draw(text, coord);
             }
             Self::TileName => {
                 let label_text = &tile.name;

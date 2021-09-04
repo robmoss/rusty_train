@@ -630,22 +630,22 @@ fn hex_labels() -> Vec<(HexAddress, Label)> {
         // St Petersburg
         ((1, 4).into(), Label::City("S".to_string())),
         // Riga
-        ((2, 1).into(), Label::Y),
+        ((2, 1).into(), Label::y()),
         // Moscow
         ((4, 7).into(), Label::City("M".to_string())),
         // Nizhnii Novgorod
-        ((4, 10).into(), Label::Y),
+        ((4, 10).into(), Label::y()),
         // Samara
-        ((5, 13).into(), Label::Y),
+        ((5, 13).into(), Label::y()),
         // Kiev
         ((7, 3).into(), Label::City("K".to_string())),
         // Kharkov
-        ((8, 6).into(), Label::Y),
+        ((8, 6).into(), Label::y()),
         ((8, 6).into(), Label::City("Kh".to_string())),
         // Odessa
-        ((10, 3).into(), Label::Y),
+        ((10, 3).into(), Label::y()),
         // Astrakhan
-        ((10, 12).into(), Label::Y),
+        ((10, 12).into(), Label::y()),
     ]
 }
 
@@ -735,7 +735,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         hex,
     )
     .label(Label::Revenue(0), Left.to_centre(0.2))
-    .label(Label::Y, Right.to_centre(0.2))
+    .label(Label::y(), Right.to_centre(0.2))
     .label(
         Label::MapLocation("Nizhnii Novgorod".to_string()),
         Top.to_centre(0.1),
@@ -848,7 +848,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
         }))
         .chain(cities_y.into_iter().map(|name| {
             Tile::new(Empty, name, vec![], vec![City::single(0)], hex)
-                .label(Label::Y, y_label_pos)
+                .label(Label::y(), y_label_pos)
                 .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(cities_y_yellow.into_iter().map(|name| {
@@ -859,7 +859,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 vec![City::single(0).with_fill(Yellow)],
                 hex,
             )
-            .label(Label::Y, y_label_pos)
+            .label(Label::y(), y_label_pos)
             .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(cities_y_kh_yellow.into_iter().map(|name| {
@@ -870,7 +870,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 vec![City::single(0).with_fill(Yellow)],
                 hex,
             )
-            .label(Label::Y, y_label_pos)
+            .label(Label::y(), y_label_pos)
             .label(Label::City("Kh".to_string()), Right.to_centre(0.15))
             .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
@@ -882,7 +882,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 vec![City::single(0).with_fill(Green)],
                 hex,
             )
-            .label(Label::Y, y_label_pos)
+            .label(Label::y(), y_label_pos)
             .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
         .chain(cities_green.into_iter().map(|name| {

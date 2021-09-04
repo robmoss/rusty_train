@@ -609,8 +609,8 @@ pub struct Theme {
     pub tile_label: Text,
     /// The text settings for city name labels.
     pub city_label: Text,
-    /// The text settings for Y labels.
-    pub y_label: Text,
+    /// The text settings for city kind labels.
+    pub city_kind_label: Text,
     /// The text settings for location labels.
     pub location_label: Text,
     /// The text settings for note labels.
@@ -747,7 +747,7 @@ impl Default for Theme {
                 weight: pango::Weight::Bold,
                 ..Default::default()
             },
-            y_label: Text {
+            city_kind_label: Text {
                 family: FontFamily::Serif,
                 font_size: 12.0,
                 weight: pango::Weight::Bold,

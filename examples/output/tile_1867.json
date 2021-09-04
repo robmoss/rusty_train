@@ -221,7 +221,7 @@
           "to_centre": 0.25
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "LowerLeftFace",
           "to_centre": 0.2
         }
@@ -251,7 +251,7 @@
           "to_centre": 0.25
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "LowerLeftFace",
           "to_centre": 0.2
         }
@@ -285,7 +285,7 @@
           "to_centre": 0.1
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "LowerLeftFace",
           "to_centre": 0.2
         }
@@ -723,7 +723,7 @@
           "to_centre": 0.15
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "TopRightCorner",
           "to_centre": 0.15
         }
@@ -759,7 +759,7 @@
           "to_centre": 0.15
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "TopLeftCorner",
           "to_centre": 0.15
         }
@@ -826,7 +826,7 @@
           "to_centre": 0.15
         },
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "BottomLeftCorner",
           "to_centre": 0.15
         }
@@ -1529,7 +1529,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "TopRightCorner",
           "to_centre": 0.15
         },
@@ -1565,7 +1565,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "RightCorner",
           "to_centre": 0.2
         },
@@ -2392,7 +2392,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "Centre",
           "nudge": [
             "S",
@@ -2421,7 +2421,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "Centre",
           "nudge": [
             "S",
@@ -2450,7 +2450,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "Centre",
           "nudge": [
             "S",
@@ -2479,7 +2479,7 @@
       ],
       "labels": [
         {
-          "Y": null,
+          "CityKind": "Y",
           "location": "Centre",
           "nudge": [
             "S60W",
