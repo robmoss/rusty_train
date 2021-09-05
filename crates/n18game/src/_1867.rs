@@ -13,7 +13,7 @@ use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Token, TokenStyle};
 
-fn addrs() -> Vec<(usize, usize)> {
+fn addrs() -> Vec<(isize, isize)> {
     vec![
         // Rows 1 and 2.
         (0, 3),

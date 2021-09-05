@@ -41,8 +41,8 @@ fn place_tiles(
 
     // Build an iterator over the map hexes.
     let mut tile_addrs: Vec<String> = vec![];
-    let rows: Vec<usize> = (0..rows).collect();
-    let cols: Vec<usize> = (0..cols).collect();
+    let rows: Vec<isize> = (0..rows as isize).collect();
+    let cols: Vec<isize> = (0..cols as isize).collect();
     for row in &rows {
         for col in &cols {
             let addr = HexAddress::new(*row, *col);

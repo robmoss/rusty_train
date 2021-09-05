@@ -332,9 +332,9 @@ fn draw_routes(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Draw the relevant portion of the map.
     example.draw_map_subset(|addr| {
-        let row = addr.row();
-        let col = addr.column() as usize - 'A' as usize;
-        row + col >= 17
+        let row = addr.logical_row();
+        let col = addr.logical_column();
+        row + col >= 16
     });
 
     let colours = example.theme().highlight_colours();

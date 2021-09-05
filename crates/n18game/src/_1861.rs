@@ -319,7 +319,7 @@ impl super::Game for Game {
     }
 }
 
-fn addrs() -> Vec<(usize, usize)> {
+fn addrs() -> Vec<(isize, isize)> {
     vec![
         // Row 0
         (0, 15),

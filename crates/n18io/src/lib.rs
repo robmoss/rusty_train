@@ -1148,8 +1148,8 @@ struct TileDescr {
 
 #[derive(Serialize, Deserialize)]
 struct HexAddress {
-    row: usize,
-    col: usize,
+    row: isize,
+    col: isize,
     #[serde(flatten)]
     tile: Option<TileDescr>,
 }

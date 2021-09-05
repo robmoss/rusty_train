@@ -11,9 +11,9 @@
 //! # use n18token::{Token, Tokens, TokenStyle};
 //! // Create a map; this one has 6 rows and 14 columns.
 //! let tiles = tile_catalogue();
-//! let num_rows: usize = 6;
-//! let num_cols: usize = 14;
-//! let addrs: Vec<(usize, usize)> = (0..num_rows)
+//! let num_rows: isize = 6;
+//! let num_cols: isize = 14;
+//! let addrs: Vec<(isize, isize)> = (0..num_rows)
 //!     .map(|r| (0..num_cols).map(move |c| (r, c)))
 //!     .flatten()
 //!     .collect();

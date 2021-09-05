@@ -11,9 +11,9 @@ use n18token::Tokens;
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TileDescr {
     /// The map row in which the tile is located.
-    pub row: usize,
+    pub row: isize,
     /// The map column in which the tile is located.
-    pub col: usize,
+    pub col: isize,
     /// The tile name.
     pub tile: String,
     /// The tile rotation.

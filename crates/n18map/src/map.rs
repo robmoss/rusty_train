@@ -33,13 +33,13 @@ pub struct Map {
     /// City labels that apply to map hexes.
     labels_tbl: BTreeMap<HexAddress, Vec<Label>>,
     /// The minimum row number for which there is a hex.
-    min_row: usize,
+    min_row: isize,
     /// The maximum row number for which there is a hex.
-    max_row: usize,
+    max_row: isize,
     /// The minimum column number for which there is a hex.
-    min_col: usize,
+    min_col: isize,
     /// The maximum column number for which there is a hex.
-    max_col: usize,
+    max_col: isize,
     /// The orientation of the hexagonal grid.
     orientation: Orientation,
 }
@@ -614,8 +614,8 @@ impl Map {
     /// which lie within the map's bounding box.
     fn hex_centre(
         &self,
-        row: usize,
-        col: usize,
+        row: isize,
+        col: isize,
         x0: f64,
         y0: f64,
         hex: &Hex,
@@ -755,8 +755,8 @@ impl Map {
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
-    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
-    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// # let hexes: Vec<HexAddress> = (0 as isize..4)
+    /// #     .map(|r| (0 as isize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
@@ -814,8 +814,8 @@ impl Map {
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
-    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
-    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// # let hexes: Vec<HexAddress> = (0 as isize..4)
+    /// #     .map(|r| (0 as isize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
@@ -852,8 +852,8 @@ impl Map {
     /// # let hex = Hex::new(125.0);
     /// # let tiles = tile_catalogue();
     /// # let tokens = vec![].into();
-    /// # let hexes: Vec<HexAddress> = (0 as usize..4)
-    /// #     .map(|r| (0 as usize..4).map(move |c| (r, c)))
+    /// # let hexes: Vec<HexAddress> = (0 as isize..4)
+    /// #     .map(|r| (0 as isize..4).map(move |c| (r, c)))
     /// #     .flatten()
     /// #     .map(|coords| coords.into())
     /// #     .collect();
@@ -1243,94 +1243,179 @@ impl MapTile {
     }
 }
 
-/// A hex location on a `Map`.
+/// A hex location on a `Map`, identified by row and column.
+/// The row and column may be defined in terms of several different coordinate
+/// systems, as described below.
+///
+/// # Logical coordinates
+///
+/// Logical coordinates are defined by a row number and a column number, where
+/// the column number may be any `isize` value and the valid row numbers are
+/// determined by column number:
+///
+/// - For even-numbered columns, the row number **must be even**; and
+/// - For odd-numbered columns, the row number **must be odd**.
+///
+/// Valid `(row, column)` pairs include `(0, 0)`, `(1, 7)`, and `(-2, -4)`.
+///
+/// Invalid `(row, column)` pairs include `(0, 1)`, `(1, 8)`, and `(-2, -3)`.
+///
+/// ```rust
+/// # use n18map::HexAddress;
+/// let valid_addr = HexAddress::logical(1, 3);
+/// assert!(valid_addr.is_some());
+/// let invalid_addr = HexAddress::logical(1, 4);
+/// assert!(invalid_addr.is_none());
+/// ```
+///
+/// # String coordinates
+///
+/// When the column number is between `0` and `25` (inclusive), and the row
+/// number is positive, these coordinates can be defined by a string of the
+/// form "[A-Z][0-9]+" and parsed with `str::parse()`.
+///
+/// **Important:** when using string coordinates, the row number encoded in
+/// the string is **one larger** than the logical row number.
+/// For example:
+/// - "A1" corresponds to the logical coordinates `(0, 0)`;
+/// - "A3" corresponds to the logical coordinates `(0, 2)`;
+/// - "B2" corresponds to the logical coordinates `(1, 1)`;
+/// - "B4" corresponds to the logical coordinates `(1, 3)`;
+/// - "A2" is **invalid**.
+///
+/// ```
+/// # use n18map::HexAddress;
+/// assert!("A0".parse::<HexAddress>().is_err());
+/// assert!("A1".parse::<HexAddress>().is_ok());
+/// assert!("A2".parse::<HexAddress>().is_err());
+/// assert!("B0".parse::<HexAddress>().is_err());
+/// assert!("B1".parse::<HexAddress>().is_err());
+/// assert!("B2".parse::<HexAddress>().is_ok());
+/// let a1 = "A1".parse::<HexAddress>().unwrap();
+/// let logical = HexAddress::logical(0, 0).unwrap();
+/// assert_eq!(a1, logical);
+/// ```
+///
+/// # Alternating-row coordinates
+///
+/// When constructing [HexAddress] values with [HexAddress::new], converting
+/// `(row, column)` tuples into to [HexAddress] values, and converting
+/// [HexAddress] values into `(row, column)` tuples, rows and columns are
+/// defined using alternating-row coordinates.
+///
+/// The column number is the same as when using logical coordinates:
+/// - Column `0` corresponds to the sequence "A1", "A3," "A5", "A7", etc,
+/// of map hexes.
+/// - Column `1` corresponds to the sequence "B2", "B4", "B6", "B8", etc.
+/// - Column `2` corresponds to the sequence "C1", "C3", "C5", "C7", etc.
+///
+/// In contrast, alternating row numbers are defined such that:
+/// - Row `0` corresponds to the sequence "A1", "B2", "C1", "D2", etc, of map hexes.
+/// - Row `1` corresponds to the sequence "A3", "B4", "C3", "D4", etc.
+/// - Row `2` corresponds to the sequence "A5", "B6", "C5", "D6", etc.
+///
+/// This means that **any combination** of internal row and column numbers
+/// defines a valid [HexAddress] value.
+///
+/// ```
+/// # use n18map::HexAddress;
+/// assert_eq!(HexAddress::new(0, 0), "A1".parse::<HexAddress>().unwrap());
+/// assert_eq!(HexAddress::new(0, 1), "B2".parse::<HexAddress>().unwrap());
+/// assert_eq!(HexAddress::new(0, 2), "C1".parse::<HexAddress>().unwrap());
+/// assert_eq!(HexAddress::new(1, 0), "A3".parse::<HexAddress>().unwrap());
+/// assert_eq!(HexAddress::new(1, 1), "B4".parse::<HexAddress>().unwrap());
+/// assert_eq!(HexAddress::new(1, 2), "C3".parse::<HexAddress>().unwrap());
+/// ```
+///
+/// Note that negative row and column numbers are permitted.
+/// This allows maps to include tiles (such as off-board locations)
+/// adjacent to any regular map hex.
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct HexAddress {
-    pub(crate) row: usize,
-    pub(crate) col: usize,
+    /// The row number.
+    pub(crate) row: isize,
+    /// The column number.
+    pub(crate) col: isize,
 }
 
 impl HexAddress {
-    pub fn new(row: usize, col: usize) -> Self {
-        Self { row, col }
+    /// Returns a new `HexAddress` with the specified `row` and `column`
+    /// (alternating-row coordinates).
+    pub fn new(row: isize, column: isize) -> Self {
+        Self { row, col: column }
     }
 
-    pub fn column(&self) -> char {
-        let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
-        alphabet[self.col]
-    }
-
-    pub fn row(&self) -> usize {
-        if self.col % 2 == 0 {
-            2 * self.row + 1
+    /// Returns a new `HexAddress` with the specified `row` and `column`
+    /// (logical coordinates) if the coordinates are valid.
+    pub fn logical(row: isize, column: isize) -> Option<Self> {
+        if row % 2 != column % 2 {
+            None
         } else {
-            2 * self.row + 2
+            Some(Self { row, col: column })
+        }
+    }
+
+    /// Returns the character, if any, that corresponds to the logical column
+    /// number.
+    pub fn column_char(&self) -> Option<char> {
+        let ix = if self.col >= 0 && self.col <= 25 {
+            self.col as usize
+        } else {
+            return None;
+        };
+        let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
+        Some(alphabet[ix])
+    }
+
+    /// Returns the logical column number.
+    pub fn logical_column(&self) -> isize {
+        self.col
+    }
+
+    /// Returns the logical row number.
+    pub fn logical_row(&self) -> isize {
+        if self.col % 2 == 0 {
+            2 * self.row
+        } else {
+            2 * self.row + 1
         }
     }
 
     /// Returns the address of the hex that is adjacent to the specified face
-    /// (in terms of map orientation, not tile orientation) of this hex,
-    /// without doing bounds checking.
-    pub fn adjacent_unchecked(&self, face: HexFace) -> HexAddress {
-        self.adjacent(face).unwrap()
-    }
-
-    /// Returns the address of the hex that is adjacent to the specified face
     /// (in terms of map orientation, not tile orientation) of this hex.
-    pub fn adjacent(&self, face: HexFace) -> Option<HexAddress> {
+    pub fn adjacent(&self, face: HexFace) -> HexAddress {
         let is_upper = self.col % 2 == 0;
 
         match face {
-            HexFace::Top => {
-                if self.row > 0 {
-                    Some((self.row - 1, self.col).into())
-                } else {
-                    None
-                }
-            }
+            HexFace::Top => (self.row - 1, self.col).into(),
             HexFace::UpperRight => {
                 if is_upper {
-                    if self.row > 0 {
-                        Some((self.row - 1, self.col + 1).into())
-                    } else {
-                        None
-                    }
+                    (self.row - 1, self.col + 1).into()
                 } else {
-                    Some((self.row, self.col + 1).into())
+                    (self.row, self.col + 1).into()
                 }
             }
             HexFace::LowerRight => {
                 if is_upper {
-                    Some((self.row, self.col + 1).into())
+                    (self.row, self.col + 1).into()
                 } else {
-                    Some((self.row + 1, self.col + 1).into())
+                    (self.row + 1, self.col + 1).into()
                 }
             }
-            HexFace::Bottom => Some((self.row + 1, self.col).into()),
+            HexFace::Bottom => (self.row + 1, self.col).into(),
             HexFace::LowerLeft => {
-                if self.col > 0 {
-                    if is_upper {
-                        Some((self.row, self.col - 1).into())
-                    } else {
-                        Some((self.row + 1, self.col - 1).into())
-                    }
+                if is_upper {
+                    (self.row, self.col - 1).into()
                 } else {
-                    None
+                    (self.row + 1, self.col - 1).into()
                 }
             }
             HexFace::UpperLeft => {
-                if self.col > 0 {
-                    if is_upper {
-                        if self.row > 0 {
-                            Some((self.row - 1, self.col - 1).into())
-                        } else {
-                            None
-                        }
-                    } else {
-                        Some((self.row, self.col - 1).into())
-                    }
+                if is_upper {
+                    (self.row - 1, self.col - 1).into()
                 } else {
-                    None
+                    (self.row, self.col - 1).into()
                 }
             }
         }
@@ -1350,8 +1435,7 @@ impl HexAddress {
     /// this hex, without doing bounds checking, and returns the new hex
     /// address.
     ///
-    /// This is short-hand for calling
-    /// [adjacent_unchecked](HexAddress::adjacent_unchecked) and
+    /// This is short-hand for calling adjacent](HexAddress::adjacent) and
     /// [do_here](HexAddress::do_here), then returning the new hex address.
     ///
     /// # Examples
@@ -1380,17 +1464,25 @@ impl HexAddress {
     where
         F: FnMut(&Self),
     {
-        let addr = self.adjacent_unchecked(face);
+        let addr = self.adjacent(face);
         addr.do_here(f);
         addr
     }
 }
 
+/// Formats [HexAddress] values using string coordinates.
+///
+/// Returns `std::fmt::Error` if the column number is negative or exceeds 25.
 impl std::fmt::Display for HexAddress {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let alphabet: Vec<_> = (b'A'..=b'Z').map(|b| b as char).collect();
         // NOTE: this is consistent with the 1861/67 maps.
-        let col_letter = alphabet[self.col];
+        let ix = if self.col >= 0 && self.col <= 25 {
+            self.col as usize
+        } else {
+            return Err(std::fmt::Error);
+        };
+        let col_letter = alphabet[ix];
         let row_num = if self.col % 2 == 0 {
             2 * self.row + 1
         } else {
@@ -1421,12 +1513,12 @@ impl std::str::FromStr for HexAddress {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Examine the first byte, it must be within 'A'..'Z' (inclusive).
-        let col: usize = (b'A'..=b'Z')
+        let col: isize = (b'A'..=b'Z')
             .enumerate()
             .find_map(|(ix, byte)| {
                 s.as_bytes().get(0).and_then(|b| {
                     if b == &byte {
-                        Some(ix)
+                        Some(ix as isize)
                     } else {
                         None
                     }
@@ -1434,7 +1526,7 @@ impl std::str::FromStr for HexAddress {
             })
             .ok_or(ParseHexAddressError {})?;
         // Parse the remaining bytes as a positive integer.
-        let row = s[1..].parse::<usize>().or(Err(ParseHexAddressError {}))?;
+        let row = s[1..].parse::<isize>().or(Err(ParseHexAddressError {}))?;
         // NOTE: depending on whether the column is odd or even, the row must
         // be even or odd, respectively.
         let row = if col % 2 == 0 {
@@ -1460,21 +1552,30 @@ impl std::str::FromStr for HexAddress {
     }
 }
 
-impl From<(usize, usize)> for HexAddress {
-    fn from(src: (usize, usize)) -> Self {
+/// Converts `(row, column)` tuples into a [HexAddress] value.
+///
+/// The `row` and `column` values are defined in terms of alternating-row
+/// coordinates, as per [HexAddress::new].
+impl From<(isize, isize)> for HexAddress {
+    fn from(src: (isize, isize)) -> Self {
         let (row, col) = src;
         Self { row, col }
     }
 }
 
-impl From<&HexAddress> for (usize, usize) {
+/// Converts [HexAddress] references into alternating-row coordinates.
+impl From<&HexAddress> for (isize, isize) {
     fn from(src: &HexAddress) -> Self {
         (src.row, src.col)
     }
 }
 
-impl From<&(usize, usize)> for HexAddress {
-    fn from(src: &(usize, usize)) -> Self {
+/// Converts `(row, column)` tuples into a [HexAddress] value.
+///
+/// The `row` and `column` values are defined in terms of alternating-row
+/// coordinates, as per [HexAddress::new].
+impl From<&(isize, isize)> for HexAddress {
+    fn from(src: &(isize, isize)) -> Self {
         let (row, col) = src;
         Self {
             row: *row,
@@ -1550,6 +1651,74 @@ mod tests {
         let b10 = b10.unwrap();
         assert!(b10.row == 4);
         assert!(b10.col == 1);
+    }
+
+    /// Tests that logical row numbers are consistent when the input row
+    /// and/or column number is negative.
+    #[test]
+    fn test_logical_row_numbers() {
+        // NOTE: this corresponds to "A1".
+        let origin = HexAddress::from((0, 0));
+        let orig_row = origin.logical_row();
+        let orig_col = origin.logical_column();
+        assert_eq!(orig_row, 0);
+        assert_eq!(orig_col, 0);
+
+        // Returns the column number, relative to the origin.
+        let dcol = |addr: &HexAddress| addr.logical_column() - orig_col;
+
+        // Returns the row number, relative to the origin, accounting for the
+        // alternating up/down sequence along each row.
+        let drow = |addr: &HexAddress, odd_column: bool| {
+            let dr = addr.logical_row() - orig_row;
+            if odd_column {
+                // Odd column: hexes are one row below hexes in even rows.
+                // Subtract one to shift this value up one row, to match the
+                // row number for even columns.
+                dr - 1
+            } else {
+                dr
+            }
+        };
+
+        // Check that negating the column and/or row number used to construct
+        // a HexAddress does not change the distance from the origin, after
+        // accounting for the effect of the column number on the row number.
+        let compare_addrs =
+            |row: isize, col: isize, neg_row: bool, neg_col: bool| {
+                let row_2 = if neg_row { -row } else { row };
+                let col_2 = if neg_col { -col } else { col };
+                let addr_1 = HexAddress::from((row, col));
+                let addr_2 = HexAddress::from((row_2, col_2));
+                let odd_column = col % 2 != 0;
+                let dc_1 = dcol(&addr_1);
+                let dr_1 = drow(&addr_1, odd_column);
+                let dc_2 = dcol(&addr_2);
+                let dr_2 = drow(&addr_2, odd_column);
+                if neg_row {
+                    assert_eq!(dr_1, -dr_2)
+                } else {
+                    assert_eq!(dr_1, dr_2)
+                }
+                if neg_col {
+                    assert_eq!(dc_1, -dc_2)
+                } else {
+                    assert_eq!(dc_1, dc_2)
+                }
+            };
+
+        // Check hexes in the 7x7 grid centred at the origin.
+        let vals: Vec<isize> = vec![0, 1, 2, 3];
+        for &row in &vals {
+            for &col in &vals {
+                // Compare the row and column numbers of the corresponding
+                // HexAddress in each quadrant of this grid.
+                compare_addrs(row, col, false, false);
+                compare_addrs(row, col, true, false);
+                compare_addrs(row, col, false, true);
+                compare_addrs(row, col, true, true);
+            }
+        }
     }
 
     #[test]

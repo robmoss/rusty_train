@@ -157,9 +157,7 @@ fn find_routes_for_phase(
         .font_serif()
         .bold()
         .labeller(&rec_ctx, &hex);
-    let addr = astrakhan()
-        .adjacent_unchecked(HexFace::Top)
-        .adjacent_unchecked(HexFace::Top);
+    let addr = astrakhan().adjacent(HexFace::Top).adjacent(HexFace::Top);
     let m = map.prepare_to_draw(addr, &hex, &rec_ctx);
     labeller.draw(
         &format!("{}-train: ${}", train_name, routes.net_revenue),
@@ -212,7 +210,7 @@ fn place_yellow_tiles(map: &mut Map) {
         .move_and_do(LowerRight, |&addr| {
             let _ = map.place_tile(addr, "8", Four);
         })
-        .adjacent_unchecked(UpperRight)
+        .adjacent(UpperRight)
         .move_and_do(LowerRight, |&addr| {
             let _ = map.place_tile(addr, "9", Two);
         })
