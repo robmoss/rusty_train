@@ -610,8 +610,7 @@ impl Map {
     /// Returns the coordinates for the centre of a map hex.
     ///
     /// Note that this accepts any valid row and column, so it can be used to
-    /// locate the centre of hexes that are not part of the map itself, but
-    /// which lie within the map's bounding box.
+    /// locate the centre of hexes that are not part of the map itself.
     fn hex_centre(
         &self,
         row: isize,
@@ -619,13 +618,7 @@ impl Map {
         x0: f64,
         y0: f64,
         hex: &Hex,
-    ) -> Option<(f64, f64)> {
-        if row < self.min_row || row > self.max_row {
-            return None;
-        }
-        if col < self.min_col || col > self.max_col {
-            return None;
-        }
+    ) -> (f64, f64) {
         let row = row - self.min_row;
         let col = col - self.min_col;
 
@@ -637,7 +630,7 @@ impl Map {
                 } else {
                     y0 + (row as f64) * hex.min_d
                 };
-                Some((x, y))
+                (x, y)
             }
             Orientation::HorizontalRows => {
                 let x = if (row + self.min_row) % 2 == 1 {
@@ -646,7 +639,7 @@ impl Map {
                     x0 + (col as f64) * hex.min_d
                 };
                 let y = y0 + (row as f64) * hex.max_d * 0.75;
-                Some((x, y))
+                (x, y)
             }
         }
     }
@@ -687,7 +680,7 @@ impl Map {
     /// Note that this function accepts any hex address `addr` with a valid row
     /// and column.
     /// This means that it can be used for drawing on hexes that are not part
-    /// of the map itself, but which lie within the map's bounding box.
+    /// of the map itself.
     ///
     /// # Examples
     ///
@@ -716,10 +709,7 @@ impl Map {
         let x0 = self.hex_x0(hex);
         let y0 = self.hex_y0(hex);
 
-        let (x, y) = self
-            .hex_centre(addr.row, addr.col, x0, y0, hex)
-            .unwrap_or_else(|| panic!("Invalid hex: {}", addr));
-
+        let (x, y) = self.hex_centre(addr.row, addr.col, x0, y0, hex);
         let m = ctx.matrix();
         ctx.translate(x, y);
 
@@ -1030,7 +1020,7 @@ impl<'a> HexIter<'a> {
         }
     }
 
-    fn hex_centre(&self, addr: HexAddress) -> Option<(f64, f64)> {
+    fn hex_centre(&self, addr: HexAddress) -> (f64, f64) {
         self.map
             .hex_centre(addr.row, addr.col, self.x0, self.y0, self.hex)
     }
@@ -1068,13 +1058,7 @@ impl<'a> Iterator for HexIter<'a> {
             return None;
         };
 
-        let (x, y) = if let Some((x, y)) = self.hex_centre(addr) {
-            (x, y)
-        } else {
-            // NOTE: restore the original matrix.
-            self.ctx.set_matrix(self.m);
-            return None;
-        };
+        let (x, y) = self.hex_centre(addr);
 
         self.ctx.set_matrix(self.m);
         self.ctx.translate(x, y);
