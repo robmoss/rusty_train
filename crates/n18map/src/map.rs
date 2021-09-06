@@ -86,6 +86,27 @@ impl Map {
             .count()
     }
 
+    /// Returns `true` if the tile is available to be placed on the map in its
+    /// current state, respecting any limits on tile availability.
+    fn tile_ix_available(&self, tile_ix: usize) -> bool {
+        use n18catalogue::Availability::*;
+        match self.tiles[tile_ix].1 {
+            Unlimited => true,
+            Unavailable => false,
+            Limited(count) => self.number_placed(tile_ix) < count,
+        }
+    }
+
+    /// Returns `true` if the tile is available to be placed on the map in its
+    /// current state, respecting any limits on tile availability.
+    pub fn tile_is_available(&self, tile_name: &str) -> bool {
+        if let Some(ix) = self.tiles.index_of(tile_name) {
+            self.tile_ix_available(ix)
+        } else {
+            false
+        }
+    }
+
     /// Returns all of the tiles in the map catalogue that can be placed on
     /// the map in its current state, respecting any limits on tile
     /// availability.
@@ -95,21 +116,14 @@ impl Map {
     /// In order to return an `Iterator`, the closure that filters the map
     /// catalogue would need to take ownership of the map.
     pub fn available_tiles(&self) -> Vec<(usize, &Tile)> {
-        use n18catalogue::Availability::*;
         self.tiles
             .iter()
             .enumerate()
-            .filter_map(|(ix, (tile, avail))| match avail {
-                Unlimited => Some((ix, tile)),
-                Unavailable => None,
-                Limited(count) => {
-                    // Count how many copies of this tile have already been
-                    // placed on the map.
-                    if self.number_placed(ix) < *count {
-                        Some((ix, tile))
-                    } else {
-                        None
-                    }
+            .filter_map(|(ix, (tile, _avail))| {
+                if self.tile_ix_available(ix) {
+                    Some((ix, tile))
+                } else {
+                    None
                 }
             })
             .collect()
@@ -562,8 +576,14 @@ impl Map {
             .unwrap_or(&[])
     }
 
-    /// Check whether a tile can be placed on an empty hex.
+    /// Check whether a tile can be placed on an empty hex, given the current
+    /// map state and respecting any limits on tile availability.
     pub fn can_place_on_empty(&self, addr: HexAddress, tile: &Tile) -> bool {
+        // Check if the tile is available.
+        if !self.tile_is_available(&tile.name) {
+            return false;
+        }
+
         // Only first-phase tiles can be placed on an empty hex.
         if Some(tile.colour) != HexColour::Empty.next_phase() {
             return false;
@@ -580,8 +600,14 @@ impl Map {
         self.can_upgrade_to(addr, tile)
     }
 
-    /// Check whether a tile can be upgraded to another tile.
+    /// Check whether a tile can be upgraded to another tile, given the
+    /// current map state and respecting any limits on tile availability.
     pub fn can_upgrade_to(&self, addr: HexAddress, tile: &Tile) -> bool {
+        // Check if the tile is available.
+        if !self.tile_is_available(&tile.name) {
+            return false;
+        }
+
         if let Some(hex_labels) = self.labels_tbl.get(&addr) {
             // Check that the tile has at least one tile-restriction label in
             // common with this hex.
