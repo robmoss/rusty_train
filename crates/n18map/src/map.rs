@@ -34,12 +34,8 @@ pub struct Map {
     labels_tbl: BTreeMap<HexAddress, Vec<Label>>,
     /// The minimum row number for which there is a hex.
     min_row: isize,
-    /// The maximum row number for which there is a hex.
-    max_row: isize,
     /// The minimum column number for which there is a hex.
     min_col: isize,
-    /// The maximum column number for which there is a hex.
-    max_col: isize,
     /// The orientation of the hexagonal grid.
     orientation: Orientation,
 }
@@ -400,25 +396,23 @@ impl Map {
     }
 
     /// Creates a new map.
-    pub fn new(
-        tiles: Catalogue,
-        tokens: Tokens,
-        hexes: Vec<HexAddress>,
-    ) -> Self {
+    pub fn new<T>(tiles: Catalogue, tokens: Tokens, hexes: T) -> Self
+    where
+        T: IntoIterator<Item = HexAddress>,
+    {
+        let hexes: BTreeMap<HexAddress, Option<MapTile>> =
+            hexes.into_iter().map(|addr| (addr, None)).collect();
+
         if hexes.is_empty() {
             panic!("Can not create map with no hexes")
         }
 
         let barriers = vec![];
         let labels_tbl = BTreeMap::new();
-        let min_col = hexes.iter().map(|hc| hc.col).min().unwrap();
-        let max_col = hexes.iter().map(|hc| hc.col).max().unwrap();
-        let min_row = hexes.iter().map(|hc| hc.row).min().unwrap();
-        let max_row = hexes.iter().map(|hc| hc.row).max().unwrap();
+        let min_col = hexes.keys().map(|hc| hc.col).min().unwrap();
+        let min_row = hexes.keys().map(|hc| hc.row).min().unwrap();
         // Note: we currently only support vertical columns.
         let orientation = Orientation::VerticalColumns;
-        let hexes: BTreeMap<HexAddress, Option<MapTile>> =
-            hexes.into_iter().map(|addr| (addr, None)).collect();
 
         Map {
             tokens,
@@ -427,9 +421,7 @@ impl Map {
             hexes,
             labels_tbl,
             min_row,
-            max_row,
             min_col,
-            max_col,
             orientation,
         }
     }
