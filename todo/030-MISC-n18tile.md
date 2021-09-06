@@ -2,17 +2,7 @@
 
 - `n18tile::city`: rename `Tokens` to `TokenSpaces` or something similar.
 
-- `n18tile::Label::Y`: this should store a String argument, so ... does this differ from `City()` then?
-  Note that we allow map hexes and tiles to have multiple such labels.
-
-- Allow labels to have a custom anchor/alignment?
-  But where to store this?
-  Or pass it as an optional argument to the drawing function (although this doesn't solve the where-to-store-this question)?
-  Would be handy for having `MapLocation` labels with consistent vertical alignment with 1-line or 2-line text ... the alternative is to position them at `Centre` and nudge them up ... nudge some frac to `Face::Top`.
-
-- `n18tile::tile::Tile`: indicate which tiles are available for players to place, as opposed to being tiles internal to the game map.
-  But this is more of a per-game concern, and should be defined by each `n18game::Game` instance.
-  So rather than being a (mutable) `Tile` property, the `Game` should return the collection of all Tiles (asset and player), and separately return the collection of all available-to-player tiles.
+- Replace the `bool` field in `n18tile::label::PhaseRevenue` and `n18tile::label::PhaseRevenueVert` with a new enum type that has variants `Normal` and `Emphasise`?
 
 - `n18tile::tile::Tile`:
   - Break out the layer calculations into a separate struct, similar to `connection::Connections`?

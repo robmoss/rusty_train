@@ -35,6 +35,8 @@ See [this article about error handling in Rust](https://www.lpalmieri.com/posts/
 
 Relevant crates include [anyhow](https://github.com/dtolnay/anyhow), [eyre](https://github.com/yaahc/eyre), and [thiserror](https://github.com/dtolnay/thiserror).
 
+Also see [this /r/rust discussion](https://redd.it/pegi1d) about disallowing specific methods with clippy.
+
 ## Builder patterns
 
 Some of the more complex data structures would benefit from a **builder** to simplify their construction.
@@ -78,8 +80,6 @@ For example, this would make it much simpler to show all placed tokens on replac
 
 - Consider splitting out the `n18route::comb` and `n18route::perm` modules into separate crates (e.g., `n18comb` and `n18perm`).
 
-## Off-board locations
+## Export items in crate root
 
-- Make being an off-board tile a property of the tile itself, rather than being determined purely by the tile's background colour.
-
-- Assuming that these tiles are therefore route terminators, should we also draw track segments on these tiles as tapering to a point?
+Maybe we should (re)export every public type or function from the crate root.

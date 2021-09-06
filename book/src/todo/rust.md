@@ -36,6 +36,8 @@ See the "Minimum Supported Rust Version" [tracking issue](https://github.com/rus
 
 - Define enabled and disabled lints in a configuration file: [issue](https://github.com/rust-lang/cargo/issues/5034)
 
+- Enable warnings for doctests: [relevant](https://github.com/rust-lang/rust/issues/41574) [issues](https://github.com/rust-lang/rust/issues/56232) and [pull request](https://github.com/rust-lang/rust/pull/73314).
+
 ## Testing issues
 
 - Run all crate examples with a single command: [issue](https://github.com/rust-lang/cargo/issues/8356)

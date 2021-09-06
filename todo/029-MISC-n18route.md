@@ -13,7 +13,6 @@
 
 - `n18route::path::Path`:
 
-  - replace `HashSet` field with `BTreeSet` so that `Path` values can be hashed?
   - add an `append(other: Path)` method to `Path`?
 
 - `n18route::path`: distinguish between `Path` (which defines track segments, hex faces, and cities that a train passes through) and `Route` (which defines the visits that the train makes).

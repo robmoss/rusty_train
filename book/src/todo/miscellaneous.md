@@ -19,25 +19,17 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - `n18map::descr` 117-119: want `Map` to support placing tokens by name, similar to placing tiles?
 
-- `n18map`: instead of repeated `.clockwise()` and `.anti_clockwise()` turns, implement `std::ops::Add<usize>` and `std::ops::Sub<usize>` for `HexFace`?
-
-- `n18map`: improve how tokens are managed, the current `Map::tokens()` method makes it quite fiddly to work with tokens.
-
-- `n18map::Map::new()`
-  Take `tokens: T` where `T: IntoIterator<Item = (S, Token)>` and `S: ToString`.
-
-  - Note that this means `Map` can **own** the token names.
-
-  - `n18map::descr::build_map`: change how tokens are passed to `Map::new()`, use `tokens.into_iter()`.
-
-- `n18map::Map`: when updating a tile, do not "leave the tokens as-is (presumably this is the correct behaviour?)".
-  Instead, only retain tokens associated with token spaces that are valid for the new tile.
-
-- `n18map::Map::prepare_to_draw()`: document that this merely translates the origin, it does not define a current point on the current path, so you cannot use `ctx.rel_move_to()` without first defining a current point.
-
-- `n18map::MapHex`: does this still need ergonomic improvements?
-
 - `n18map::map`: `ParseHexAddressError`, indicate in the returned error when we find an odd/even value instead of a required even/odd value.
+
+- We may want to allow `Game` objects to use `Map::replace_tile` to replace tiles that are not otherwise replaceable.
+
+- Modify `Map::prev_col`, `Map::next_col`, `Map::prev_row`, and `Map::next_row` to either
+
+  - Return `Option<HexAddress>` values and return `None` if the previous/next address isn't a valid hex; or
+
+  - Keep decreasing/increasing the column/row number until a valid address is found.
+
+- Make `HexAddress` support more than 26 columns when converting to/from string coordinates.
 
 ## n18route
 
@@ -54,7 +46,6 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - `n18route::path::Path`:
 
-  - replace `HashSet` field with `BTreeSet` so that `Path` values can be hashed?
   - add an `append(other: Path)` method to `Path`?
 
 - `n18route::path`: distinguish between `Path` (which defines track segments, hex faces, and cities that a train passes through) and `Route` (which defines the visits that the train makes).
@@ -78,17 +69,7 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - `n18tile::city`: rename `Tokens` to `TokenSpaces` or something similar.
 
-- `n18tile::Label::Y`: this should store a String argument, so ... does this differ from `City()` then?
-  Note that we allow map hexes and tiles to have multiple such labels.
-
-- Allow labels to have a custom anchor/alignment?
-  But where to store this?
-  Or pass it as an optional argument to the drawing function (although this doesn't solve the where-to-store-this question)?
-  Would be handy for having `MapLocation` labels with consistent vertical alignment with 1-line or 2-line text ... the alternative is to position them at `Centre` and nudge them up ... nudge some frac to `Face::Top`.
-
-- `n18tile::tile::Tile`: indicate which tiles are available for players to place, as opposed to being tiles internal to the game map.
-  But this is more of a per-game concern, and should be defined by each `n18game::Game` instance.
-  So rather than being a (mutable) `Tile` property, the `Game` should return the collection of all Tiles (asset and player), and separately return the collection of all available-to-player tiles.
+- Replace the `bool` field in `n18tile::label::PhaseRevenue` and `n18tile::label::PhaseRevenueVert` with a new enum type that has variants `Normal` and `Emphasise`?
 
 - `n18tile::tile::Tile`:
   - Break out the layer calculations into a separate struct, similar to `connection::Connections`?
@@ -120,15 +101,6 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - Pass `ctx` to `key_press_action` and `button_press_action` so that drawing can occur within each State's construction, if that construction involves long-running tasks (e.g., route-finding)?
 
-- `FindRoutes`: fade out the entire map before starting the search?
-  We would then need to redraw the previous state if `Find Routes::try_new()` returns `None`.
-
-  ```rust
-  ctx.set_source_rgba(1.0, 1.0, 1.0, 0.5);
-  ctx.paint()
-  some_widget.queue_redraw();
-  ```
-
 - May want to disable some of the global keybindings before the first game is created.
 
 ## Test cases
@@ -136,3 +108,30 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 - `tests/connection_bonus`: also try requiring only one of the skipped dits, adding to_any options that are/are not on the path, including Toronto and Montreal, and so on.
 
 - `n18catalogue`: test tile connections for most (all?) predefined tiles.
+
+## n18game
+
+Learn from the experience of implementing 1861 and 1867 and provide a variety of helper methods for implementing other games.
+
+Consider dividing `n18game` into sub-modules:
+
+- `tiles` (catalogue)
+  - Provide a TileBuilder type
+    - `.track(&mut self, Track)`
+    - `.tracks(&mut self, IntoIterator<Item=Track>)`
+    - `.city(&mut self, City)`
+    - `.cities(&mut self, IntoIterator<Item=City>)`
+    - `.onboard_faces(&mut self, IntoIterator<Item=HexFace>)`
+    - `.build(&hex, colour, name: IntoString)`
+  - Collect key game information in a single place
+    - i.e., special tiles AND their locations / initial_state.
+
+- `addrs` (define hex addresses and constants for each city)
+  - Make each town and city's location a `static const` value?
+  - Simplify defining the full range of map hexes
+    - Allow `[A-Z]+[0-9]+` but must also support negative rows and columns.
+
+- `map` (initial state, phases)
+
+- `tokens` and/or `company`
+  - May want to have tokens that are not part of a company for, e.g., national railways.

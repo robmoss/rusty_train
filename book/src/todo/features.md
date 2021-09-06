@@ -95,6 +95,7 @@ The [gtk-rs project](https://gtk-rs.org/) have released a [GTK 4 crate](https://
 It may be as simple as using the `gtk4` and `gdk4` crates, and making a few changes to the `rusty_train` binary.
 
 Note that GTK 4 is not yet packages for Debian stable, testing, or unstable.
+See [Debian bug 992907](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=992907) for progress.
 
 ## 18xx-maker JSON schema
 
@@ -104,15 +105,23 @@ Perhaps it would be possible to translate between the 18xx-maker data format and
 
 ## Company shares and dividends
 
-Allow defining players and companies who may comprise some number of shares, which can be owned by players, the company itself, etc.
-Then the UI can automate the paying of dividends, allowing for things such as full-pay, half-pay, and withhold.
+Once the optimal routes have been identified, allow the user to press `d` (for example) to display a dialogue window that shows the payout for each valid number of shares, for full-pay and half-pay.
 
-This would go some way to providing features akin to [18SH](https://github.com/msaari/18sh).
-See the [BGG18SH thread](https://boardgamegeek.com/thread/2225619/18sh-command-line-replacement-spreadsheets) for ideas and planned features.
-Complications include: rusting, nationalisation, mergers, loans, buying private companies and trains from other companies, etc.
+To do this, we need to know how many shares each company has.
+This detail should presumably be stored in `n18game::Company`.
 
-- Having found the optimal routes for a company, what about being able to press `d` to distribute full dividends, `h` to half-pay dividends, and `w` to withhold?
+Note that tracking player and company assets, similar to [18SH](https://github.com/msaari/18sh), is a much more complex matter and not something I plan to address.
 
-- Having a game action log/console, into which players can enter commands and log games, undo actions, etc.
+## UI navigation
 
-  For example, paying out dividends (or not) with any of the above commands from the UI could execute the appropriate command(s) in the console and log their output (e.g., pressing `d` could run a dividends command and also log a comment for each player who received money).
+Make, e.g., `g` open a text-entry widget and allow the user to enter a hex address to go to (i.e., make active).
+Similarly, make `/` open a text-entry widget to select a replacement tile, allowing the user to filter matching tiles by typing their name or parts thereof.
+
+Underlying this would be a modal window that accepts a slice of strings and allows the user to filter and select the desired option.
+It seems that this might require using a `TreeModelFilter` to filter a `TreeModel` (such as `ListStore`, which appears sufficient), which is displayed using a `TreeView` widget.
+
+The following references may be useful:
+
+- [Python GTK+ 3 Tutorial](https://python-gtk-3-tutorial.readthedocs.io/en/latest/treeview.html)
+- [GTK+ By Example](https://en.wikibooks.org/wiki/GTK%2B_By_Example/Tree_View/Tree_Models)
+- [A StackOverflow question](https://stackoverflow.com/q/56029759)

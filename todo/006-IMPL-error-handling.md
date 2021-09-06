@@ -14,3 +14,5 @@ grep --color=always -E '(\.unwrap|\.expect|panic!\()' -r crates/ tests/ examples
 See [this article about error handling in Rust](https://www.lpalmieri.com/posts/error-handling-rust/), which frames error handling in terms of their **purpose** and **location**.
 
 Relevant crates include [anyhow](https://github.com/dtolnay/anyhow), [eyre](https://github.com/yaahc/eyre), and [thiserror](https://github.com/dtolnay/thiserror).
+
+Also see [this /r/rust discussion](https://redd.it/pegi1d) about disallowing specific methods with clippy.

@@ -700,6 +700,8 @@ impl Map {
     /// This means that it can be used for drawing on hexes that are not part
     /// of the map itself.
     ///
+    /// Also note that it does not define or update the current point.
+    ///
     /// # Examples
     ///
     /// ```rust
