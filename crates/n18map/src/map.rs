@@ -496,6 +496,10 @@ impl Map {
         };
 
         let new_tokens = if let Some(hex_state) = self.hex_state(hex) {
+            if !hex_state.replaceable {
+                // This tile cannot be replaced.
+                return false;
+            }
             // See if we can place each token from the original tile on the
             // new tile in such a way so as to preserve their connectivity
             // with adjacent hexes.
@@ -514,10 +518,6 @@ impl Map {
 
         // NOTE: hex_mut() panics if `hex` is an invalid address.
         if let Some(hex_state) = self.hex_state_mut(hex) {
-            if !hex_state.replaceable {
-                // This tile cannot be replaced.
-                return false;
-            }
             hex_state.tile_ix = tile_ix;
             hex_state.rotation = rot;
             hex_state.tokens = new_tokens
