@@ -1,25 +1,36 @@
 //! Selects tiles and switches to editing and route-finding modes.
 use cairo::Context;
 use log::info;
+use std::sync::mpsc::{Receiver, Sender};
 
 use super::{Action, State};
-use crate::{Content, Ping};
+use crate::{Content, Ping, PingDest};
 use n18map::{HexAddress, Map};
 
 /// The default state: selecting a tile.
 pub struct Default {
     active_hex: Option<HexAddress>,
+    sender: Sender<usize>,
+    receiver: Receiver<usize>,
 }
 
 impl Default {
     pub fn new(map: &Map) -> Self {
+        let (sender, receiver) = std::sync::mpsc::channel();
         Default {
             active_hex: map.default_hex(),
+            sender,
+            receiver,
         }
     }
 
     pub fn at_hex(addr: Option<HexAddress>) -> Self {
-        Default { active_hex: addr }
+        let (sender, receiver) = std::sync::mpsc::channel();
+        Default {
+            active_hex: addr,
+            sender,
+            receiver,
+        }
     }
 }
 
@@ -66,19 +77,19 @@ impl State for Default {
             gdk::keys::constants::p | gdk::keys::constants::P => {
                 // Note: use &* because Box<T> implements Deref<Target = T>.
                 // So &*content.game converts from Box<dyn Game> to &dyn Game.
-                let phase_opt = crate::dialog::select_phase(
+                let self_tx = self.sender.clone();
+                let ping_tx = ping_tx.clone();
+                crate::dialog::select_phase(
                     window,
                     content.games.active(),
+                    move |ix_opt| {
+                        if let Some(ix) = ix_opt {
+                            self_tx.send(ix).unwrap();
+                            ping_tx.send(PingDest::State).unwrap();
+                        }
+                    },
                 );
-                if let Some(phase) = phase_opt {
-                    content
-                        .games
-                        .active_mut()
-                        .set_phase_ix(&mut content.map, phase);
-                    (None, Action::Redraw)
-                } else {
-                    (None, Action::None)
-                }
+                (None, Action::None)
             }
             gdk::keys::constants::u | gdk::keys::constants::U => {
                 if let Some(addr) = self.active_hex {
@@ -145,17 +156,13 @@ impl State for Default {
             gdk::keys::constants::r | gdk::keys::constants::R => {
                 // Allow the user to select a company and trains, and find the
                 // routes that earn the most revenue.
-                let state_opt = super::find_routes::FindRoutes::try_new(
+                let state = super::find_routes::SelectCompany::new(
                     content,
-                    self.active_hex.as_ref(),
+                    self.active_hex,
                     window,
                     ping_tx,
                 );
-                if let Some(state) = state_opt {
-                    (Some(Box::new(state)), Action::Redraw)
-                } else {
-                    (None, Action::None)
-                }
+                (Some(Box::new(state)), Action::Redraw)
             }
             gdk::keys::constants::Left => {
                 // TODO: these are boilerplate, define a common function?
@@ -282,5 +289,20 @@ impl State for Default {
         } else {
             (None, Action::None)
         }
+    }
+
+    fn ping(
+        &mut self,
+        content: &mut Content,
+        _window: &gtk::ApplicationWindow,
+        _area: &gtk::DrawingArea,
+        _ping_tx: &Ping,
+    ) -> (Option<Box<dyn State>>, Action) {
+        let phase_ix = self.receiver.recv().unwrap();
+        content
+            .games
+            .active_mut()
+            .set_phase_ix(&mut content.map, phase_ix);
+        (None, Action::Redraw)
     }
 }

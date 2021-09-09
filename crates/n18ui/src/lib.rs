@@ -6,6 +6,7 @@
 use cairo::{Context, ImageSurface};
 use gtk::prelude::{GtkWindowExt, WidgetExt};
 use log::info;
+use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Arc, RwLock};
 
 use n18game::Game;
@@ -16,12 +17,18 @@ use n18map::Map;
 pub mod dialog;
 /// The different states of the user interface.
 pub mod state;
-/// Various utility UI functions.
-pub mod util;
+
+/// Identify which part of the UI should respond to a "ping".
+pub enum PingDest {
+    /// Ping the user interface.
+    TopLevel,
+    /// Ping the current (internal) UI state.
+    State,
+}
 
 /// The channel type used to send "pings" to update the UI state in response
 /// to events other than UI events.
-pub type Ping = glib::Sender<()>;
+pub type Ping = glib::Sender<PingDest>;
 
 use state::State;
 
@@ -100,12 +107,26 @@ pub struct Content {
     games: Games,
 }
 
+/// Global UI actions, which are not specific to the current [State].
+pub enum GlobalAction {
+    /// Create a new instance of the `nth` game in the library.
+    NewGame(usize),
+    /// Load a game from the provided path.
+    LoadGame(std::path::PathBuf),
+    /// Save the current game to the provided path.
+    SaveGame(std::path::PathBuf),
+    /// Save a screenshot of the current game to the provided path.
+    SaveScreenshot(std::path::PathBuf),
+}
+
 /// Defines the current state of the user interface.
 pub struct UI {
     content: Content,
     state: Box<dyn State>,
     surface: Arc<RwLock<ImageSurface>>,
     context: Context,
+    sender: Sender<GlobalAction>,
+    receiver: Receiver<GlobalAction>,
 }
 
 /// The actions that may be required when the UI state changes.
@@ -211,6 +232,8 @@ impl UI {
         n18brush::clear_surface(&context, Colour::WHITE);
         let surface = Arc::new(RwLock::new(surface));
 
+        let (sender, receiver) = std::sync::mpsc::channel();
+
         // Create the UI state struct, and draw the initial state.
         let state: Box<dyn State> = Box::new(init_state);
         let ui_state = UI {
@@ -218,6 +241,8 @@ impl UI {
             state,
             surface,
             context,
+            sender,
+            receiver,
         };
         ui_state.draw();
         ui_state
@@ -370,6 +395,8 @@ impl UI {
             window,
             area,
             event,
+            ping_tx,
+            &self.sender,
         );
         let (new_state_opt, action) =
             if let Some((reset_state, action)) = action {
@@ -422,16 +449,116 @@ impl UI {
     /// (e.g., a message from a task running in a separate thread).
     pub fn ping(
         &mut self,
+        dest: PingDest,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
         ping_tx: &Ping,
     ) -> Action {
-        let (new_state_opt, action) =
-            self.state.ping(&mut self.content, window, area, ping_tx);
-        if let Some(new_state) = new_state_opt {
-            self.state = new_state;
+        match dest {
+            PingDest::State => {
+                let (new_state_opt, action) =
+                    self.state.ping(&mut self.content, window, area, ping_tx);
+                if let Some(new_state) = new_state_opt {
+                    self.state = new_state;
+                }
+                action
+            }
+            PingDest::TopLevel => {
+                let msg = self.receiver.recv().unwrap();
+                match msg {
+                    GlobalAction::NewGame(game_ix) => {
+                        self.new_game(game_ix, window)
+                    }
+                    GlobalAction::LoadGame(path) => self.load_game(path),
+                    GlobalAction::SaveGame(path) => self.save_game(path),
+                    GlobalAction::SaveScreenshot(path) => {
+                        self.save_screenshot(area, path)
+                    }
+                }
+            }
         }
-        action
+    }
+
+    /// Resets the internal state to [state::default::Default].
+    pub fn reset_to_default_state(&mut self) {
+        let b: Box<dyn State> =
+            Box::new(state::default::Default::new(&self.content.map));
+        self.state = b;
+    }
+
+    /// Creates a new game, identified by index into the game library.
+    pub fn new_game(
+        &mut self,
+        game_ix: usize,
+        window: &gtk::ApplicationWindow,
+    ) -> Action {
+        if self.content.games.set_active_index(game_ix) {
+            self.content.map =
+                self.content.games.active().create_map(&self.content.hex);
+            window.set_title(self.content.games.active().name());
+            self.reset_to_default_state();
+            Action::ResetGame
+        } else {
+            Action::None
+        }
+    }
+
+    /// Loads a saved game state from `path`.
+    pub fn load_game(&mut self, path: std::path::PathBuf) -> Action {
+        let game_state = n18io::read_game_state(&path).unwrap_or_else(|_| {
+            panic!("Could not read '{}'", path.display())
+        });
+        if self.content.games.set_active_name(&game_state.game) {
+            if let Some(new_map) = self
+                .content
+                .games
+                .active_mut()
+                .load(&self.content.hex, game_state)
+            {
+                self.content.map = new_map;
+                self.reset_to_default_state();
+                Action::ResetGame
+            } else {
+                Action::None
+            }
+        } else {
+            Action::None
+        }
+    }
+
+    /// Saves the current game state to `path`.
+    pub fn save_game(&mut self, path: std::path::PathBuf) -> Action {
+        let game_state = self.content.games.active().save(&self.content.map);
+        n18io::write_game_state(&path, game_state, true).unwrap_or_else(
+            |_| panic!("Could not write '{}'", path.display()),
+        );
+        Action::None
+    }
+
+    /// Saves a screenshot of the current game state to `path`.
+    pub fn save_screenshot(
+        &self,
+        area: &gtk::DrawingArea,
+        path: std::path::PathBuf,
+    ) -> Action {
+        let width = area.allocated_width();
+        let height = area.allocated_height();
+        let surface =
+            ImageSurface::create(cairo::Format::ARgb32, width, height)
+                .expect("Can't create surface");
+        let icx =
+            Context::new(&surface).expect("Can't create cairo::Context");
+        // Fill the image with a white background.
+        n18brush::clear_surface(&icx, n18hex::Colour::WHITE);
+        // Then draw the current map content.
+        self.state.draw(&self.content, &icx);
+        let mut file = std::fs::File::create(&path).unwrap_or_else(|_| {
+            panic!("Couldn't create '{}'", path.display())
+        });
+        surface.write_to_png(&mut file).unwrap_or_else(|_| {
+            panic!("Couldn't write '{}'", path.display())
+        });
+        Action::None
     }
 }
 
@@ -455,11 +582,13 @@ pub enum ResetState {
 /// - `Ctrl+o`, `Ctrl+O`: load a map from disk.
 /// - `Ctrl+s`, `Ctrl+S`: save the current map to disk.
 pub fn global_keymap(
-    state: &dyn State,
+    _state: &dyn State,
     content: &mut Content,
     window: &gtk::ApplicationWindow,
-    area: &gtk::DrawingArea,
+    _area: &gtk::DrawingArea,
     event: &gdk::EventKey,
+    ping_tx: &Ping,
+    self_tx: &Sender<GlobalAction>,
 ) -> Option<(ResetState, Action)> {
     let key = event.keyval();
     let modifiers = event.state();
@@ -472,62 +601,81 @@ pub fn global_keymap(
         (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
             // Prompt the user to select a game, and load its starting map.
             let game_names: Vec<&str> = content.games.names();
-            let ix_opt = dialog::select_item_index(
+            let ping_tx = ping_tx.clone();
+            let self_tx = self_tx.clone();
+            dialog::select_index(
                 window,
                 "Select a game",
                 &game_names,
+                move |ix_opt| {
+                    if let Some(ix) = ix_opt {
+                        self_tx.send(GlobalAction::NewGame(ix)).unwrap();
+                        ping_tx.send(PingDest::TopLevel).unwrap();
+                    }
+                },
             );
-            if let Some(ix) = ix_opt {
-                if content.games.set_active_index(ix) {
-                    content.map =
-                        content.games.active().create_map(&content.hex);
-                    window.set_title(content.games.active().name());
-                    return Some((ResetState::Yes, Action::ResetGame));
-                }
-            }
             Some((ResetState::No, Action::None))
         }
         (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
-            match util::load_game(window, content) {
-                Ok(action) => {
-                    let reset = match action {
-                        Action::None => ResetState::No,
-                        _ => ResetState::Yes,
-                    };
-                    window.set_title(content.games.active().name());
-                    Some((reset, action))
-                }
-                Err(error) => {
-                    eprintln!("Error loading map: {}", error);
-                    Some((ResetState::No, Action::None))
-                }
-            }
+            let filters = dialog::game_file_filters();
+            let ping_tx = ping_tx.clone();
+            let self_tx = self_tx.clone();
+            dialog::select_file_load(
+                window,
+                "Load game",
+                &filters,
+                None,
+                move |path_opt| {
+                    if let Some(path) = path_opt {
+                        self_tx.send(GlobalAction::LoadGame(path)).unwrap();
+                        ping_tx.send(PingDest::TopLevel).unwrap();
+                    }
+                },
+            );
+            Some((ResetState::No, Action::None))
         }
         (gdk::keys::constants::s, true) | (gdk::keys::constants::S, true) => {
-            let game_state = content.games.active().save(&content.map);
-            match util::save_game(window, game_state) {
-                Ok(action) => {
-                    let reset = match action {
-                        Action::None => ResetState::No,
-                        _ => ResetState::Yes,
-                    };
-                    Some((reset, action))
-                }
-                Err(error) => {
-                    eprintln!("Error saving map: {}", error);
-                    Some((ResetState::No, Action::None))
-                }
-            }
+            let filters = dialog::game_file_filters();
+            let ping_tx = ping_tx.clone();
+            let self_tx = self_tx.clone();
+            dialog::select_file_save(
+                window,
+                "Save game",
+                &filters,
+                None,
+                move |path_opt| {
+                    if let Some(path) = path_opt {
+                        self_tx.send(GlobalAction::SaveGame(path)).unwrap();
+                        ping_tx.send(PingDest::TopLevel).unwrap();
+                    }
+                },
+            );
+            Some((ResetState::No, Action::None))
         }
         (gdk::keys::constants::s, false)
         | (gdk::keys::constants::S, false) => {
-            match util::save_screenshot(state, window, area, content) {
-                Ok(action) => Some((ResetState::No, action)),
-                Err(error) => {
-                    eprintln!("Error saving screenshot: {}", error);
-                    Some((ResetState::No, Action::None))
-                }
-            }
+            let filters = dialog::image_file_filters();
+            let ping_tx = ping_tx.clone();
+            let self_tx = self_tx.clone();
+            // Suggest a filename that contains the current date and time.
+            let now = chrono::Local::now();
+            let default_dest =
+                now.format("screenshot-%Y-%m-%d-%H%M%S.png").to_string();
+            dialog::select_file_save(
+                window,
+                "Save screenshot",
+                &filters,
+                Some(&default_dest),
+                move |path_opt| {
+                    if let Some(path) = path_opt {
+                        self_tx
+                            .send(GlobalAction::SaveScreenshot(path))
+                            .unwrap();
+                        ping_tx.send(PingDest::TopLevel).unwrap();
+                    }
+                },
+            );
+            Some((ResetState::No, Action::None))
         }
         (gdk::keys::constants::plus, false)
         | (gdk::keys::constants::equal, false) => {

@@ -52,7 +52,7 @@ pub fn main() {
 pub enum UiEvent {
     ButtonPress { event: gdk::EventButton },
     KeyPress { event: gdk::EventKey },
-    PingCurrentState,
+    PingCurrentState(navig18xx::ui::PingDest),
 }
 
 pub fn run(application: &gtk::Application, mut state: UI) {
@@ -119,8 +119,8 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     let (ping_tx, ping_rx) =
         glib::MainContext::channel(glib::PRIORITY_DEFAULT);
     // Pass each "ping" event to the current UI state.
-    ping_rx.attach(None, move |()| {
-        tx.send(UiEvent::PingCurrentState)
+    ping_rx.attach(None, move |dest| {
+        tx.send(UiEvent::PingCurrentState(dest))
             .expect("Could not send Ping event");
         glib::source::Continue(true)
     });
@@ -133,7 +133,9 @@ pub fn run(application: &gtk::Application, mut state: UI) {
             UiEvent::KeyPress { event } => {
                 state.key_press_action(&win_, &area_, &event, &ping_tx)
             }
-            UiEvent::PingCurrentState => state.ping(&win_, &area_, &ping_tx),
+            UiEvent::PingCurrentState(dest) => {
+                state.ping(dest, &win_, &area_, &ping_tx)
+            }
         };
         state.handle_action(&win_, &area_, action);
         glib::source::Continue(true)
