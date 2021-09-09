@@ -2,6 +2,7 @@
 /// where the bonus for running between Moscow and Ekaterinburg is a deciding
 /// factor.
 use navig18xx::prelude::*;
+use std::collections::BTreeSet;
 use std::io::Write;
 
 /// The different phases for which to find the optimal routes, and the
@@ -92,6 +93,22 @@ fn check_moscow_token(map: &Map, token: Token) {
     }
 }
 
+fn check_moscow_upgrades(map: &Map, expected: &[&str]) {
+    let hex_state = map.hex_state(moscow()).unwrap();
+    let curr_tile = hex_state.tile(map);
+    let candidate_names: BTreeSet<&str> = map
+        .available_tiles_iter()
+        .enumerate()
+        .filter(|(_ix, t)| {
+            map.can_upgrade_to(moscow(), t) && curr_tile.can_upgrade_to(t)
+        })
+        .map(|(ix, _t)| map.nth_tile(ix).name.as_str())
+        .collect();
+    assert_eq!(expected.len(), candidate_names.len());
+    let expected_names: BTreeSet<&str> = expected.iter().copied().collect();
+    assert_eq!(expected_names, candidate_names);
+}
+
 fn find_routes_for_phase(
     phase_name: &str,
     train_name: &str,
@@ -113,21 +130,26 @@ fn find_routes_for_phase(
     // Place tiles as appropriate for the chosen game phase.
     let phase_num = 2 + game.phase_ix();
     place_yellow_tiles(&mut map);
+    check_moscow_upgrades(&map, &["637"]);
     if phase_num >= 3 {
         place_green_tiles(&mut map);
         check_moscow_token(&map, token);
+        check_moscow_upgrades(&map, &["638"]);
     }
     if phase_num >= 5 {
         place_brown_tiles(&mut map);
         check_moscow_token(&map, token);
+        check_moscow_upgrades(&map, &["639"]);
     }
     if phase_num >= 6 {
         place_grey_tiles(&mut map);
         check_moscow_token(&map, token);
+        check_moscow_upgrades(&map, &[]);
     }
     if phase_num >= 7 {
         place_skip_nizhnii_tiles(&mut map);
         check_moscow_token(&map, token);
+        check_moscow_upgrades(&map, &[]);
     }
 
     // Run the train(s) and identify the optimal revenue.
