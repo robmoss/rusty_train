@@ -81,7 +81,13 @@ impl Map {
         self.hexes
             .values()
             .filter_map(|map_hex| {
-                map_hex.as_ref().map(|map_hex| map_hex.tile_ix == tile_ix)
+                map_hex.as_ref().and_then(|map_hex| {
+                    if map_hex.tile_ix == tile_ix {
+                        Some(map_hex)
+                    } else {
+                        None
+                    }
+                })
             })
             .count()
     }
