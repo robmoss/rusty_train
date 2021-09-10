@@ -291,18 +291,15 @@ pub fn select_file_save<F>(
 ) where
     F: Fn(Option<std::path::PathBuf>) + 'static,
 {
-    let dialog = gtk::FileChooserDialog::with_buttons(
-        Some(title),
-        Some(window),
-        gtk::FileChooserAction::Save,
-        &[
-            ("_Save", gtk::ResponseType::Accept),
-            ("_Cancel", gtk::ResponseType::Cancel),
-        ],
-    );
-
-    // Ask the user to confirm overwriting an existing file.
-    dialog.set_do_overwrite_confirmation(true);
+    let dialog = gtk::FileChooserNative::builder()
+        .accept_label("_Save")
+        .cancel_label("_Cancel")
+        .modal(true)
+        .title(title)
+        .transient_for(window)
+        .action(gtk::FileChooserAction::Save)
+        .do_overwrite_confirmation(true)
+        .build();
 
     for filter in filters {
         dialog.add_filter(filter)
@@ -311,18 +308,23 @@ pub fn select_file_save<F>(
         dialog.set_current_name(path);
     }
 
-    dialog.connect_response(move |dlg, response| {
-        dlg.hide();
+    // NOTE: we need to clone `dialog` so that we can keep it alive.
+    // Otherwise it will be dropped when this function returns, and the dialog
+    // will be destroyed.
+    // This is because native dialogs are **not** GTK widgets, and so GTK does
+    // not manage their life-cycle.
+    let live_dialog = dialog.clone();
+    dialog.connect_response(move |_dlg, response| {
+        live_dialog.hide();
         if response == gtk::ResponseType::Accept {
-            let dest = dlg.filename().expect("Couldn't get filename");
+            let dest = live_dialog.filename().expect("Couldn't get filename");
             callback(Some(dest))
         } else {
             callback(None)
         }
     });
 
-    dialog.set_modal(true);
-    dialog.show_all();
+    dialog.show();
 }
 
 /// Prompts the user to select a file from which data will be read, and
@@ -336,25 +338,31 @@ pub fn select_file_load<F>(
 ) where
     F: Fn(Option<std::path::PathBuf>) + 'static,
 {
-    let dialog = gtk::FileChooserDialog::with_buttons(
-        Some(title),
-        Some(window),
-        gtk::FileChooserAction::Open,
-        &[
-            ("_Open", gtk::ResponseType::Accept),
-            ("_Cancel", gtk::ResponseType::Cancel),
-        ],
-    );
+    let dialog = gtk::FileChooserNative::builder()
+        .accept_label("_Save")
+        .cancel_label("_Cancel")
+        .modal(true)
+        .title(title)
+        .transient_for(window)
+        .action(gtk::FileChooserAction::Open)
+        .build();
     for filter in filters {
         dialog.add_filter(filter)
     }
     if let Some(path) = default_path {
         dialog.set_current_name(path);
     }
-    dialog.connect_response(move |dlg, response| {
-        dlg.hide();
+
+    // NOTE: we need to clone `dialog` so that we can keep it alive.
+    // Otherwise it will be dropped when this function returns, and the dialog
+    // will be destroyed.
+    // This is because native dialogs are **not** GTK widgets, and so GTK does
+    // not manage their life-cycle.
+    let live_dialog = dialog.clone();
+    dialog.connect_response(move |_dlg, response| {
+        live_dialog.hide();
         if response == gtk::ResponseType::Accept {
-            let dest = dlg.filename().expect("Couldn't get filename");
+            let dest = live_dialog.filename().expect("Couldn't get filename");
             callback(Some(dest))
         } else {
             callback(None)
@@ -362,7 +370,7 @@ pub fn select_file_load<F>(
     });
 
     dialog.set_modal(true);
-    dialog.show_all();
+    dialog.show();
 }
 
 /// Returns the default file filters when loading/saving an image.
