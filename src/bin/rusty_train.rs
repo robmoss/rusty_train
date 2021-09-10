@@ -50,8 +50,8 @@ pub fn main() {
 }
 
 pub enum UiEvent {
-    ButtonPress { event: gdk::EventButton },
-    KeyPress { event: gdk::EventKey },
+    ButtonPress(navig18xx::ui::ButtonPress),
+    KeyPress(navig18xx::ui::KeyPress),
     PingCurrentState(navig18xx::ui::PingDest),
 }
 
@@ -88,10 +88,8 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     // Let the UI handle mouse button events.
     let tx_ = tx.clone();
     drawing_area.connect_button_press_event(move |_widget, event| {
-        tx_.send(UiEvent::ButtonPress {
-            event: event.clone(),
-        })
-        .expect("Could not send ButtonPress event");
+        tx_.send(UiEvent::ButtonPress(event.into()))
+            .expect("Could not send ButtonPress event");
         Inhibit(false)
     });
     window.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
@@ -101,10 +99,8 @@ pub fn run(application: &gtk::Application, mut state: UI) {
     // Let the UI handle keyboard events.
     let tx_ = tx.clone();
     window.connect_key_press_event(move |_widget, event| {
-        tx_.send(UiEvent::KeyPress {
-            event: event.clone(),
-        })
-        .expect("Could not send KeyPress event");
+        tx_.send(UiEvent::KeyPress(event.into()))
+            .expect("Could not send KeyPress event");
         Inhibit(false)
     });
     window.add_events(gdk::EventMask::KEY_PRESS_MASK);
@@ -127,10 +123,10 @@ pub fn run(application: &gtk::Application, mut state: UI) {
 
     rx.attach(None, move |event| {
         let action = match event {
-            UiEvent::ButtonPress { event } => {
+            UiEvent::ButtonPress(event) => {
                 state.button_press_action(&win_, &area_, &event, &ping_tx)
             }
-            UiEvent::KeyPress { event } => {
+            UiEvent::KeyPress(event) => {
                 state.key_press_action(&win_, &area_, &event, &ping_tx)
             }
             UiEvent::PingCurrentState(dest) => {

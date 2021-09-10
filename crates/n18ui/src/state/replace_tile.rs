@@ -150,12 +150,11 @@ impl State for ReplaceTile {
         content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
+        event: &crate::KeyPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
-        let key = event.keyval();
-        match key {
+        match event.key {
             gdk::keys::constants::Escape => (
                 Some(Box::new(super::default::Default::at_hex(Some(
                     self.active_hex,

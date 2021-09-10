@@ -23,7 +23,7 @@ pub trait State {
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        _event: &gdk::EventKey,
+        _event: &super::KeyPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         (None, Action::None)
@@ -35,7 +35,7 @@ pub trait State {
         _content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        _event: &gdk::EventButton,
+        _event: &super::ButtonPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         (None, Action::None)

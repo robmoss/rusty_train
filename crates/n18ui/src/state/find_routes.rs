@@ -386,11 +386,10 @@ impl State for Found {
         content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
+        event: &crate::KeyPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
-        let key = event.keyval();
-        match key {
+        match event.key {
             gdk::keys::constants::Escape | gdk::keys::constants::Return => {
                 // Exit this mode.
                 if let Some(title) = &self.original_window_title {

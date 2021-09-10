@@ -147,6 +147,54 @@ pub enum Action {
     ZoomOut,
 }
 
+/// Describes a mouse button being clicked.
+pub struct ButtonPress {
+    /// The x coordinate of the click.
+    pub x: f64,
+    /// The y coordinate of the click.
+    pub y: f64,
+    /// The button that was clicked; `1` typically corresponds to the left
+    /// button, `2` to the middle button, and `3` to the right button.
+    pub button: u32,
+}
+
+impl From<&gdk::EventButton> for ButtonPress {
+    fn from(event: &gdk::EventButton) -> Self {
+        let (x, y) = event.position();
+        let button = event.button();
+        ButtonPress { x, y, button }
+    }
+}
+
+/// Describes a keyboard key being pressed.
+pub struct KeyPress {
+    /// The key that was pressed.
+    pub key: gdk::keys::Key,
+    /// Whether the Control key was also pressed.
+    pub ctrl: bool,
+    /// Whether the Alt key was also pressed.
+    pub alt: bool,
+    /// Whether the Shift key was also pressed.
+    pub shift: bool,
+}
+
+impl From<&gdk::EventKey> for KeyPress {
+    fn from(event: &gdk::EventKey) -> Self {
+        let key = event.keyval();
+        let modifiers = event.state();
+        let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
+        let alt = modifiers.contains(gdk::ModifierType::MOD1_MASK);
+        let shift = modifiers.contains(gdk::ModifierType::SHIFT_MASK);
+
+        KeyPress {
+            key,
+            ctrl,
+            alt,
+            shift,
+        }
+    }
+}
+
 /// Draws the state onto the provided context.
 fn draw_state(state: &dyn State, content: &Content, ctx: &Context) {
     Colour::WHITE.apply_colour(ctx);
@@ -384,7 +432,7 @@ impl UI {
         &mut self,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
+        event: &KeyPress,
         ping_tx: &Ping,
     ) -> Action {
         // Note: use &* because Box<T> implements Deref<Target = T>.
@@ -429,7 +477,7 @@ impl UI {
         &mut self,
         window: &gtk::ApplicationWindow,
         area: &gtk::DrawingArea,
-        event: &gdk::EventButton,
+        event: &ButtonPress,
         ping_tx: &Ping,
     ) -> Action {
         let (new_state_opt, action) = self.state.button_press(
@@ -586,19 +634,17 @@ pub fn global_keymap(
     content: &mut Content,
     window: &gtk::ApplicationWindow,
     _area: &gtk::DrawingArea,
-    event: &gdk::EventKey,
+    event: &KeyPress,
     ping_tx: &Ping,
     self_tx: &Sender<GlobalAction>,
 ) -> Option<(ResetState, Action)> {
-    let key = event.keyval();
-    let modifiers = event.state();
-    let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
-    match (key, ctrl) {
-        (gdk::keys::constants::q, false)
-        | (gdk::keys::constants::Q, false) => {
+    match (&event.key, event.ctrl) {
+        (&gdk::keys::constants::q, false)
+        | (&gdk::keys::constants::Q, false) => {
             Some((ResetState::No, Action::Quit))
         }
-        (gdk::keys::constants::n, true) | (gdk::keys::constants::N, true) => {
+        (&gdk::keys::constants::n, true)
+        | (&gdk::keys::constants::N, true) => {
             // Prompt the user to select a game, and load its starting map.
             let game_names: Vec<&str> = content.games.names();
             let ping_tx = ping_tx.clone();
@@ -616,7 +662,8 @@ pub fn global_keymap(
             );
             Some((ResetState::No, Action::None))
         }
-        (gdk::keys::constants::o, true) | (gdk::keys::constants::O, true) => {
+        (&gdk::keys::constants::o, true)
+        | (&gdk::keys::constants::O, true) => {
             let filters = dialog::game_file_filters();
             let ping_tx = ping_tx.clone();
             let self_tx = self_tx.clone();
@@ -634,7 +681,8 @@ pub fn global_keymap(
             );
             Some((ResetState::No, Action::None))
         }
-        (gdk::keys::constants::s, true) | (gdk::keys::constants::S, true) => {
+        (&gdk::keys::constants::s, true)
+        | (&gdk::keys::constants::S, true) => {
             let filters = dialog::game_file_filters();
             let ping_tx = ping_tx.clone();
             let self_tx = self_tx.clone();
@@ -652,8 +700,8 @@ pub fn global_keymap(
             );
             Some((ResetState::No, Action::None))
         }
-        (gdk::keys::constants::s, false)
-        | (gdk::keys::constants::S, false) => {
+        (&gdk::keys::constants::s, false)
+        | (&gdk::keys::constants::S, false) => {
             let filters = dialog::image_file_filters();
             let ping_tx = ping_tx.clone();
             let self_tx = self_tx.clone();
@@ -677,12 +725,12 @@ pub fn global_keymap(
             );
             Some((ResetState::No, Action::None))
         }
-        (gdk::keys::constants::plus, false)
-        | (gdk::keys::constants::equal, false) => {
+        (&gdk::keys::constants::plus, false)
+        | (&gdk::keys::constants::equal, false) => {
             Some((ResetState::No, Action::ZoomIn))
         }
-        (gdk::keys::constants::minus, false)
-        | (gdk::keys::constants::underscore, false) => {
+        (&gdk::keys::constants::minus, false)
+        | (&gdk::keys::constants::underscore, false) => {
             Some((ResetState::No, Action::ZoomOut))
         }
         _ => None,

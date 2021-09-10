@@ -73,12 +73,11 @@ impl State for EditTokens {
         content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
+        event: &crate::KeyPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
-        let key = event.keyval();
-        match key {
+        match event.key {
             gdk::keys::constants::Escape => {
                 // NOTE: revert any edits before exiting this mode.
                 let restore = self

@@ -58,12 +58,11 @@ impl State for Default {
         content: &mut Content,
         window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        event: &gdk::EventKey,
+        event: &crate::KeyPress,
         ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         let map = &mut content.map;
-        let key = event.keyval();
-        match key {
+        match event.key {
             gdk::keys::constants::e | gdk::keys::constants::E => {
                 if let Some(addr) = self.active_hex {
                     let state = Box::new(
@@ -269,19 +268,18 @@ impl State for Default {
         content: &mut Content,
         _window: &gtk::ApplicationWindow,
         _area: &gtk::DrawingArea,
-        event: &gdk::EventButton,
+        event: &crate::ButtonPress,
         _ping_tx: &Ping,
     ) -> (Option<Box<dyn State>>, Action) {
         let hex = &content.hex;
         let map = &mut content.map;
         // Allow the user to select hexes with a single click of any button.
-        let (x, y) = event.position();
         let ctx = hex.context();
         let addr = map.hex_address_iter().find(|addr| {
             let m = map.prepare_to_draw(**addr, hex, ctx);
             hex.define_boundary(ctx);
             ctx.set_matrix(m);
-            ctx.in_fill(x, y).unwrap()
+            ctx.in_fill(event.x, event.y).unwrap()
         });
         if let Some(a) = addr {
             self.active_hex = Some(*a);
