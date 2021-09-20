@@ -19,6 +19,13 @@ pub fn new_1867() -> _1867::Game {
     _1867::Game::default()
 }
 
+/// Returns a vector containing each game defined in this crate.
+pub fn games() -> Vec<Box<dyn Game>> {
+    let games: Vec<Box<dyn Game>> =
+        vec![Box::new(new_1861()), Box::new(new_1867())];
+    games
+}
+
 /// The details that characterise a company that can operate trains.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Company {

@@ -3,8 +3,6 @@ use std::io::Write;
 use gtk::prelude::*;
 use gtk::DrawingArea;
 
-use navig18xx::prelude::*;
-
 pub fn main() {
     // Default to logging all messages up to ``log::Level::Info``, using a
     // custom message format.
@@ -39,10 +37,7 @@ pub enum UiEvent {
 }
 
 pub fn build(application: &gtk::Application) {
-    let games: Vec<Box<dyn Game>> = vec![
-        Box::new(navig18xx::game::new_1861()),
-        Box::new(navig18xx::game::new_1867()),
-    ];
+    let games = navig18xx::game::games();
 
     let window = gtk::ApplicationWindow::new(application);
     let bar = gtk::HeaderBar::new();
