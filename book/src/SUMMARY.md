@@ -10,6 +10,7 @@
   - [Placing and removing tokens](./user_guide/tokens.md)
   - [Selecting optimal routes](./user_guide/routes.md)
   - [Global keys](./user_guide/global.md)
+  - [Example](./user_guide/example.md)
 - [Developer guide](./dev_guide/index.md)
   - [Overview](./dev_guide/overview.md)
   - [Crates](./dev_guide/crates.md)
