@@ -1445,7 +1445,7 @@ impl HexAddress {
     /// this hex, without doing bounds checking, and returns the new hex
     /// address.
     ///
-    /// This is short-hand for calling adjacent](HexAddress::adjacent) and
+    /// This is short-hand for calling [adjacent](HexAddress::adjacent) and
     /// [do_here](HexAddress::do_here), then returning the new hex address.
     ///
     /// # Examples
