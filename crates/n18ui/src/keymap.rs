@@ -517,6 +517,7 @@ impl Submap for Global {
         sender: &Sender<UiAction>,
         event: &KeyPress,
     ) -> Option<(UiResponse, Option<State>)> {
+        let is_start = state.as_start().is_some();
         match (&event.key, event.ctrl) {
             (&key::q, false) | (&key::Q, false) => {
                 Some((UiResponse::Quit, None))
@@ -556,6 +557,9 @@ impl Submap for Global {
                 Some((UiResponse::None, None))
             }
             (&key::s, true) | (&key::S, true) => {
+                if is_start {
+                    return None;
+                }
                 let ping_tx = controller.ping_tx();
                 let send_tx = sender.clone();
                 controller.select_game_save(
@@ -573,6 +577,9 @@ impl Submap for Global {
                 Some((UiResponse::None, None))
             }
             (&key::s, false) | (&key::S, false) => {
+                if is_start {
+                    return None;
+                }
                 let ping_tx = controller.ping_tx();
                 let send_tx = sender.clone();
                 // NOTE: save the current image contents, so that subsequent
@@ -606,9 +613,15 @@ impl Submap for Global {
                 Some((UiResponse::None, None))
             }
             (&key::plus, false) | (&key::equal, false) => {
+                if is_start {
+                    return None;
+                }
                 Some((UiResponse::ZoomIn, None))
             }
             (&key::minus, false) | (&key::underscore, false) => {
+                if is_start {
+                    return None;
+                }
                 Some((UiResponse::ZoomOut, None))
             }
             _ => None,
