@@ -6,8 +6,8 @@ These keys perform the same action in any mode.
 |--------------------|--------------------------------------|
 | `q`, `Q`           | Quit                                 |
 | `s`, `S`           | Save a screenshot of the current map |
-| `Ctrl+n`, `Ctrl+N` | Load the starting map                |
-| `Ctrl+o`, `Ctrl+O` | Load a map from disk                 |
-| `Ctrl+s`, `Ctrl+S` | Save the current map to disk         |
+| `Ctrl+n`, `Ctrl+N` | Start a new game                     |
+| `Ctrl+o`, `Ctrl+O` | Load a saved game from disk          |
+| `Ctrl+s`, `Ctrl+S` | Save the current game to disk        |
 | `+`                | Zoom in                              |
 | `-`                | Zoom out                             |
