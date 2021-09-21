@@ -44,6 +44,7 @@ pub fn build(application: &gtk::Application) {
     let adj: Option<&gtk::Adjustment> = None;
     let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
     let drawing_area = Box::new(DrawingArea::new)();
+    scrolled_win.set_child(Some(&drawing_area));
 
     // Create a second channel for sending "pings", which can be used to
     // trigger non-UI events, such as messages from tasks in other threads.
@@ -65,15 +66,10 @@ pub fn build(application: &gtk::Application) {
     );
     ui.draw();
 
-    let (width, height) = ui.map_size();
-
     bar.set_title(Some("Rusty Train"));
     bar.set_decoration_layout(Some("menu:close"));
     bar.set_show_close_button(true);
     window.set_titlebar(Some(&bar));
-
-    // Set the minimum size of the drawing area to the required canvas size.
-    drawing_area.set_size_request(width, height);
 
     // Create a channel to pass UI events to the `state` event handlers.
     let (tx, rx) =
@@ -115,8 +111,14 @@ pub fn build(application: &gtk::Application) {
         glib::source::Continue(true)
     });
 
+    // Show the starting message, rather than the map content.
+    let mut start_visible = true;
+    let start_widget = start_message();
+    window.set_child(Some(&start_widget));
+
     // Dispatch events to the appropriate handler.
     // Note that this closure owns `ui_state`.
+    let _window = window.clone();
     rx.attach(None, move |event| {
         let response = match event {
             UiEvent::ButtonPress(event) => ui.handle_button_press(&event),
@@ -124,13 +126,55 @@ pub fn build(application: &gtk::Application) {
             UiEvent::PingCurrentState(dest) => ui.ping(dest),
         };
         ui.respond(response);
+
+        // When a game is started or loaded, hide the starting message and
+        // show the map content instead.
+        if start_visible && ui.state.as_start().is_none() {
+            _window.remove(&start_widget);
+            _window.add(&scrolled_win);
+            _window.show_all();
+            start_visible = false;
+        }
+
         glib::source::Continue(true)
     });
 
     // Display the window.
-    window.set_default_size(width, height);
-    scrolled_win.add(&drawing_area);
-    window.add(&scrolled_win);
-    drawing_area.queue_draw();
     window.show_all();
+}
+
+/// Returns a Grid containing labels that identify the available key bindings
+/// when Rusty Train is launched.
+fn start_message() -> gtk::Grid {
+    let grid = gtk::Grid::builder()
+        .expand(true)
+        .halign(gtk::Align::Center)
+        .valign(gtk::Align::Center)
+        .build();
+    ["Ctrl+N", "Ctrl+O", "Q"]
+        .iter()
+        .enumerate()
+        .for_each(|(ix, text)| {
+            let label = gtk::Label::builder()
+                .use_markup(true)
+                .selectable(false)
+                .label(&format!("<b>{}:</b> ", text))
+                .expand(true)
+                .halign(gtk::Align::End)
+                .build();
+            grid.attach(&label, 0, ix as i32, 1, 1);
+        });
+    ["Start a new game", "Load a saved game", "Quit"]
+        .iter()
+        .enumerate()
+        .for_each(|(ix, text)| {
+            let label = gtk::Label::builder()
+                .selectable(false)
+                .label(text)
+                .expand(true)
+                .halign(gtk::Align::Start)
+                .build();
+            grid.attach(&label, 1, ix as i32, 1, 1);
+        });
+    grid
 }
