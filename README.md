@@ -71,7 +71,7 @@ Use this mode to select a tile or hex space, and switch to other modes to place 
 | `t`, `T`         | Switch to **Edit tokens** mode                              |
 | `r`, `R`         | Switch to **Find routes** mode                              |
 | `<Left>`         | Select the hex on the left of the current hex               |
-| `<Right>`        | Select the hex on the left of the current hex               |
+| `<Right>`        | Select the hex on the right of the current hex               |
 | `<Up>`           | Select the hex above the current hex                        |
 | `<Down>`         | Select the hex below the current hex                        |
 | Any mouse button | Select the hex under the cursor                             |
