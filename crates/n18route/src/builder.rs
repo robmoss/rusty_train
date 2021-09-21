@@ -55,6 +55,8 @@ pub enum Error {
     InvalidHexAddress(String),
     /// There is no tile placed on the specified hex.
     NoTileAtHex(HexAddress),
+    /// There is no tile adjacent to the specified hex face.
+    NoTileAdjacent(HexAddress, HexFace),
     /// Unable to connect to a city space that does not exist.
     InvalidCity(HexAddress, usize),
     /// Unable to connect to a dit that does not exist.
@@ -73,6 +75,9 @@ impl std::fmt::Debug for Error {
         match self {
             InvalidHexAddress(s) => write!(f, "Invalid hex address {}", s),
             NoTileAtHex(addr) => write!(f, "No tile at hex {}", addr),
+            NoTileAdjacent(addr, face) => {
+                write!(f, "No tile adjacent to hex {}, face {:?}", addr, face)
+            }
             InvalidCity(addr, ix) => {
                 write!(f, "No city #{} at hex {}", ix, addr)
             }
@@ -373,19 +378,17 @@ impl<'a> RouteBuilder<'a> {
             .ok_or(Error::NotConnected(src.addr, src.conn, dest))?;
         // NOTE: if dest is HexFace, also add the adjacent face on the next hex
         if let Connection::Face { face } = dest {
-            let adj = self.map.adjacent_face(src.addr, face);
-            if let Some((adj_addr, adj_face, _adj_tile)) = adj {
-                let conn = Connection::Face { face: adj_face };
-                let step = Step {
-                    addr: adj_addr,
-                    conn,
-                };
-                steps.push(step)
-            } else {
-                // TODO: no adjacent face, should we error here?
-                // Or is this something we should percolate up to the
-                // user-visible functions to_edge() and to_tile_face()?
-            }
+            let adj = self
+                .map
+                .adjacent_face(src.addr, face)
+                .ok_or(Error::NoTileAdjacent(src.addr, face))?;
+            let (adj_addr, adj_face, _adj_tile) = adj;
+            let conn = Connection::Face { face: adj_face };
+            let step = Step {
+                addr: adj_addr,
+                conn,
+            };
+            steps.push(step)
         }
         Ok(steps)
     }

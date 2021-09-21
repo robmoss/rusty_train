@@ -285,7 +285,6 @@ fn dfs_over(
                     // NOTE: record this face and the adjacent face, so that
                     // routes that don't share any track segments but do
                     // share a hex face will be detected!!!
-                    // TODO: we need to add the faces as conflicts and route_conflicts, and then remove them once done ...
                     let adj = map.adjacent_face(addr, *face);
                     if let Some((new_addr, new_face, new_tile)) = adj {
                         let first_face = Step {
