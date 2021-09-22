@@ -49,10 +49,13 @@ This is implemented by
 
 # How route combinations are evaluated
 
-**NOTE:** support for route bonuses is not yet implemented.
-Optimal pairings of trains to routes **without** considering route bonuses is
-implemented by
-[`Trains::select_routes`](crate::train::Trains::select_routes).
+Optimal pairings of trains to routes is implemented by
+[`Trains::select_routes`](crate::train::Trains::select_routes), and supports
+different types of [route bonuses](crate::Bonus):
+
+- Bonuses for [visiting a specific location](crate::Bonus::VisitBonus); and
+- Bonuses for [connecting one location to another
+  location](crate::Bonus::ConnectionBonus).
 
 Once we have collected all of the possible paths for a company, we need to
 find the allocation of trains to routes that yields the greatest revenue.
@@ -90,40 +93,12 @@ There are a number of complications to consider:
      revenue is doubled ($80).
 
    These bonuses are game-specific and context-dependent.
-   So rather than hard-coding them into the route-finding logic, it would be
-   much nicer to accept an
-   [immutable closure](https://doc.rust-lang.org/std/ops/trait.Fn.html) that
-   returns the bonus revenue (if any) for a given pairing of train type and
-   route.
-   For example, this could be provided as ``F: Fn(Train, Route) -> usize`` or
-   ``F: Fn(Train, Route) -> Option<usize>``.
 
-5. Where a company owns trains of multiple types, we may either want to
-   generate all routes at once (i.e., the most permissive set of routes) or
-   instead generate routes specific to each train type (noting that there may
+5. Where a company owns trains of multiple types, we generate all routes at
+   once (i.e., the most permissive set of routes) rather than generating the
+   routes specific to each train type (noting that there may
    be a substantial overlap in these routes, such as for a `2` train and a `3`
    train).
-   If we allow each train type to define its own search criteria, we can
-   either:
-
-   1. Combine these criteria to construct the most general criteria and
-      enumerate all possible routes for all of the train types with one call
-      to ``paths_for_token``; or
-
-   2. Call ``paths_for_token`` multiple times, once for each train type.
-      This will likely result in many duplicate routes, but should also
-      simplify the process of iterating over route combinations and allocating
-      the company's trains for each of these combinations.
-
-      In this case, we'd need to decide how much of the logic should be
-      implemented by each train type, and how much by the generic
-      route-finding module ([`search`](crate::search)).
-
-      At this stage, I *think* it would be preferable for ``route::search`` to
-      construct Paths, and have each Train implement a method along the lines
-      of ``Train::best_route(path: &Path) -> Option(Route)``.
-      Then the responsibility of (a) selecting which places to stop at and
-      which places to skip; and (b) applying route bonuses; to the ``Train``.
 
 # Train types
 
