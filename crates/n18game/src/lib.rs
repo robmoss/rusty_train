@@ -9,7 +9,7 @@ use n18token::{Token, Tokens};
 pub mod _1861;
 pub mod _1867;
 
-/// Creates a new game of 1867: The Railways Of The Russian Empire.
+/// Creates a new game of 1861: The Railways Of The Russian Empire.
 pub fn new_1861() -> _1861::Game {
     _1861::Game::default()
 }
