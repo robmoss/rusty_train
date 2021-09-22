@@ -652,6 +652,9 @@ impl Tile {
             if other.colour != colour {
                 return false;
             }
+        } else {
+            // If there is no next phase, the tile cannot be upgraded.
+            return false;
         }
         // Tiles must have the same number of dits.
         if self.dit_count() != other.dit_count() {
