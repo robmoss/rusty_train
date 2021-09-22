@@ -129,6 +129,13 @@ The user can cycle through the individual routes with the arrow keys.
 | `<Left>`, `<Up>`    | Show the previous train route |
 | `<Right>`, `<Down>` | Show the next train route     |
 
+## Supported games
+
+Maps, tiles, and trains for the following games are implemented:
+
+- 1861: The Railways of the Russian Empire
+- 1867: The Railways of Canada
+
 ## License
 
 Licensed under either of

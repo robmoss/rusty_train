@@ -16,6 +16,13 @@
 //! - Selecting route bonuses for a company.
 //! - Searching maps for optimal pairings of trains to routes.
 //!
+//! ## Supported games
+//!
+//! Maps, tiles, and trains for the following games are implemented:
+//!
+//! - 1861: The Railways of the Russian Empire
+//! - 1867: The Railways of Canada
+//!
 //! ## Defining tiles
 //!
 //! Use the [`Tile`](tile::Tile) data
