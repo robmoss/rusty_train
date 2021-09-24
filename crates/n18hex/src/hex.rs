@@ -278,6 +278,39 @@ impl HexCorner {
     }
 }
 
+/// The different hexagon orientations that may be used to form a hexagonal
+/// grid.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Orientation {
+    /// Arrange hexagons in vertical columns; the top and bottom of each
+    /// hexagon is flat.
+    FlatTop,
+    /// Arrange hexagons in horizontal rows; the top and bottom of each
+    /// hexagon is pointed.
+    PointedTop,
+}
+
+impl Default for Orientation {
+    fn default() -> Self {
+        Orientation::FlatTop
+    }
+}
+
+impl Orientation {
+    /// Returns the offset, in radians, that should be added to the start and
+    /// end angles for curved track segments, in order to account for the
+    /// hexagon orientation.
+    ///
+    /// This is the angle between the x-axis and the tangent defined by
+    /// [HexFace::Top].
+    pub fn arc_offset(&self) -> f64 {
+        match self {
+            Orientation::FlatTop => 0.0,
+            Orientation::PointedTop => PI / 6.0,
+        }
+    }
+}
+
 /// The different **absolute** directions in which a [HexPosition] can be
 /// translated.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -524,6 +557,11 @@ pub struct Hex {
     pub max_d: f64,
     /// The minimal diameter (the length between opposite faces).
     pub min_d: f64,
+    /// The hexagon orientation.
+    orientation: Orientation,
+    /// The coordinates of each hexagon corner, in anti-clockwise order,
+    /// starting from the left corner ([Orientation::FlatTop]) or the
+    /// upper-left corner ([Orientation::PointedTop]).
     corners: Vec<Coord>,
     #[allow(dead_code)]
     surface: cairo::ImageSurface,
@@ -558,25 +596,12 @@ impl Hex {
         Self::with_theme(max_d, theme)
     }
 
-    /// Returns the coordinates of each hexagon corner, relative to the
-    /// hexagon centre.
-    fn corner_coords(alpha: f64, beta: f64) -> Vec<Coord> {
-        vec![
-            Coord::from((-2.0 * alpha, 0.0)), // Middle left
-            Coord::from((-alpha, beta)),      // Upper left
-            Coord::from((alpha, beta)),       // Upper right
-            Coord::from((2.0 * alpha, 0.0)),  // Middle right
-            Coord::from((alpha, -beta)),      // Lower right
-            Coord::from((-alpha, -beta)),     // Lower left
-        ]
-    }
-
     /// Constructs a hexagon for the given maximal diameter and drawing theme.
     pub fn with_theme(max_d: f64, theme: Theme) -> Self {
+        // NOTE: the default orientation is FlatTop.
+        let orientation = Orientation::FlatTop;
         let min_d = (3.0_f64).sqrt() * max_d / 2.0;
-        let alpha = max_d / 4.0;
-        let beta = alpha * (3.0_f64).sqrt();
-        let corners = Self::corner_coords(alpha, beta);
+        let corners = Self::corner_coords(max_d, orientation);
 
         let dim = (max_d * 2.0) as i32;
         let surface =
@@ -591,18 +616,72 @@ impl Hex {
             theme,
             max_d,
             min_d,
+            orientation,
             corners,
             surface,
             context,
         }
     }
 
+    /// Returns the hexagon orientation.
+    pub fn orientation(&self) -> Orientation {
+        self.orientation
+    }
+
+    /// Modifies the hexagon orientation.
+    pub fn set_orientation(&mut self, orientation: Orientation) {
+        self.orientation = orientation;
+        // NOTE: must update the coordinates for each corner.
+        self.corners = Self::corner_coords(self.max_d, self.orientation);
+    }
+
+    /// Returns the coordinates of each hexagon corner, relative to the
+    /// hexagon centre.
+    fn corner_coords(max_d: f64, orientation: Orientation) -> Vec<Coord> {
+        let alpha = max_d / 4.0;
+        let beta = alpha * (3.0_f64).sqrt();
+
+        use Orientation::*;
+        match orientation {
+            FlatTop => {
+                vec![
+                    // Left
+                    Coord::from((-2.0 * alpha, 0.0)),
+                    // Lower left
+                    Coord::from((-alpha, beta)),
+                    // Lower right
+                    Coord::from((alpha, beta)),
+                    // Right
+                    Coord::from((2.0 * alpha, 0.0)),
+                    // Upper right
+                    Coord::from((alpha, -beta)),
+                    // Upper left
+                    Coord::from((-alpha, -beta)),
+                ]
+            }
+            PointedTop => {
+                vec![
+                    // Upper left
+                    Coord::from((-beta, -alpha)),
+                    // Lower left
+                    Coord::from((-beta, alpha)),
+                    // Bottom
+                    Coord::from((0.0, 2.0 * alpha)),
+                    // Lower right
+                    Coord::from((beta, alpha)),
+                    // Upper right
+                    Coord::from((beta, -alpha)),
+                    // Top
+                    Coord::from((0.0, -2.0 * alpha)),
+                ]
+            }
+        }
+    }
+
     /// Resizes the hexagon to have the specified maximal diameter.
     pub fn resize(&mut self, max_d: f64) {
         let min_d = (3.0_f64).sqrt() * max_d / 2.0;
-        let alpha = max_d / 4.0;
-        let beta = alpha * (3.0_f64).sqrt();
-        let corners = Self::corner_coords(alpha, beta);
+        let corners = Self::corner_coords(max_d, self.orientation);
 
         self.max_d = max_d;
         self.min_d = min_d;

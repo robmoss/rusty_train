@@ -264,6 +264,10 @@ impl Track {
                     UpperRight => (2.0 * PI / 3.0, 4.0 * PI / 3.0),
                     LowerRight => (3.0 * PI / 3.0, 5.0 * PI / 3.0),
                 };
+                // NOTE: account for the hex orientation, which affects the
+                // curve's start and end angles.
+                let offset = hex.orientation().arc_offset();
+                let (angle_0, angle_1) = (angle_0 + offset, angle_1 + offset);
                 let centre = *hex.corner_coord(&corner);
                 let radius = hex.theme.track_hard_radius.absolute(hex);
                 TrackPath::Curve {
@@ -292,6 +296,10 @@ impl Track {
                     UpperRight => (1.0 * PI / 3.0, 3.0 * PI / 3.0),
                     LowerRight => (2.0 * PI / 3.0, 4.0 * PI / 3.0),
                 };
+                // NOTE: account for the hex orientation, which affects the
+                // curve's start and end angles.
+                let offset = hex.orientation().arc_offset();
+                let (angle_0, angle_1) = (angle_0 + offset, angle_1 + offset);
                 let centre = *hex.corner_coord(&corner);
                 let radius = hex.theme.track_hard_radius.absolute(hex);
                 TrackPath::Curve {
@@ -328,6 +336,10 @@ impl Track {
                     UpperRight => (3.0 * PI / 3.0, 4.0 * PI / 3.0),
                     LowerRight => (4.0 * PI / 3.0, 5.0 * PI / 3.0),
                 };
+                // NOTE: account for the hex orientation, which affects the
+                // curve's start and end angles.
+                let offset = hex.orientation().arc_offset();
+                let (angle_0, angle_1) = (angle_0 + offset, angle_1 + offset);
                 let radius = hex.theme.track_gentle_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,
@@ -362,6 +374,10 @@ impl Track {
                     UpperRight => (1.0 * PI / 3.0, 2.0 * PI / 3.0),
                     LowerRight => (2.0 * PI / 3.0, 3.0 * PI / 3.0),
                 };
+                // NOTE: account for the hex orientation, which affects the
+                // curve's start and end angles.
+                let offset = hex.orientation().arc_offset();
+                let (angle_0, angle_1) = (angle_0 + offset, angle_1 + offset);
                 let radius = hex.theme.track_gentle_radius.absolute(hex);
                 TrackPath::Curve {
                     centre,

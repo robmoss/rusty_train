@@ -40,6 +40,9 @@ pub use n18hex::HexFace;
 pub use n18hex::HexPosition;
 
 #[doc(inline)]
+pub use n18hex::Orientation;
+
+#[doc(inline)]
 pub use n18hex::RotateCW;
 
 #[doc(inline)]

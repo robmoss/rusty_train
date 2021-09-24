@@ -3,7 +3,7 @@
 use std::collections::BTreeMap;
 
 use crate::map::{HexAddress, Map, MapTile};
-use n18hex::RotateCW;
+use n18hex::{Orientation, RotateCW};
 use n18tile::Tile;
 use n18token::Tokens;
 
@@ -24,30 +24,40 @@ pub struct TileDescr {
 
 /// A description of each tile's configuration on a map.
 pub struct Descr {
+    orientation: Orientation,
     tiles: BTreeMap<HexAddress, Option<TileDescr>>,
 }
 
-impl<'a> From<&'a Descr> for &'a BTreeMap<HexAddress, Option<TileDescr>> {
+impl<'a> From<&'a Descr>
+    for (Orientation, &'a BTreeMap<HexAddress, Option<TileDescr>>)
+{
     fn from(src: &'a Descr) -> Self {
-        &src.tiles
+        (src.orientation, &src.tiles)
     }
 }
 
-impl<'a> From<BTreeMap<HexAddress, Option<TileDescr>>> for Descr {
-    fn from(src: BTreeMap<HexAddress, Option<TileDescr>>) -> Self {
-        Self { tiles: src }
+impl<'a> From<(Orientation, BTreeMap<HexAddress, Option<TileDescr>>)>
+    for Descr
+{
+    fn from(
+        src: (Orientation, BTreeMap<HexAddress, Option<TileDescr>>),
+    ) -> Self {
+        let (orientation, tiles) = src;
+        Self { tiles, orientation }
     }
 }
 
 /// Constructs a map configuration from a vector of tile descriptions.
-impl From<Vec<TileDescr>> for Descr {
-    fn from(src: Vec<TileDescr>) -> Descr {
-        Descr {
-            tiles: src
-                .into_iter()
-                .map(|td| ((td.row, td.col).into(), Some(td)))
-                .collect(),
-        }
+impl From<(Orientation, Vec<TileDescr>)> for Descr {
+    fn from(src: (Orientation, Vec<TileDescr>)) -> Descr {
+        let orientation = src.0;
+        let tiles = src
+            .1
+            .into_iter()
+            .map(|td| ((td.row, td.col).into(), Some(td)))
+            .collect();
+
+        Descr { tiles, orientation }
     }
 }
 
@@ -83,7 +93,7 @@ impl From<(&Map, HexAddress, &MapTile)> for TileDescr {
 /// Describes the current state of an existing map.
 impl From<&Map> for Descr {
     fn from(map: &Map) -> Descr {
-        let tile_descrs = map
+        let tiles = map
             .hex_address_iter()
             .map(|addr| (*addr, map.hex_state(*addr)))
             .map(|(addr, map_hex)| {
@@ -92,7 +102,8 @@ impl From<&Map> for Descr {
                 (addr, tile_opt)
             })
             .collect();
-        Descr { tiles: tile_descrs }
+        let orientation = map.orientation();
+        Descr { tiles, orientation }
     }
 }
 
@@ -100,7 +111,7 @@ impl Descr {
     /// Constructs a map whose state reflects the tile configurations.
     pub fn build_map(&self, tiles: Vec<Tile>, tokens: Tokens) -> Map {
         let addrs = self.tiles.keys().copied().collect::<Vec<_>>();
-        let mut map = Map::new(tiles.into(), tokens, addrs);
+        let mut map = Map::new(tiles.into(), tokens, addrs, self.orientation);
         self.update_map(&mut map);
         map
     }
@@ -242,37 +253,43 @@ pub mod tests {
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
     fn descr_2x2_tiles_5_6_58_63() -> Descr {
-        vec![
-            TileDescr {
-                row: 0,
-                col: 0,
-                tile: "5".to_string(),
-                rotation: RotateCW::Zero,
-                tokens: vec![(0, "LP".to_string())],
-            },
-            TileDescr {
-                row: 0,
-                col: 1,
-                tile: "6".to_string(),
-                rotation: RotateCW::Two,
-                tokens: vec![(0, "PO".to_string())],
-            },
-            TileDescr {
-                row: 1,
-                col: 0,
-                tile: "58".to_string(),
-                rotation: RotateCW::Five,
-                tokens: vec![],
-            },
-            TileDescr {
-                row: 1,
-                col: 1,
-                tile: "63".to_string(),
-                rotation: RotateCW::Zero,
-                tokens: vec![(0, "PO".to_string()), (1, "LP".to_string())],
-            },
-        ]
-        .into()
+        (
+            Orientation::FlatTop,
+            vec![
+                TileDescr {
+                    row: 0,
+                    col: 0,
+                    tile: "5".to_string(),
+                    rotation: RotateCW::Zero,
+                    tokens: vec![(0, "LP".to_string())],
+                },
+                TileDescr {
+                    row: 0,
+                    col: 1,
+                    tile: "6".to_string(),
+                    rotation: RotateCW::Two,
+                    tokens: vec![(0, "PO".to_string())],
+                },
+                TileDescr {
+                    row: 1,
+                    col: 0,
+                    tile: "58".to_string(),
+                    rotation: RotateCW::Five,
+                    tokens: vec![],
+                },
+                TileDescr {
+                    row: 1,
+                    col: 1,
+                    tile: "63".to_string(),
+                    rotation: RotateCW::Zero,
+                    tokens: vec![
+                        (0, "PO".to_string()),
+                        (1, "LP".to_string()),
+                    ],
+                },
+            ],
+        )
+            .into()
     }
 
     #[test]

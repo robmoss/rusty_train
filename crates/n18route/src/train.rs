@@ -28,7 +28,8 @@
 //! let tokens: Tokens = vec![("AB".to_string(), company_token)].into();
 //!
 //! // Create the game map.
-//! let mut game_map = Map::new(tiles.into(), tokens, hexes);
+//! let orientation = Orientation::FlatTop;
+//! let mut game_map = Map::new(tiles.into(), tokens, hexes, orientation);
 //! // NOTE: place tiles and tokens, or load an existing map configuration.
 //!
 //! // Define the collection of trains owned by a company.

@@ -14,6 +14,9 @@ const PHASES: [(&str, (usize, usize)); 4] = [
     ("6", (170, 240)),
 ];
 
+/// The tile orientation for 1861.
+const ORIENT: Orientation = Orientation::FlatTop;
+
 /// Returns the hex where Astrakhan is located.
 pub fn astrakhan() -> HexAddress {
     (10, 12).into()
@@ -179,7 +182,9 @@ fn find_routes_for_phase(
         .font_serif()
         .bold()
         .labeller(&rec_ctx, &hex);
-    let addr = astrakhan().adjacent(HexFace::Top).adjacent(HexFace::Top);
+    let addr = astrakhan()
+        .adjacent(HexFace::Top, ORIENT)
+        .adjacent(HexFace::Top, ORIENT);
     let m = map.prepare_to_draw(addr, &hex, &rec_ctx);
     labeller.draw(
         &format!("{}-train: ${}", train_name, routes.net_revenue),
@@ -226,26 +231,26 @@ fn place_yellow_tiles(map: &mut Map) {
 
     // Connect Moscow to Ekaterinburg.
     moscow()
-        .move_and_do(UpperRight, |&addr| {
+        .move_and_do(UpperRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "8", One);
         })
-        .move_and_do(LowerRight, |&addr| {
+        .move_and_do(LowerRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "8", Four);
         })
-        .adjacent(UpperRight)
-        .move_and_do(LowerRight, |&addr| {
+        .adjacent(UpperRight, ORIENT)
+        .move_and_do(LowerRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "9", Two);
         })
-        .move_and_do(LowerRight, |&addr| {
+        .move_and_do(LowerRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "58", Four);
         })
-        .move_and_do(UpperRight, |&addr| {
+        .move_and_do(UpperRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "9", One);
         })
-        .move_and_do(UpperRight, |&addr| {
+        .move_and_do(UpperRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "9", One);
         })
-        .move_and_do(UpperRight, |&addr| {
+        .move_and_do(UpperRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "9", One);
         });
 }
@@ -290,13 +295,13 @@ fn place_skip_nizhnii_tiles(map: &mut Map) {
     use RotateCW::*;
 
     nizhnii_novgorod()
-        .move_and_do(LowerLeft, |&addr| {
+        .move_and_do(LowerLeft, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "24", Two);
         })
-        .move_and_do(LowerRight, |&addr| {
+        .move_and_do(LowerRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "8", Four);
         })
-        .move_and_do(UpperRight, |&addr| {
+        .move_and_do(UpperRight, ORIENT, |&addr| {
             let _ = map.place_tile(addr, "24", Five);
         });
 }

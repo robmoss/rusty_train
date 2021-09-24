@@ -5,7 +5,7 @@
 //! ```rust,no_run
 //! # extern crate cairo;
 //! # use cairo::{Context, ImageSurface};
-//! # use n18hex::{Colour, Hex};
+//! # use n18hex::{Colour, Hex, Orientation};
 //! # use n18map::Map;
 //! # use n18token::Tokens;
 //! # use n18route::builder::Result;
@@ -16,7 +16,8 @@
 //! # fn main() -> Result<()> {
 //! # let hex = Hex::new(125.0);
 //! # let tiles: Vec<n18tile::Tile> = vec![];
-//! # let map = Map::new(tiles.into(), Tokens::new(vec![]), vec![]);
+//! # let orient = Orientation::FlatTop;
+//! # let map = Map::new(tiles.into(), Tokens::new(vec![]), vec![], orient);
 //! # let surf = cairo::ImageSurface::create(cairo::Format::ARgb32, 10, 10)
 //! #     .unwrap();
 //! # let ctx = cairo::Context::new(&surf).unwrap();

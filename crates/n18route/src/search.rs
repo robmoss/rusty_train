@@ -555,7 +555,7 @@ fn depth_first_search(
 mod tests {
     use super::{Criteria, PathLimit, Query};
     use crate::conflict::ConflictRule;
-    use n18hex::RotateCW;
+    use n18hex::{Orientation, RotateCW};
     use n18map::{Descr, HexAddress, Map, TileDescr};
     use n18tile::Connection;
     use n18token::{Token, Tokens};
@@ -604,37 +604,43 @@ mod tests {
 
     /// Defines the map that should be created by `map_2x2_tiles_5_6_58_63`.
     fn descr_2x2_tiles_5_6_58_63() -> Descr {
-        vec![
-            TileDescr {
-                row: 0,
-                col: 0,
-                tile: "5".to_string(),
-                rotation: RotateCW::Zero,
-                tokens: vec![(0, "LP".to_string())],
-            },
-            TileDescr {
-                row: 0,
-                col: 1,
-                tile: "6".to_string(),
-                rotation: RotateCW::Two,
-                tokens: vec![(0, "PO".to_string())],
-            },
-            TileDescr {
-                row: 1,
-                col: 0,
-                tile: "58".to_string(),
-                rotation: RotateCW::Five,
-                tokens: vec![],
-            },
-            TileDescr {
-                row: 1,
-                col: 1,
-                tile: "63".to_string(),
-                rotation: RotateCW::Zero,
-                tokens: vec![(0, "PO".to_string()), (1, "LP".to_string())],
-            },
-        ]
-        .into()
+        (
+            Orientation::FlatTop,
+            vec![
+                TileDescr {
+                    row: 0,
+                    col: 0,
+                    tile: "5".to_string(),
+                    rotation: RotateCW::Zero,
+                    tokens: vec![(0, "LP".to_string())],
+                },
+                TileDescr {
+                    row: 0,
+                    col: 1,
+                    tile: "6".to_string(),
+                    rotation: RotateCW::Two,
+                    tokens: vec![(0, "PO".to_string())],
+                },
+                TileDescr {
+                    row: 1,
+                    col: 0,
+                    tile: "58".to_string(),
+                    rotation: RotateCW::Five,
+                    tokens: vec![],
+                },
+                TileDescr {
+                    row: 1,
+                    col: 1,
+                    tile: "63".to_string(),
+                    rotation: RotateCW::Zero,
+                    tokens: vec![
+                        (0, "PO".to_string()),
+                        (1, "LP".to_string()),
+                    ],
+                },
+            ],
+        )
+            .into()
     }
 
     /// Test that the maximum revenue obtained by paths of different lengths

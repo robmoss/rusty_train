@@ -2,6 +2,10 @@
 
 - `n18tile::city`: rename `Tokens` to `TokenSpaces` or something similar.
 
+- `n18tile::city`: `City::translate_coords()` uses custom adjustments for `HexPosition::Face` and `HexPosition::Corner`, and `City::delta_coords()` duplicates some of `HexPosition::to_coord()`.
+  - Remove the custom position adjustments?
+  - Define `Delta::coord(hex: &Hex, from: Coord) -> Coord` and use this in `HexPosition::to_coord()` and `City::translate_coords()`?
+
 - Replace the `bool` field in `n18tile::label::PhaseRevenue` and `n18tile::label::PhaseRevenueVert` with a new enum type that has variants `Normal` and `Emphasise`?
 
 - `n18tile::tile::Tile`:

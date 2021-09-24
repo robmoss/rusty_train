@@ -3,6 +3,7 @@ use cairo::Context;
 use n18hex::consts::PI;
 use n18hex::{
     Colour, Coord, Hex, HexColour, HexCorner, HexFace, HexPosition,
+    Orientation,
 };
 
 /// The different types of labels that may appear on a tile.
@@ -75,8 +76,8 @@ impl Label {
         let coord = pos.coord(hex);
 
         // Set horizontal/vertical alignment based on the HexPosition anchor.
-        let horiz = h_align(pos);
-        let vert = v_align(pos);
+        let horiz = h_align(hex, pos);
+        let vert = v_align(hex, pos);
         labeller.halign(horiz);
         labeller.valign(vert);
 
@@ -237,8 +238,8 @@ impl Label {
         let mut labeller = hex.theme.tile_label.labeller(ctx, hex);
         let pos = HexPosition::Corner(HexCorner::BottomRight, None);
         let coord = pos.coord(hex);
-        let horiz = h_align(&pos);
-        let vert = v_align(&pos);
+        let horiz = h_align(hex, &pos);
+        let vert = v_align(hex, &pos);
         labeller.halign(horiz);
         labeller.valign(vert);
         labeller.draw(name, coord);
@@ -300,24 +301,46 @@ fn box_dims(
 /// - **Left:** corners and faces on the left half of the hex.
 /// - **Centre:** [HexPosition::Centre], and the top and bottom faces.
 /// - **Right:** corners and faces on the right half of the hex.
-fn h_align(pos: &HexPosition) -> n18hex::theme::AlignH {
+///
+/// When using [Orientation::PointedTop], each face and corner is rotated 30
+/// degrees clockwise.
+/// This means that [HexFace::Top] is the upper-right face, [Corner::TopLeft]
+/// is the top corner, and so on.
+fn h_align(hex: &Hex, pos: &HexPosition) -> n18hex::theme::AlignH {
     use n18hex::theme::AlignH;
     use HexCorner::*;
     use HexFace::*;
     use HexPosition::*;
-    match pos {
-        Centre(_) => AlignH::Centre,
-        Face(Bottom, _) | Face(Top, _) => AlignH::Centre,
-        Face(LowerLeft, _)
-        | Face(UpperLeft, _)
-        | Corner(BottomLeft, _)
-        | Corner(Left, _)
-        | Corner(TopLeft, _) => AlignH::Left,
-        Face(LowerRight, _)
-        | Face(UpperRight, _)
-        | Corner(BottomRight, _)
-        | Corner(Right, _)
-        | Corner(TopRight, _) => AlignH::Right,
+
+    match hex.orientation() {
+        Orientation::FlatTop => match pos {
+            Centre(_) => AlignH::Centre,
+            Face(Bottom, _) | Face(Top, _) => AlignH::Centre,
+            Face(LowerLeft, _)
+            | Face(UpperLeft, _)
+            | Corner(BottomLeft, _)
+            | Corner(Left, _)
+            | Corner(TopLeft, _) => AlignH::Left,
+            Face(LowerRight, _)
+            | Face(UpperRight, _)
+            | Corner(BottomRight, _)
+            | Corner(Right, _)
+            | Corner(TopRight, _) => AlignH::Right,
+        },
+        Orientation::PointedTop => match pos {
+            Centre(_) => AlignH::Centre,
+            Corner(TopLeft, _) | Corner(BottomRight, _) => AlignH::Centre,
+            Face(Bottom, _)
+            | Face(LowerLeft, _)
+            | Face(UpperLeft, _)
+            | Corner(BottomLeft, _)
+            | Corner(Left, _) => AlignH::Left,
+            Face(Top, _)
+            | Face(LowerRight, _)
+            | Face(UpperRight, _)
+            | Corner(Right, _)
+            | Corner(TopRight, _) => AlignH::Right,
+        },
     }
 }
 
@@ -326,24 +349,46 @@ fn h_align(pos: &HexPosition) -> n18hex::theme::AlignH {
 /// - **Top:** corners and faces in the upper half of the hex.
 /// - **Middle:** [HexPosition::Centre], and the left and right corners.
 /// - **Bottom:** corners and faces in the lower half of the hex.
-fn v_align(pos: &HexPosition) -> n18hex::theme::AlignV {
+///
+/// When using [Orientation::PointedTop], each face and corner is rotated 30
+/// degrees clockwise.
+/// This means that [HexFace::Top] is the upper-right face, [Corner::TopLeft]
+/// is the top corner, and so on.
+fn v_align(hex: &Hex, pos: &HexPosition) -> n18hex::theme::AlignV {
     use n18hex::theme::AlignV;
     use HexCorner::*;
     use HexFace::*;
     use HexPosition::*;
-    match pos {
-        Centre(_) => AlignV::Middle,
-        Corner(Left, _) | Corner(Right, _) => AlignV::Middle,
-        Face(UpperLeft, _)
-        | Face(Top, _)
-        | Face(UpperRight, _)
-        | Corner(TopLeft, _)
-        | Corner(TopRight, _) => AlignV::Top,
-        Face(LowerLeft, _)
-        | Face(Bottom, _)
-        | Face(LowerRight, _)
-        | Corner(BottomLeft, _)
-        | Corner(BottomRight, _) => AlignV::Bottom,
+
+    match hex.orientation() {
+        Orientation::FlatTop => match pos {
+            Centre(_) => AlignV::Middle,
+            Corner(Left, _) | Corner(Right, _) => AlignV::Middle,
+            Face(UpperLeft, _)
+            | Face(Top, _)
+            | Face(UpperRight, _)
+            | Corner(TopLeft, _)
+            | Corner(TopRight, _) => AlignV::Top,
+            Face(LowerLeft, _)
+            | Face(Bottom, _)
+            | Face(LowerRight, _)
+            | Corner(BottomLeft, _)
+            | Corner(BottomRight, _) => AlignV::Bottom,
+        },
+        Orientation::PointedTop => match pos {
+            Centre(_) => AlignV::Middle,
+            Face(LowerLeft, _) | Face(UpperRight, _) => AlignV::Middle,
+            Face(UpperLeft, _)
+            | Face(Top, _)
+            | Corner(Left, _)
+            | Corner(TopLeft, _)
+            | Corner(TopRight, _) => AlignV::Top,
+            Face(Bottom, _)
+            | Face(LowerRight, _)
+            | Corner(BottomLeft, _)
+            | Corner(BottomRight, _)
+            | Corner(Right, _) => AlignV::Bottom,
+        },
     }
 }
 /// The ratio of text width to text height at which we switch from drawing a

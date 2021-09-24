@@ -2,19 +2,92 @@ use cairo::Context;
 use std::collections::{BTreeMap, BTreeSet};
 
 use n18catalogue::{Availability, Catalogue};
-use n18hex::{Hex, HexColour, HexFace, RotateCW, PI};
+use n18hex::{Hex, HexColour, HexFace, Orientation, RotateCW};
 use n18tile::{Label, Tile, TokenSpace};
 use n18token::{Token, Tokens};
 
-/// Supported orientations for the map's hexagonal grid.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Orientation {
-    /// Arrange hexagons in vertical columns; the top and bottom of each
-    /// hexagon is flat.
-    VerticalColumns,
-    /// Arrange hexagons in horizontal rows; the top and bottom of each
-    /// hexagon is pointed.
-    HorizontalRows,
+pub trait Adjacency {
+    fn adjacent(&self, addr: HexAddress, face: HexFace) -> HexAddress;
+}
+
+impl Adjacency for Orientation {
+    /// Returns the address of the hex that is adjacent to the specified face
+    /// (in terms of map orientation, not tile orientation) of the given hex.
+    fn adjacent(&self, addr: HexAddress, face: HexFace) -> HexAddress {
+        match self {
+            Orientation::FlatTop => {
+                let is_upper = addr.col % 2 == 0;
+                match face {
+                    HexFace::Top => (addr.row - 1, addr.col).into(),
+                    HexFace::UpperRight => {
+                        if is_upper {
+                            (addr.row - 1, addr.col + 1).into()
+                        } else {
+                            (addr.row, addr.col + 1).into()
+                        }
+                    }
+                    HexFace::LowerRight => {
+                        if is_upper {
+                            (addr.row, addr.col + 1).into()
+                        } else {
+                            (addr.row + 1, addr.col + 1).into()
+                        }
+                    }
+                    HexFace::Bottom => (addr.row + 1, addr.col).into(),
+                    HexFace::LowerLeft => {
+                        if is_upper {
+                            (addr.row, addr.col - 1).into()
+                        } else {
+                            (addr.row + 1, addr.col - 1).into()
+                        }
+                    }
+                    HexFace::UpperLeft => {
+                        if is_upper {
+                            (addr.row - 1, addr.col - 1).into()
+                        } else {
+                            (addr.row, addr.col - 1).into()
+                        }
+                    }
+                }
+            }
+            Orientation::PointedTop => {
+                // NOTE: HexFace::Top is the upper-right face, and so on.
+                let is_left = addr.row % 2 == 0;
+                match face {
+                    HexFace::Top => {
+                        if is_left {
+                            (addr.row - 1, addr.col).into()
+                        } else {
+                            (addr.row - 1, addr.col + 1).into()
+                        }
+                    }
+                    HexFace::UpperRight => (addr.row, addr.col + 1).into(),
+                    HexFace::LowerRight => {
+                        if is_left {
+                            (addr.row + 1, addr.col).into()
+                        } else {
+                            (addr.row + 1, addr.col + 1).into()
+                        }
+                    }
+                    HexFace::Bottom => {
+                        if is_left {
+                            (addr.row + 1, addr.col - 1).into()
+                        } else {
+                            (addr.row + 1, addr.col).into()
+                        }
+                    }
+                    HexFace::LowerLeft => (addr.row, addr.col - 1).into(),
+                    HexFace::UpperLeft => {
+                        if is_left {
+                            (addr.row - 1, addr.col - 1).into()
+                        } else {
+                            (addr.row - 1, addr.col).into()
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// A grid of hexes, each of which may contain a [Tile].
@@ -316,69 +389,13 @@ impl Map {
         addr: HexAddress,
         map_face: HexFace,
     ) -> Option<HexAddress> {
-        // NOTE: if the column is even, its upper-left and upper-right sides
-        // are adjacent to the row above; if the column is odd then its
-        // upper-left and upper-right sides are adjacent to its own row.
-        // Similar conditions apply for the lower-right and lower-right sides.
-        let is_upper = addr.col % 2 == 0;
-
-        let addr = match map_face {
-            HexFace::Top => {
-                if addr.row > 0 {
-                    Some((addr.row - 1, addr.col).into())
-                } else {
-                    None
-                }
-            }
-            HexFace::UpperRight => {
-                if is_upper {
-                    if addr.row > 0 {
-                        Some((addr.row - 1, addr.col + 1).into())
-                    } else {
-                        None
-                    }
-                } else {
-                    Some((addr.row, addr.col + 1).into())
-                }
-            }
-            HexFace::LowerRight => {
-                if is_upper {
-                    Some((addr.row, addr.col + 1).into())
-                } else {
-                    Some((addr.row + 1, addr.col + 1).into())
-                }
-            }
-            HexFace::Bottom => Some((addr.row + 1, addr.col).into()),
-            HexFace::LowerLeft => {
-                if addr.col > 0 {
-                    if is_upper {
-                        Some((addr.row, addr.col - 1).into())
-                    } else {
-                        Some((addr.row + 1, addr.col - 1).into())
-                    }
-                } else {
-                    None
-                }
-            }
-            HexFace::UpperLeft => {
-                if addr.col > 0 {
-                    if is_upper {
-                        if addr.row > 0 {
-                            Some((addr.row - 1, addr.col - 1).into())
-                        } else {
-                            None
-                        }
-                    } else {
-                        Some((addr.row, addr.col - 1).into())
-                    }
-                } else {
-                    None
-                }
-            }
-        };
-
+        let adj_addr = self.orientation.adjacent(addr, map_face);
         // NOTE: ensure that this address is valid.
-        addr.filter(|addr| self.hexes.contains_key(addr))
+        if self.hexes.contains_key(&adj_addr) {
+            Some(adj_addr)
+        } else {
+            None
+        }
     }
 
     /// Returns details of the tile that is adjacent to the specified face:
@@ -395,28 +412,29 @@ impl Map {
         tile_face: HexFace,
     ) -> Option<(HexAddress, HexFace, &Tile)> {
         // Determine the actual face (i.e., accounting for tile rotation).
-        let map_face = self.map_face_from_tile_face(addr, tile_face);
+        let map_face = self.map_face_from_tile_face(addr, tile_face)?;
 
-        if let Some(map_face) = map_face {
-            // Determine the address of the adjacent hex.
-            let adj_addr = self.adjacent_address(addr, map_face);
-            // This will be adjacent to the opposite face on the adjacent hex.
-            let adj_tile_face = adj_addr.and_then(|addr| {
-                self.tile_face_from_map_face(addr, map_face.opposite())
-            });
-            let adj_tile = adj_addr.and_then(|addr| self.tile_at(addr));
-            // Combine the three option values into a single option tuple.
-            adj_addr.and_then(|addr| {
-                adj_tile_face
-                    .and_then(|face| adj_tile.map(|tile| (addr, face, tile)))
-            })
-        } else {
-            None
-        }
+        // Determine the address of the adjacent hex.
+        let adj_addr = self.adjacent_address(addr, map_face)?;
+        // This will be adjacent to the opposite face on the adjacent hex.
+        let adj_tile_face =
+            self.tile_face_from_map_face(adj_addr, map_face.opposite())?;
+        let adj_tile = self.tile_at(adj_addr)?;
+        Some((adj_addr, adj_tile_face, adj_tile))
+    }
+
+    /// Returns the hexagon orientation.
+    pub fn orientation(&self) -> Orientation {
+        self.orientation
     }
 
     /// Creates a new map.
-    pub fn new<T>(tiles: Catalogue, tokens: Tokens, hexes: T) -> Self
+    pub fn new<T>(
+        tiles: Catalogue,
+        tokens: Tokens,
+        hexes: T,
+        orientation: Orientation,
+    ) -> Self
     where
         T: IntoIterator<Item = HexAddress>,
     {
@@ -431,8 +449,6 @@ impl Map {
         let labels_tbl = BTreeMap::new();
         let min_col = hexes.keys().map(|hc| hc.col).min().unwrap();
         let min_row = hexes.keys().map(|hc| hc.row).min().unwrap();
-        // Note: we currently only support vertical columns.
-        let orientation = Orientation::VerticalColumns;
 
         Map {
             tokens,
@@ -647,7 +663,7 @@ impl Map {
         let col = col - self.min_col;
 
         match self.orientation {
-            Orientation::VerticalColumns => {
+            Orientation::FlatTop => {
                 let x = x0 + (col as f64) * hex.max_d * 0.75;
                 let y = if (col + self.min_col) % 2 == 1 {
                     y0 + (row as f64 + 0.5) * hex.min_d
@@ -656,7 +672,7 @@ impl Map {
                 };
                 (x, y)
             }
-            Orientation::HorizontalRows => {
+            Orientation::PointedTop => {
                 let x = if (row + self.min_row) % 2 == 1 {
                     x0 + (col as f64 + 0.5) * hex.min_d
                 } else {
@@ -668,22 +684,13 @@ impl Map {
         }
     }
 
-    /// Returns the hexagon rotation for the map.
-    fn hex_angle(&self) -> f64 {
-        use Orientation::*;
-        match self.orientation {
-            VerticalColumns => 0.0,
-            HorizontalRows => PI / 6.0,
-        }
-    }
-
     /// Returns the hexagon x-origin coordinate for the map.
     fn hex_x0(&self, hex: &Hex) -> f64 {
         use Orientation::*;
         let margin = hex.theme.map_margin.absolute(hex);
         match self.orientation {
-            VerticalColumns => 0.5 * hex.max_d + margin,
-            HorizontalRows => 0.5 * hex.min_d + margin,
+            FlatTop => 0.5 * hex.max_d + margin,
+            PointedTop => 0.5 * hex.min_d + margin,
         }
     }
 
@@ -692,8 +699,8 @@ impl Map {
         use Orientation::*;
         let margin = hex.theme.map_margin.absolute(hex);
         match self.orientation {
-            VerticalColumns => 0.5 * hex.min_d + margin,
-            HorizontalRows => 0.5 * hex.max_d + margin,
+            FlatTop => 0.5 * hex.min_d + margin,
+            PointedTop => 0.5 * hex.max_d + margin,
         }
     }
 
@@ -731,7 +738,6 @@ impl Map {
         hex: &Hex,
         ctx: &Context,
     ) -> cairo::Matrix {
-        let angle = self.hex_angle();
         let x0 = self.hex_x0(hex);
         let y0 = self.hex_y0(hex);
 
@@ -751,7 +757,7 @@ impl Map {
         } else {
             0.0
         };
-        ctx.rotate(angle + tile_angle);
+        ctx.rotate(tile_angle);
 
         m
     }
@@ -777,7 +783,8 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles.into(), tokens, hexes);
+    /// # let orientation = Orientation::FlatTop;
+    /// # let map = Map::new(tiles.into(), tokens, hexes, orientation);
     /// // Draw a thick black border around each hex.
     /// ctx.set_source_rgb(0.0, 0.0, 0.0);
     /// ctx.set_line_width(hex.max_d * 0.05);
@@ -836,7 +843,8 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles.into(), tokens, hexes);
+    /// # let orientation = Orientation::FlatTop;
+    /// # let map = Map::new(tiles.into(), tokens, hexes, orientation);
     /// // Fill each empty tile with a dark grey.
     /// ctx.set_source_rgb(0.4, 0.4, 0.4);
     /// for _addr in map.empty_hex_iter(&hex, ctx) {
@@ -874,7 +882,8 @@ impl Map {
     /// #     .map(|coords| coords.into())
     /// #     .collect();
     /// # let ctx = hex.context();
-    /// # let map = Map::new(tiles.into(), tokens, hexes);
+    /// # let orientation = Orientation::FlatTop;
+    /// # let map = Map::new(tiles.into(), tokens, hexes, orientation);
     /// // Draw a red border around each token space.
     /// ctx.set_source_rgb(0.8, 0.2, 0.2);
     /// ctx.set_line_width(hex.max_d * 0.015);
@@ -987,7 +996,6 @@ pub struct HexIter<'a> {
     map: &'a Map,
     x0: f64,
     y0: f64,
-    angle: f64,
     iter: std::collections::btree_map::Iter<'a, HexAddress, Option<MapTile>>,
     m: cairo::Matrix,
     include: Option<BTreeSet<HexAddress>>,
@@ -999,12 +1007,15 @@ impl<'a> HexIter<'a> {
         self.iter = self.map.hexes.iter();
     }
 
+    /// Returns a reference to the map associated with this hex iterator.
+    ///
+    /// Call this method with `HexIter::map(hex_iter)` in order to distinguish
+    /// this from the `Iterator::map()` method.
     pub fn map(&self) -> &Map {
         self.map
     }
 
     fn new(hex: &'a Hex, ctx: &'a Context, map: &'a Map) -> Self {
-        let angle = map.hex_angle();
         let x0 = map.hex_x0(hex);
         let y0 = map.hex_y0(hex);
         let iter = map.hexes.iter();
@@ -1015,7 +1026,6 @@ impl<'a> HexIter<'a> {
             map,
             x0,
             y0,
-            angle,
             iter,
             m: ctx.matrix(),
             include: None,
@@ -1028,7 +1038,6 @@ impl<'a> HexIter<'a> {
         map: &'a Map,
         include: BTreeSet<HexAddress>,
     ) -> Self {
-        let angle = map.hex_angle();
         let x0 = map.hex_x0(hex);
         let y0 = map.hex_y0(hex);
         let iter = map.hexes.iter();
@@ -1039,7 +1048,6 @@ impl<'a> HexIter<'a> {
             map,
             x0,
             y0,
-            angle,
             iter,
             m: ctx.matrix(),
             include: Some(include),
@@ -1090,7 +1098,7 @@ impl<'a> Iterator for HexIter<'a> {
         self.ctx.translate(x, y);
 
         if let Some(hex_state) = hex_state_opt {
-            self.ctx.rotate(self.angle + hex_state.rotation.radians());
+            self.ctx.rotate(hex_state.rotation.radians());
             let tile_state = Some((
                 &self.map.tiles[hex_state.tile_ix].0,
                 &hex_state.tokens,
@@ -1254,8 +1262,12 @@ impl MapTile {
 }
 
 /// A hex location on a `Map`, identified by row and column.
+///
 /// The row and column may be defined in terms of several different coordinate
 /// systems, as described below.
+///
+/// Note that these coordinate systems **do not** depend upon the choice of
+/// [hex orientation](n18hex::Orientation).
 ///
 /// # Logical coordinates
 ///
@@ -1394,41 +1406,12 @@ impl HexAddress {
 
     /// Returns the address of the hex that is adjacent to the specified face
     /// (in terms of map orientation, not tile orientation) of this hex.
-    pub fn adjacent(&self, face: HexFace) -> HexAddress {
-        let is_upper = self.col % 2 == 0;
-
-        match face {
-            HexFace::Top => (self.row - 1, self.col).into(),
-            HexFace::UpperRight => {
-                if is_upper {
-                    (self.row - 1, self.col + 1).into()
-                } else {
-                    (self.row, self.col + 1).into()
-                }
-            }
-            HexFace::LowerRight => {
-                if is_upper {
-                    (self.row, self.col + 1).into()
-                } else {
-                    (self.row + 1, self.col + 1).into()
-                }
-            }
-            HexFace::Bottom => (self.row + 1, self.col).into(),
-            HexFace::LowerLeft => {
-                if is_upper {
-                    (self.row, self.col - 1).into()
-                } else {
-                    (self.row + 1, self.col - 1).into()
-                }
-            }
-            HexFace::UpperLeft => {
-                if is_upper {
-                    (self.row - 1, self.col - 1).into()
-                } else {
-                    (self.row, self.col - 1).into()
-                }
-            }
-        }
+    pub fn adjacent(
+        &self,
+        face: HexFace,
+        orientation: Orientation,
+    ) -> HexAddress {
+        orientation.adjacent(*self, face)
     }
 
     /// Calls a closure on this hex address, and returns the hex address.
@@ -1451,30 +1434,36 @@ impl HexAddress {
     /// # Examples
     ///
     /// ```rust
-    /// use n18hex::{HexFace, RotateCW};
+    /// use n18hex::{HexFace, Orientation, RotateCW};
     /// use n18map::{HexAddress, Map};
     ///
     /// fn place_connected_track(map: &mut Map, starting_city: HexAddress) {
+    ///     let o = Orientation::FlatTop;
     ///     starting_city
     ///         // Move to the hex below and place tile 8.
-    ///         .move_and_do(HexFace::Bottom, |&addr| {
+    ///         .move_and_do(HexFace::Bottom, o, |&addr| {
     ///             let _ = map.place_tile(addr, "8", RotateCW::Five);
     ///         })
     ///         // Move to the hex on the lower right and place tile 9.
-    ///         .move_and_do(HexFace::LowerRight, |&addr| {
+    ///         .move_and_do(HexFace::LowerRight, o, |&addr| {
     ///             let _ = map.place_tile(addr, "9", RotateCW::Two);
     ///         })
     ///         // Move to the hex on the lower right and place tile 9.
-    ///         .move_and_do(HexFace::LowerRight, |&addr| {
+    ///         .move_and_do(HexFace::LowerRight, o, |&addr| {
     ///             let _ = map.place_tile(addr, "9", RotateCW::Two);
     ///         });
     /// }
     /// ```
-    pub fn move_and_do<F>(&self, face: HexFace, f: F) -> HexAddress
+    pub fn move_and_do<F>(
+        &self,
+        face: HexFace,
+        orientation: Orientation,
+        f: F,
+    ) -> HexAddress
     where
         F: FnMut(&Self),
     {
-        let addr = self.adjacent(face);
+        let addr = self.adjacent(face, orientation);
         addr.do_here(f);
         addr
     }

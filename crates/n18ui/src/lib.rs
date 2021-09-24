@@ -442,6 +442,9 @@ impl UserInterface {
         if self.assets.games.set_active_index(game_ix) {
             self.assets.map =
                 self.assets.games.active().create_map(&self.assets.hex);
+            self.assets
+                .hex
+                .set_orientation(self.assets.map.orientation());
             self.set_default_title();
             let active_hex = self.assets.map.default_hex();
             self.state = State::default_state(active_hex);
@@ -464,6 +467,7 @@ impl UserInterface {
                 .active_mut()
                 .load(&self.assets.hex, game_state)
             {
+                self.assets.hex.set_orientation(new_map.orientation());
                 self.set_default_title();
                 self.assets.map = new_map;
                 let active_hex = self.assets.map.default_hex();

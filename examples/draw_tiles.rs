@@ -155,5 +155,12 @@ fn place_tiles(
         .collect();
 
     let tokens: Vec<(String, _)> = vec![];
-    Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec())
+    let orientation = Orientation::FlatTop;
+    Example::new_catalogue(
+        hex,
+        tokens,
+        placed_tiles,
+        tiles.to_vec(),
+        orientation,
+    )
 }

@@ -1,6 +1,6 @@
 use log::info;
 use n18catalogue::Catalogue;
-use n18hex::Hex;
+use n18hex::{Hex, Orientation};
 use n18map::Map;
 use n18route::{Bonus, ConflictRule, Routes, Train, Trains};
 use n18tile::Tile;
@@ -62,6 +62,9 @@ pub struct Company {
 pub trait Game {
     /// Returns the name of this game.
     fn name(&self) -> &str;
+
+    /// The orientation of the map hexes.
+    fn hex_orientation(&self) -> Orientation;
 
     /// Creates the initial map for this game.
     fn create_map(&self, hex: &Hex) -> Map;

@@ -416,6 +416,8 @@ struct City {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub nudge: Option<(Direction, f64)>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub to_centre: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rotate: Option<CityRotation>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fill_colour: Option<HexColour>,
@@ -424,6 +426,7 @@ struct City {
 impl std::convert::From<&n18tile::City> for City {
     fn from(src: &n18tile::City) -> Self {
         use n18hex::Delta;
+        use n18hex::Delta::*;
         use n18hex::HexPosition::*;
         use n18tile::Tokens;
 
@@ -444,12 +447,36 @@ impl std::convert::From<&n18tile::City> for City {
                 }
             }
         };
+        let to_centre = match position {
+            Centre(delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+            Face(_face, delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+            Corner(_corner, delta) => {
+                if let Some(ToCentre(frac)) = delta {
+                    Some(*frac)
+                } else {
+                    None
+                }
+            }
+        };
         let rotate = CityRotation::from_rot(src.angle);
         let fill_colour = src.fill_colour.map(|colour| colour.into());
         Self {
             city_type,
             revenue,
             nudge,
+            to_centre,
             rotate,
             fill_colour,
         }
@@ -462,6 +489,7 @@ impl Default for City {
             city_type: CityType::Single(Location::Centre),
             revenue: 10,
             nudge: None,
+            to_centre: None,
             rotate: None,
             fill_colour: None,
         }
@@ -1026,6 +1054,8 @@ impl City {
         let city = self.city_type.build(self.revenue);
         let city = if let Some((ref angle, radius)) = self.nudge {
             city.in_dir(angle.into(), radius)
+        } else if let Some(frac) = self.to_centre {
+            city.to_centre(frac)
         } else {
             city
         };
@@ -1161,8 +1191,37 @@ impl HexAddress {
     }
 }
 
+#[derive(Serialize, Deserialize, Copy, Clone)]
+enum Orientation {
+    FlatTop,
+    PointedTop,
+}
+
+impl std::convert::From<n18hex::Orientation> for Orientation {
+    fn from(src: n18hex::Orientation) -> Self {
+        use n18hex::Orientation::*;
+
+        match src {
+            FlatTop => Orientation::FlatTop,
+            PointedTop => Orientation::PointedTop,
+        }
+    }
+}
+
+impl std::convert::From<Orientation> for n18hex::Orientation {
+    fn from(src: Orientation) -> Self {
+        use n18hex::Orientation::*;
+
+        match src {
+            Orientation::FlatTop => FlatTop,
+            Orientation::PointedTop => PointedTop,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 struct Descr {
+    orientation: Orientation,
     tiles: Vec<HexAddress>,
 }
 
@@ -1445,14 +1504,15 @@ fn tile_descr(addr: &HexAddress, descr: &TileDescr) -> n18map::TileDescr {
 
 impl std::convert::From<&n18map::descr::Descr> for Descr {
     fn from(src: &n18map::descr::Descr) -> Self {
-        let tiles: &BTreeMap<_, _> = src.into();
+        let (orientation, tiles) = src.into();
         let tiles: Vec<HexAddress> = tiles
             .iter()
             .map(|(k, v)| {
                 HexAddress::from(k).with_tile(v.as_ref().map(|td| td.into()))
             })
             .collect();
-        Descr { tiles }
+        let orientation = orientation.into();
+        Descr { tiles, orientation }
     }
 }
 
@@ -1468,7 +1528,8 @@ impl std::convert::From<&Descr> for n18map::descr::Descr {
                 )
             })
             .collect();
-        tiles.into()
+        let orientation = src.orientation.into();
+        (orientation, tiles).into()
     }
 }
 

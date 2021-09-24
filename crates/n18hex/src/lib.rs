@@ -19,7 +19,7 @@ pub use coord::Coord;
 #[doc(inline)]
 pub use hex::{
     Delta, Direction, Hex, HexColour, HexCorner, HexFace, HexPosition,
-    RotateCW,
+    Orientation, RotateCW,
 };
 
 #[doc(inline)]

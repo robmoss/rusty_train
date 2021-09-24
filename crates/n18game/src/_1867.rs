@@ -7,7 +7,9 @@ use std::collections::BTreeMap;
 
 use super::Company;
 use n18catalogue::{Builder, Catalogue, Kind};
-use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition, RotateCW};
+use n18hex::{
+    Colour, Hex, HexColour, HexFace, HexPosition, Orientation, RotateCW,
+};
 use n18map::{HexAddress, Map};
 use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
@@ -345,6 +347,11 @@ impl super::Game for Game {
         "1867: The Railways of Canada"
     }
 
+    /// The orientation of the map hexes.
+    fn hex_orientation(&self) -> Orientation {
+        Orientation::FlatTop
+    }
+
     /// Returns the companies in this game.
     fn companies(&self) -> &[Company] {
         &self.companies
@@ -440,7 +447,12 @@ impl super::Game for Game {
         let tokens = self.create_tokens();
         let hexes: Vec<HexAddress> =
             addrs().iter().map(|coords| coords.into()).collect();
-        let mut map = Map::new(self.catalogue.clone(), tokens, hexes);
+        let mut map = Map::new(
+            self.catalogue.clone(),
+            tokens,
+            hexes,
+            self.hex_orientation(),
+        );
         for (addr, (tile_name, rotn)) in initial_tiles() {
             if !map.place_tile(addr, tile_name, rotn) {
                 println!("Could not place tile {} at {}", tile_name, addr)

@@ -58,7 +58,8 @@ fn main() -> Result<()> {
         tile_at("8", "C13").rotate_cw(1),
         tile_at("6", "D14").rotate_cw(2).token(0, name_a),
     ];
-    let example = Example::new(hex_max_diameter, tokens, tiles);
+    let orientation = Orientation::FlatTop;
+    let example = Example::new(hex_max_diameter, tokens, tiles, orientation);
 
     let map = example.map();
     let route1 = RouteBuilder::from_edge(map, "A1", HexFace::LowerRight)?

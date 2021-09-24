@@ -4,7 +4,7 @@ use cairo::{Content, Context, Format, RecordingSurface};
 use n18brush as brush;
 use n18game::Game;
 use n18hex::theme::Text;
-use n18hex::{Colour, Hex, RotateCW, Theme};
+use n18hex::{Colour, Hex, Orientation, RotateCW, Theme};
 use n18map::{HexAddress, Map};
 use n18route::{Path, Route};
 use n18tile::Tile;
@@ -23,6 +23,7 @@ impl Example {
         hex: H,
         tokens: Vec<(T, Token)>,
         tiles: Vec<PlacedTile>,
+        orientation: Orientation,
     ) -> Self {
         let hex = hex.into();
         let all_tiles = n18catalogue::tile_catalogue().into();
@@ -33,7 +34,7 @@ impl Example {
         let token_mgr = Tokens::new(tokens);
         let hexes: Vec<HexAddress> =
             tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
-        let map = Map::new(all_tiles, token_mgr, hexes);
+        let map = Map::new(all_tiles, token_mgr, hexes, orientation);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
         let rec_ctx =
@@ -68,6 +69,7 @@ impl Example {
         tokens: Vec<(T, Token)>,
         tiles: Vec<PlacedTile>,
         catalogue: Vec<Tile>,
+        orientation: Orientation,
     ) -> Self {
         let hex = hex.into();
         let tokens = tokens
@@ -78,7 +80,7 @@ impl Example {
         let hexes: Vec<HexAddress> =
             tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
         let catalogue = catalogue.into();
-        let map = Map::new(catalogue, token_mgr, hexes);
+        let map = Map::new(catalogue, token_mgr, hexes, orientation);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
         let rec_ctx =

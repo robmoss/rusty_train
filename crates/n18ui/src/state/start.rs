@@ -2,7 +2,7 @@
 use cairo::Context;
 
 use n18hex::theme::Text;
-use n18hex::Coord;
+use n18hex::{Coord, Orientation};
 
 use crate::{Assets, UiState};
 
@@ -19,7 +19,7 @@ impl Start {
         let tokens = vec![].into();
         // NOTE: a map must have at least one hex.
         let hexes = vec![n18map::HexAddress::new(0, 0)];
-        n18map::Map::new(tiles.into(), tokens, hexes)
+        n18map::Map::new(tiles.into(), tokens, hexes, Orientation::default())
     }
 }
 

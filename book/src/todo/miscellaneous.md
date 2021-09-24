@@ -4,14 +4,7 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 ## n18io
 
-- `n18io/src/lib.rs`:
-
-  ```rust
-  // TODO: what about to centre for City ... is it relevant as per Label?
-  // NOTE: I think it's just as relevant, and only not an issue because there
-  // may not be any city on any tile that has a ToCentre delta.
-  pub nudge: Option<(Direction, f64)>
-  ```
+Nothing.
 
 ## n18map
 
@@ -69,6 +62,10 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - `n18tile::city`: rename `Tokens` to `TokenSpaces` or something similar.
 
+- `n18tile::city`: `City::translate_coords()` uses custom adjustments for `HexPosition::Face` and `HexPosition::Corner`, and `City::delta_coords()` duplicates some of `HexPosition::to_coord()`.
+  - Remove the custom position adjustments?
+  - Define `Delta::coord(hex: &Hex, from: Coord) -> Coord` and use this in `HexPosition::to_coord()` and `City::translate_coords()`?
+
 - Replace the `bool` field in `n18tile::label::PhaseRevenue` and `n18tile::label::PhaseRevenueVert` with a new enum type that has variants `Normal` and `Emphasise`?
 
 - `n18tile::tile::Tile`:
@@ -106,6 +103,8 @@ This page collects smaller to-do items for each crate, the test cases, and the e
 
 - `n18catalogue`: test tile connections for most (all?) predefined tiles.
 
+- `n18hex`, `n18tile`, `n18map`: write tests cases for coordinates, tile layout, and map connectivity for `Orientation::PointedTop`.
+
 ## n18game
 
 Learn from the experience of implementing 1861 and 1867 and provide a variety of helper methods for implementing other games.
@@ -132,3 +131,7 @@ Consider dividing `n18game` into sub-modules:
 
 - `tokens` and/or `company`
   - May want to have tokens that are not part of a company for, e.g., national railways.
+
+## n18catalogue
+
+- Should `Kind::build()` also take a `n18hex::Orientation` argument, so that the positioning of tile elements (such as labels) can depend on the hex orientation?

@@ -2,6 +2,7 @@
   "game": "1867: The Railways of Canada",
   "phase": "8",
   "map": {
+    "orientation": "FlatTop",
     "tiles": [
       {
         "row": 0,

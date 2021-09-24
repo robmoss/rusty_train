@@ -145,6 +145,15 @@ impl City {
         self
     }
 
+    /// Moves the city towards the hex centre.
+    ///
+    /// This can be used to ensure that a city is always placed in the same
+    /// position, regardless of the map's [orientation](n18hex::Orientation).
+    pub fn to_centre(mut self, frac: f64) -> Self {
+        self.position = self.position.to_centre(frac);
+        self
+    }
+
     pub fn with_fill(mut self, fill: HexColour) -> Self {
         self.fill_colour = Some(fill);
         self
