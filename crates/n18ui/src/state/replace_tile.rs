@@ -48,17 +48,23 @@ pub struct ReplaceTile {
 impl ReplaceTile {
     pub fn with_any(map: &Map, addr: HexAddress) -> Self {
         let candidates: Vec<usize> = (0..(map.num_tiles())).collect();
+        // NOTE: record the current tile's rotation.
+        let original_rotation = if let Some(hs) = map.hex_state(addr) {
+            *hs.rotation()
+        } else {
+            RotateCW::Zero
+        };
         ReplaceTile {
             active_hex: addr,
             candidates,
             selected: 0,
             show_original: false,
             extra_rotation: RotateCW::Zero,
-            original_rotation: RotateCW::Zero,
+            original_rotation,
         }
     }
 
-    pub fn with_candidates(addr: HexAddress, candidates: Vec<usize>) -> Self {
+    fn with_candidates(addr: HexAddress, candidates: Vec<usize>) -> Self {
         ReplaceTile {
             active_hex: addr,
             candidates,
