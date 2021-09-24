@@ -167,11 +167,11 @@ impl Submap for DefaultMode {
         state.as_default_mut().and_then(|state| {
             match (&event.key, event.ctrl) {
                 (&key::e, false) | (&key::E, false) => {
-                    let new_state = ReplaceTile::with_any(
-                        &assets.map,
-                        state.active_hex(),
-                    );
-                    Some((UiResponse::Redraw, Some(new_state.into())))
+                    ReplaceTile::with_any(&assets.map, state.active_hex())
+                        .map(|new_state| {
+                            (UiResponse::Redraw, Some(new_state.into()))
+                        })
+                        .or(Some((UiResponse::None, None)))
                 }
                 (&key::p, false) | (&key::P, false) => {
                     state.select_phase(assets, controller);
