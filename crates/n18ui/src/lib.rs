@@ -45,6 +45,7 @@
 //! These actions are performed by [UserInterface::respond].
 //!
 
+use log::error;
 use std::sync::mpsc::{Receiver, Sender};
 
 use n18game::Game;
@@ -469,9 +470,11 @@ impl UserInterface {
                 self.state = State::default_state(active_hex);
                 UiResponse::ResetGame
             } else {
+                error!("game.load() returned None");
                 UiResponse::None
             }
         } else {
+            error!("no game called '{}'", game_state.game);
             UiResponse::None
         }
     }
