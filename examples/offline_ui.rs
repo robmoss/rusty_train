@@ -23,7 +23,10 @@ fn main() {
 /// Creates a new game of 1861, places a token on the Moscow tile, rotates the
 /// Moscow tile, and upgrades the Moscow tile from yellow to green.
 fn build_ui() -> UserInterface {
-    let games = navig18xx::game::games();
+    // NOTE: only provide 1861 so that we can always select it by index,
+    // no matter which games are included in `n18game::games()`.
+    let games: Vec<Box<dyn Game>> =
+        vec![Box::new(navig18xx::game::new_1861())];
     let controller: Controller = control::DummyController::new().into();
     let keymap = Keymap::default();
     let mut ui = UserInterface::new(games, controller, keymap);
