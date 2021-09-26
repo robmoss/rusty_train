@@ -760,7 +760,7 @@ impl Default for Theme {
                 align: pango::Alignment::Center,
                 horiz: AlignH::Centre,
                 vert: AlignV::Top,
-                max_width: Some(80.0),
+                max_width: Some(85.0),
                 ..Default::default()
             },
             note_label: Text {

@@ -21,11 +21,12 @@ fn test_draw_tiles() -> Result {
     let output_dir = output::Dir::Examples;
 
     let try_files = vec![
-        ("tile_catalogue.json", 6, 14),
-        ("tile_1861.json", 8, 16),
-        ("tile_1867.json", 8, 16),
+        ("tile_catalogue.json", 8, 16, Orientation::FlatTop),
+        ("tile_1830.json", 8, 13, Orientation::PointedTop),
+        ("tile_1861.json", 8, 16, Orientation::FlatTop),
+        ("tile_1867.json", 8, 16, Orientation::FlatTop),
     ];
-    for (basename, rows, cols) in &try_files {
+    for (basename, rows, cols, orientation) in &try_files {
         let json_file = json_dir.join(basename);
         if !json_file.exists() {
             println!("{} not found", json_file.to_str().unwrap());
@@ -35,7 +36,7 @@ fn test_draw_tiles() -> Result {
         let png_basename =
             std::path::Path::new(basename).with_extension("png");
         let png_file = output_dir.join(png_basename);
-        draw_tiles(&json_file, png_file, *rows, *cols)?;
+        draw_tiles(&json_file, png_file, *rows, *cols, *orientation)?;
     }
 
     Ok(())
@@ -46,6 +47,7 @@ fn main() -> Result {
 
     let mut rows: usize = 6;
     let mut cols: usize = 14;
+    let mut orientation = Orientation::FlatTop;
     let mut json_files: Vec<String> = vec![];
 
     // Skip the first argument, which is typically the path to this
@@ -73,6 +75,12 @@ fn main() -> Result {
                     panic!("Missing argument for {}", arg)
                 }
             }
+            "-f" => {
+                orientation = Orientation::FlatTop;
+            }
+            "-p" => {
+                orientation = Orientation::PointedTop;
+            }
             _ => json_files.push(arg),
         }
     }
@@ -88,7 +96,7 @@ fn main() -> Result {
             std::path::Path::new(json_file).with_extension("png");
         let png_file = output_dir.join(png_basename);
 
-        draw_tiles(json_file, png_file, rows, cols)?;
+        draw_tiles(json_file, png_file, rows, cols, orientation)?;
     }
 
     Ok(())
@@ -99,9 +107,11 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
     png_file: std::path::PathBuf,
     rows: usize,
     cols: usize,
+    orientation: Orientation,
 ) -> Result {
     let hex_max_diameter = 125.0;
-    let hex = Hex::new(hex_max_diameter);
+    let mut hex = Hex::new(hex_max_diameter);
+    hex.set_orientation(orientation);
     let margin = 10;
     let bg_rgba = Some(Colour::WHITE);
 
@@ -119,10 +129,12 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
 
 fn print_usage() {
     println!();
-    println!("draw_tiles [-c COLS] [-r ROWS] JSON_FILES");
+    println!("draw_tiles [-c COLS] [-r ROWS] [-f|-p] JSON_FILES");
     println!();
     println!("    -c COLS       The number of tile columns");
     println!("    -r ROWS       The number of tile rows");
+    println!("    -f            Orient tiles so the top is flat (default)");
+    println!("    -p            Orient tiles so the top is pointed");
     println!("    JSON_FILES    The tile JSON file(s) to draw");
     println!();
 }
@@ -137,7 +149,7 @@ fn place_tiles(
     let tile_names = tiles.iter().map(|t| &t.name).cycle();
 
     let coords = Coordinates {
-        orientation: Orientation::FlatTop,
+        orientation: hex.orientation(),
         letters: Letters::AsColumns,
         first_row: FirstRow::OddColumns,
     };

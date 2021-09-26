@@ -1,0 +1,3309 @@
+{
+  "tiles": [
+    {
+      "name": "1",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleL": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "GentleR": "LowerLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "LowerLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "2",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "Top",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "3",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "4",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.25
+          ]
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.25,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.3
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "9",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "55",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.8
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.8,
+            1.0
+          ]
+        },
+        {
+          "Straight": "LowerLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "Straight": "LowerLeft",
+          "span": [
+            0.2,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "56",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleL": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.2,
+            1.0
+          ]
+        },
+        {
+          "GentleR": "LowerRight",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "GentleR": "LowerRight",
+          "span": [
+            0.2,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.4
+        }
+      ]
+    },
+    {
+      "name": "57",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "58",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.5
+        }
+      ]
+    },
+    {
+      "name": "69",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.2,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.8
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.8,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerRightFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "14",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "15",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "16",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleR": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "18",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "19",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "20",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "23",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "24",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "25",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "26",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "27",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "28",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "29",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "53",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "City": "B",
+          "location": "LowerRightFace",
+          "to_centre": 0.15
+        },
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "54",
+      "colour": "Green",
+      "track": [
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopLeftCorner",
+          "revenue": 60
+        },
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "City": "NY",
+          "location": "RightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "59",
+      "colour": "Green",
+      "track": [
+        {
+          "HardR": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperRight",
+          "span": [
+            0.0,
+            0.5
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "LeftCorner",
+          "revenue": 40
+        },
+        {
+          "Single": "RightCorner",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "TopFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "39",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "40",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "GentleL": "UpperRight"
+        }
+      ]
+    },
+    {
+      "name": "41",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        }
+      ]
+    },
+    {
+      "name": "42",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardR": "Top"
+        }
+      ]
+    },
+    {
+      "name": "43",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        },
+        {
+          "GentleL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "44",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "45",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardR": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "46",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "47",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "LowerLeft"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "61",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "City": "B",
+          "location": "LowerRightFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "62",
+      "colour": "Brown",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Double": "TopLeftCorner",
+          "revenue": 60
+        },
+        {
+          "Double": "BottomLeftCorner",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "City": "NY",
+          "location": "RightCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "63",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.1
+        }
+      ]
+    },
+    {
+      "name": "64",
+      "colour": "Brown",
+      "track": [
+        {
+          "HardR": "Bottom",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomRightCorner",
+          "revenue": 50
+        },
+        {
+          "Single": "TopFace",
+          "revenue": 50,
+          "to_centre": 0.6
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "65",
+      "colour": "Brown",
+      "track": [
+        {
+          "HardR": "LowerLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "LowerLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 50
+        },
+        {
+          "Single": "TopFace",
+          "revenue": 50,
+          "to_centre": 0.6
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "LowerRightFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "66",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "LowerRight",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "Straight": "LowerRight",
+          "span": [
+            0.2,
+            1.0
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "LowerRightFace",
+          "revenue": 50,
+          "to_centre": 0.2
+        },
+        {
+          "Single": "TopRightCorner",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "LeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "67",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.0,
+            0.2
+          ]
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.2,
+            1.0
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.0,
+            0.15
+          ]
+        },
+        {
+          "GentleL": "UpperLeft",
+          "span": [
+            0.15,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "BottomFace",
+          "revenue": 50,
+          "to_centre": 0.2
+        },
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 50,
+          "to_centre": 0.1
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "RightCorner",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "68",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "LowerLeft",
+          "span": [
+            0.0,
+            0.9
+          ]
+        },
+        {
+          "Straight": "LowerLeft",
+          "span": [
+            0.9,
+            1.0
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.0,
+            0.1
+          ]
+        },
+        {
+          "Straight": "UpperLeft",
+          "span": [
+            0.1,
+            1.0
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "UpperRightFace",
+          "revenue": 50,
+          "to_centre": 0.1
+        },
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 50,
+          "to_centre": 0.1
+        }
+      ],
+      "labels": [
+        {
+          "CityKind": "OO",
+          "location": "BottomFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "70",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Top"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "Chicago_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              40,
+              true
+            ],
+            [
+              "Green",
+              40,
+              false
+            ],
+            [
+              "Brown",
+              70,
+              false
+            ]
+          ],
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Chicago",
+          "location": "LowerLeftFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Chicago_Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              40,
+              false
+            ],
+            [
+              "Green",
+              40,
+              true
+            ],
+            [
+              "Brown",
+              70,
+              false
+            ]
+          ],
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Chicago",
+          "location": "LowerLeftFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Chicago_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 70
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              40,
+              false
+            ],
+            [
+              "Green",
+              40,
+              false
+            ],
+            [
+              "Brown",
+              70,
+              true
+            ]
+          ],
+          "location": "BottomLeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Chicago",
+          "location": "LowerLeftFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Deep South_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              true
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ]
+          ],
+          "location": "BottomRightCorner",
+          "to_centre": 0.5
+        },
+        {
+          "MapLocation": "Deep South",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Deep South_Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              true
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ]
+          ],
+          "location": "BottomRightCorner",
+          "to_centre": 0.5
+        },
+        {
+          "MapLocation": "Deep South",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Deep South_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              true
+            ]
+          ],
+          "location": "BottomRightCorner",
+          "to_centre": 0.5
+        },
+        {
+          "MapLocation": "Deep South",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperLeft"
+      ]
+    },
+    {
+      "name": "Maritime Provinces_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              20,
+              true
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Maritime\nProvinces",
+          "location": "TopRightCorner",
+          "nudge": [
+            "W",
+            0.1
+          ]
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Maritime Provinces_Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              20,
+              false
+            ],
+            [
+              "Green",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              30,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Maritime\nProvinces",
+          "location": "TopRightCorner",
+          "nudge": [
+            "W",
+            0.1
+          ]
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Maritime Provinces_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              20,
+              false
+            ],
+            [
+              "Green",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              30,
+              true
+            ]
+          ],
+          "location": "RightCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Maritime\nProvinces",
+          "location": "TopRightCorner",
+          "nudge": [
+            "W",
+            0.1
+          ]
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Gulf of Mexico_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              true
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              60,
+              false
+            ]
+          ],
+          "location": "LeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Gulf of\nMexico",
+          "location": "BottomFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Gulf of Mexico_Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              true
+            ],
+            [
+              "Brown",
+              60,
+              false
+            ]
+          ],
+          "location": "LeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Gulf of\nMexico",
+          "location": "BottomFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Gulf of Mexico_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              60,
+              true
+            ]
+          ],
+          "location": "LeftCorner",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Gulf of\nMexico",
+          "location": "BottomFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Top",
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Canadian West_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              true
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              50,
+              false
+            ]
+          ],
+          "location": "UpperRightFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Canadian West",
+          "location": "TopLeftCorner",
+          "to_centre": 0.3
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Canadian West_Gn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              true
+            ],
+            [
+              "Brown",
+              50,
+              false
+            ]
+          ],
+          "location": "UpperRightFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Canadian West",
+          "location": "TopLeftCorner",
+          "to_centre": 0.3
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Canadian West_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 50
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenue": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Green",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              50,
+              true
+            ]
+          ],
+          "location": "UpperRightFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Canadian West",
+          "location": "TopLeftCorner",
+          "to_centre": 0.3
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Gulf of Mexico 2",
+      "colour": "Red",
+      "track": [
+        {
+          "HardL": "UpperRight"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperRight"
+      ]
+    },
+    {
+      "name": "Canadian West 2",
+      "colour": "Red",
+      "track": [
+        {
+          "HardR": "LowerRight"
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "LowerRight"
+      ]
+    },
+    {
+      "name": "Detroit/Windsor",
+      "colour": "Yellow",
+      "cities": [
+        {
+          "Single": "RightCorner",
+          "revenue": 0,
+          "to_centre": 0.1
+        },
+        {
+          "Single": "LowerLeftFace",
+          "revenue": 0,
+          "to_centre": 0.2
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Detroit",
+          "location": "UpperLeftFace",
+          "nudge": [
+            "S30W",
+            0.2
+          ]
+        },
+        {
+          "MapLocation": "Windsor",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Note": "$80",
+          "location": "Centre"
+        },
+        {
+          "CityKind": "OO",
+          "location": "TopRightCorner",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Hamilton/Toronto",
+      "colour": "Yellow",
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 0,
+          "nudge": [
+            "N60W",
+            0.1
+          ]
+        },
+        {
+          "Single": "UpperLeftFace",
+          "revenue": 0,
+          "to_centre": 0.1
+        }
+      ],
+      "labels": [
+        {
+          "Note": "$80",
+          "location": "Centre"
+        },
+        {
+          "MapLocation": "Toronto",
+          "location": "TopRightCorner",
+          "nudge": [
+            "S30W",
+            0.1
+          ]
+        },
+        {
+          "MapLocation": "Hamilton",
+          "location": "RightCorner",
+          "nudge": [
+            "S60W",
+            0.15
+          ]
+        },
+        {
+          "CityKind": "OO",
+          "location": "BottomRightCorner",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Buffalo/Dunkirk",
+      "colour": "Yellow",
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 0,
+          "to_centre": 0.1
+        },
+        {
+          "Single": "TopFace",
+          "revenue": 0,
+          "to_centre": 0.2
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Buffalo",
+          "location": "UpperRightFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Dunkirk",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "CityKind": "OO",
+          "location": "UpperLeftFace",
+          "nudge": [
+            "S30W",
+            0.2
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Trenton/Philadelphia",
+      "colour": "Yellow",
+      "cities": [
+        {
+          "Single": "BottomLeftCorner",
+          "revenue": 0
+        },
+        {
+          "Single": "TopFace",
+          "revenue": 0,
+          "nudge": [
+            "S30E",
+            0.15
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Trenton",
+          "location": "LeftCorner",
+          "to_centre": 0.05
+        },
+        {
+          "MapLocation": "Phila-\ndelphia",
+          "location": "BottomRightCorner",
+          "nudge": [
+            "N30E",
+            0.45
+          ]
+        },
+        {
+          "CityKind": "OO",
+          "location": "UpperRightFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Baltimore",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerRightFace",
+          "to_centre": 0.15
+        },
+        {
+          "CityKind": "B",
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Baltimore",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Boston",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomFace",
+          "to_centre": 0.15
+        },
+        {
+          "CityKind": "B",
+          "location": "UpperRightFace",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Boston",
+          "location": "LeftCorner",
+          "nudge": [
+            "E",
+            0.1
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "New York",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Top",
+          "span": [
+            0.0,
+            0.25
+          ]
+        },
+        {
+          "Straight": "Bottom",
+          "span": [
+            0.0,
+            0.25
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "TopFace",
+          "revenue": 40,
+          "to_centre": 0.1
+        },
+        {
+          "Single": "BottomFace",
+          "revenue": 40,
+          "to_centre": 0.1
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.02
+        },
+        {
+          "Revenue": 0,
+          "location": "LowerRightFace",
+          "to_centre": 0.02
+        },
+        {
+          "Note": "$80",
+          "location": "Centre",
+          "nudge": [
+            "E",
+            0.1
+          ]
+        },
+        {
+          "CityKind": "NY",
+          "location": "UpperRightFace",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "New\nYork",
+          "location": "LeftCorner",
+          "nudge": [
+            "E",
+            0.25
+          ]
+        },
+        {
+          "MapLocation": "Newark",
+          "location": "RightCorner",
+          "to_centre": 0.05
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Lansing",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Lansing",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Cleveland",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Cleveland",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Altoona",
+      "colour": "Grey",
+      "track": [
+        {
+          "Straight": "LowerLeft"
+        },
+        {
+          "GentleR": "LowerLeft",
+          "span": [
+            0.0,
+            0.6
+          ]
+        },
+        {
+          "GentleL": "UpperRight",
+          "span": [
+            0.0,
+            0.6
+          ]
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30,
+          "nudge": [
+            "S",
+            0.4
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "Altoona",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.35
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Rochester",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerRightFace",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "Rochester",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Richmond",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Richmond",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Montreal",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.2
+        },
+        {
+          "MapLocation": "Montreal",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Atlantic City",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardR": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        },
+        {
+          "Note": "Atlantic City",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.2
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Fall River",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardR": "UpperLeft",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardR": "UpperLeft",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        },
+        {
+          "Note": "Fall River",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.2
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kingston",
+      "colour": "Grey",
+      "track": [
+        {
+          "GentleR": "Top",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "Top",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        },
+        {
+          "Note": "Kingston",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.2
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Grey1",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardL": "Bottom"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Flint",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Flint",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "London",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "London",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Erie",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Erie",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Burlington",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Burlington",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Akron/Canton",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Straight": "Top",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Note": "Akron",
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Note": "Canton",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Allentown/Reading",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Straight": "Top",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Note": "Allentown",
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Note": "Reading",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Hartfort/New Haven",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Straight": "Top",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.3,
+            0.3
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Note": "Hartfort",
+          "location": "TopLeftCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Note": "New Haven",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Columbus",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Columbus",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Barre",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Barre",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Pittsburgh",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Pittsburgh",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ottawa",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Ottawa",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Lancaster",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Lancaster",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Albany",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Albany",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Toledo",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Toledo",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        },
+        {
+          "Note": "$80",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Washington",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Washington",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        },
+        {
+          "Note": "$80",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Providence",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Providence",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        },
+        {
+          "Note": "$80",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Scranton",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Scranton",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        },
+        {
+          "Note": "$120",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Cost_80",
+      "colour": "Empty",
+      "labels": [
+        {
+          "Note": "$80",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Cost_120",
+      "colour": "Empty",
+      "labels": [
+        {
+          "Note": "$120",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false
+    }
+  ]
+}

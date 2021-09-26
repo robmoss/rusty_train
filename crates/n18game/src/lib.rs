@@ -6,8 +6,14 @@ use n18route::{Bonus, ConflictRule, Routes, Train, Trains};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
 
+pub mod _1830;
 pub mod _1861;
 pub mod _1867;
+
+/// Creates a new game of 1830: Railways and Robber Barons.
+pub fn new_1830() -> _1830::Game {
+    _1830::Game::default()
+}
 
 /// Creates a new game of 1861: The Railways Of The Russian Empire.
 pub fn new_1861() -> _1861::Game {
@@ -21,8 +27,11 @@ pub fn new_1867() -> _1867::Game {
 
 /// Returns a vector containing each game defined in this crate.
 pub fn games() -> Vec<Box<dyn Game>> {
-    let games: Vec<Box<dyn Game>> =
-        vec![Box::new(new_1861()), Box::new(new_1867())];
+    let games: Vec<Box<dyn Game>> = vec![
+        Box::new(new_1830()),
+        Box::new(new_1861()),
+        Box::new(new_1867()),
+    ];
     games
 }
 

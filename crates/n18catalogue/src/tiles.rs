@@ -22,6 +22,8 @@ use n18tile::{City, Label, Rotation, Tile, Track};
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Kind {
+    _1,
+    _2,
     _3,
     _4,
     _5,
@@ -56,9 +58,22 @@ pub enum Kind {
     _45,
     _46,
     _47,
+    _53,
+    _54,
+    _55,
+    _56,
     _57,
     _58,
+    _59,
+    _61,
+    _62,
     _63,
+    _64,
+    _65,
+    _66,
+    _67,
+    _68,
+    _69,
     _70,
     _87,
     _88,
@@ -103,6 +118,8 @@ pub enum Kind {
 impl Kind {
     pub fn iter() -> impl Iterator<Item = Kind> {
         static KINDS: &[Kind] = &[
+            Kind::_1,
+            Kind::_2,
             Kind::_3,
             Kind::_4,
             Kind::_5,
@@ -137,9 +154,22 @@ impl Kind {
             Kind::_45,
             Kind::_46,
             Kind::_47,
+            Kind::_53,
+            Kind::_54,
+            Kind::_55,
+            Kind::_56,
             Kind::_57,
             Kind::_58,
+            Kind::_59,
+            Kind::_61,
+            Kind::_62,
             Kind::_63,
+            Kind::_64,
+            Kind::_65,
+            Kind::_66,
+            Kind::_67,
+            Kind::_68,
+            Kind::_69,
             Kind::_70,
             Kind::_87,
             Kind::_88,
@@ -192,6 +222,40 @@ impl Kind {
         use n18tile::TrackEnd::*;
 
         match self {
+            Kind::_1 => Tile::new(
+                Yellow,
+                "1",
+                vec![
+                    Track::gentle_l(UpperLeft)
+                        .with_span(0.0, 0.5)
+                        .with_dit(End, 10, Bar),
+                    Track::gentle_l(UpperLeft).with_span(0.5, 1.0),
+                    Track::gentle_r(LowerLeft)
+                        .with_span(0.0, 0.5)
+                        .with_dit(End, 10, Bar),
+                    Track::gentle_r(LowerLeft).with_span(0.5, 1.0),
+                ],
+                vec![],
+                hex,
+            )
+            .label(Label::Revenue(0), Left.to_centre(0.2)),
+            Kind::_2 => Tile::new(
+                Yellow,
+                "2",
+                vec![
+                    Track::straight(UpperLeft)
+                        .with_span(0.0, 0.5)
+                        .with_dit(End, 10, Bar),
+                    Track::straight(UpperLeft).with_span(0.5, 1.0),
+                    Track::hard_l(Top)
+                        .with_span(0.0, 0.5)
+                        .with_dit(End, 10, Bar),
+                    Track::hard_l(Top).with_span(0.5, 1.0),
+                ],
+                vec![],
+                hex,
+            )
+            .label(Label::Revenue(0), LowerLeft.to_centre(0.2)),
             Kind::_3 => Tile::new(
                 Yellow,
                 "3",
@@ -497,6 +561,70 @@ impl Kind {
                 vec![],
                 hex,
             ),
+            Kind::_53 => Tile::new(
+                Green,
+                "53",
+                vec![
+                    Track::straight(Bottom).with_span(0.0, 0.5),
+                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                ],
+                vec![City::single(50)],
+                hex,
+            )
+            .label(Label::City("B".to_string()), LowerRight.to_centre(0.15))
+            .label(Label::Revenue(0), LowerLeft.to_centre(0.15)),
+            Kind::_54 => Tile::new(
+                Green,
+                "54",
+                vec![
+                    Track::hard_l(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_l(UpperLeft).with_span(0.5, 1.0),
+                    Track::hard_l(Bottom).with_span(0.0, 0.5),
+                    Track::hard_l(Bottom).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::single_at_corner(60, &TopLeft),
+                    City::single_at_corner(60, &BottomLeft),
+                ],
+                hex,
+            )
+            .label(Label::City("NY".to_string()), Right.to_centre(0.25))
+            .label(Label::Revenue(0), Centre(None)),
+            Kind::_55 => Tile::new(
+                Yellow,
+                "55",
+                vec![
+                    Track::straight(UpperLeft)
+                        .with_span(0.0, 0.8)
+                        .with_dit(End, 10, Bar),
+                    Track::straight(UpperLeft).with_span(0.8, 1.0),
+                    Track::straight(LowerLeft)
+                        .with_span(0.0, 0.2)
+                        .with_dit(End, 10, Bar),
+                    Track::straight(LowerLeft).with_span(0.2, 1.0),
+                ],
+                vec![],
+                hex,
+            )
+            .label(Label::Revenue(0), Bottom.to_centre(0.2)),
+            Kind::_56 => Tile::new(
+                Yellow,
+                "56",
+                vec![
+                    Track::gentle_l(UpperLeft)
+                        .with_span(0.0, 0.2)
+                        .with_dit(End, 10, Bar),
+                    Track::gentle_l(UpperLeft).with_span(0.2, 1.0),
+                    Track::gentle_r(LowerRight)
+                        .with_span(0.0, 0.2)
+                        .with_dit(End, 10, Bar),
+                    Track::gentle_r(LowerRight).with_span(0.2, 1.0),
+                ],
+                vec![],
+                hex,
+            )
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.4)),
             Kind::_57 => Tile::new(
                 Yellow,
                 "57",
@@ -518,6 +646,52 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), UpperLeft.to_centre(0.5)),
+            Kind::_59 => Tile::new(
+                Green,
+                "59",
+                vec![
+                    Track::hard_r(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_l(UpperRight).with_span(0.0, 0.5),
+                ],
+                vec![
+                    City::single_at_corner(40, &Left),
+                    City::single_at_corner(40, &Right),
+                ],
+                hex,
+            )
+            .label(Label::CityKind("OO".to_string()), Top.to_centre(0.2))
+            .label(Label::Revenue(0), Centre(None)),
+            Kind::_61 => Tile::new(
+                Brown,
+                "61",
+                vec![
+                    Track::straight(Bottom).with_span(0.0, 0.5),
+                    Track::straight(UpperLeft).with_span(0.0, 0.5),
+                    Track::straight(Top).with_span(0.0, 0.5),
+                    Track::straight(UpperRight).with_span(0.0, 0.5),
+                ],
+                vec![City::single(60)],
+                hex,
+            )
+            .label(Label::City("B".to_string()), LowerRight.to_centre(0.2))
+            .label(Label::Revenue(0), LowerLeft.to_centre(0.2)),
+            Kind::_62 => Tile::new(
+                Brown,
+                "62",
+                vec![
+                    Track::hard_l(Bottom).with_span(0.0, 0.5),
+                    Track::hard_l(Bottom).with_span(0.5, 1.0),
+                    Track::hard_l(UpperLeft).with_span(0.0, 0.5),
+                    Track::hard_l(UpperLeft).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::double_at_corner(60, &TopLeft),
+                    City::double_at_corner(60, &BottomLeft),
+                ],
+                hex,
+            )
+            .label(Label::City("NY".to_string()), Right.to_centre(0.2))
+            .label(Label::Revenue(0), Centre(None)),
             Kind::_63 => Tile::new(
                 Brown,
                 "63",
@@ -533,6 +707,115 @@ impl Kind {
                 hex,
             )
             .label(Label::Revenue(0), TopLeft.to_centre(0.1)),
+            Kind::_64 => Tile::new(
+                Brown,
+                "64",
+                vec![
+                    Track::hard_r(Bottom).with_span(0.0, 0.5),
+                    Track::hard_r(Bottom).with_span(0.5, 1.0),
+                    Track::gentle_l(UpperLeft).with_span(0.0, 0.5),
+                    Track::gentle_l(UpperLeft).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::single_at_corner(50, &BottomRight),
+                    City::single_at_face(50, &Top).to_centre(0.6),
+                ],
+                hex,
+            )
+            .label(
+                Label::CityKind("OO".to_string()),
+                LowerLeft.to_centre(0.2),
+            )
+            .label(Label::Revenue(0), Right.to_centre(0.2)),
+
+            Kind::_65 => Tile::new(
+                Brown,
+                "65",
+                vec![
+                    Track::hard_r(LowerLeft).with_span(0.0, 0.5),
+                    Track::hard_r(LowerLeft).with_span(0.5, 1.0),
+                    Track::gentle_l(UpperLeft).with_span(0.0, 0.5),
+                    Track::gentle_l(UpperLeft).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::single_at_corner(50, &BottomLeft),
+                    City::single_at_face(50, &Top).to_centre(0.6),
+                ],
+                hex,
+            )
+            .label(
+                Label::CityKind("OO".to_string()),
+                LowerRight.to_centre(0.2),
+            )
+            .label(Label::Revenue(0), Left.to_centre(0.2)),
+            Kind::_66 => Tile::new(
+                Brown,
+                "66",
+                vec![
+                    Track::straight(LowerRight).with_span(0.0, 0.2),
+                    Track::straight(LowerRight).with_span(0.2, 1.0),
+                    Track::hard_l(Top).with_span(0.0, 0.5),
+                    Track::hard_l(Top).with_span(0.5, 1.0),
+                ],
+                vec![
+                    City::single_at_face(50, &LowerRight).to_centre(0.2),
+                    City::single_at_corner(50, &TopRight),
+                ],
+                hex,
+            )
+            .label(Label::CityKind("OO".to_string()), Left.to_centre(0.2))
+            .label(Label::Revenue(0), BottomLeft.to_centre(0.2)),
+            Kind::_67 => Tile::new(
+                Brown,
+                "67",
+                vec![
+                    Track::straight(Bottom).with_span(0.0, 0.2),
+                    Track::straight(Bottom).with_span(0.2, 1.0),
+                    Track::gentle_l(UpperLeft).with_span(0.0, 0.15),
+                    Track::gentle_l(UpperLeft).with_span(0.15, 1.0),
+                ],
+                vec![
+                    City::single_at_face(50, &Bottom).to_centre(0.2),
+                    City::single_at_face(50, &UpperLeft).to_centre(0.1),
+                ],
+                hex,
+            )
+            .label(Label::CityKind("OO".to_string()), Right.to_centre(0.2))
+            .label(Label::Revenue(0), LowerLeft.to_centre(0.2)),
+            Kind::_68 => Tile::new(
+                Brown,
+                "68",
+                vec![
+                    Track::straight(LowerLeft).with_span(0.0, 0.9),
+                    Track::straight(LowerLeft).with_span(0.9, 1.0),
+                    Track::straight(UpperLeft).with_span(0.0, 0.1),
+                    Track::straight(UpperLeft).with_span(0.1, 1.0),
+                ],
+                vec![
+                    City::single_at_face(50, &UpperRight).to_centre(0.1),
+                    City::single_at_face(50, &UpperLeft).to_centre(0.1),
+                ],
+                hex,
+            )
+            .label(Label::CityKind("OO".to_string()), Bottom.to_centre(0.2))
+            .label(Label::Revenue(0), Top.to_centre(0.2)),
+            Kind::_69 => Tile::new(
+                Yellow,
+                "69",
+                vec![
+                    Track::straight(Bottom)
+                        .with_span(0.0, 0.2)
+                        .with_dit(End, 10, Bar),
+                    Track::straight(Bottom).with_span(0.2, 1.0),
+                    Track::gentle_l(UpperLeft)
+                        .with_span(0.0, 0.8)
+                        .with_dit(End, 10, Bar),
+                    Track::gentle_l(UpperLeft).with_span(0.8, 1.0),
+                ],
+                vec![],
+                hex,
+            )
+            .label(Label::Revenue(0), LowerRight.to_centre(0.2)),
             Kind::_70 => Tile::new(
                 Brown,
                 "70",
