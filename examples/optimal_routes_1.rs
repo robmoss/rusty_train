@@ -32,9 +32,12 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         tile_at("124", "C1").rotate_cw(2),
         tile_at("801", "D2"),
     ];
-    let orientation = Orientation::FlatTop;
-    let mut example =
-        Example::new(hex_max_diameter, tokens, tiles, orientation);
+    let coords = Coordinates {
+        orientation: Orientation::FlatTop,
+        letters: Letters::AsColumns,
+        first_row: FirstRow::OddColumns,
+    };
+    let mut example = Example::new(hex_max_diameter, tokens, tiles, coords);
 
     // The different train combinations.
     let (t8, t2p2) = (

@@ -153,7 +153,7 @@ fn save_1867_bc_routes(
 
         // Draw the best routes and save the image to disk.
         state.example.erase_all()?;
-        draw_routes(&mut state.example, company, &routes)?;
+        draw_routes(&mut state.example, &*state.game, company, &routes)?;
         save_png(&state.example, image_file);
 
         // If the best routes were calculated, save them to disk.
@@ -329,6 +329,7 @@ fn best_routes(
 
 fn draw_routes(
     example: &mut Example,
+    game: &dyn Game,
     company: &CompanyInfo,
     routes: &Routes,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -361,8 +362,9 @@ fn draw_routes(
     // because we're only drawing a subset of the map and the full surface
     // will be cropped to the inked portion.
     // Instead, draw the label relative to a known hex address.
+    let coords = game.coordinate_system();
     let m = example.map().prepare_to_draw(
-        "A5".parse().unwrap(),
+        coords.parse("A5").unwrap(),
         example.hex(),
         example.context(),
     );

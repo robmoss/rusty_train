@@ -58,11 +58,18 @@ fn main() -> Result<()> {
         tile_at("8", "C13").rotate_cw(1),
         tile_at("6", "D14").rotate_cw(2).token(0, name_a),
     ];
-    let orientation = Orientation::FlatTop;
-    let example = Example::new(hex_max_diameter, tokens, tiles, orientation);
+    let coords = Coordinates {
+        orientation: Orientation::FlatTop,
+        letters: Letters::AsColumns,
+        first_row: FirstRow::OddColumns,
+    };
+    let example = Example::new(hex_max_diameter, tokens, tiles, coords);
 
     let map = example.map();
-    let route1 = RouteBuilder::from_edge(map, "A1", HexFace::LowerRight)?
+    let a1 = coords.parse("A1").unwrap();
+    let a3 = coords.parse("A3").unwrap();
+
+    let route1 = RouteBuilder::from_edge(map, a1, HexFace::LowerRight)?
         .to_city(0, true)?
         .to_edge(HexFace::Bottom)?
         .to_edge(HexFace::Bottom)?
@@ -73,7 +80,7 @@ fn main() -> Result<()> {
         .to_city(0, false)?
         .to_edge(HexFace::Bottom)?
         .into_route();
-    let route2 = RouteBuilder::from_edge(map, "A3", HexFace::Top)?
+    let route2 = RouteBuilder::from_edge(map, a3, HexFace::Top)?
         .to_edge(HexFace::Bottom)?
         .to_city(0, true)?
         .into_route();

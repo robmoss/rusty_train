@@ -6,7 +6,7 @@
 //! # extern crate cairo;
 //! # use cairo::{Context, ImageSurface};
 //! # use n18hex::{Colour, Hex, Orientation};
-//! # use n18map::Map;
+//! # use n18map::{Map, Coordinates, Letters, FirstRow};
 //! # use n18token::Tokens;
 //! # use n18route::builder::Result;
 //! use n18route::builder::RouteBuilder;
@@ -24,7 +24,14 @@
 //! // let hex: n18hex::Hex = ...
 //! // let map: n18map::Map = ...
 //! // let ctx: cairo::Context = ...
-//! let route = RouteBuilder::from_edge(&map, "A1", HexFace::LowerRight)?
+//! // Define the coordinate system.
+//! let coords = Coordinates {
+//!     orientation: Orientation::FlatTop,
+//!     letters: Letters::AsColumns,
+//!     first_row: FirstRow::OddColumns,
+//! };
+//! let a1 = coords.parse("A1").unwrap();
+//! let route = RouteBuilder::from_edge(&map, a1, HexFace::LowerRight)?
 //!     .to_city(0, true)?
 //!     .to_edge(HexFace::Bottom)?
 //!     .to_edge(HexFace::Bottom)?
@@ -184,12 +191,9 @@ impl<'a> RouteBuilder<'a> {
     /// the tile's rotation on the map.
     pub fn from_tile_face(
         map: &'a Map,
-        addr: &str,
+        addr: HexAddress,
         face: HexFace,
     ) -> Result<Self> {
-        let addr = addr
-            .parse()
-            .map_err(|_| Error::InvalidHexAddress(addr.to_string()))?;
         map.tile_at(addr).ok_or(Error::NoTileAtHex(addr))?;
         let start = Step {
             addr,
@@ -203,21 +207,19 @@ impl<'a> RouteBuilder<'a> {
     /// the tile's innate orientation.
     pub fn from_edge(
         map: &'a Map,
-        addr: &str,
+        addr: HexAddress,
         face: HexFace,
     ) -> Result<Self> {
-        let tile_addr = addr
-            .parse()
-            .map_err(|_| Error::InvalidHexAddress(addr.to_string()))?;
-        let tile_face = edge_to_tile_face(map, tile_addr, face)?;
+        let tile_face = edge_to_tile_face(map, addr, face)?;
         Self::from_tile_face(map, addr, tile_face)
     }
 
     /// Start building a path from the city space `ix` of a tile.
-    pub fn from_city(map: &'a Map, addr: &str, ix: usize) -> Result<Self> {
-        let addr = addr
-            .parse()
-            .map_err(|_| Error::InvalidHexAddress(addr.to_string()))?;
+    pub fn from_city(
+        map: &'a Map,
+        addr: HexAddress,
+        ix: usize,
+    ) -> Result<Self> {
         // NOTE: ensure that this initial step is valid.
         let tile = map.tile_at(addr).ok_or(Error::NoTileAtHex(addr))?;
         if tile.cities().len() <= ix {
@@ -231,10 +233,11 @@ impl<'a> RouteBuilder<'a> {
     }
 
     /// Start building a path from the dit `ix` of a tile.
-    pub fn from_dit(map: &'a Map, addr: &str, ix: usize) -> Result<Self> {
-        let addr = addr
-            .parse()
-            .map_err(|_| Error::InvalidHexAddress(addr.to_string()))?;
+    pub fn from_dit(
+        map: &'a Map,
+        addr: HexAddress,
+        ix: usize,
+    ) -> Result<Self> {
         // NOTE: ensure that this initial step is valid.
         let tile = map.tile_at(addr).ok_or(Error::NoTileAtHex(addr))?;
         if tile.dits().len() <= ix {

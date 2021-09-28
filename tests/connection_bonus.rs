@@ -37,6 +37,7 @@ fn test_connection_bonus_between_two_dits() {
         margin + rows * (hex_width as f32 * 0.88) as i32,
     );
     let game = navig18xx::game::new_1867();
+    let coords = game.coordinate_system();
     let hex = Hex::new(hex_width as f64);
     let mut map = game.create_map(&hex);
     let company_token = *game.first_token();
@@ -61,26 +62,70 @@ fn test_connection_bonus_between_two_dits() {
     // * F12 #8  Zero
     // * F14 #9  Zero
     println!("Placing tiles");
-    assert!(map.place_tile("M13".parse().unwrap(), "3", RotateCW::Two));
-    assert!(map.place_tile("M11".parse().unwrap(), "8", RotateCW::Two));
-    assert!(map.place_tile("L10".parse().unwrap(), "58", RotateCW::One));
-    assert!(map.place_tile("K11".parse().unwrap(), "8", RotateCW::Zero));
-    assert!(map.place_tile("K13".parse().unwrap(), "58", RotateCW::Three));
-    assert!(map.place_tile("J14".parse().unwrap(), "8", RotateCW::Four));
-    assert!(map.place_tile("I13".parse().unwrap(), "8", RotateCW::One));
-    assert!(map.place_tile("H14".parse().unwrap(), "3", RotateCW::Three));
-    assert!(map.place_tile("H12".parse().unwrap(), "9", RotateCW::Zero));
-    assert!(map.place_tile("H10".parse().unwrap(), "3", RotateCW::Zero));
-    assert!(map.place_tile("G11".parse().unwrap(), "9", RotateCW::One));
-    assert!(map.place_tile("F12".parse().unwrap(), "8", RotateCW::Zero));
-    assert!(map.place_tile("F14".parse().unwrap(), "9", RotateCW::Zero));
+    assert!(map.place_tile(coords.parse("M13").unwrap(), "3", RotateCW::Two));
+    assert!(map.place_tile(coords.parse("M11").unwrap(), "8", RotateCW::Two));
+    assert!(map.place_tile(
+        coords.parse("L10").unwrap(),
+        "58",
+        RotateCW::One
+    ));
+    assert!(map.place_tile(
+        coords.parse("K11").unwrap(),
+        "8",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(
+        coords.parse("K13").unwrap(),
+        "58",
+        RotateCW::Three
+    ));
+    assert!(map.place_tile(
+        coords.parse("J14").unwrap(),
+        "8",
+        RotateCW::Four
+    ));
+    assert!(map.place_tile(coords.parse("I13").unwrap(), "8", RotateCW::One));
+    assert!(map.place_tile(
+        coords.parse("H14").unwrap(),
+        "3",
+        RotateCW::Three
+    ));
+    assert!(map.place_tile(
+        coords.parse("H12").unwrap(),
+        "9",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(
+        coords.parse("H10").unwrap(),
+        "3",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(coords.parse("G11").unwrap(), "9", RotateCW::One));
+    assert!(map.place_tile(
+        coords.parse("F12").unwrap(),
+        "8",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(
+        coords.parse("F14").unwrap(),
+        "9",
+        RotateCW::Zero
+    ));
     // Upgrade the Montreal tile.
-    assert!(map.place_tile("L12".parse().unwrap(), "X2", RotateCW::Zero));
+    assert!(map.place_tile(
+        coords.parse("L12").unwrap(),
+        "X2",
+        RotateCW::Zero
+    ));
     // Upgrade the Toronto tile.
-    assert!(map.place_tile("F16".parse().unwrap(), "120", RotateCW::Zero));
+    assert!(map.place_tile(
+        coords.parse("F16").unwrap(),
+        "120",
+        RotateCW::Zero
+    ));
 
     // NOTE: must place an LP token for the train(s) to operate.
-    let toronto = "F16".parse().unwrap();
+    let toronto = coords.parse("F16").unwrap();
     let hex_tile = map.tile_at(toronto).unwrap();
     let token_space = hex_tile.token_spaces()[1];
     let map_hex = map.hex_state_mut(toronto).unwrap();
@@ -114,10 +159,10 @@ fn test_connection_bonus_between_two_dits() {
     assert!(best.train_routes.len() == 1);
     let best_route = &best.train_routes[0].route;
     // NOTE: it picks L10 and M13 --- the two dits closest to Montreal.
-    let l_10 = "L10".parse().unwrap();
-    let m_13 = "M13".parse().unwrap();
-    let k_13 = "K13".parse().unwrap();
-    let h_10 = "H10".parse().unwrap();
+    let l_10 = coords.parse("L10").unwrap();
+    let m_13 = coords.parse("M13").unwrap();
+    let k_13 = coords.parse("K13").unwrap();
+    let h_10 = coords.parse("H10").unwrap();
     for visit in &best_route.visits {
         if visit.addr == l_10 || visit.addr == m_13 {
             // Verify that this route stops at L10 and M13.
@@ -149,8 +194,8 @@ fn test_connection_bonus_between_two_dits() {
     // Now add a connection bonus that requires the train to stop at two of
     // the skipped dits.
     let conn_bonus = vec![Bonus::ConnectionBonus {
-        from: "K13".parse().unwrap(),
-        to_any: vec!["H10".parse().unwrap()],
+        from: coords.parse("K13").unwrap(),
+        to_any: vec![coords.parse("H10").unwrap()],
         bonus: 100,
     }];
     let new_best_conn_opt = company_trains.select_routes(paths, conn_bonus);

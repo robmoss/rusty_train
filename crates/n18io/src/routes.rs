@@ -2,46 +2,6 @@
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-struct HexAddress {
-    addr: n18map::HexAddress,
-}
-
-impl std::convert::From<n18map::HexAddress> for HexAddress {
-    fn from(src: n18map::HexAddress) -> Self {
-        Self { addr: src }
-    }
-}
-
-impl std::convert::From<HexAddress> for n18map::HexAddress {
-    fn from(src: HexAddress) -> Self {
-        src.addr
-    }
-}
-
-// See https://github.com/serde-rs/serde/issues/1316
-impl<'de> Deserialize<'de> for HexAddress {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let addr: n18map::HexAddress = String::deserialize(deserializer)?
-            .parse()
-            .map_err(serde::de::Error::custom)?;
-        Ok(Self { addr })
-    }
-}
-
-// See https://github.com/serde-rs/serde/issues/1316
-impl Serialize for HexAddress {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.collect_str(&self.addr)
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
 enum StopLocation {
     City { ix: usize },
@@ -72,7 +32,7 @@ impl std::convert::From<StopLocation> for n18route::StopLocation {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
 struct Visit {
-    addr: HexAddress,
+    addr: (isize, isize),
     revenue: usize,
     visits: StopLocation,
 }
@@ -141,7 +101,7 @@ impl std::convert::From<Connection> for n18tile::Connection {
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
 struct Step {
-    addr: HexAddress,
+    addr: (isize, isize),
     conn: Connection,
 }
 
@@ -347,9 +307,18 @@ mod tests {
     use std::fs::File;
     use std::io::BufReader;
 
+    use n18hex::Orientation;
+    use n18map::{Coordinates, FirstRow, Letters};
+
     use super::*;
 
     static OUT_DIR: &str = "../../tests/output";
+
+    const COORDS: Coordinates = Coordinates {
+        orientation: Orientation::FlatTop,
+        first_row: FirstRow::OddColumns,
+        letters: Letters::AsColumns,
+    };
 
     fn output_path(file: &'static str) -> std::path::PathBuf {
         std::path::Path::new(OUT_DIR).join(file)
@@ -358,20 +327,21 @@ mod tests {
     #[test]
     fn json_hex_address_round_trip() {
         let filename = output_path("test-hex_address_round_trip.json");
-        let addr: n18map::HexAddress = "A5".parse().unwrap();
-        let de_in = HexAddress { addr };
+        let addr = COORDS.parse("A5").unwrap();
+        let de_in: (isize, isize) = addr.into();
+        assert_eq!(de_in, (2, 0));
         let file = File::create(&filename).unwrap();
         serde_json::to_writer(file, &de_in).unwrap();
         let file = File::open(&filename).unwrap();
         let reader = BufReader::new(file);
-        let de_out: HexAddress = serde_json::from_reader(reader).unwrap();
-        assert_eq!(de_in.addr, de_out.addr);
+        let de_out: (isize, isize) = serde_json::from_reader(reader).unwrap();
+        assert_eq!(de_in, de_out);
     }
 
     #[test]
     fn json_visit_round_trip() {
         let filename = output_path("test-visit_round_trip.json");
-        let addr: n18map::HexAddress = "A5".parse().unwrap();
+        let addr = COORDS.parse("A5").unwrap();
         let visit_in = n18route::Visit {
             addr,
             revenue: 50,

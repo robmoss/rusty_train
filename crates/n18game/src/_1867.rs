@@ -10,10 +10,16 @@ use n18catalogue::{Builder, Catalogue, Kind};
 use n18hex::{
     Colour, Hex, HexColour, HexFace, HexPosition, Orientation, RotateCW,
 };
-use n18map::{HexAddress, Map};
+use n18map::{Coordinates, FirstRow, HexAddress, Letters, Map};
 use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Token, TokenStyle};
+
+const COORDS: Coordinates = Coordinates {
+    orientation: Orientation::FlatTop,
+    first_row: FirstRow::OddColumns,
+    letters: Letters::AsColumns,
+};
 
 fn addrs() -> Vec<(isize, isize)> {
     vec![
@@ -308,25 +314,26 @@ impl Game {
             })
             .collect();
 
+        let parse = |text| COORDS.parse(text);
         let barriers = vec![
             // The two ports.
-            ("E19".parse().unwrap(), n18hex::HexFace::UpperLeft),
-            ("H16".parse().unwrap(), n18hex::HexFace::Top),
+            (parse("E19").unwrap(), n18hex::HexFace::UpperLeft),
+            (parse("H16").unwrap(), n18hex::HexFace::Top),
             // Lake Huron
-            ("C11".parse().unwrap(), n18hex::HexFace::Top),
-            ("C11".parse().unwrap(), n18hex::HexFace::Bottom),
-            ("D10".parse().unwrap(), n18hex::HexFace::UpperLeft),
-            ("D10".parse().unwrap(), n18hex::HexFace::LowerLeft),
-            ("D10".parse().unwrap(), n18hex::HexFace::Bottom),
-            ("D10".parse().unwrap(), n18hex::HexFace::LowerRight),
-            ("D12".parse().unwrap(), n18hex::HexFace::UpperRight),
+            (parse("C11").unwrap(), n18hex::HexFace::Top),
+            (parse("C11").unwrap(), n18hex::HexFace::Bottom),
+            (parse("D10").unwrap(), n18hex::HexFace::UpperLeft),
+            (parse("D10").unwrap(), n18hex::HexFace::LowerLeft),
+            (parse("D10").unwrap(), n18hex::HexFace::Bottom),
+            (parse("D10").unwrap(), n18hex::HexFace::LowerRight),
+            (parse("D12").unwrap(), n18hex::HexFace::UpperRight),
             // St Lawrence River
-            ("M11".parse().unwrap(), n18hex::HexFace::UpperLeft),
-            ("M11".parse().unwrap(), n18hex::HexFace::Top),
-            ("N10".parse().unwrap(), n18hex::HexFace::UpperLeft),
-            ("N10".parse().unwrap(), n18hex::HexFace::Top),
-            ("O9".parse().unwrap(), n18hex::HexFace::UpperLeft),
-            ("O9".parse().unwrap(), n18hex::HexFace::Top),
+            (parse("M11").unwrap(), n18hex::HexFace::UpperLeft),
+            (parse("M11").unwrap(), n18hex::HexFace::Top),
+            (parse("N10").unwrap(), n18hex::HexFace::UpperLeft),
+            (parse("N10").unwrap(), n18hex::HexFace::Top),
+            (parse("O9").unwrap(), n18hex::HexFace::UpperLeft),
+            (parse("O9").unwrap(), n18hex::HexFace::Top),
         ];
         let phase = 0;
         let phase_names = vec!["2", "3", "4", "5", "6", "7", "8"];
@@ -349,7 +356,12 @@ impl super::Game for Game {
 
     /// The orientation of the map hexes.
     fn hex_orientation(&self) -> Orientation {
-        Orientation::FlatTop
+        COORDS.orientation
+    }
+
+    /// The coordinate system used to identify map hexes.
+    fn coordinate_system(&self) -> Coordinates {
+        COORDS
     }
 
     /// Returns the companies in this game.

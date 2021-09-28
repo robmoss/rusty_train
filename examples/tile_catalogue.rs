@@ -11,8 +11,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hex = Hex::new(hex_max_diameter);
     let tiles = tile_catalogue();
-    let example =
-        place_tiles(hex, &tiles, num_rows, num_cols, Orientation::FlatTop);
+    let coords = Coordinates {
+        orientation: Orientation::FlatTop,
+        letters: Letters::AsColumns,
+        first_row: FirstRow::OddColumns,
+    };
+    let example = place_tiles(hex, &tiles, num_rows, num_cols, coords);
     example.draw_map();
     example.write_png(margin, bg_rgba, png_file);
 
@@ -24,8 +28,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // NOTE: this method returns special tiles too.
     let tiles = game.clone_tiles();
     let hex = Hex::new(hex_max_diameter);
-    let example =
-        place_tiles(hex, &tiles, num_rows, num_cols, game.hex_orientation());
+    let example = place_tiles(
+        hex,
+        &tiles,
+        num_rows,
+        num_cols,
+        game.coordinate_system(),
+    );
     example.draw_map();
     example.write_png(margin, bg_rgba, png_file);
 
@@ -37,7 +46,7 @@ fn place_tiles(
     tiles: &[Tile],
     rows: usize,
     cols: usize,
-    orientation: Orientation,
+    coords: Coordinates,
 ) -> Example {
     // Build an iterator over tile names for the tile catalogue.
     let tile_names = tiles.iter().map(|t| &t.name).cycle();
@@ -61,11 +70,5 @@ fn place_tiles(
         .collect();
 
     let tokens: Vec<(String, _)> = vec![];
-    Example::new_catalogue(
-        hex,
-        tokens,
-        placed_tiles,
-        tiles.to_vec(),
-        orientation,
-    )
+    Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec(), coords)
 }

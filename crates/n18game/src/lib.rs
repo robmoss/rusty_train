@@ -1,7 +1,7 @@
 use log::info;
 use n18catalogue::Catalogue;
 use n18hex::{Hex, Orientation};
-use n18map::Map;
+use n18map::{Coordinates, Map};
 use n18route::{Bonus, ConflictRule, Routes, Train, Trains};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
@@ -65,6 +65,9 @@ pub trait Game {
 
     /// The orientation of the map hexes.
     fn hex_orientation(&self) -> Orientation;
+
+    /// The coordinate system used to identify map hexes.
+    fn coordinate_system(&self) -> Coordinates;
 
     /// Creates the initial map for this game.
     fn create_map(&self, hex: &Hex) -> Map;

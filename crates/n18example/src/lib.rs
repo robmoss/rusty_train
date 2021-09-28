@@ -4,8 +4,8 @@ use cairo::{Content, Context, Format, RecordingSurface};
 use n18brush as brush;
 use n18game::Game;
 use n18hex::theme::Text;
-use n18hex::{Colour, Hex, Orientation, RotateCW, Theme};
-use n18map::{HexAddress, Map};
+use n18hex::{Colour, Hex, RotateCW, Theme};
+use n18map::{Coordinates, HexAddress, Map};
 use n18route::{Path, Route};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
@@ -14,6 +14,7 @@ use std::ops::Deref;
 pub struct Example {
     hex: Hex,
     map: Map,
+    coords: Coordinates,
     rec_surf: cairo::RecordingSurface,
     rec_ctx: cairo::Context,
 }
@@ -23,7 +24,7 @@ impl Example {
         hex: H,
         tokens: Vec<(T, Token)>,
         tiles: Vec<PlacedTile>,
-        orientation: Orientation,
+        coords: Coordinates,
     ) -> Self {
         let hex = hex.into();
         let all_tiles = n18catalogue::tile_catalogue().into();
@@ -32,9 +33,11 @@ impl Example {
             .map(|(name, style)| (name.to_string(), style))
             .collect();
         let token_mgr = Tokens::new(tokens);
-        let hexes: Vec<HexAddress> =
-            tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
-        let map = Map::new(all_tiles, token_mgr, hexes, orientation);
+        let hexes: Vec<HexAddress> = tiles
+            .iter()
+            .map(|t| coords.parse(t.addr).unwrap())
+            .collect();
+        let map = Map::new(all_tiles, token_mgr, hexes, coords.orientation);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
         let rec_ctx =
@@ -42,6 +45,7 @@ impl Example {
         let mut example = Example {
             hex,
             map,
+            coords,
             rec_surf,
             rec_ctx,
         };
@@ -52,6 +56,7 @@ impl Example {
     pub fn new_game<H: Into<Hex>>(game: &dyn Game, hex: H) -> Self {
         let hex = hex.into();
         let map = game.create_map(&hex);
+        let coords = game.coordinate_system();
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
         let rec_ctx =
@@ -59,6 +64,7 @@ impl Example {
         Example {
             hex,
             map,
+            coords,
             rec_surf,
             rec_ctx,
         }
@@ -69,7 +75,7 @@ impl Example {
         tokens: Vec<(T, Token)>,
         tiles: Vec<PlacedTile>,
         catalogue: Vec<Tile>,
-        orientation: Orientation,
+        coords: Coordinates,
     ) -> Self {
         let hex = hex.into();
         let tokens = tokens
@@ -77,10 +83,16 @@ impl Example {
             .map(|(name, style)| (name.to_string(), style))
             .collect();
         let token_mgr = Tokens::new(tokens);
-        let hexes: Vec<HexAddress> =
-            tiles.iter().map(|t| t.addr.parse().unwrap()).collect();
+        let hexes: Vec<HexAddress> = tiles
+            .iter()
+            .map(|t| {
+                coords.parse(t.addr).unwrap_or_else(|_| {
+                    panic!("Could not parse address {}", t.addr)
+                })
+            })
+            .collect();
         let catalogue = catalogue.into();
-        let map = Map::new(catalogue, token_mgr, hexes, orientation);
+        let map = Map::new(catalogue, token_mgr, hexes, coords.orientation);
         let rec_surf = RecordingSurface::create(Content::ColorAlpha, None)
             .expect("Can't create recording surface");
         let rec_ctx =
@@ -88,6 +100,7 @@ impl Example {
         let mut example = Example {
             hex,
             map,
+            coords,
             rec_surf,
             rec_ctx,
         };
@@ -97,7 +110,7 @@ impl Example {
 
     pub fn place_tiles(&mut self, tiles: Vec<PlacedTile>) {
         for tile in tiles {
-            let addr = tile.addr.parse().unwrap();
+            let addr = self.coords.parse(tile.addr).unwrap();
             assert!(self.map.place_tile(addr, tile.name, tile.rotn));
             if !tile.toks.is_empty() {
                 let hex_tile = self.map.tile_at(addr).unwrap();

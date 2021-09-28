@@ -127,6 +127,15 @@ pub use n18map::Map;
 pub use n18map::HexAddress;
 
 #[doc(inline)]
+pub use n18map::Coordinates;
+
+#[doc(inline)]
+pub use n18map::Letters;
+
+#[doc(inline)]
+pub use n18map::FirstRow;
+
+#[doc(inline)]
 pub use n18map::TokensTable;
 
 #[doc(inline)]

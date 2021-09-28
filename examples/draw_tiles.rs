@@ -136,6 +136,12 @@ fn place_tiles(
     // Build an iterator over tile names for the tile catalogue.
     let tile_names = tiles.iter().map(|t| &t.name).cycle();
 
+    let coords = Coordinates {
+        orientation: Orientation::FlatTop,
+        letters: Letters::AsColumns,
+        first_row: FirstRow::OddColumns,
+    };
+
     // Build an iterator over the map hexes.
     let mut tile_addrs: Vec<String> = vec![];
     let rows: Vec<isize> = (0..rows as isize).collect();
@@ -143,7 +149,8 @@ fn place_tiles(
     for row in &rows {
         for col in &cols {
             let addr = HexAddress::new(*row, *col);
-            tile_addrs.push(format!("{}", addr))
+            let addr_string = coords.format(&addr).unwrap();
+            tile_addrs.push(addr_string)
         }
     }
 
@@ -155,12 +162,6 @@ fn place_tiles(
         .collect();
 
     let tokens: Vec<(String, _)> = vec![];
-    let orientation = Orientation::FlatTop;
-    Example::new_catalogue(
-        hex,
-        tokens,
-        placed_tiles,
-        tiles.to_vec(),
-        orientation,
-    )
+
+    Example::new_catalogue(hex, tokens, placed_tiles, tiles.to_vec(), coords)
 }

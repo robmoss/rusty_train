@@ -10,7 +10,7 @@ use n18catalogue::{Builder, Catalogue, Kind};
 use n18hex::{
     Colour, Hex, HexColour, HexFace, HexPosition, Orientation, RotateCW,
 };
-use n18map::{HexAddress, Map};
+use n18map::{Coordinates, FirstRow, HexAddress, Letters, Map};
 use n18route::{Bonus, ConflictRule, Train, TrainType};
 use n18tile::{Label, Tile};
 use n18token::{Token, TokenStyle};
@@ -166,6 +166,15 @@ impl super::Game for Game {
     /// The orientation of the map hexes.
     fn hex_orientation(&self) -> Orientation {
         Orientation::FlatTop
+    }
+
+    /// The coordinate system used to identify map hexes.
+    fn coordinate_system(&self) -> Coordinates {
+        Coordinates {
+            orientation: self.hex_orientation(),
+            first_row: FirstRow::OddColumns,
+            letters: Letters::AsColumns,
+        }
     }
 
     /// Returns the companies in this game.

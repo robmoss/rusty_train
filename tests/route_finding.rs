@@ -28,12 +28,13 @@ fn test_dual_routes_from_montreal() {
         margin + rows * (hex_width as f32 * 0.88) as i32,
     );
     let game = navig18xx::game::new_1867();
+    let coords = game.coordinate_system();
     let hex = Hex::new(hex_width as f64);
     let mut map = game.create_map(&hex);
     let company_token = *game.first_token();
 
     // Upgrade the Montreal tile and place two tokens.
-    let addr_montreal = "L12".parse().unwrap();
+    let addr_montreal = coords.parse("L12").unwrap();
     assert!(map.place_tile(addr_montreal, "X5", RotateCW::Zero));
     let hex_tile = map.tile_at(addr_montreal).unwrap();
     let space_0 = hex_tile.token_spaces()[0];
@@ -42,11 +43,23 @@ fn test_dual_routes_from_montreal() {
     map_hex.set_token_at(&space_0, company_token);
     map_hex.set_token_at(&space_1, company_token);
     // Place the other tiles for these two routes.
-    assert!(map.place_tile("M13".parse().unwrap(), "4", RotateCW::Zero));
-    assert!(map.place_tile("M11".parse().unwrap(), "7", RotateCW::One));
-    assert!(map.place_tile("M9".parse().unwrap(), "57", RotateCW::One));
-    assert!(map.place_tile("L10".parse().unwrap(), "58", RotateCW::Zero));
-    assert!(map.place_tile("K13".parse().unwrap(), "3", RotateCW::Four));
+    assert!(map.place_tile(
+        coords.parse("M13").unwrap(),
+        "4",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(coords.parse("M11").unwrap(), "7", RotateCW::One));
+    assert!(map.place_tile(coords.parse("M9").unwrap(), "57", RotateCW::One));
+    assert!(map.place_tile(
+        coords.parse("L10").unwrap(),
+        "58",
+        RotateCW::Zero
+    ));
+    assert!(map.place_tile(
+        coords.parse("K13").unwrap(),
+        "3",
+        RotateCW::Four
+    ));
 
     let mut hex_iter = map.hex_iter(&hex, &ctx);
     brush::clear_surface(&ctx, Colour::WHITE);
