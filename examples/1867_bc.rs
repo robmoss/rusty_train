@@ -92,13 +92,13 @@ fn save_1867_bc_routes(
     // Save the map state.
     let dest_file = json_dir.join("1867_bc.map");
     let descr: navig18xx::map::Descr = state.example.map().into();
-    info!("Writing {} ...", dest_file.to_str().unwrap());
+    info!("Writing {} ...", dest_file.display());
     navig18xx::io::write_map_descr(dest_file, &descr, true)?;
 
     // Save the game state.
     let state_file = json_dir.join("1867_bc.game");
     let game_state = state.game.save(state.example.map());
-    info!("Writing {} ...", state_file.to_str().unwrap());
+    info!("Writing {} ...", state_file.display());
     navig18xx::io::write_game_state(state_file, game_state, true)?;
 
     // Save an image of the map prior to drawing any routes.
@@ -115,11 +115,16 @@ fn save_1867_bc_routes(
         let image_basename = format!("1867_bc_{}.png", company.token_name);
         let image_file = image_dir.join(image_basename);
 
+        // Report when the file does not exist, so we can distinguish between
+        // the file not existing and being unable to parse the file contents.
+        if !routes_file.exists() {
+            info!("File does not exist: {}", routes_file.display());
+        }
         // Load the cached routes, if they exist.
         let cached_opt = read_routes(&routes_file).ok();
         // Determine whether to calculate and save the best routes.
         let (routes, save_routes) = if let Some(routes) = cached_opt {
-            info!("Reading {}", (&routes_file).to_str().unwrap());
+            info!("Reading {}", routes_file.display());
             if use_cached_routes {
                 // Use the cached routes, no need to save them.
                 info!("Using cached routes for {}", company.token_name);
@@ -135,10 +140,7 @@ fn save_1867_bc_routes(
                 } else {
                     // The calculated routes differ from the cached routes.
                     // Save the calculated routes and fail the test.
-                    info!(
-                        "Saving routes to {}",
-                        (&routes_file).to_str().unwrap()
-                    );
+                    info!("Saving routes to {}", routes_file.display());
                     let pretty = true;
                     write_routes(routes_file, &new_routes, pretty).unwrap();
                     panic!("Calculated routes differ from the cached routes")
@@ -156,7 +158,7 @@ fn save_1867_bc_routes(
 
         // If the best routes were calculated, save them to disk.
         if save_routes {
-            info!("Saving routes to {}", (&routes_file).to_str().unwrap());
+            info!("Saving routes to {}", routes_file.display());
             let pretty = true;
             write_routes(routes_file, &routes, pretty).unwrap();
         }
@@ -378,6 +380,6 @@ fn save_png<S: AsRef<Path>>(example: &Example, filename: S) {
     // a dark theme.
     let bg_rgba = Some(Colour::WHITE);
     let margin = 20;
-    info!("Writing {} ...", filename.to_str().unwrap());
+    info!("Writing {} ...", filename.display());
     example.write_png(margin, bg_rgba, filename);
 }
