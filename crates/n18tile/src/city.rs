@@ -107,10 +107,11 @@ impl City {
         }
     }
 
-    fn rotate_angle(&self) -> f64 {
+    fn rotate_angle(&self, hex: &Hex) -> f64 {
         use HexCorner::*;
 
-        let angle = self.angle.radians();
+        // NOTE: must account for the hex orientation.
+        let angle = self.angle.radians() + hex.orientation().arc_offset();
         if let HexPosition::Corner(corner, _) = self.position {
             // NOTE: currently only implemented for two-token cities.
             if self.tokens == Tokens::Double {
@@ -131,12 +132,12 @@ impl City {
     pub fn translate_begin(&self, hex: &Hex, ctx: &Context) {
         let coord = self.translate_coords(hex);
         ctx.translate(coord.x, coord.y);
-        ctx.rotate(self.rotate_angle());
+        ctx.rotate(self.rotate_angle(hex));
     }
 
     pub fn translate_end(&self, hex: &Hex, ctx: &Context) {
         let coord = self.translate_coords(hex);
-        ctx.rotate(-self.rotate_angle());
+        ctx.rotate(-self.rotate_angle(hex));
         ctx.translate(-coord.x, -coord.y);
     }
 
