@@ -1,6 +1,6 @@
 use crate::{City, Connection, Connections, Dit, Draw, Label, Track};
 use cairo::Context;
-use n18hex::{Colour, Hex, HexColour, HexCorner, HexFace, HexPosition};
+use n18hex::{Colour, Hex, HexColour, HexFace, HexPosition};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -591,7 +591,7 @@ impl Tile {
         // part of the initial map and are not truly "tiles" as such.
         if self.show_tile_name {
             Colour::BLACK.apply_colour(ctx);
-            let hex_pos = HexPosition::Corner(HexCorner::BottomRight, None);
+            let hex_pos = Label::tile_name_position(hex);
             Label::TileName.draw(ctx, hex, &hex_pos, self);
         }
         // Draw other tile labels.

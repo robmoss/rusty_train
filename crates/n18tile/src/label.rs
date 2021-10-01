@@ -236,13 +236,30 @@ impl Label {
     /// the bottom-right corner.
     pub fn draw_custom_tile_name(ctx: &Context, hex: &Hex, name: &str) {
         let mut labeller = hex.theme.tile_label.labeller(ctx, hex);
-        let pos = HexPosition::Corner(HexCorner::BottomRight, None);
+        let pos = Self::tile_name_position(hex);
         let coord = pos.coord(hex);
         let horiz = h_align(hex, &pos);
         let vert = v_align(hex, &pos);
         labeller.halign(horiz);
         labeller.valign(vert);
         labeller.draw(name, coord);
+    }
+
+    /// Returns the position of the tile name label.
+    ///
+    /// For [Orientation::FlatTop] this is the bottom-right corner, and for
+    /// [Orientation::PointedTop] this is the bottom corner.
+    pub fn tile_name_position(hex: &Hex) -> HexPosition {
+        match hex.orientation() {
+            Orientation::FlatTop => {
+                HexPosition::Corner(HexCorner::BottomRight, None)
+            }
+            Orientation::PointedTop => {
+                // NOTE: move the label slightly upwards, so that the bottom
+                // of the label text is not clipped.
+                HexPosition::from(HexCorner::BottomRight).to_centre(0.05)
+            }
+        }
     }
 }
 
