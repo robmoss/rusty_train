@@ -180,12 +180,11 @@ impl Submap for DefaultMode {
                 (&key::r, false) | (&key::R, false) => {
                     // Allow the user to select a company and trains, and find the
                     // routes that earn the most revenue.
-                    let new_state = SelectCompany::new(
-                        assets,
-                        controller,
-                        state.active_hex(),
-                    );
-                    Some((UiResponse::Redraw, Some(new_state.into())))
+                    SelectCompany::new(assets, controller, state.active_hex())
+                        .map(|new_state| {
+                            (UiResponse::Redraw, Some(new_state.into()))
+                        })
+                        .or(Some((UiResponse::None, None)))
                 }
                 (&key::t, false) | (&key::T, false) => {
                     EditTokens::try_new(&assets.map, state.active_hex())

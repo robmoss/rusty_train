@@ -24,8 +24,11 @@ impl SelectCompany {
         assets: &Assets,
         controller: &mut Controller,
         active_hex: HexAddress,
-    ) -> Self {
+    ) -> Option<Self> {
         let companies = valid_companies(assets);
+        if companies.is_empty() {
+            return None;
+        }
         let company_names: Vec<&str> =
             companies.iter().map(|c| c.full_name.as_str()).collect();
         let (sender, receiver) = std::sync::mpsc::channel();
@@ -38,10 +41,10 @@ impl SelectCompany {
                 ping_tx.send_ping(PingDest::State).unwrap();
             },
         );
-        SelectCompany {
+        Some(SelectCompany {
             active_hex,
             receiver,
-        }
+        })
     }
 }
 
