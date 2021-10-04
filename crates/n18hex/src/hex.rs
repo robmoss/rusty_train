@@ -426,6 +426,11 @@ impl std::default::Default for HexPosition {
 }
 
 impl HexPosition {
+    /// Returns a [HexPosition] value for the centre of the hexagon.
+    pub fn centre() -> HexPosition {
+        HexPosition::Centre(None)
+    }
+
     /// Replaces the existing translation, if any, with a translation `frac`
     /// in some direction `dir`.
     /// The unit of `frac` is the maximal radius (the length between the
