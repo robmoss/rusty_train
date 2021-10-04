@@ -387,7 +387,9 @@ impl Coordinates {
     ) -> Result<HexAddress, ParseHexAddressError> {
         // Parse the input string.
         let (az_num, digit_num) =
-            parse_az_and_digit(text).ok_or(ParseHexAddressError {})?;
+            parse_az_and_digit(text).ok_or(ParseHexAddressError {
+                text: text.to_string(),
+            })?;
 
         // Account for row/column ordering.
         let (row_in, col_in) = match self.letters {
@@ -412,7 +414,9 @@ impl Coordinates {
         let odd_row = row_in % 2 == 1;
         let odd_col = col_in % 2 == 1;
         if odd_row != odd_col {
-            return Err(ParseHexAddressError {});
+            return Err(ParseHexAddressError {
+                text: text.to_string(),
+            });
         }
 
         // Convert to offset coordinates, noting that row_in and col_in start
@@ -635,19 +639,17 @@ pub fn parse_az_and_digit(text: &str) -> Option<(isize, isize)> {
 /// The error returns when an alpha-numeric string cannot be parsed as a valid
 /// map hex.
 #[derive(Debug)]
-pub struct ParseHexAddressError {}
+pub struct ParseHexAddressError {
+    pub text: String,
+}
 
 impl std::fmt::Display for ParseHexAddressError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Could not parse hex address")
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Could not parse hex address '{}'", self.text)
     }
 }
 
-impl std::error::Error for ParseHexAddressError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
-}
+impl std::error::Error for ParseHexAddressError {}
 
 pub trait Adjacency {
     fn adjacent(&self, addr: HexAddress, face: HexFace) -> HexAddress;
