@@ -202,7 +202,16 @@ pub fn paths_from(map: &Map, query: &Query) -> Vec<Path> {
     let mut context = Context::new(map, query);
     let mut paths: Vec<Path> = vec![];
     let start_tile = map.tile_at(query.addr).unwrap();
-    let connections = start_tile.connections(&query.from).unwrap();
+    // NOTE: it is conceivable (although perhaps not sensible) that a token
+    // could be placed in a token space that is not connected to any track
+    // segments, in which case `start_tile.connections()` will return `None`,
+    // and this is best handled by returning an empty vector.
+    let conns_opt = start_tile.connections(&query.from);
+    let connections = if let Some(conns) = conns_opt {
+        conns
+    } else {
+        return vec![];
+    };
     for conn in connections.iter() {
         depth_first_search(
             map,
