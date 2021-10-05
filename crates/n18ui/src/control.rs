@@ -1,4 +1,4 @@
-use n18game::Game;
+use n18game::{DividendOptions, Game};
 use n18route::Trains;
 
 use crate::PingDest;
@@ -93,6 +93,16 @@ pub trait UiController {
     ) where
         Self: Sized,
         F: Fn(Option<std::path::PathBuf>) + 'static;
+
+    fn show_dividends<F>(
+        &mut self,
+        abbrev: &str,
+        revenue: usize,
+        options: DividendOptions,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn() + 'static;
 }
 
 pub enum Controller {
@@ -261,6 +271,27 @@ impl UiController for Controller {
             }
         }
     }
+
+    fn show_dividends<F>(
+        &mut self,
+        abbrev: &str,
+        revenue: usize,
+        options: DividendOptions,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn() + 'static,
+    {
+        use Controller::*;
+        match self {
+            Gtk3(ctrl) => {
+                ctrl.show_dividends(abbrev, revenue, options, callback)
+            }
+            Dummy(ctrl) => {
+                ctrl.show_dividends(abbrev, revenue, options, callback)
+            }
+        }
+    }
 }
 
 #[derive(Default)]
@@ -396,5 +427,18 @@ impl UiController for DummyController {
         F: Fn(Option<std::path::PathBuf>) + 'static,
     {
         callback(self.game_load.clone())
+    }
+
+    fn show_dividends<F>(
+        &mut self,
+        _abbrev: &str,
+        _revenue: usize,
+        _options: DividendOptions,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn() + 'static,
+    {
+        callback()
     }
 }

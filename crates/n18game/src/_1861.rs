@@ -5,7 +5,7 @@
 
 use std::collections::BTreeMap;
 
-use super::Company;
+use super::{Company, DividendKind, DividendOptions, Rounding};
 use n18catalogue::{Builder, Catalogue, Kind};
 use n18hex::{
     Colour, Hex, HexColour, HexFace, HexPosition, Orientation, RotateCW,
@@ -180,6 +180,40 @@ impl super::Game for Game {
     /// Returns the companies in this game.
     fn companies(&self) -> &[Company] {
         &self.companies
+    }
+
+    /// Returns the options available to a company for distributing dividends
+    /// to shareholders.
+    fn dividend_options(&self, abbrev: &str) -> Option<DividendOptions> {
+        self.companies.iter().enumerate().find_map(|(ix, company)| {
+            if company.abbrev == abbrev {
+                // NOTE: half-pay means that 50% of the revenue --- rounded up
+                // to the nearest 10 --- goes to shareholders.
+                let half_pay = DividendKind::Half {
+                    rounding: Rounding::Up,
+                    nearest: 10,
+                };
+                // The first 16 companies are minors, the rest are majors.
+                let is_minor = ix < 16;
+
+                let share_count = if is_minor { 1 } else { 10 };
+                let dividend_options = if is_minor {
+                    vec![(half_pay, Rounding::Exact)]
+                } else {
+                    vec![
+                        (DividendKind::Full, Rounding::Exact),
+                        (half_pay, Rounding::Exact),
+                    ]
+                };
+
+                Some(DividendOptions {
+                    share_count,
+                    dividend_options,
+                })
+            } else {
+                None
+            }
+        })
     }
 
     /// Returns the named train types in this game, in the order that they

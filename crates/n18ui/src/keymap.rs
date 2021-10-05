@@ -350,6 +350,14 @@ impl Submap for FoundRoutesMode {
                     };
                     Some((action, None))
                 }
+                (&key::d, _) | (&key::D, _) => {
+                    let action = if state.show_dividends(assets, controller) {
+                        UiResponse::Redraw
+                    } else {
+                        UiResponse::None
+                    };
+                    Some((action, None))
+                }
                 _ => None,
             }
         })

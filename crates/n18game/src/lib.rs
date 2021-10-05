@@ -35,6 +35,138 @@ pub fn games() -> Vec<Box<dyn Game>> {
     games
 }
 
+/// The ways in which fractional dividends can be rounded to integer values.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Rounding {
+    /// Do not round, dividends will always be integer values.
+    Exact,
+    /// Round up to the nearest integer.
+    Up,
+    /// Round down to the nearest integer.
+    Down,
+}
+
+impl Rounding {
+    /// Returns the single-share dividend for the specified revenue and number
+    /// of shares.
+    pub fn round(&self, revenue: usize, share_count: usize) -> usize {
+        use Rounding::*;
+        let remainder = revenue % share_count;
+        match self {
+            Exact => {
+                if remainder == 0 {
+                    revenue / share_count
+                } else {
+                    panic!("Exact rounding is invalid for {} revenue and {} shares", revenue, share_count)
+                }
+            }
+            Up => {
+                if remainder == 0 {
+                    revenue / share_count
+                } else {
+                    1 + revenue / share_count
+                }
+            }
+            Down => revenue / share_count,
+        }
+    }
+}
+
+/// The kinds of dividend payments that can be made.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum DividendKind {
+    /// Pay all of the earned revenue.
+    Full,
+    /// Pay half of the earned revenue, with flexible rounding.
+    ///
+    /// For example, to round the net amount up to the nearest multiple of 10:
+    ///
+    /// ```rust
+    /// # use n18game::{DividendKind, Rounding};
+    /// let div_kind = DividendKind::Half {
+    ///     rounding: Rounding::Up,
+    ///     nearest: 10,
+    /// };
+    /// let revenue = 210;
+    /// let net_dividend = div_kind.net_dividend(revenue);
+    /// assert_eq!(net_dividend, 110);
+    /// ```
+    Half { rounding: Rounding, nearest: usize },
+}
+
+impl std::fmt::Display for DividendKind {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> Result<(), std::fmt::Error> {
+        let descr = match self {
+            DividendKind::Full => "Full-pay",
+            DividendKind::Half { .. } => "Half-pay",
+        };
+        write!(f, "{}", descr)
+    }
+}
+
+impl DividendKind {
+    /// Returns the net dividend to be paid from the provided revenue.
+    pub fn net_dividend(&self, revenue: usize) -> usize {
+        use DividendKind::*;
+        match self {
+            Full => revenue,
+            Half { rounding, nearest } => {
+                nearest * rounding.round(revenue / 2, *nearest)
+            }
+        }
+    }
+}
+
+/// The dividend options for a company.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct DividendOptions {
+    /// The total number of shares.
+    pub share_count: usize,
+    /// The available dividend options.
+    pub dividend_options: Vec<(DividendKind, Rounding)>,
+}
+
+/// The per-share dividends for a specific dividend kind.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Dividends {
+    /// The chosen dividend kind.
+    pub kind: DividendKind,
+    /// The total amount paid for `1..=N` shares.
+    pub share_payments: Vec<usize>,
+    /// The amount that was withheld from shareholders, if any.
+    pub withheld: Option<usize>,
+}
+
+impl DividendOptions {
+    /// Returns the per-share dividend to distribute the provided revenue, for
+    /// each of the available dividend options.
+    pub fn dividends(&self, revenue: usize) -> Vec<Dividends> {
+        self.dividend_options
+            .iter()
+            .map(|&(kind, rounding)| {
+                let net = kind.net_dividend(revenue);
+                let per_share = rounding.round(net, self.share_count);
+                let share_payments =
+                    (1..=self.share_count).map(|n| per_share * n).collect();
+                let remainder = revenue - self.share_count * per_share;
+                let withheld = if remainder == 0 {
+                    None
+                } else {
+                    Some(remainder)
+                };
+                Dividends {
+                    kind,
+                    share_payments,
+                    withheld,
+                }
+            })
+            .collect()
+    }
+}
+
 /// The details that characterise a company that can operate trains.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Company {
@@ -166,6 +298,10 @@ pub trait Game {
         self.try_company(abbrev)
             .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
     }
+
+    /// Returns the options available to a company for distributing dividends
+    /// to shareholders.
+    fn dividend_options(&self, abbrev: &str) -> Option<DividendOptions>;
 
     /// Returns the token with the given abbreviated name, if it exists.
     fn try_token(&self, abbrev: &str) -> Option<&Token> {

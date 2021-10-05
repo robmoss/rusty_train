@@ -3,7 +3,7 @@
 use gtk::prelude::*;
 use std::collections::BTreeMap;
 
-use n18game::Game;
+use n18game::{DividendOptions, Game};
 use n18route::{Train, Trains};
 
 use crate::{PingDest, PingSender, UiController};
@@ -528,5 +528,104 @@ impl UiController for Gtk3Controller {
             default_path,
             callback,
         )
+    }
+
+    fn show_dividends<F>(
+        &mut self,
+        abbrev: &str,
+        revenue: usize,
+        options: DividendOptions,
+        callback: F,
+    ) where
+        Self: Sized,
+        F: Fn() + 'static,
+    {
+        let title = format!("{} dividends", abbrev);
+        let buttons = [("OK", gtk::ResponseType::Accept)];
+        let flags = gtk::DialogFlags::all();
+        let dialog = gtk::Dialog::with_buttons(
+            Some(&title),
+            Some(&self.window),
+            flags,
+            &buttons,
+        );
+
+        let dividends = options.dividends(revenue);
+        let n = options.share_count;
+        let any_withheld = dividends.iter().any(|d| d.withheld.is_some());
+
+        let grid = gtk::Grid::builder()
+            .expand(true)
+            .halign(gtk::Align::Center)
+            .valign(gtk::Align::Center)
+            .column_spacing(24)
+            .row_spacing(8)
+            .row_homogeneous(true)
+            .margin(16)
+            .build();
+
+        // Add a title label to a (column, row) cell.
+        let add_title = |column: usize, row: usize, text: &str| {
+            let label = gtk::Label::builder()
+                .use_markup(true)
+                .selectable(false)
+                .label(&format!("<b>{}</b>", text))
+                .expand(true)
+                .halign(gtk::Align::Center)
+                .build();
+            grid.attach(&label, column as i32, row as i32, 1, 1);
+        };
+
+        // Add a normal label to a (column, row) cell.
+        let add_label = |column: usize, row: usize, text: &str| {
+            let label = gtk::Label::builder()
+                .use_markup(false)
+                .selectable(false)
+                .label(text)
+                .expand(true)
+                .halign(gtk::Align::End)
+                .build();
+            grid.attach(&label, column as i32, row as i32, 1, 1);
+        };
+
+        // Create a column for each number of shares.
+        add_title(0, 0, "# Shares");
+        for i in 1..=n {
+            add_label(0, i, &format!("{}", i));
+        }
+
+        // Create a column for each kind of dividend.
+        for (ix, div) in dividends.iter().enumerate() {
+            let column = ix + 1;
+            add_title(column, 0, &format!("{}", div.kind));
+            for (p_ix, amount) in div.share_payments.iter().enumerate() {
+                let text = format!("${}", amount);
+                add_label(column, p_ix + 1, &text);
+            }
+        }
+
+        // Create an extra row for any withheld amounts.
+        if any_withheld {
+            let row = n + 1;
+            add_label(0, row, "");
+            add_title(0, row + 1, "Withheld:");
+            for (ix, div) in dividends.iter().enumerate() {
+                let column = ix + 1;
+                if let Some(amount) = div.withheld {
+                    let text = format!("${}", amount);
+                    add_label(column, row + 1, &text);
+                }
+            }
+        }
+
+        let content = dialog.content_area();
+        content.set_child(Some(&grid));
+
+        dialog.connect_response(move |dlg, _response| {
+            dlg.hide();
+            callback()
+        });
+
+        dialog.show_all();
     }
 }

@@ -274,6 +274,42 @@ impl Found {
         self.active_hex
     }
 
+    /// Displays the dividends for the optimal routes (if any).
+    ///
+    /// Returns `true` if the map surface should be redrawn, otherwise returns
+    /// `false`.
+    pub fn show_dividends<T>(
+        &self,
+        assets: &Assets,
+        controller: &mut T,
+    ) -> bool
+    where
+        T: UiController + Sized,
+    {
+        // NOTE: we call the UiController within this method, because while
+        // `Found` can ignore the callback, we don't want to rely on the
+        // caller being aware of this.
+        // So `Found` must call `show_dividends()`.
+        if let Some(ref best_routes) = self.best_routes {
+            let (_token, routes) = best_routes;
+            let revenue = routes.net_revenue;
+            let div_opts =
+                assets.games.active().dividend_options(&self.abbrev);
+            if let Some(options) = div_opts {
+                controller.show_dividends(
+                    &self.abbrev,
+                    revenue,
+                    options,
+                    || {},
+                );
+            }
+        }
+
+        // We never need to redraw the map surface as a consequence of showing
+        // the dividends.
+        false
+    }
+
     /// Returns the window title, which shows the company name and either the
     /// net revenue, or the revenue for the currently-selected route.
     pub fn window_title(&self, assets: &Assets) -> String {

@@ -34,6 +34,10 @@ Use the arrow keys (`<Left>`, `<Right>`, `<Up>`, `<Down>`) to cycle through the 
 
 ![Show a single route](./book/src/user_guide/1867_bc_6.png "Show a single route")
 
+Press `d` to display the dividend payments:
+
+![Show dividend payments](./book/src/user_guide/1867_bc_7.png "Show dividend payments")
+
 Press `Esc` or `Return` to return to the default user interface
 mode.
 

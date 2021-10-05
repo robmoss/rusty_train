@@ -3,7 +3,7 @@
 //! Initial version of 1830 map and tiles.
 //!
 
-use super::Company;
+use super::{Company, DividendKind, DividendOptions, Rounding};
 use n18catalogue::Catalogue;
 use n18hex::{self, Colour, Hex, HexFace, Orientation, RotateCW};
 use n18map::{Coordinates, FirstRow, HexAddress, Letters, Map};
@@ -177,8 +177,18 @@ impl super::Game for Game {
         COORDS
     }
 
+    /// Returns the companies in this game.
     fn companies(&self) -> &[Company] {
         &self.companies
+    }
+
+    /// Returns the options available to a company for distributing dividends
+    /// to shareholders.
+    fn dividend_options(&self, _abbrev: &str) -> Option<DividendOptions> {
+        Some(DividendOptions {
+            share_count: 10,
+            dividend_options: vec![(DividendKind::Full, Rounding::Exact)],
+        })
     }
 
     fn trains(&self) -> &[(&str, Train)] {
