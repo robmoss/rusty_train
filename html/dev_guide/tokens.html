@@ -1,0 +1,304 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js dark">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Tokens - Navigating 18xx: calculating optimal routes</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../18xx_introduction.html"><strong aria-hidden="true">1.</strong> 18xx introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../problem.html"><strong aria-hidden="true">1.2.</strong> The problem</a></li></ol></li><li class="chapter-item expanded "><a href="../user_guide/index.html"><strong aria-hidden="true">2.</strong> User guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../user_guide/modal.html"><strong aria-hidden="true">2.1.</strong> Modal interface</a></li><li class="chapter-item expanded "><a href="../user_guide/global.html"><strong aria-hidden="true">2.2.</strong> Global keys</a></li><li class="chapter-item expanded "><a href="../user_guide/default.html"><strong aria-hidden="true">2.3.</strong> Default mode</a></li><li class="chapter-item expanded "><a href="../user_guide/tile.html"><strong aria-hidden="true">2.4.</strong> Placing and upgrading tiles</a></li><li class="chapter-item expanded "><a href="../user_guide/tokens.html"><strong aria-hidden="true">2.5.</strong> Placing and removing tokens</a></li><li class="chapter-item expanded "><a href="../user_guide/routes.html"><strong aria-hidden="true">2.6.</strong> Selecting optimal routes</a></li><li class="chapter-item expanded "><a href="../user_guide/example.html"><strong aria-hidden="true">2.7.</strong> Example</a></li></ol></li><li class="chapter-item expanded "><a href="../dev_guide/index.html"><strong aria-hidden="true">3.</strong> Developer guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../dev_guide/overview.html"><strong aria-hidden="true">3.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../dev_guide/crates.html"><strong aria-hidden="true">3.2.</strong> Crates</a></li><li class="chapter-item expanded "><a href="../dev_guide/features.html"><strong aria-hidden="true">3.3.</strong> Features</a></li><li class="chapter-item expanded "><a href="../dev_guide/testing.html"><strong aria-hidden="true">3.4.</strong> Testing</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.5.</strong> Cairo and drawing</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.6.</strong> Hex geometry and styling</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.7.</strong> Tile elements</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.8.</strong> Tile catalogue</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.9.</strong> Connectivity</div></li><li class="chapter-item expanded "><a href="../dev_guide/tokens.html" class="active"><strong aria-hidden="true">3.10.</strong> Tokens</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.11.</strong> Maps</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.12.</strong> Trains</div></li><li class="chapter-item expanded "><a href="../dev_guide/routes.html"><strong aria-hidden="true">3.13.</strong> Finding optimal routes</a></li><li class="chapter-item expanded "><a href="../dev_guide/performance.html"><strong aria-hidden="true">3.14.</strong> Performance</a></li><li class="chapter-item expanded "><a href="../dev_guide/profiling.html"><strong aria-hidden="true">3.15.</strong> Profiling</a></li><li class="chapter-item expanded "><a href="../dev_guide/determinism.html"><strong aria-hidden="true">3.16.</strong> Determinism</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.17.</strong> 18xx games</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.18.</strong> (De)serialisation</div></li><li class="chapter-item expanded "><a href="../dev_guide/rusty_train.html"><strong aria-hidden="true">3.19.</strong> GTK user interface</a></li></ol></li><li class="chapter-item expanded "><a href="../todo/index.html"><strong aria-hidden="true">4.</strong> To-do list</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../todo/documentation.html"><strong aria-hidden="true">4.1.</strong> Documentation</a></li><li class="chapter-item expanded "><a href="../todo/implementation.html"><strong aria-hidden="true">4.2.</strong> Implementation</a></li><li class="chapter-item expanded "><a href="../todo/features.html"><strong aria-hidden="true">4.3.</strong> Planned features</a></li><li class="chapter-item expanded "><a href="../todo/rust.html"><strong aria-hidden="true">4.4.</strong> Rust and Cargo</a></li><li class="chapter-item expanded "><a href="../todo/miscellaneous.html"><strong aria-hidden="true">4.5.</strong> Miscellaneous</a></li></ol></li><li class="chapter-item expanded "><a href="../about.html"><strong aria-hidden="true">5.</strong> About this book</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">6.</strong> References</div></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Navigating 18xx: calculating optimal routes</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="tokens"><a class="header" href="#tokens">Tokens</a></h1>
+<p><img src="draw_tokens.png" alt="Examples of token styles" /></p>
+<p>This image was produced by the following code:</p>
+<pre><code class="language-rust no_run noplayground">fn new_context(width: i32, height: i32) -&gt; (Context, ImageSurface) {
+    let surface = ImageSurface::create(Format::ARgb32, width, height)
+        .expect(&quot;Can't create surface&quot;);
+    let context =
+        Context::new(&amp;surface).expect(&quot;Can't create cairo::Context&quot;);
+    (context, surface)
+}
+
+fn draw_tokens(output_dir: &amp;output::Dir) -&gt; Result {
+    let output_file = output_dir.join(&quot;draw_tokens.png&quot;);
+
+    let rows = 5;
+    let cols = 8;
+
+    let width = cols as f64 * 2.0 * TOKEN_RADIUS_MARGIN;
+    let height = rows as f64 * 2.0 * TOKEN_RADIUS_MARGIN;
+    let (ctx, surf) = new_context(width as i32, height as i32);
+
+    // Background colours for minor (yellow) and major (green) companies.
+    let bg_yellow = Colour::from((223, 223, 0));
+    let bg_green = Colour::from((0, 153, 63));
+    let bg_dark_green = Colour::from((0, 77, 31));
+    let bg_iter = std::iter::repeat(bg_yellow)
+        .take(16)
+        .chain(std::iter::repeat(bg_green).take(8))
+        .chain(std::iter::repeat(bg_dark_green).take(16));
+
+    // Foreground colours.
+    let aqua = Colour::from((0, 204, 204));
+    let blue = Colour::from((0, 63, 204));
+    let red = Colour::from((223, 0, 0));
+    let purple = Colour::from((127, 0, 223));
+    let fg_colours = vec![aqua, blue, red, purple];
+    let fg_count = fg_colours.len();
+    let fg_iter = fg_colours.into_iter().cycle();
+
+    // Define token styles and create tokens.
+    let tokens: Vec&lt;Token&gt; = bg_iter
+        .zip(fg_iter)
+        .enumerate()
+        .map(|(ix, (bg, fg))| {
+            // Use black text on yellow, and white text on green.
+            let text = if bg == bg_yellow {
+                Colour::BLACK
+            } else {
+                Colour::WHITE
+            };
+            // Cycle through token styles, repeating each style in turn so
+            // that it is paired with all of the foreground colours.
+            match ix / fg_count {
+                0 =&gt; TokenStyle::TopLines { bg, fg, text },
+                1 =&gt; TokenStyle::TopTriangles { bg, fg, text },
+                2 =&gt; TokenStyle::TopArcs { bg, fg, text },
+                3 =&gt; TokenStyle::TripleTriangles { bg, fg, text },
+                4 =&gt; TokenStyle::TopLines { bg, fg, text },
+                5 =&gt; TokenStyle::TopTriangles { bg, fg, text },
+                6 =&gt; TokenStyle::TribandH {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                7 =&gt; TokenStyle::TribandV {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                8 =&gt; TokenStyle::TricolourH {
+                    top: bg,
+                    middle: fg,
+                    bottom: if bg == bg_yellow {
+                        bg_green
+                    } else {
+                        bg_yellow
+                    },
+                    text,
+                },
+                _ =&gt; TokenStyle::TricolourV {
+                    left: bg,
+                    middle: fg,
+                    right: if bg == bg_yellow { bg_green } else { bg_yellow },
+                    text,
+                },
+            }
+        })
+        .map(Token::new)
+        .collect();
+
+    // Define the token names
+    let names = vec![
+        &quot;BBG&quot;, &quot;BO&quot;, &quot;CV&quot;, &quot;CS&quot;, &quot;KP&quot;, &quot;LPS&quot;, &quot;OP&quot;, &quot;SLA&quot;, &quot;TGB&quot;, &quot;TN&quot;, &quot;AE&quot;,
+        &quot;CA&quot;, &quot;NYO&quot;, &quot;PM&quot;, &quot;QLS&quot;, &quot;THB&quot;, &quot;CNR&quot;, &quot;CPR&quot;, &quot;C&amp;O&quot;, &quot;GT&quot;, &quot;GW&quot;,
+        &quot;IRC&quot;, &quot;NTR&quot;, &quot;NYC&quot;,
+        // Repeat the first 16 names to demonstrate the banded styles.
+        &quot;BBG&quot;, &quot;BO&quot;, &quot;CV&quot;, &quot;CS&quot;, &quot;KP&quot;, &quot;LPS&quot;, &quot;OP&quot;, &quot;SLA&quot;, &quot;TGB&quot;, &quot;TN&quot;, &quot;AE&quot;,
+        &quot;CA&quot;, &quot;NYO&quot;, &quot;PM&quot;, &quot;QLS&quot;, &quot;THB&quot;,
+    ];
+
+    let hex = Hex::new(HEX_DIAMETER);
+    let rotn = 0.0;
+
+    let mut tok_ix = 0;
+    for row in 0..rows {
+        for col in 0..cols {
+            // Define the token boundary.
+            let x = TOKEN_RADIUS_MARGIN * (1.0 + 2.0 * col as f64);
+            let y = TOKEN_RADIUS_MARGIN * (1.0 + 2.0 * row as f64);
+            ctx.new_path();
+            ctx.arc(x, y, TOKEN_RADIUS, 0.0, 2.0 * PI);
+
+            // Draw the token.
+            tokens[tok_ix].draw(&amp;hex, &amp;ctx, names[tok_ix], rotn);
+
+            tok_ix += 1;
+        }
+    }
+
+    let mut file = std::fs::File::create(output_file)
+        .expect(&quot;Couldn't create output PNG file&quot;);
+    surf.write_to_png(&amp;mut file)
+        .expect(&quot;Couldn't write to output PNG file&quot;);
+
+    Ok(())
+}
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../dev_guide/testing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../dev_guide/routes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../dev_guide/testing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../dev_guide/routes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>

@@ -1,0 +1,1410 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js dark">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Navigating 18xx: calculating optimal routes</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <!-- MathJax -->
+        <script async type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "ayu" : "dark";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('dark')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="18xx_introduction.html"><strong aria-hidden="true">1.</strong> 18xx introduction</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="problem.html"><strong aria-hidden="true">1.2.</strong> The problem</a></li></ol></li><li class="chapter-item expanded "><a href="user_guide/index.html"><strong aria-hidden="true">2.</strong> User guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="user_guide/modal.html"><strong aria-hidden="true">2.1.</strong> Modal interface</a></li><li class="chapter-item expanded "><a href="user_guide/global.html"><strong aria-hidden="true">2.2.</strong> Global keys</a></li><li class="chapter-item expanded "><a href="user_guide/default.html"><strong aria-hidden="true">2.3.</strong> Default mode</a></li><li class="chapter-item expanded "><a href="user_guide/tile.html"><strong aria-hidden="true">2.4.</strong> Placing and upgrading tiles</a></li><li class="chapter-item expanded "><a href="user_guide/tokens.html"><strong aria-hidden="true">2.5.</strong> Placing and removing tokens</a></li><li class="chapter-item expanded "><a href="user_guide/routes.html"><strong aria-hidden="true">2.6.</strong> Selecting optimal routes</a></li><li class="chapter-item expanded "><a href="user_guide/example.html"><strong aria-hidden="true">2.7.</strong> Example</a></li></ol></li><li class="chapter-item expanded "><a href="dev_guide/index.html"><strong aria-hidden="true">3.</strong> Developer guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="dev_guide/overview.html"><strong aria-hidden="true">3.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="dev_guide/crates.html"><strong aria-hidden="true">3.2.</strong> Crates</a></li><li class="chapter-item expanded "><a href="dev_guide/features.html"><strong aria-hidden="true">3.3.</strong> Features</a></li><li class="chapter-item expanded "><a href="dev_guide/testing.html"><strong aria-hidden="true">3.4.</strong> Testing</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.5.</strong> Cairo and drawing</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.6.</strong> Hex geometry and styling</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.7.</strong> Tile elements</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.8.</strong> Tile catalogue</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.9.</strong> Connectivity</div></li><li class="chapter-item expanded "><a href="dev_guide/tokens.html"><strong aria-hidden="true">3.10.</strong> Tokens</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.11.</strong> Maps</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.12.</strong> Trains</div></li><li class="chapter-item expanded "><a href="dev_guide/routes.html"><strong aria-hidden="true">3.13.</strong> Finding optimal routes</a></li><li class="chapter-item expanded "><a href="dev_guide/performance.html"><strong aria-hidden="true">3.14.</strong> Performance</a></li><li class="chapter-item expanded "><a href="dev_guide/profiling.html"><strong aria-hidden="true">3.15.</strong> Profiling</a></li><li class="chapter-item expanded "><a href="dev_guide/determinism.html"><strong aria-hidden="true">3.16.</strong> Determinism</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.17.</strong> 18xx games</div></li><li class="chapter-item expanded "><div><strong aria-hidden="true">3.18.</strong> (De)serialisation</div></li><li class="chapter-item expanded "><a href="dev_guide/rusty_train.html"><strong aria-hidden="true">3.19.</strong> GTK user interface</a></li></ol></li><li class="chapter-item expanded "><a href="todo/index.html"><strong aria-hidden="true">4.</strong> To-do list</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="todo/documentation.html"><strong aria-hidden="true">4.1.</strong> Documentation</a></li><li class="chapter-item expanded "><a href="todo/implementation.html"><strong aria-hidden="true">4.2.</strong> Implementation</a></li><li class="chapter-item expanded "><a href="todo/features.html"><strong aria-hidden="true">4.3.</strong> Planned features</a></li><li class="chapter-item expanded "><a href="todo/rust.html"><strong aria-hidden="true">4.4.</strong> Rust and Cargo</a></li><li class="chapter-item expanded "><a href="todo/miscellaneous.html"><strong aria-hidden="true">4.5.</strong> Miscellaneous</a></li></ol></li><li class="chapter-item expanded "><a href="about.html"><strong aria-hidden="true">5.</strong> About this book</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">6.</strong> References</div></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Navigating 18xx: calculating optimal routes</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="18xx-introduction"><a class="header" href="#18xx-introduction">18xx introduction</a></h1>
+<p>18xx refers to a
+<a href="https://boardgamegeek.com/wiki/page/18xx">family of board games</a> that focus
+on investing in, and operating, train companies.
+Players aim to end the game with the most wealth, and this can be achieved in
+a number of different ways.
+Players can buy stock in companies, and the player who owns the most shares in
+a company is responsible for operating the company.
+Companies lay track by placing hexagonal tiles, and run trains along the track
+network to earn revenue.
+Dividends may then be paid to all players who own shares in the company.
+Some games emphasise manipulating the stock market, while other games place a
+greater emphasis on running profitable companies.</p>
+<h2 id="rusty-train"><a class="header" href="#rusty-train">Rusty Train</a></h2>
+<p>Rusty Train is a graphical user interface that uses the <code>navig18xx</code> crate to
+allow users to track the state of 18xx game maps, and to calculate the optimal
+revenue that each company can earn.</p>
+<p>See the <a href="./user_guide/index.html">user guide</a> for details.</p>
+<h2 id="navig18xx"><a class="header" href="#navig18xx">navig18xx</a></h2>
+<p>The <code>navig18xx</code> crate (”navigating ex ex”) allows players to identify the
+train routes that will earn the most revenue for a company.
+It also provides lower-level building blocks for defining tiles and creating
+game maps.</p>
+<p>See the <a href="./dev_guide/index.html">developer guide</a> for details.</p>
+<h2 id="an-example-tile"><a class="header" href="#an-example-tile">An example tile</a></h2>
+<p><img src="./tile_x5.svg" alt="An example tile" /></p>
+<p>This image was produced by the following code:</p>
+<pre><code class="language-rust no_run noplayground">use navig18xx::prelude::*;
+use std::path::Path;
+
+mod output;
+
+fn main() {
+    // Specify where to save the output images.
+    let output_dir: &amp;Path = output::Dir::BookRoot.into();
+
+    let hex_max_diameter = 125.0;
+    let hex = Hex::new(hex_max_diameter);
+
+    let tile_x5 = Tile::new(
+        HexColour::Brown,
+        &quot;X5&quot;,
+        vec![
+            Track::straight(HexFace::Top).with_span(0.0, 0.1),
+            Track::straight(HexFace::Top)
+                .with_span(0.1, 1.0)
+                .with_clip(0.3625, 0.75),
+            Track::mid(HexFace::UpperLeft),
+            Track::mid(HexFace::LowerLeft),
+            Track::mid(HexFace::LowerRight),
+            Track::mid(HexFace::UpperRight),
+        ],
+        vec![
+            City::single_at_face(70, &amp;HexFace::Top),
+            City::double(70).in_dir(Direction::S, 0.1),
+        ],
+        &amp;hex,
+    )
+    .label(Label::City(&quot;M&quot;.to_string()), HexCorner::BottomLeft)
+    .label(Label::Revenue(0), HexCorner::Left.to_centre(0.1));
+
+    tile_x5
+        .save_svg(&amp;hex, output_dir.join(&quot;tile_x5.svg&quot;))
+        .expect(&quot;Could not save tile X5 as an SVG&quot;);
+}
+</code></pre>
+<h2 id="an-example-route"><a class="header" href="#an-example-route">An example route</a></h2>
+<p><img src="./test-conn-bonus-route-no-bonus.png" alt="An example route" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="motivation"><a class="header" href="#motivation">Motivation</a></h1>
+<p>As someone who has enjoyed playing board games since 2010 or so, I began my own collection in 2016 when I felt it likely that I wouldn’t relocate internationally in the near future.
+At that point I wasn’t aware of 18xx.</p>
+<p>But as I continued to explore board games, I eventually came across 1830 and watched <a href="https://www.youtube.com/watch?v=uLTFo-xb7ts">the GameNight! team play 1830</a>.
+At this point I became interested, and eventually stumbled across the <a href="https://www.kickstarter.com/projects/all-aboardgames/18chesapeake/">18Chesapeake Kickstarter campaign</a>.
+I ultimately decided not to back 18Chesapeake, and then I saw the <a href="https://www.kickstarter.com/projects/joshuastarr/1861-russia-1867-canada/">1861/67 Kickstarter campaign</a>.
+I ummed and ahhed, and finally decided to back it based on a combination of (a) Josh’s enthusiasm for making 18xx more accessible to newcomers; (b) the production values; (c) the settings of Russia and Canada; and (d) the operational focus.</p>
+<p>Then I watched the <a href="https://www.youtube.com/watch?v=vE0UNDA4qQQ">Bankruptcy Club play 1867</a>, and realised that it can be extremely difficult to figure out the optimal routes for a company’s trains.
+Indeed, in the later stages of this game when there are many track connections and each company owns multiple trains that can run long routes, it can take a long time for a player to explore all of their options.
+Identifying the optimal route <em>for a single train</em> can be difficult, and combining multiple train routes that may compete for access to high-revenue cities makes this even more complicated.</p>
+<p><strong>When there can be more than 50,000 different routes, and more than 1 billion unique pairs of routes, how can a player be confident that they have identified the highest-revenue routes?</strong></p>
+<p>This is an interesting path-finding problem, and one for which there are some implementations (<a href="https://groups.io/g/18xx/topic/anyone_know_if_anyone_has/74031683?p=,,,20,0,0,0::recentpostdate%2Fsticky,,,20,2,20,74031683">18xx@groups.io</a>, <a href="https://boardgames.stackexchange.com/q/493">Stack Exchange</a>, <a href="https://redd.it/9t32gw">Reddit</a>).
+It was a problem space that I thought would be fun to explore.
+This in turn made me think of my initial explorations of the <a href="https://www.rust-lang.org/">Rust programming language</a>, and how it combines a strong type system and type inference with zero-overhead abstractions.
+So I began to play around and gradually <code>navig18xx</code> took form.</p>
+<p>In its current state, it can identify the optimal routes for each company in the final round of the Bankruptcy Club’s 1867 game (see the figures shown below).
+However, it can currently take around <strong>2 minutes</strong> for complex situations such as companies that own <code>5+5E</code> trains, which have no limit on their path length.</p>
+<!-- See https://spec.commonmark.org/0.29/#images -->
+<h2 id="the-1867-map-for-the-final-operating-round"><a class="header" href="#the-1867-map-for-the-final-operating-round">The 1867 map for the final operating round</a></h2>
+<p><img src="1867_bc.png" alt="Map state" title="The map" /></p>
+<h2 id="optimal-routes-for-the-great-western-railway"><a class="header" href="#optimal-routes-for-the-great-western-railway">Optimal routes for the Great Western Railway</a></h2>
+<p><img src="1867_bc_GW.png" alt="" /></p>
+<h2 id="optimal-routes-for-the-chesapeake-and-ohio-railway"><a class="header" href="#optimal-routes-for-the-chesapeake-and-ohio-railway">Optimal routes for the Chesapeake and Ohio Railway</a></h2>
+<p><img src="1867_bc_C&amp;O.png" alt="" /></p>
+<h2 id="optimal-routes-for-the-canadian-northern-railway"><a class="header" href="#optimal-routes-for-the-canadian-northern-railway">Optimal routes for the Canadian Northern Railway</a></h2>
+<p><img src="1867_bc_CNR.png" alt="" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-problem"><a class="header" href="#the-problem">The problem</a></h1>
+<p>What combination of train routes will earn the most revenue for a company?
+And why is this a difficult question to answer?</p>
+<ul>
+<li>
+<p>The number of valid train routes can be extremely large.</p>
+<ul>
+<li>As the maximum route length grows (e.g., running a 3-train instead of a 2-train) the number of valid train routes can grow exponentially.</li>
+</ul>
+</li>
+<li>
+<p>A valid train route must pass through (at least) one of the company’s station markers.</p>
+<ul>
+<li>
+<p>Train routes do not necessarily start or end at a station marker.</p>
+</li>
+<li>
+<p>Train routes can be constructed by first generating all routes that start at each station marker, and then joining pairs of routes that start or end at the same station marker.</p>
+</li>
+<li>
+<p>Note that this approach will generate duplicate routes when a single route can reach or pass through multiple station markers (but this duplication can be avoided by defining an ordering for the station markers).</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When a company owns multiple trains, all valid combinations of train routes must be considered.</p>
+<ul>
+<li>The highest-earning route for each train will typically share track segments, and cannot be operated at the same time.
+So this is not as simple as finding the highest-earning route for each train.</li>
+</ul>
+</li>
+<li>
+<p>The number of route combinations can be extremely large.</p>
+<ul>
+<li>Consider a company that has 50,000 valid train routes.
+If the company owns 2 trains, there are <strong>1,249,975,000</strong> route combinations.
+If the company owns 3 trains, there are <strong>20,832,083,350,000</strong> routes combinations.</li>
+</ul>
+</li>
+<li>
+<p>For each route combination, we need to determine whether it is valid (i.e., the routes can be operated without any conflicts).
+This is currently <a href="./dev_guide/performance.html">the most time-consuming step</a>.</p>
+</li>
+<li>
+<p>For each valid route combination, the earned revenue may depend on how the company’s trains are allocated to the routes.</p>
+</li>
+<li>
+<p>For each valid route combination, there may be additional bonus revenue.</p>
+<ul>
+<li>
+<p>The company might own a private company that confers bonus revenue.</p>
+</li>
+<li>
+<p>The game rules might confer bonus revenue to routes that connect two specific locations.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Each step can be divided into a number of independent tasks and run in parallel, although this only provides a modest performance benefit (a linear reduction in exponential growth).</p>
+</li>
+</ul>
+<p>See the <a href="./dev_guide/routes.html">optimal routes</a> chapter of the Developer guide for further details.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="user-guide"><a class="header" href="#user-guide">User guide</a></h1>
+<p>This guide explains how to use the “Rusty Train” UI to track the state of 18xx
+game maps, and to calculate the optimal revenue that each company can earn.</p>
+<pre><code class="language-sh">cargo run
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="modal-interface"><a class="header" href="#modal-interface">Modal interface</a></h1>
+<p>The current mode is indicated by the border colour of the active hex.
+The different modes are:</p>
+<ul>
+<li><a href="user_guide/default.html"><strong>Default:</strong></a> select and rotate tiles, switch to other modes.</li>
+<li><a href="user_guide/tile.html"><strong>Replace tile:</strong></a> place and upgrade tiles.</li>
+<li><a href="user_guide/tokens.html"><strong>Edit tokens:</strong></a> place and remove tokens from a tile.</li>
+<li><a href="user_guide/routes.html"><strong>Find routes:</strong></a> identify the optimal routes and revenue for a company.</li>
+</ul>
+<p>There are also <a href="user_guide/global.html">global keys</a> that perform the same action in any of the above modes.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="global-keys"><a class="header" href="#global-keys">Global keys</a></h1>
+<p>These keys perform the same action in any mode.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>q</code>, <code>Q</code></td><td>Quit</td></tr>
+<tr><td><code>s</code>, <code>S</code></td><td>Save a screenshot of the current map</td></tr>
+<tr><td><code>Ctrl+n</code>, <code>Ctrl+N</code></td><td>Start a new game</td></tr>
+<tr><td><code>Ctrl+o</code>, <code>Ctrl+O</code></td><td>Load a saved game from disk</td></tr>
+<tr><td><code>Ctrl+s</code>, <code>Ctrl+S</code></td><td>Save the current game to disk</td></tr>
+<tr><td><code>+</code></td><td>Zoom in</td></tr>
+<tr><td><code>-</code></td><td>Zoom out</td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="default-mode"><a class="header" href="#default-mode">Default mode</a></h1>
+<p>Use this mode to select a tile or hex space, and switch to other modes to place tiles, place tokens, and select optimal routes.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>e</code>, <code>E</code></td><td>Switch to <a href="user_guide/tile.html"><strong>Replace tile</strong></a> mode, select <strong>any</strong> tile</td></tr>
+<tr><td><code>u</code>, <code>U</code></td><td>Switch to <a href="user_guide/tile.html"><strong>Replace tile</strong></a> mode, select an <strong>upgrade</strong> tile</td></tr>
+<tr><td><code>t</code>, <code>T</code></td><td>Switch to <a href="user_guide/tokens.html"><strong>Edit tokens</strong></a> mode</td></tr>
+<tr><td><code>r</code>, <code>R</code></td><td>Switch to <a href="user_guide/routes.html"><strong>Find routes</strong></a> mode</td></tr>
+<tr><td><code>&lt;Left&gt;</code></td><td>Select the hex on the left of the current hex</td></tr>
+<tr><td><code>&lt;Right&gt;</code></td><td>Select the hex on the right of the current hex</td></tr>
+<tr><td><code>&lt;Up&gt;</code></td><td>Select the hex above the current hex</td></tr>
+<tr><td><code>&lt;Down&gt;</code></td><td>Select the hex below the current hex</td></tr>
+<tr><td>Any mouse button</td><td>Select the hex under the cursor</td></tr>
+<tr><td><code>,</code>, <code>&lt;</code></td><td>Rotate the current tile anti-clockwise</td></tr>
+<tr><td><code>.</code>, <code>&gt;</code></td><td>Rotate the current tile clockwise</td></tr>
+<tr><td><code>&lt;Backspace&gt;</code></td><td>Remove the current tile</td></tr>
+<tr><td><code>&lt;Delete&gt;</code></td><td>Remove the current tile</td></tr>
+<tr><td><code>p</code>, <code>P</code></td><td>Change the game phase</td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="replace-tile-mode"><a class="header" href="#replace-tile-mode">Replace tile mode</a></h1>
+<p>Use this mode to place and upgrade tiles.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Esc</code></td><td>Return to <a href="user_guide/default.html"><strong>Default</strong></a> mode, ignoring any edits</td></tr>
+<tr><td><code>Return</code></td><td>Return to <a href="user_guide/default.html"><strong>Default</strong></a> mode, saving any edits</td></tr>
+<tr><td><code>o</code>, <code>O</code></td><td>Show the original tile, if any</td></tr>
+<tr><td><code>&lt;Up&gt;</code></td><td>Select the next available tile</td></tr>
+<tr><td><code>&lt;Down&gt;</code></td><td>Select the previous available tile</td></tr>
+<tr><td><code>,</code>, <code>&lt;</code></td><td>Rotate the selected tile anti-clockwise</td></tr>
+<tr><td><code>.</code>, <code>&gt;</code></td><td>Rotate the selected tile clockwise</td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="edit-tokens-mode"><a class="header" href="#edit-tokens-mode">Edit tokens mode</a></h1>
+<p>Use this mode to place and remove tokens from a tile.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Esc</code></td><td>Return to <a href="user_guide/default.html"><strong>Default</strong></a> mode, ignoring any edits</td></tr>
+<tr><td><code>Return</code></td><td>Return to <a href="user_guide/default.html"><strong>Default</strong></a> mode, saving any edits</td></tr>
+<tr><td><code>&lt;Left&gt;</code></td><td>Select the previous token on the active tile</td></tr>
+<tr><td><code>&lt;Right&gt;</code></td><td>Select the next token on the active tile</td></tr>
+<tr><td><code>&lt;Up&gt;</code></td><td>Replace the current token (if any) with the next available token</td></tr>
+<tr><td><code>&lt;Down&gt;</code></td><td>Replace the current token (if any) with the previous available token</td></tr>
+<tr><td><code>0</code></td><td>Remove the current token</td></tr>
+<tr><td><code>&lt;Delete&gt;</code></td><td>Remove the current token</td></tr>
+<tr><td><code>&lt;Backspace&gt;</code></td><td>Remove the current token</td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="find-routes-mode"><a class="header" href="#find-routes-mode">Find routes mode</a></h1>
+<p>Use this mode to select a company and find the optimal routes and revenue for this company.</p>
+<p>The user will be prompted to select one of the companies that has placed tokens on the map.
+They will then be prompted to select the trains available to this company, and any relevant bonuses.</p>
+<p>This will initiate the route-finding process; depending on the number of potential routes, <strong>this may take several minutes to complete</strong>.</p>
+<p>The optimal routes will then be drawn on the map and the optimal revenue will be displayed.
+The user can cycle through the individual routes with the arrow keys.</p>
+<table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td><code>Esc</code>, <code>Return</code></td><td>Return to <a href="user_guide/default.html"><strong>Default</strong></a> mode</td></tr>
+<tr><td><code>&lt;Left&gt;</code>, <code>&lt;Up&gt;</code></td><td>Show the previous train route</td></tr>
+<tr><td><code>&lt;Right&gt;</code>, <code>&lt;Down&gt;</code></td><td>Show the next train route</td></tr>
+<tr><td></td><td></td></tr>
+</tbody></table>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example"><a class="header" href="#example">Example</a></h1>
+<p>Start Rusty Train with <code>cargo run --release</code>:</p>
+<p><img src="user_guide/1867_bc_0.png" alt="Rusty Train" title="Rusty Train" /></p>
+<p>Load the <code>1867_bc</code> example game, which is in <code>./examples/output/1867_bc.game</code>, with <code>Ctrl+O</code>:</p>
+<p><img src="user_guide/1867_bc_1.png" alt="The 1867_bc example game" title="The 1867_bc example game" /></p>
+<p>Press <code>r</code> to find the optimal routes for a company.
+Select the <strong>Great Western Railway</strong> and click <code>OK</code>:</p>
+<p><img src="user_guide/1867_bc_2.png" alt="Select a company" title="Select a company" /></p>
+<p>This company owns a <code>5-train</code> and an <code>8-train</code>, and does not receive any of the four bonuses listed on the right-hand side.
+Enter these details and click <code>OK</code>:</p>
+<p><img src="user_guide/1867_bc_3.png" alt="Select trains" title="Select trains" /></p>
+<p>The map is disabled and faded out while searching for the optimal routes:</p>
+<p><img src="user_guide/1867_bc_4.png" alt="Search for optimal routes" title="Search for optimal routes" /></p>
+<p>When the optimal routes are found, they will be drawn on the map (highlighted in green and in red) and the net revenue is shown in the window title:</p>
+<p><img src="user_guide/1867_bc_5.png" alt="Found optimal routes" title="Found optimal routes" /></p>
+<p>Use the arrow keys (<code>&lt;Left&gt;</code>, <code>&lt;Right&gt;</code>, <code>&lt;Up&gt;</code>, <code>&lt;Down&gt;</code>) to cycle through the individual routes; the train name and route revenue are shown in the window title:</p>
+<p><img src="user_guide/1867_bc_6.png" alt="Show a single route" title="Show a single route" /></p>
+<p>Press <code>Esc</code> or <code>Return</code> to return to the <a href="user_guide/default.html"><strong>Default</strong></a> mode.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="developer-guide"><a class="header" href="#developer-guide">Developer guide</a></h1>
+<p>This documentation explains how the <code>navig18xx</code> crate is designed and
+implemented.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
+<p><strong>TODO:</strong> provide a top-down overview of the project structure, working backwards from the goal of identifying optimal routes.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="crates"><a class="header" href="#crates">Crates</a></h1>
+<p>The <code>navig18xx</code> crate is a wrapper that groups together a number of sub-crates:</p>
+<ul>
+<li><code>n18hex</code> defines the basic geometry of hexagonal tiles (coordinates, faces, corners, background colours).</li>
+<li><code>n18tile</code> defines the various elements that can appear on a tile (track segments, revenue centres, token spaces, labels) and constructs the track network for each tile.</li>
+<li><code>n18token</code> defines the token types and manages the collection of available tokens</li>
+<li><code>n18catalogue</code> defines the range of available tiles, including both the tiles that a player may place during a game, but also the tiles that make up the initial map (such as cities and towns, preexisting track segments, and off-board locations).</li>
+<li><code>n18map</code> manages the state of a game map, such as tile and token placement.</li>
+<li><code>n18io</code> defines <code>Serialize</code> and <code>Deserialize</code> implementations for the types defined by each of the above crates.</li>
+<li><code>n18route</code> finds the optimal set of routes that can be operated by a company’s trains for a given map state.</li>
+<li><code>n18game</code> defines the elements that are required to describe a specific 18xx game implementation, and currently provides an (incomplete) implementation of 1867.</li>
+<li><code>n18brush</code> defines common drawing operations, such as drawing the map background, drawing each map hex, and highlighting train routes.</li>
+<li><code>n18ui</code> defines a GTK user interface for creating and modifying 18xx map states, and calculating the optimal revenue for each company.</li>
+<li><code>n18example</code> provides convenience functions for building example figures of maps, routes, etc.</li>
+</ul>
+<p>The <code>navig18xx</code> crate exports the main public types, traits, values, and functions from these crates in the <code>navig18xx::prelude</code> module.</p>
+<p>It also exports each of these crates without the <code>n18</code> prefix.
+For example, <code>n18hex</code> is re-exported as <code>navig18xx::hex</code>.</p>
+<h2 id="crate-dependency-graph"><a class="header" href="#crate-dependency-graph">Crate dependency graph</a></h2>
+<p><img src="dev_guide/dependencies.png" alt="The crate dependency graph" /></p>
+<p>Everything related to individual tiles, including their layout and contents, is provided by the <code>n18hex</code> and <code>n18tile</code> crates.
+The <code>n18token</code> and <code>n18map</code> crates provide the building blocks for defining and working with 18xx game maps, and the <code>n18route</code> crate implements the route-finding algorithms.
+This forms the foundation for the higher-level features provided by the remaining crates.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="features"><a class="header" href="#features">Features</a></h1>
+<p>The <code>navig18xx</code> crate has one default feature: <code>ui</code>.
+Disabling this feature removes the dependency on <code>n18ui</code> and GTK.
+You can compile <code>navig18xx</code> without this feature with the following command:</p>
+<pre><code class="language-shell">cargo build --manifest-path crates/navig18xx/Cargo.toml -p navig18xx --no-default-features
+</code></pre>
+<p>Similarly, you can build the <code>navig18xx</code> documentation without this feature with the following command:</p>
+<pre><code class="language-shell">cargo doc --manifest-path crates/navig18xx/Cargo.toml -p navig18xx --no-default-features
+</code></pre>
+<p>Note that the <code>--manifest-path</code> arguments <a href="https://github.com/rust-lang/cargo/issues/4753">are</a> <a href="https://github.com/rust-lang/cargo/issues/5015">necessary</a> with Cargo’s original <a href="https://doc.rust-lang.org/cargo/reference/resolver.html">feature resolver</a>.</p>
+<h2 id="updated-feature-resolver"><a class="header" href="#updated-feature-resolver">Updated feature resolver</a></h2>
+<p>As of <a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html">Rust 1.51</a> we have the option of enabling the “version 2” feature resolver, and avoiding the need for the <code>--manifest-path</code> arguments, by adding the following to the top-level <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[package]
+resolve = 2
+</code></pre>
+<p>This <a href="https://doc.rust-lang.org/cargo/reference/features.html">changes the behavior</a> of the <code>--features</code> and <code>--no-default-features</code> command-line options, so that they enable/disable features for all workspace members.
+Note that this resolver may also result in duplicated dependencies, which can be detected by running <code>cargo tree --duplicates</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
+<p>Run <strong>most</strong> of the test cases (unit tests, documentation tests, integration tests, and examples) with the following command:</p>
+<pre><code class="language-shell">cargo test --all-targets
+</code></pre>
+<p>This will skip <strong>ignored</strong> tests, such as the <code>1867_bc</code> example which can take several minutes to run.
+Run these ignored tests with the following command:</p>
+<pre><code class="language-shell">cargo test --all-targets -- --ignored
+</code></pre>
+<p>As of Rust 1.51, you can run <strong>all</strong> tests by passing <code>--include-ignored</code> to the test binaries:</p>
+<pre><code class="language-shell">cargo test --all-targets -- --include-ignored
+</code></pre>
+<p><strong>Note:</strong> you may want to build the ignored tests in release mode (i.e., with optimisations enabled) so that they take less time to run.</p>
+<h2 id="comparing-output-images"><a class="header" href="#comparing-output-images">Comparing output images</a></h2>
+<p>Compare changed output images by making a copy of the original image and identifying changed pixels in red:</p>
+<pre><code class="language-shell">git show HEAD:path/to/image.png &gt; original_image.png
+compare -compose src original_image.png path/to/image.png diff.png
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tokens"><a class="header" href="#tokens">Tokens</a></h1>
+<p><img src="dev_guide/draw_tokens.png" alt="Examples of token styles" /></p>
+<p>This image was produced by the following code:</p>
+<pre><code class="language-rust no_run noplayground">fn new_context(width: i32, height: i32) -&gt; (Context, ImageSurface) {
+    let surface = ImageSurface::create(Format::ARgb32, width, height)
+        .expect(&quot;Can't create surface&quot;);
+    let context =
+        Context::new(&amp;surface).expect(&quot;Can't create cairo::Context&quot;);
+    (context, surface)
+}
+
+fn draw_tokens(output_dir: &amp;output::Dir) -&gt; Result {
+    let output_file = output_dir.join(&quot;draw_tokens.png&quot;);
+
+    let rows = 5;
+    let cols = 8;
+
+    let width = cols as f64 * 2.0 * TOKEN_RADIUS_MARGIN;
+    let height = rows as f64 * 2.0 * TOKEN_RADIUS_MARGIN;
+    let (ctx, surf) = new_context(width as i32, height as i32);
+
+    // Background colours for minor (yellow) and major (green) companies.
+    let bg_yellow = Colour::from((223, 223, 0));
+    let bg_green = Colour::from((0, 153, 63));
+    let bg_dark_green = Colour::from((0, 77, 31));
+    let bg_iter = std::iter::repeat(bg_yellow)
+        .take(16)
+        .chain(std::iter::repeat(bg_green).take(8))
+        .chain(std::iter::repeat(bg_dark_green).take(16));
+
+    // Foreground colours.
+    let aqua = Colour::from((0, 204, 204));
+    let blue = Colour::from((0, 63, 204));
+    let red = Colour::from((223, 0, 0));
+    let purple = Colour::from((127, 0, 223));
+    let fg_colours = vec![aqua, blue, red, purple];
+    let fg_count = fg_colours.len();
+    let fg_iter = fg_colours.into_iter().cycle();
+
+    // Define token styles and create tokens.
+    let tokens: Vec&lt;Token&gt; = bg_iter
+        .zip(fg_iter)
+        .enumerate()
+        .map(|(ix, (bg, fg))| {
+            // Use black text on yellow, and white text on green.
+            let text = if bg == bg_yellow {
+                Colour::BLACK
+            } else {
+                Colour::WHITE
+            };
+            // Cycle through token styles, repeating each style in turn so
+            // that it is paired with all of the foreground colours.
+            match ix / fg_count {
+                0 =&gt; TokenStyle::TopLines { bg, fg, text },
+                1 =&gt; TokenStyle::TopTriangles { bg, fg, text },
+                2 =&gt; TokenStyle::TopArcs { bg, fg, text },
+                3 =&gt; TokenStyle::TripleTriangles { bg, fg, text },
+                4 =&gt; TokenStyle::TopLines { bg, fg, text },
+                5 =&gt; TokenStyle::TopTriangles { bg, fg, text },
+                6 =&gt; TokenStyle::TribandH {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                7 =&gt; TokenStyle::TribandV {
+                    sides: bg,
+                    middle: fg,
+                    text,
+                },
+                8 =&gt; TokenStyle::TricolourH {
+                    top: bg,
+                    middle: fg,
+                    bottom: if bg == bg_yellow {
+                        bg_green
+                    } else {
+                        bg_yellow
+                    },
+                    text,
+                },
+                _ =&gt; TokenStyle::TricolourV {
+                    left: bg,
+                    middle: fg,
+                    right: if bg == bg_yellow { bg_green } else { bg_yellow },
+                    text,
+                },
+            }
+        })
+        .map(Token::new)
+        .collect();
+
+    // Define the token names
+    let names = vec![
+        &quot;BBG&quot;, &quot;BO&quot;, &quot;CV&quot;, &quot;CS&quot;, &quot;KP&quot;, &quot;LPS&quot;, &quot;OP&quot;, &quot;SLA&quot;, &quot;TGB&quot;, &quot;TN&quot;, &quot;AE&quot;,
+        &quot;CA&quot;, &quot;NYO&quot;, &quot;PM&quot;, &quot;QLS&quot;, &quot;THB&quot;, &quot;CNR&quot;, &quot;CPR&quot;, &quot;C&amp;O&quot;, &quot;GT&quot;, &quot;GW&quot;,
+        &quot;IRC&quot;, &quot;NTR&quot;, &quot;NYC&quot;,
+        // Repeat the first 16 names to demonstrate the banded styles.
+        &quot;BBG&quot;, &quot;BO&quot;, &quot;CV&quot;, &quot;CS&quot;, &quot;KP&quot;, &quot;LPS&quot;, &quot;OP&quot;, &quot;SLA&quot;, &quot;TGB&quot;, &quot;TN&quot;, &quot;AE&quot;,
+        &quot;CA&quot;, &quot;NYO&quot;, &quot;PM&quot;, &quot;QLS&quot;, &quot;THB&quot;,
+    ];
+
+    let hex = Hex::new(HEX_DIAMETER);
+    let rotn = 0.0;
+
+    let mut tok_ix = 0;
+    for row in 0..rows {
+        for col in 0..cols {
+            // Define the token boundary.
+            let x = TOKEN_RADIUS_MARGIN * (1.0 + 2.0 * col as f64);
+            let y = TOKEN_RADIUS_MARGIN * (1.0 + 2.0 * row as f64);
+            ctx.new_path();
+            ctx.arc(x, y, TOKEN_RADIUS, 0.0, 2.0 * PI);
+
+            // Draw the token.
+            tokens[tok_ix].draw(&amp;hex, &amp;ctx, names[tok_ix], rotn);
+
+            tok_ix += 1;
+        }
+    }
+
+    let mut file = std::fs::File::create(output_file)
+        .expect(&quot;Couldn't create output PNG file&quot;);
+    surf.write_to_png(&amp;mut file)
+        .expect(&quot;Couldn't write to output PNG file&quot;);
+
+    Ok(())
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="identifying-optimal-routes"><a class="header" href="#identifying-optimal-routes">Identifying optimal routes</a></h1>
+<p><strong>TODO:</strong> define the terms “path” and “route”.</p>
+<p>We divide the process of identifying the optimal routes for a company to
+operate into the following steps:</p>
+<ol>
+<li>
+<p>Identify all routes available to the company;</p>
+<ul>
+<li>
+<p>Constructing routes from each placed token.</p>
+<ul>
+<li>
+<p>Paths as a sequence of <code>n18tile::Connection</code> values: <code>Track</code>, <code>Dit</code>,
+<code>City</code>, <code>Face</code>.</p>
+</li>
+<li>
+<p>The need to represent all of the track segments, in addition to mere
+connectivity between dits and cities.</p>
+</li>
+<li>
+<p>Use of <code>Face</code> and <code>n18map::Map::adjacent_face</code> so that we can divide
+connectivity into two concerns: within-tile connectivity as provided by
+<code>n18tile::Tile::connections</code>, and between-tile connectivity as provided
+by <code>Map</code>.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Joining routes together to form new routes.</p>
+</li>
+<li>
+<p>Constraints on, e.g., the number of stops.</p>
+</li>
+<li>
+<p>Can be extended to consider hex trains.</p>
+</li>
+<li>
+<p>“Flood” trains
+(<a href="https://boardgamegeek.com/listitem/7326833?commentid=9566272#comment9566272">description</a>)
+can also be handled, although this requires a depth-first search that
+records cities and dits, rather than paths.
+Pick one placed station and sum every revenue centre that can be reached
+with no path limit and the ability to reuse track segments.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Identify all valid combinations of available routes;</p>
+<ul>
+<li>No track segments in common.</li>
+</ul>
+</li>
+<li>
+<p>Identify all valid pairings of trains to routes; and</p>
+<ul>
+<li>Number of stops, number of hexes, etc.</li>
+</ul>
+</li>
+<li>
+<p>Identify the optimal pairing of trains to routes.</p>
+<ul>
+<li>
+<p>Express trains: where to stop?</p>
+</li>
+<li>
+<p>Route bonuses.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>We now describe each of these steps in turn.</p>
+<p><strong>TODO:</strong> include diagrams to illustrate each step.
+Show, e.g.,:</p>
+<ul>
+<li>
+<p>Multiple (conflicting and non-conflicting) routes starting from a single
+token;</p>
+</li>
+<li>
+<p>Joining paths;</p>
+</li>
+<li>
+<p>Path combinations;</p>
+</li>
+<li>
+<p>Multiple routes along the same path due to different skips/stops.</p>
+</li>
+<li>
+<p>Here is an example where the optimal routes for a pair of trains involves
+sub-optimal routes for each train:</p>
+<table><thead><tr><th align="center">Map</th><th>Description</th></tr></thead><tbody>
+<tr><td align="center"><img src="dev_guide/opt_r1.png" alt="" /></td><td>Four connected cities</td></tr>
+<tr><td align="center"><img src="dev_guide/opt_r1_8.png" alt="" /></td><td>8-train: optimal revenue is $320</td></tr>
+<tr><td align="center"><img src="dev_guide/opt_r1_2p2.png" alt="" /></td><td>2+2-train: optimal revenue is $400</td></tr>
+<tr><td align="center"><img src="dev_guide/opt_r1_both.png" alt="" /></td><td>Both trains: optimal revenue is $590</td></tr>
+</tbody></table>
+</li>
+</ul>
+<h2 id="identifying-all-available-routes"><a class="header" href="#identifying-all-available-routes">Identifying all available routes</a></h2>
+<p>We assume that all routes operated by a company must pass through a city that
+contains one of the company’s token.</p>
+<ol>
+<li>
+<p>We first define the route limits, such as maximum number of stops, if any.</p>
+</li>
+<li>
+<p>We then loop over all of the company’s placed tokens and, for each placed
+token, construct all valid paths that <strong>start at this token</strong>.</p>
+</li>
+<li>
+<p>To allow for paths that <strong>pass through</strong> a placed token, we form new paths
+by joining pairs of paths that both start at the same placed token, subject
+to the following constraints:</p>
+<ul>
+<li>
+<p>The two paths being joined do not have any conflicts (i.e., they don’t
+have any elements in common except for the placed token); and</p>
+</li>
+<li>
+<p>The combined path respects constraints on length, number of stops, etc.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>To avoid duplicating paths that pass through more than one of the company’s
+placed tokens, we:</p>
+<ul>
+<li>
+<p>Define an ordering on token spaces across the entire map, by representing
+each token space as a <code>(HexAddress, usize)</code> tuple, where <code>HexAddress</code>
+implements <code>Ord</code> and the <code>usize</code> element is the index of the token space
+on its tile.</p>
+</li>
+<li>
+<p>When constructing paths that start at a placed token, we stop searching
+when another of the company’s placed tokens is reached <strong>and</strong> according
+to the <code>(HexAddress, usize)</code> ordering this encountered token comes before
+(i.e., is less than) the starting token.</p>
+</li>
+</ul>
+<p>This ensures that any connection between two of the company’s placed tokens
+is only explored in a single (arbitrary, but consistent) direction.</p>
+<p>Note that this is sufficient to identify all valid paths.
+Each valid path will reach (or pass through) at least one placed token and,
+of these tokens, one will be the “minimum” token according to the
+<code>(HexAddress, usize)</code> ordering.
+This path will then be constructed by steps 2 and 3, above, when starting
+from this “minimum” token.</p>
+</li>
+<li>
+<p>If the company owns any trains that can skip over towns and/or cities, we
+consider paths of arbitrary length, with the restriction that any train
+that operates this route:</p>
+<ul>
+<li>
+<p>Must stop at the first and last revenue centres; and</p>
+</li>
+<li>
+<p>May skip over revenue centres in the middle of the route.</p>
+</li>
+</ul>
+<p>Note that in this case, a single path represents <strong>multiple routes</strong> that
+traverse the same path, but where the train stops at a different subset of
+the available revenue centres.</p>
+</li>
+</ol>
+<h2 id="identifying-all-valid-combinations-of-routes"><a class="header" href="#identifying-all-valid-combinations-of-routes">Identifying all valid combinations of routes</a></h2>
+<p>We need to consider all \(k\)-combinations of routes where there is at least
+one route, but no more routes than the number of trains owned by the company.
+That is, for a company that owns \(T\) trains, we need to consider all
+\(k\)-combinations for each \(k: 1 \le k \le T \).</p>
+<p>We also want to ignore any combination of routes where any of the routes
+conflict with each other (e.g., by using the same track segment).
+Note that by exploring all valid <strong>combinations</strong>, we ignore the <strong>order</strong> in
+which routes are combined.</p>
+<p>This is implemented by <code>n18route::comb::CombinationsFilter</code>, which internally
+iterates over all route combinations and skips over combinations where any of
+the routes conflict with each other.</p>
+<h2 id="identifying-all-valid-pairings-of-trains-to-routes"><a class="header" href="#identifying-all-valid-pairings-of-trains-to-routes">Identifying all valid pairings of trains to routes</a></h2>
+<p>We assume that the revenue earned from operating a route only depends on the
+<strong>train type</strong>.
+For example, if a company owns two <code>2</code> trains we do not need to consider the
+order in which they are paired with routes, because the results will be
+identical.</p>
+<p>But for a given combination of routes — in which the routes will
+necessarily be listed in a specific order — the order in which we
+allocate train types to these routes <strong>matters</strong>.
+For example, if there are two routes that visit exactly two cities and the
+company owns a <code>2</code> train <strong>and</strong> a <code>2+2</code> train, the net revenue will be higher
+if the <code>2+2</code> train operates the route that earns the greatest revenue.</p>
+<p>So for a given (ordered) combination of \(R\) routes we need to explore all
+of the \(R\)-permutations of the company’s trains that are unique in their
+ordering of <strong>train types</strong>.</p>
+<p>This is implemented by <code>n18route::perm::KPermutationsFilter</code>, which internally
+iterates over all train <em>k</em>-permutations and skips over permutations that
+don’t change the ordering of train types.</p>
+<h2 id="identifying-the-optimal-combination-of-routes"><a class="header" href="#identifying-the-optimal-combination-of-routes">Identifying the optimal combination of routes</a></h2>
+<p>Once we have collected all of the possible paths for a company, we need to
+find the allocation of company trains to routes that yields the greatest
+revenue.
+There are a number of complications to consider:</p>
+<ol>
+<li>
+<p>For a given set of routes, the revenue may depend on how we allocate these
+routes to the company’s trains.
+For example, if there are two routes that visit exactly two cities and the
+company owns a <code>2</code> train <strong>and</strong> a <code>2+2</code> train, the <code>2+2</code> train should run
+on the route that earns the greatest revenue.</p>
+</li>
+<li>
+<p>We need to consider operating fewer routes than the company has trains.</p>
+</li>
+<li>
+<p>For express trains, we must consider routes of all possible lengths, and
+determine the combination of visiting and skipping cities along each route
+that earns the greatest revenue.</p>
+<ul>
+<li>
+<p>So for an express train that can make up to <code>N</code> stops, it must stop at
+the first and last stops on the path, and up to <code>N - 2</code> stops anywhere
+else along the path.</p>
+</li>
+<li>
+<p>Note that route bonuses may affect which of the <code>N - 2</code> stops earn the
+most revenue, so we need to evaluate <strong>every combination</strong> of stopping
+at, or skipping over, each revenue centre (except for the first and last
+centres, where the train must stop).</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Routes may earn bonus revenue from a variety of sources, such as:</p>
+<ul>
+<li>
+<p>By owning private companies that provide bonus revenue when visiting a
+specific location.</p>
+</li>
+<li>
+<p>By visiting a specific combination of cities.
+For example, in 1867 the city of Timmins normally earns $40, but if the
+route also includes at least one of Toronto, Montréal, or Québec, its
+revenue is doubled ($80).</p>
+</li>
+</ul>
+<p>These bonuses are game-specific and context-dependent.
+The supported bonus types are defined by the <code>n18route::bonus::Bonus</code> enum.</p>
+</li>
+</ol>
+<p><strong>TODO:</strong> haven’t described all steps of the algorithm ...</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="performance"><a class="header" href="#performance">Performance</a></h1>
+<p>We will use the final operating round of the Bankruptcy Club’s recorded game of 1867 as an example, and consider the following three companies:</p>
+<ul>
+<li>Canadian Northern Railway (CNR), which has a 5-train and a 5+5E-train, and runs for $102 per share (<a href="https://youtu.be/vE0UNDA4qQQ?t=13365">link</a>);</li>
+<li>Great Western Railway (GW), which has a 5-train and an 8-train, and runs for $76 per share (<a href="https://youtu.be/vE0UNDA4qQQ?t=13580">link</a>); and</li>
+<li>Chesapeake and Ohio Railway (C&amp;O), which has a 6-train and an 8-train, and runs for $89 per share (<a href="https://youtu.be/vE0UNDA4qQQ?t=14010">link</a>, <a href="https://youtu.be/vE0UNDA4qQQ?t=14470">final decision</a>).</li>
+</ul>
+<p>For all three companies, the <code>navig18xx</code> crate allows us to find better routes that earn more revenue.</p>
+<ul>
+<li>Canadian Northern Railway can earn $113 per share, an increase of $11.</li>
+<li>Great Western Railway can earn $84 per share, an increase of $8.</li>
+<li>Chesapeake and Ohio Railway can earn $90 per share, an increase of $1.</li>
+</ul>
+<p>Each company also serves as a good benchmark for measuring performance.
+They can operate tens of thousands of paths, and with 2 trains this results in hundreds of millions to billions of potential path combinations:</p>
+<table><thead><tr><th>Company</th><th align="right">Number of paths</th><th align="right">Number of path combinations</th></tr></thead><tbody>
+<tr><td>GW</td><td align="right">15,008</td><td align="right">112,612,528</td></tr>
+<tr><td>C&amp;O</td><td align="right">46,176</td><td align="right">1,066,088,400</td></tr>
+<tr><td>CNR</td><td align="right">67,948</td><td align="right">2,308,431,378</td></tr>
+</tbody></table>
+<p>Profiling revealed that the overwhelming majority of time was being spent determining whether each combination of paths could be operated together (i.e., checking for route conflicts).</p>
+<p>The following optimisations have been introduced:</p>
+<ul>
+<li><strong>Record fewer conflicts:</strong>
+<ul>
+<li>We do not need to record track segment conflicts, since every track segment connects to a hex face, and two track segments that connect to the same hex face are considered to share track.</li>
+<li>We only need to record one hex face conflict for each pair of adjacent hex faces.</li>
+</ul>
+</li>
+<li><strong>Sort conflicts:</strong> store route conflicts in sorted vectors, to minimise the number of comparisons required to identify whether two paths conflict.</li>
+<li><strong>Parallel iterator:</strong> iterate over the huge numbers of path combinations in parallel using <a href="https://github.com/rayon-rs/rayon">rayon</a>.</li>
+<li><strong>B-Trees:</strong> ensure <a href="dev_guide/./determinism.html">deterministic results</a> by using B-Trees instead of hashed data structures.</li>
+</ul>
+<table><thead><tr><th></th><th align="right">GW</th><th align="right">C&amp;O</th><th align="right">CNR</th></tr></thead><tbody>
+<tr><td>Initial</td><td align="right">0:37</td><td align="right">5:23</td><td align="right">13:02</td></tr>
+<tr><td>Fewer conflicts</td><td align="right">0:22</td><td align="right">4:08</td><td align="right">9:35</td></tr>
+<tr><td>Sorted conflicts</td><td align="right">0:12</td><td align="right">1:42</td><td align="right">4:58</td></tr>
+<tr><td>Parallel iterator</td><td align="right">0:06</td><td align="right">0:51</td><td align="right">2:26</td></tr>
+<tr><td>B-Trees</td><td align="right">0:05</td><td align="right">0:45</td><td align="right">2:01</td></tr>
+<tr><td><strong>Improvement:</strong></td><td align="right"><strong>86%</strong></td><td align="right"><strong>86%</strong></td><td align="right"><strong>85%</strong></td></tr>
+</tbody></table>
+<p>These times were obtained by running <code>cargo test --release 1867_bc</code> using Rust 1.48.0 on Debian Buster (Linux kernel 5.10.28) with 8 GB RAM and an Intel Core i7-5600U CPU (2 cores, 4 MB cache).
+The times reported for the <strong>B-Trees</strong> optimisation were obtained using Rust 1.54.0 and Linux kernel 5.10.46, but these software updates did not change the times obtained for the <strong>Parallel iterator</strong> optimisation.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="profiling"><a class="header" href="#profiling">Profiling</a></h1>
+<p>The <a href="https://nnethercote.github.io/perf-book/">Rust Performance Book</a> lists a number of different <a href="https://nnethercote.github.io/perf-book/profiling.html">profilers</a>.
+I have used <a href="https://github.com/flamegraph-rs/flamegraph">cargo-flamegraph</a> and <a href="https://perf.wiki.kernel.org/index.php/Main_Page">perf</a> to profile <code>navig18xx</code>.
+This allowed me to identify that when finding the optimal pairing of trains to routes (<code>Trains::select_routes</code>) the majority of time was being spent determining whether pairs of paths had any conflicts or could be operated together.
+This analysis can be reproduced with the following steps:</p>
+<ol>
+<li>
+<p>Install the necessary packages; e.g., on Debian Linux:</p>
+<pre><code class="language-sh">sudo apt install linux-perf
+cargo install flamegraph
+</code></pre>
+</li>
+<li>
+<p>Delete the cached routes for one company so that the <code>1867_bc</code> example will have to identify them again:</p>
+<pre><code class="language-sh">rm ./examples/output/1867_bc_D.json
+</code></pre>
+</li>
+<li>
+<p>Profile the <code>1867_bc</code> example and generate a flamegraph:</p>
+<pre><code class="language-sh">cargo flamegraph --example 1867_bc --output flamegraph-1867_bc.svg
+</code></pre>
+</li>
+</ol>
+<p><strong>Note:</strong> this can generate many gigabytes of performance data, particularly if you delete the cached routes for more than one company.</p>
+<h2 id="collecting-profiling-information"><a class="header" href="#collecting-profiling-information">Collecting profiling information</a></h2>
+<p>Note that you may need to temporarily decrease the value of <code>perf_event_paranoid</code> in order to collect profiling information.
+You should then restore its original value.</p>
+<pre><code class="language-sh">echo 2 | sudo tee /proc/sys/kernel/perf_event_paranoid
+cargo flamegraph --example 1867_bc --output flamegraph-1867_bc.svg
+echo 3 | sudo tee /proc/sys/kernel/perf_event_paranoid
+</code></pre>
+<h2 id="improved-output-for-release-builds"><a class="header" href="#improved-output-for-release-builds">Improved output for release builds</a></h2>
+<p>If profiling a release build, you may want to ensure that full debugging information is collected so that the profiling output is easier to interpret.
+To do this, either set the environment variable <code>CARGO_PROFILE_RELEASE_DEBUG=true</code> or <em>temporarily</em> add the following lines to <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[profile.release]
+debug = true
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="determinism"><a class="header" href="#determinism">Determinism</a></h1>
+<p>By default, the Rust <a href="https://doc.rust-lang.org/std/collections/struct.HashMap.html">HashMap</a> and <a href="https://doc.rust-lang.org/std/collections/struct.HashMap.html">HashSet</a> types use a randomly-seeded hashing algorithm, which means that they cannot be relied upon to provide a consistent ordering.</p>
+<p>While it is possible to override the hashing algorithm, a simpler alternative is to use the <a href="https://doc.rust-lang.org/std/collections/struct.BTreeMap.html">BTreeMap</a> and <a href="https://doc.rust-lang.org/std/collections/struct.BTreeSet.html">BTreeSet</a> types, which require that the key type has a well-defined ordering (i.e, it must implement the <a href="https://doc.rust-lang.org/std/cmp/trait.Ord.html">Ord</a> trait).</p>
+<p>This has resulted in a small, but consistent, increase in <a href="dev_guide/./performance.html">performance</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="gtk-user-interface"><a class="header" href="#gtk-user-interface">GTK user interface</a></h1>
+<p>The <code>rusty_train</code> program uses (synchronous) channels to pass messages to a single event-handler that owns and mutates the UI state (<code>navig18xx::prelude::UI</code>).
+The map state is drawn on an off-screen image surface, and whenever the event-handler determines that the user interface needs to be redrawn, it copies the contents of this off-screen surface to the on-screen drawing area.</p>
+<p>I had previously tried using a <code>Rc&lt;RefCell&lt;UI&gt;&gt;</code> value to share a single mutable UI, but this <a href="https://mmstick.keybase.pub/rust-gtk-practices/">isn’t a great idea</a>; message passing is a <a href="https://coaxion.net/blog/2019/02/mpsc-channel-api-for-painless-usage-of-threads-with-gtk-in-rust/">much nicer alternative</a>.</p>
+<p>I also tried drawing the updated map state to a <a href="https://gtk-rs.org/docs/cairo/struct.RecordingSurface.html">recording surface</a> and then copying this content to the on-screen drawing area, but this proved to be <strong>extremely</strong> slow.
+Switching from a recording surface to a plain image surface resolved this issue, because the recording surface records each operation at the <strong>most abstract level</strong> and then replays them one by one.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="to-do-list"><a class="header" href="#to-do-list">To-do list</a></h1>
+<p>This describes the development road-map.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="documentation-to-do-list"><a class="header" href="#documentation-to-do-list">Documentation to-do list</a></h1>
+<p>The documentation for each module needs to be fleshed out with
+introductory text and examples, and more detailed documentation for
+individual types and functions.
+See the <a href="https://rust-lang.github.io/api-guidelines/documentation.html">Rust documentation guidelines</a> for details.</p>
+<h2 id="document-public-items"><a class="header" href="#document-public-items">Document public items</a></h2>
+<p>Identify public items that are missing documentation by running:</p>
+<pre><code class="language-sh">cargo clippy --all-targets -- -W missing_docs
+</code></pre>
+<p>For reference, see <a href="https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html">this list of allowed-by-default lints</a>.</p>
+<h2 id="architecture-diagram"><a class="header" href="#architecture-diagram">Architecture diagram</a></h2>
+<p>We currently generate a dependency graph:</p>
+<p><img src="todo/../dev_guide/dependencies.png" alt="The crate dependency graph" /></p>
+<p>But perhaps we can convey further details with an architecture diagram.
+For example, SQLite has a great <a href="https://sqlite.org/arch.html">architecture document</a> that includes a very clear diagram.</p>
+<h2 id="examples-of-crate-documentation"><a class="header" href="#examples-of-crate-documentation">Examples of crate documentation</a></h2>
+<p>The <a href="https://github.com/BurntSushi/rust-csv/">csv crate</a> has excellent documentation, including a <a href="https://docs.rs/csv/*/csv/tutorial/index.html">tutorial</a> and a <a href="https://docs.rs/csv/*/csv/cookbook/index.html">cookbook</a>.</p>
+<h2 id="hosting-on-docsrs"><a class="header" href="#hosting-on-docsrs">Hosting on docs.rs</a></h2>
+<p>See the <a href="https://docs.rs/about">docs.rs documentation</a> for information about the documentation is generated.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="implementation-details"><a class="header" href="#implementation-details">Implementation details</a></h1>
+<p>This page collects implementation details that should be added, changed, removed, or fixed.</p>
+<h2 id="invalid-route-finding-options"><a class="header" href="#invalid-route-finding-options">Invalid route-finding options</a></h2>
+<p>The route-finding algorithm assumes that routes can be constructed from one or more paths, where each path starts at a token T1 and never proceeds past a token T2 where T2 &gt; T1, and we join pairs of paths that both start from the same token T and have no conflicts.</p>
+<p>The path-building algorithm and route-finding algorithm both assume that a single path cannot pass through the same revenue centre more than once.
+Note that the path-building algorithm stops whenever it encounters any kind of connection (hex face, track segment, revenue centre) that it has already visited.</p>
+<p>The search criteria (<code>n18route::search::Criteria</code>) cannot allow <code>conflict_rule</code> to be <code>ConflictRule::TrackOnly</code> (i.e., no track segment in common), because this would mean that a single route could visit the same revenue centre multiple times, if there are sufficient track connections.</p>
+<ul>
+<li>
+<p>So the implementation should panic, or return an <code>Error</code> value.</p>
+</li>
+<li>
+<p>Are there any games where this is a relevant concern?
+Note that this does not apply to “Flood” trains, which earn revenue from every revenue centre that can be reached from a single token (i.e., only requires a search from each matching token, and selecting the token that earns the most revenue).</p>
+</li>
+</ul>
+<p>See the <code>n18route::search</code> and <code>n18route::train</code> modules for the implementation.</p>
+<h2 id="error-handling"><a class="header" href="#error-handling">Error handling</a></h2>
+<p>The current implementation generally avoids returning <code>Result&lt;T,E&gt;</code> values and instead panics when an error is encountered.
+Many of these panics are triggered by Cairo errors, such as failing to create a surface or context, or failing to draw on a surface, for which there is no obvious mitigation and panicking is an acceptable solution.</p>
+<ul>
+<li>But other panics should be removed and <code>Result&lt;T,E&gt;</code> values should be returned in their place.</li>
+</ul>
+<p>Potential panics can be located with the following command:</p>
+<pre><code class="language-sh">grep --color=always -E '(\.unwrap|\.expect|panic!\()' -r crates/ tests/ examples/ src/
+</code></pre>
+<p>See <a href="https://www.lpalmieri.com/posts/error-handling-rust/">this article about error handling in Rust</a>, which frames error handling in terms of their <strong>purpose</strong> and <strong>location</strong>.</p>
+<p>Relevant crates include <a href="https://github.com/dtolnay/anyhow">anyhow</a>, <a href="https://github.com/yaahc/eyre">eyre</a>, and <a href="https://github.com/dtolnay/thiserror">thiserror</a>.</p>
+<p>Also see <a href="https://redd.it/pegi1d">this /r/rust discussion</a> about disallowing specific methods with clippy.</p>
+<h2 id="builder-patterns"><a class="header" href="#builder-patterns">Builder patterns</a></h2>
+<p>Some of the more complex data structures would benefit from a <strong>builder</strong> to simplify their construction.
+The preferred option is a <a href="https://rust-lang.github.io/api-guidelines/type-safety.html#builders-enable-construction-of-complex-values-c-builder">non-consuming builder</a> whose methods accept <code>&amp;mut self</code> values and return <code>&amp;mut Self</code> values.</p>
+<p>I have implemented builders for some types (some consuming, some non-consuming), and have defined builder-like methods for other types (e.g., <code>n18hex::theme::Text</code>).</p>
+<ul>
+<li>
+<p>There are likely other types for which a builder would be useful.</p>
+</li>
+<li>
+<p>Consuming builders should probably be converted into non-consuming builders.</p>
+</li>
+</ul>
+<h2 id="remove-n18io-crate"><a class="header" href="#remove-n18io-crate">Remove n18io crate</a></h2>
+<p>It is possible to use <a href="https://rust-lang.github.io/api-guidelines/interoperability.html#data-structures-implement-serdes-serialize-deserialize-c-serde">features to enable/disable (de)serialisation</a>, which would remove the need for the <code>n18io</code> crate.</p>
+<p>To include/exclude both serde and serde_json we need to define a single feature that enables/disables both crates:</p>
+<pre><code class="language-toml">[features]
+load_save = [&quot;serde&quot;, &quot;serde_json&quot;]
+</code></pre>
+<p>Note that optional dependencies <a href="https://doc.rust-lang.org/cargo/reference/features.html">implicitly define</a> a feature of the same name as the dependency, and so explicit features cannot use the same name as a dependency.</p>
+<ul>
+<li>The <code>namespaced-features</code> feature would allow us to define a <code>serde</code> feature than enables both crates; see the <a href="https://github.com/rust-lang/rfcs/pull/3143">RFC</a> and <a href="https://github.com/rust-lang/cargo/issues/5565">tracking issue</a> for details.</li>
+</ul>
+<p>But note that features and workspaces <strong>are not easily combined</strong>; see these issues — <a href="https://github.com/rust-lang/cargo/issues/4463">1</a>, <a href="https://github.com/rust-lang/cargo/issues/5015">2</a>, <a href="https://github.com/rust-lang/cargo/issues/5251">3</a>, <a href="https://github.com/rust-lang/cargo/issues/9094">4</a> — for some perspective.</p>
+<ul>
+<li>
+<p>It would appear that each crate would need to define this <code>load_save</code> feature, and for the <code>navig18xx</code> crate this feature would enable <code>crate-name/load_save</code> for each of these crates.</p>
+</li>
+<li>
+<p>The <code>navig18xx</code> crate should have no features enabled by default (i.e., not <code>load_save</code> or <code>ui</code>).
+These features can be enabled in the root <code>Cargo.toml</code> file so that they’re available to the <code>rusty_train</code> binary.</p>
+</li>
+</ul>
+<h2 id="use-a-single-index-for-token-spaces"><a class="header" href="#use-a-single-index-for-token-spaces">Use a single index for token spaces</a></h2>
+<p>Token spaces are currently indexed by revenue centre and by the token space number in that revenue centre.
+Using a flat index <code>0..N</code> instead (or in addition) could make other parts of the code simpler and easier to understand.
+For example, this would make it much simpler to show all placed tokens on replacement tiles.</p>
+<h2 id="separate-combinations-and-permutations-crates"><a class="header" href="#separate-combinations-and-permutations-crates">Separate combinations and permutations crates</a></h2>
+<ul>
+<li>Consider splitting out the <code>n18route::comb</code> and <code>n18route::perm</code> modules into separate crates (e.g., <code>n18comb</code> and <code>n18perm</code>).</li>
+</ul>
+<h2 id="export-items-in-crate-root"><a class="header" href="#export-items-in-crate-root">Export items in crate root</a></h2>
+<p>Maybe we should (re)export every public type or function from the crate root.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="planned-features"><a class="header" href="#planned-features">Planned features</a></h1>
+<h2 id="valid-tile-upgrades"><a class="header" href="#valid-tile-upgrades">Valid tile upgrades</a></h2>
+<p>Across most (all?) 18xx games there are <a href="https://www.railsonboards.com/2020/12/26/permissive-restrictive-semi-restrictive-what-it-means/">three different rules for upgrading track</a>:</p>
+<ul>
+<li>Permissive;</li>
+<li>Semi-Restrictive; and</li>
+<li>Restrictive.</li>
+</ul>
+<p>We could define an <code>UpgradeRule</code> enum with three variants.
+This would allow us to:</p>
+<ol>
+<li>
+<p>Identify candidate upgrade tiles (noting that candidates may not be valid for all possible tile rotations);</p>
+</li>
+<li>
+<p>Validate the chosen tile and rotation; and</p>
+</li>
+<li>
+<p>Place each token from the original tile in an appropriate token space.</p>
+</li>
+</ol>
+<p><strong>NOTE:</strong> the valid candidates may depend on which company is performing the upgrade, so candidate selection and validation will both require passing a valid <code>Token</code> to identify the company.</p>
+<p>Are there any situations where the <code>Game</code> itself should have some say in choosing candidates and/or validating the chosen replacement?</p>
+<ul>
+<li>
+<p>Given that some 18xx games include events that alter the map, such as the North-West Rebellion in 1882: Assiniboia, it is probably best to provide a default implementation (e.g., as a default method for <code>n18game::Game</code>) and allow individual games to override this as required.</p>
+</li>
+<li>
+<p>Or should we require each game to define the valid upgrade tiles, and only provide a default implementation for validation?
+This method could look something like:</p>
+<pre><pre class="playground"><code class="language-rust edition2018">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn upgrades_for(&amp;self, tile_name: &amp;str) -&gt; Option&lt;Vec&lt;&amp;str&gt;&gt;
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p>Games can then hard-code the upgrade options, and we only need to implement the validation logic and token placement for each of the <code>UpgradeRule</code> variants.</p>
+</li>
+</ul>
+<h3 id="representation"><a class="header" href="#representation">Representation</a></h3>
+<p>We would need to define a data structure that characterises the current tile’s topology and connections with respect to the company performing the upgrade.</p>
+<h3 id="ui-states"><a class="header" href="#ui-states">UI states</a></h3>
+<p>The current <code>ReplaceTile</code> state should be separated into two states:</p>
+<ul>
+<li>
+<p>A <code>ReplaceTile</code> state that only handles replacements, not upgrades (i.e., ignores placed tokens and upgrade concerns); and</p>
+</li>
+<li>
+<p>An <code>UpgradeTile</code> state that describes the current tile’s properties (see above) and only accepts valid upgrades.
+Whenever the candidate tile is changed or rotated, the hex border colour could be used to indicate whether the current configuration is a valid upgrade.</p>
+</li>
+</ul>
+<h2 id="undoredo"><a class="header" href="#undoredo">Undo/redo</a></h2>
+<p>Any UI event-handler that modifies the map should return an <code>Action</code> or <code>Command</code> enum that knows how to make <strong>and</strong> revert this modification to the map.
+The UI can then maintain a vector of past actions and an index to the current undo position, allowing the user to undo and redo these actions.
+Performing an action other than undo or redo would clear the future actions, and append this new action to the past actions.</p>
+<p>The <a href="https://rust-unofficial.github.io/patterns/patterns/behavioural/command.html">Command pattern</a> might be useful here.
+Also see <a href="https://redd.it/muei0l">these</a> <a href="https://redd.it/mtknz0">two</a> <code>/r/rust</code> discussions about implementing undo/redo, and the <a href="https://github.com/evenorog/undo">undo crate</a>.</p>
+<h2 id="port-to-gtk-4"><a class="header" href="#port-to-gtk-4">Port to GTK 4</a></h2>
+<p>The <a href="https://gtk-rs.org/">gtk-rs project</a> have released a <a href="https://crates.io/crates/gtk4">GTK 4 crate</a> and an <a href="https://gtk-rs.org/gtk4-rs/stable/latest/book/">introductory book</a>.</p>
+<p>It may be as simple as using the <code>gtk4</code> and <code>gdk4</code> crates, and making a few changes to the <code>rusty_train</code> binary.</p>
+<p>Note that GTK 4 is not yet packages for Debian stable, testing, or unstable.
+See <a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=992907">Debian bug 992907</a> for progress.</p>
+<h2 id="18xx-maker-json-schema"><a class="header" href="#18xx-maker-json-schema">18xx-maker JSON schema</a></h2>
+<p>See the <a href="https://github.com/18xx-maker/18xx-maker/">18xx-maker repository</a>, specifically the <code>src/data/tiles</code> directory, for examples of tile definitions that are used to create game maps such as <a href="https://www.18xx-maker.com/games/1867/map">1867</a>.</p>
+<p>Perhaps it would be possible to translate between the 18xx-maker data format and that of <code>n18io</code>.</p>
+<h2 id="company-shares-and-dividends"><a class="header" href="#company-shares-and-dividends">Company shares and dividends</a></h2>
+<p>Once the optimal routes have been identified, allow the user to press <code>d</code> (for example) to display a dialogue window that shows the payout for each valid number of shares, for full-pay and half-pay.</p>
+<p>To do this, we need to know how many shares each company has.
+This detail should presumably be stored in <code>n18game::Company</code>.</p>
+<p>Note that tracking player and company assets, similar to <a href="https://github.com/msaari/18sh">18SH</a>, is a much more complex matter and not something I plan to address.</p>
+<h2 id="ui-navigation"><a class="header" href="#ui-navigation">UI navigation</a></h2>
+<p>Make, e.g., <code>g</code> open a text-entry widget and allow the user to enter a hex address to go to (i.e., make active).
+Similarly, make <code>/</code> open a text-entry widget to select a replacement tile, allowing the user to filter matching tiles by typing their name or parts thereof.</p>
+<p>Underlying this would be a modal window that accepts a slice of strings and allows the user to filter and select the desired option.
+It seems that this might require using a <code>TreeModelFilter</code> to filter a <code>TreeModel</code> (such as <code>ListStore</code>, which appears sufficient), which is displayed using a <code>TreeView</code> widget.</p>
+<p>The following references may be useful:</p>
+<ul>
+<li><a href="https://python-gtk-3-tutorial.readthedocs.io/en/latest/treeview.html">Python GTK+ 3 Tutorial</a></li>
+<li><a href="https://en.wikibooks.org/wiki/GTK%2B_By_Example/Tree_View/Tree_Models">GTK+ By Example</a></li>
+<li><a href="https://stackoverflow.com/q/56029759">A StackOverflow question</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rust-and-cargo-features"><a class="header" href="#rust-and-cargo-features">Rust and Cargo features</a></h1>
+<p>This page lists items related to Rust language features and Cargo workflows.
+It also collects feature requests and issues that would assist with this project.</p>
+<h2 id="publishing-to-cratesio"><a class="header" href="#publishing-to-cratesio">Publishing to crates.io</a></h2>
+<p>See the <a href="https://rust-lang.github.io/api-guidelines/">Rust API Guidelines</a> for a lengthy checklist of guidelines that should be considered before uploading this crate to the official <a href="https://crates.io/">crate registry</a>.</p>
+<p>We also need to specify both the <code>path</code> and the <code>version</code> for each crate in the workspace, because <a href="https://crates.io/">crates.io</a> <a href="https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#specifying-path-dependencies">ignores path dependencies</a>.</p>
+<p>The <code>cargo deb</code> <a href="https://github.com/mmstick/cargo-deb">helper command</a> automatically creates binary Debian packages from Cargo projects, and <a href="https://github.com/mmstick/cargo-deb/issues/49">handles workspaces</a>.</p>
+<h2 id="rust-version-related-issues"><a class="header" href="#rust-version-related-issues">Rust version-related issues</a></h2>
+<p>See the “Minimum Supported Rust Version” <a href="https://github.com/rust-lang/rust/issues/65262">tracking issue</a>.</p>
+<ul>
+<li>
+<p><a href="https://blog.rust-lang.org/2019/09/26/Rust-1.38.0.html">Rust 1.38</a> provides the <a href="https://blog.rust-lang.org/2019/09/26/Rust-1.38.0.html">duration_float</a> feature.</p>
+</li>
+<li>
+<p><a href="https://blog.rust-lang.org/2020/11/19/Rust-1.48.html">Rust 1.48</a> provides <a href="https://doc.rust-lang.org/stable/rustdoc/linking-to-items-by-name.html">intra-doc links</a>.</p>
+</li>
+<li>
+<p><a href="https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html">Rust 1.51</a> allows <a href="https://github.com/rust-lang/rust/pull/80053">running all test cases</a>, and provides the “version 2” <a href="https://doc.rust-lang.org/cargo/reference/features.html">feature resolver</a> that allows enabling/disabling <a href="todo/../dev_guide/features.html#updated-feature-resolver">features</a> for all crates in the workspace.</p>
+</li>
+<li>
+<p><a href="https://blog.rust-lang.org/2021/06/17/Rust-1.53.0.html">Rust 1.53</a> provides the <a href="https://github.com/rust-lang/rfcs/pull/2535">or_patterns</a> feature, and is currently the minimum supported Rust version for the core <code>gtk-rs</code> crates.</p>
+</li>
+</ul>
+<h2 id="workspace-issues"><a class="header" href="#workspace-issues">Workspace issues</a></h2>
+<ul>
+<li>De-duplicate Cargo workspace information: <a href="https://github.com/rust-lang/cargo/issues/8415">tracking issue</a>.</li>
+</ul>
+<h2 id="documentation-issues"><a class="header" href="#documentation-issues">Documentation issues</a></h2>
+<ul>
+<li>
+<p>Include crate examples in the generated documentation:
+<a href="https://github.com/rust-lang/cargo/issues/2760">issue</a></p>
+</li>
+<li>
+<p>Include images in the generated documentation: <a href="https://github.com/rust-lang/rust/issues/32104">issue</a></p>
+</li>
+<li>
+<p>Define enabled and disabled lints in a configuration file: <a href="https://github.com/rust-lang/cargo/issues/5034">issue</a></p>
+</li>
+<li>
+<p>Enable warnings for doctests: <a href="https://github.com/rust-lang/rust/issues/41574">relevant</a> <a href="https://github.com/rust-lang/rust/issues/56232">issues</a> and <a href="https://github.com/rust-lang/rust/pull/73314">pull request</a>.</p>
+</li>
+</ul>
+<h2 id="testing-issues"><a class="header" href="#testing-issues">Testing issues</a></h2>
+<ul>
+<li>
+<p>Run all crate examples with a single command: <a href="https://github.com/rust-lang/cargo/issues/8356">issue</a></p>
+</li>
+<li>
+<p>Support <code>--nocapture</code> for doc tests: <a href="https://github.com/rust-lang/cargo/issues/1732">issue</a></p>
+</li>
+<li>
+<p>Running <code>cargo test --all-targets</code> does not run doc tests: <a href="https://github.com/rust-lang/cargo/issues/6669">issue</a></p>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="miscellaneous-items"><a class="header" href="#miscellaneous-items">Miscellaneous items</a></h1>
+<p>This page collects smaller to-do items for each crate, the test cases, and the examples.</p>
+<h2 id="n18io"><a class="header" href="#n18io">n18io</a></h2>
+<p>Nothing.</p>
+<h2 id="n18map"><a class="header" href="#n18map">n18map</a></h2>
+<ul>
+<li>
+<p><code>n18map::descr::update_map</code>: return a <code>Result</code>.</p>
+</li>
+<li>
+<p><code>n18map::descr</code> 117-119: want <code>Map</code> to support placing tokens by name, similar to placing tiles?</p>
+</li>
+<li>
+<p><code>n18map::map</code>: <code>ParseHexAddressError</code>, indicate in the returned error when we find an odd/even value instead of a required even/odd value.</p>
+</li>
+<li>
+<p>We may want to allow <code>Game</code> objects to use <code>Map::replace_tile</code> to replace tiles that are not otherwise replaceable.</p>
+</li>
+<li>
+<p>Modify <code>Map::prev_col</code>, <code>Map::next_col</code>, <code>Map::prev_row</code>, and <code>Map::next_row</code> to either</p>
+<ul>
+<li>
+<p>Return <code>Option&lt;HexAddress&gt;</code> values and return <code>None</code> if the previous/next address isn’t a valid hex; or</p>
+</li>
+<li>
+<p>Keep decreasing/increasing the column/row number until a valid address is found.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Make <code>HexAddress</code> support more than 26 columns when converting to/from string coordinates.</p>
+</li>
+</ul>
+<h2 id="n18route"><a class="header" href="#n18route">n18route</a></h2>
+<ul>
+<li>
+<p><code>n18route::builder</code>: note in the doc strings that the “to_“ prefix <strong>is not</strong> a type conversion; these connectivity functions.</p>
+</li>
+<li>
+<p><code>n18route::comb</code>: odd that splitting at not-half-way gives worse performance:</p>
+<pre><pre class="playground"><code class="language-rust edition2018">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// let range = (self.ix0_max - self.current_ix) as f64;
+// let denom = 2.0_f64.powf(1.0 / self.max_len as f64);
+// let delta = (range / denom).round() as usize;
+// let split_at = self.current_ix + delta;
+<span class="boring">}
+</span></code></pre></pre>
+</li>
+<li>
+<p><code>n18route::path::Path</code>:</p>
+<ul>
+<li>add an <code>append(other: Path)</code> method to <code>Path</code>?</li>
+</ul>
+</li>
+<li>
+<p><code>n18route::path</code>: distinguish between <code>Path</code> (which defines track segments, hex faces, and cities that a train passes through) and <code>Route</code> (which defines the visits that the train makes).</p>
+</li>
+<li>
+<p><code>n18route::search</code>:</p>
+<ul>
+<li>
+<p>use <code>rayon</code> to iterate over <code>connections.iter()</code> in parallel?</p>
+</li>
+<li>
+<p>use <code>rayon</code> to iterate over <code>paths.iter().enumerate()</code> in parallel?</p>
+</li>
+<li>
+<p><code>depth_first_search()</code>: should we allow starting at a dit?
+If not, store the starting city_ix in the context?</p>
+</li>
+<li>
+<p>Adjacent red hexes are considered the same location and cannot be visited multiple times, so we should probably have adjacent red tiles contain a single city with track that connects to all of the other adjacent red tiles ... or have <code>Tile</code> define this instead (e.g., <code>tile.is_offboard()</code>)?</p>
+<p>Further on, <code>let off_board = tile_colour = ...</code>, should <code>Tile</code> define this instead?</p>
+</li>
+<li>
+<p><code>n18route::search::tests</code>: also modify the map so that <code>paths_from</code> and <code>paths_through</code> return different revenues, and we can check that they’re each correct.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="n18tile"><a class="header" href="#n18tile">n18tile</a></h2>
+<ul>
+<li>
+<p><code>n18tile::city</code>: rename <code>Tokens</code> to <code>TokenSpaces</code> or something similar.</p>
+</li>
+<li>
+<p><code>n18tile::city</code>: <code>City::translate_coords()</code> uses custom adjustments for <code>HexPosition::Face</code> and <code>HexPosition::Corner</code>, and <code>City::delta_coords()</code> duplicates some of <code>HexPosition::to_coord()</code>.</p>
+<ul>
+<li>Remove the custom position adjustments?</li>
+<li>Define <code>Delta::coord(hex: &amp;Hex, from: Coord) -&gt; Coord</code> and use this in <code>HexPosition::to_coord()</code> and <code>City::translate_coords()</code>?</li>
+</ul>
+</li>
+<li>
+<p>Replace the <code>bool</code> field in <code>n18tile::label::PhaseRevenue</code> and <code>n18tile::label::PhaseRevenueVert</code> with a new enum type that has variants <code>Normal</code> and <code>Emphasise</code>?</p>
+</li>
+<li>
+<p><code>n18tile::tile::Tile</code>:</p>
+<ul>
+<li>Break out the layer calculations into a separate struct, similar to <code>connection::Connections</code>?</li>
+<li>Expose functions for drawing layers for integration tests?
+<ul>
+<li><code>pub fn tracks_in_layer(&amp;self, layer) -&gt; ?Vec?</code></li>
+<li><code>pub fn cities_in_layer(&amp;self, layer) -&gt; ?Vec?</code></li>
+</ul>
+</li>
+<li>Mark track segments on red (and blue) tiles as terminal?
+<ul>
+<li>Involves adding a <code>pub terminal: bool</code> field to <code>Track</code>, with a default value of <code>false</code>, and adding a method <code>mark_as_terminal()</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>n18tile::track::Track</code>: define a private <code>dit_direction(&amp;self, hex: &amp;Hex) -&gt; Option&lt;Coord&gt;</code> method?</p>
+<ul>
+<li>
+<p>The <code>Track</code> type really needs an internal <code>dit_coord()</code> method, it would replace a lot of duplicated code.</p>
+</li>
+<li>
+<p>Verify that <code>Track::dit_coord()</code> actually agrees with the dit location!</p>
+</li>
+<li>
+<p>Make <code>track::Coords</code> use <code>Track::get_coord()</code> for iteration, so that there’s only one piece of code that calculates track coordinates.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="n18token"><a class="header" href="#n18token">n18token</a></h2>
+<ul>
+<li>
+<p><code>n18token:Token</code>: it would be nice if each token owned its name, but then Token cannot implement Copy ...</p>
+<ul>
+<li>This should be in the type and/or module documentation.</li>
+</ul>
+</li>
+<li>
+<p><code>n18token:Tokens</code>: implement <code>IntoIterator</code> for <code>Item = (String, Token)</code> ... be we need to specify the exact <code>Iterator</code> type, so we’d have to make our own struct that implements <code>Iterator</code>.</p>
+</li>
+</ul>
+<h2 id="n18ui"><a class="header" href="#n18ui">n18ui</a></h2>
+<ul>
+<li>Add a new state that draws all of the track segments, etc, on off-board tiles, rather than only drawing the track segments on the off-board tile faces.
+Rather than adding a new flag to <code>Tile</code>, add a new <code>Tile</code> method that draws the tile and ignores the off-board special case, and add a new <code>n18brush::draw_tiles()</code> equivalent that calls this <code>Tile</code> method.</li>
+</ul>
+<h2 id="test-cases"><a class="header" href="#test-cases">Test cases</a></h2>
+<ul>
+<li>
+<p><code>tests/connection_bonus</code>: also try requiring only one of the skipped dits, adding to_any options that are/are not on the path, including Toronto and Montreal, and so on.</p>
+</li>
+<li>
+<p><code>n18catalogue</code>: test tile connections for most (all?) predefined tiles.</p>
+</li>
+<li>
+<p><code>n18hex</code>, <code>n18tile</code>, <code>n18map</code>: write tests cases for coordinates, tile layout, and map connectivity for <code>Orientation::PointedTop</code>.</p>
+</li>
+</ul>
+<h2 id="n18game"><a class="header" href="#n18game">n18game</a></h2>
+<p>Learn from the experience of implementing 1861 and 1867 and provide a variety of helper methods for implementing other games.</p>
+<p>Consider dividing <code>n18game</code> into sub-modules:</p>
+<ul>
+<li>
+<p><code>tiles</code> (catalogue)</p>
+<ul>
+<li>Provide a TileBuilder type
+<ul>
+<li><code>.track(&amp;mut self, Track)</code></li>
+<li><code>.tracks(&amp;mut self, IntoIterator&lt;Item=Track&gt;)</code></li>
+<li><code>.city(&amp;mut self, City)</code></li>
+<li><code>.cities(&amp;mut self, IntoIterator&lt;Item=City&gt;)</code></li>
+<li><code>.onboard_faces(&amp;mut self, IntoIterator&lt;Item=HexFace&gt;)</code></li>
+<li><code>.build(&amp;hex, colour, name: IntoString)</code></li>
+</ul>
+</li>
+<li>Collect key game information in a single place
+<ul>
+<li>i.e., special tiles AND their locations / initial_state.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>addrs</code> (define hex addresses and constants for each city)</p>
+<ul>
+<li>Make each town and city’s location a <code>static const</code> value?</li>
+<li>Simplify defining the full range of map hexes
+<ul>
+<li>Allow <code>[A-Z]+[0-9]+</code> but must also support negative rows and columns.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>map</code> (initial state, phases)</p>
+</li>
+<li>
+<p><code>tokens</code> and/or <code>company</code></p>
+<ul>
+<li>May want to have tokens that are not part of a company for, e.g., national railways.</li>
+</ul>
+</li>
+</ul>
+<h2 id="n18catalogue"><a class="header" href="#n18catalogue">n18catalogue</a></h2>
+<ul>
+<li>Should <code>Kind::build()</code> also take a <code>n18hex::Orientation</code> argument, so that the positioning of tile elements (such as labels) can depend on the hex orientation?</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="about-this-book"><a class="header" href="#about-this-book">About this book</a></h1>
+<p>This book is written in Markdown and is generated by
+<a href="https://github.com/rust-lang/mdBook/">mdBook</a>.</p>
+<p>Included figures and code blocks are generated by <em>crate examples</em>, which are
+located in the <code>examples/</code> directory of this repository.
+Running the test suite with <code>cargo test --examples</code> will compile each of these
+examples and run any <code>#[test]</code> functions that they contain.
+This will update the book figures.</p>
+<p>Note that each of these examples must set the <code>test</code> field to <code>true</code> in
+<code>Cargo.toml</code>:</p>
+<pre><code class="language-toml">[[example]]
+name = &quot;example_name&quot;
+test = true
+</code></pre>
+<p>When run as a test case, the <code>1867_bc</code> example will calculate the optimal routes for each company, and this can take several minutes.
+Run this as an example (<code>cargo run --example 1867_bc</code>) to use cached routes and generate the output figures very quickly.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            MathJax.Hub.Register.StartupHook('End', function() {
+                window.setTimeout(window.print, 100);
+            });
+        });
+        </script>
+    </body>
+</html>
