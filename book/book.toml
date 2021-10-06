@@ -16,3 +16,4 @@ mathjax-support = true
 copy-fonts = false
 
 [output.linkcheck]
+optional = true
