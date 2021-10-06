@@ -8,10 +8,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-n18hex = { path = "../n18hex" }
-n18tile = { path = "../n18tile" }
-n18token = { path = "../n18token" }
-n18map = { path = "../n18map" }
-n18route = { path = "../n18route" }
-n18catalogue = { path = "../n18catalogue" }
+n18hex = { path = "../n18hex", version = "0.1.0" }
+n18tile = { path = "../n18tile", version = "0.1.0" }
+n18token = { path = "../n18token", version = "0.1.0" }
+n18map = { path = "../n18map", version = "0.1.0" }
+n18route = { path = "../n18route", version = "0.1.0" }
+n18catalogue = { path = "../n18catalogue", version = "0.1.0" }
 log = "0.4"

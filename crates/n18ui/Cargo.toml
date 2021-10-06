@@ -8,14 +8,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-n18hex = { path = "../n18hex" }
-n18tile = { path = "../n18tile" }
-n18token = { path = "../n18token" }
-n18map = { path = "../n18map" }
-n18io = { path = "../n18io" }
-n18route = { path = "../n18route" }
-n18game = { path = "../n18game" }
-n18brush = { path = "../n18brush" }
+n18hex = { path = "../n18hex", version = "0.1.0" }
+n18tile = { path = "../n18tile", version = "0.1.0" }
+n18token = { path = "../n18token", version = "0.1.0" }
+n18map = { path = "../n18map", version = "0.1.0" }
+n18io = { path = "../n18io", version = "0.1.0" }
+n18route = { path = "../n18route", version = "0.1.0" }
+n18game = { path = "../n18game", version = "0.1.0" }
+n18brush = { path = "../n18brush", version = "0.1.0" }
 
 # Include support for saving surfaces as PNG images.
 cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
