@@ -4,6 +4,10 @@ version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
 edition = "2018"
+description = "Common drawing operations for 18xx maps."
+repository = "https://github.com/robmoss/rusty_train"
+keywords = ["18xx", "optimisation", "optimization"]
+categories = ["algorithms", "graphics"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
