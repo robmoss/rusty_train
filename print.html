@@ -390,6 +390,8 @@ Enter these details and click <code>OK</code>:</p>
 <p><img src="user_guide/1867_bc_5.png" alt="Found optimal routes" title="Found optimal routes" /></p>
 <p>Use the arrow keys (<code>&lt;Left&gt;</code>, <code>&lt;Right&gt;</code>, <code>&lt;Up&gt;</code>, <code>&lt;Down&gt;</code>) to cycle through the individual routes; the train name and route revenue are shown in the window title:</p>
 <p><img src="user_guide/1867_bc_6.png" alt="Show a single route" title="Show a single route" /></p>
+<p>Press <code>d</code> to display the dividend payments:</p>
+<p><img src="user_guide/1867_bc_7.png" alt="Show dividend payments" title="Show dividend payments" /></p>
 <p>Press <code>Esc</code> or <code>Return</code> to return to the <a href="user_guide/default.html"><strong>Default</strong></a> mode.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="developer-guide"><a class="header" href="#developer-guide">Developer guide</a></h1>
 <p>This documentation explains how the <code>navig18xx</code> crate is designed and
@@ -1079,11 +1081,6 @@ See <a href="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=992907">Debian bu
 <h2 id="18xx-maker-json-schema"><a class="header" href="#18xx-maker-json-schema">18xx-maker JSON schema</a></h2>
 <p>See the <a href="https://github.com/18xx-maker/18xx-maker/">18xx-maker repository</a>, specifically the <code>src/data/tiles</code> directory, for examples of tile definitions that are used to create game maps such as <a href="https://www.18xx-maker.com/games/1867/map">1867</a>.</p>
 <p>Perhaps it would be possible to translate between the 18xx-maker data format and that of <code>n18io</code>.</p>
-<h2 id="company-shares-and-dividends"><a class="header" href="#company-shares-and-dividends">Company shares and dividends</a></h2>
-<p>Once the optimal routes have been identified, allow the user to press <code>d</code> (for example) to display a dialogue window that shows the payout for each valid number of shares, for full-pay and half-pay.</p>
-<p>To do this, we need to know how many shares each company has.
-This detail should presumably be stored in <code>n18game::Company</code>.</p>
-<p>Note that tracking player and company assets, similar to <a href="https://github.com/msaari/18sh">18SH</a>, is a much more complex matter and not something I plan to address.</p>
 <h2 id="ui-navigation"><a class="header" href="#ui-navigation">UI navigation</a></h2>
 <p>Make, e.g., <code>g</code> open a text-entry widget and allow the user to enter a hex address to go to (i.e., make active).
 Similarly, make <code>/</code> open a text-entry widget to select a replacement tile, allowing the user to filter matching tiles by typing their name or parts thereof.</p>
