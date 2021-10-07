@@ -132,6 +132,7 @@ The user can cycle through the individual routes with the arrow keys.
 | `Esc`, `Return`     | Return to **Default** mode    |
 | `<Left>`, `<Up>`    | Show the previous train route |
 | `<Right>`, `<Down>` | Show the next train route     |
+| `d`, `D`            | Display the dividend payments |
 
 ## Supported games
 
