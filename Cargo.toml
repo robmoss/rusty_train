@@ -10,6 +10,14 @@ readme = "README.md"
 keywords = ["18xx", "optimisation", "optimization"]
 categories = ["algorithms", "graphics"]
 default-run = "rusty_train"
+exclude = [
+    "rustfmt.toml",
+    ".github/*",
+    "book/*",
+    "resources/*",
+    "scripts/*",
+    "todo/*",
+]
 
 [workspace]
 members = ["crates/*", "."]
