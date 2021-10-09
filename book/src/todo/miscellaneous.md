@@ -26,6 +26,9 @@ Nothing.
 
 ## n18route
 
+- `n18route::bonus`: to support the bonus off-board revenue for diesel trains in 1889, we need to add a `VisitWithTrainBonus`.
+  This would only yield bonus revenue for the relevant off-board tiles if the route is operated by a **specific train type** (i.e., the diesel trains).
+
 - `n18route::builder`: note in the doc strings that the "to_" prefix **is not** a type conversion; these connectivity functions.
 
 - `n18route::comb`: odd that splitting at not-half-way gives worse performance:
@@ -96,6 +99,8 @@ Nothing.
 
 - Add a new state that draws all of the track segments, etc, on off-board tiles, rather than only drawing the track segments on the off-board tile faces.
   Rather than adding a new flag to `Tile`, add a new `Tile` method that draws the tile and ignores the off-board special case, and add a new `n18brush::draw_tiles()` equivalent that calls this `Tile` method.
+
+- Do not allow the user to place tokens on off-board tiles that have hidden revenue centres (i.e., tiles for which `tile.offboard_faces().is_some()` is `true`).
 
 ## Test cases
 
