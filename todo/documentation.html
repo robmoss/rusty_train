@@ -140,6 +140,19 @@
 introductory text and examples, and more detailed documentation for
 individual types and functions.
 See the <a href="https://rust-lang.github.io/api-guidelines/documentation.html">Rust documentation guidelines</a> for details.</p>
+<h2 id="readmemd-for-each-crate"><a class="header" href="#readmemd-for-each-crate">README.md for each crate</a></h2>
+<p>Each crate should have a <code>README.md</code> file.</p>
+<ul>
+<li>
+<p>Add shields for the license, the crate on <code>crates.io</code>, the documentation on <code>docs.rs</code>, and perhaps a link to the <code>rusty_train</code> book.</p>
+</li>
+<li>
+<p>Briefly describe the crate, and refer the reader to <code>navig18xx</code> and <code>rusty_train</code> for more details.</p>
+</li>
+<li>
+<p>Add the <code>License</code> and <code>Contribution</code> sections from the top-level <code>README.md</code>.</p>
+</li>
+</ul>
 <h2 id="document-public-items"><a class="header" href="#document-public-items">Document public items</a></h2>
 <p>Identify public items that are missing documentation by running:</p>
 <pre><code class="language-sh">cargo clippy --all-targets -- -W missing_docs

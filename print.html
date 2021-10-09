@@ -928,6 +928,19 @@ Switching from a recording surface to a plain image surface resolved this issue,
 introductory text and examples, and more detailed documentation for
 individual types and functions.
 See the <a href="https://rust-lang.github.io/api-guidelines/documentation.html">Rust documentation guidelines</a> for details.</p>
+<h2 id="readmemd-for-each-crate"><a class="header" href="#readmemd-for-each-crate">README.md for each crate</a></h2>
+<p>Each crate should have a <code>README.md</code> file.</p>
+<ul>
+<li>
+<p>Add shields for the license, the crate on <code>crates.io</code>, the documentation on <code>docs.rs</code>, and perhaps a link to the <code>rusty_train</code> book.</p>
+</li>
+<li>
+<p>Briefly describe the crate, and refer the reader to <code>navig18xx</code> and <code>rusty_train</code> for more details.</p>
+</li>
+<li>
+<p>Add the <code>License</code> and <code>Contribution</code> sections from the top-level <code>README.md</code>.</p>
+</li>
+</ul>
 <h2 id="document-public-items"><a class="header" href="#document-public-items">Document public items</a></h2>
 <p>Identify public items that are missing documentation by running:</p>
 <pre><code class="language-sh">cargo clippy --all-targets -- -W missing_docs
@@ -1183,6 +1196,10 @@ It also collects feature requests and issues that would assist with this project
 <h2 id="n18route"><a class="header" href="#n18route">n18route</a></h2>
 <ul>
 <li>
+<p><code>n18route::bonus</code>: to support the bonus off-board revenue for diesel trains in 1889, we need to add a <code>VisitWithTrainBonus</code>.
+This would only yield bonus revenue for the relevant off-board tiles if the route is operated by a <strong>specific train type</strong> (i.e., the diesel trains).</p>
+</li>
+<li>
 <p><code>n18route::builder</code>: note in the doc strings that the “to_“ prefix <strong>is not</strong> a type conversion; these connectivity functions.</p>
 </li>
 <li>
@@ -1290,8 +1307,13 @@ If not, store the starting city_ix in the context?</p>
 </ul>
 <h2 id="n18ui"><a class="header" href="#n18ui">n18ui</a></h2>
 <ul>
-<li>Add a new state that draws all of the track segments, etc, on off-board tiles, rather than only drawing the track segments on the off-board tile faces.
-Rather than adding a new flag to <code>Tile</code>, add a new <code>Tile</code> method that draws the tile and ignores the off-board special case, and add a new <code>n18brush::draw_tiles()</code> equivalent that calls this <code>Tile</code> method.</li>
+<li>
+<p>Add a new state that draws all of the track segments, etc, on off-board tiles, rather than only drawing the track segments on the off-board tile faces.
+Rather than adding a new flag to <code>Tile</code>, add a new <code>Tile</code> method that draws the tile and ignores the off-board special case, and add a new <code>n18brush::draw_tiles()</code> equivalent that calls this <code>Tile</code> method.</p>
+</li>
+<li>
+<p>Do not allow the user to place tokens on off-board tiles that have hidden revenue centres (i.e., tiles for which <code>tile.offboard_faces().is_some()</code> is <code>true</code>).</p>
+</li>
 </ul>
 <h2 id="test-cases"><a class="header" href="#test-cases">Test cases</a></h2>
 <ul>
