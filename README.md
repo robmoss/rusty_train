@@ -1,5 +1,10 @@
 # Rusty Train
 
+![license](https://img.shields.io/crates/l/rusty-train.svg)
+[![crates.io](https://img.shields.io/crates/v/rusty-train.svg?logo=rust)][crates]
+[![docs.rs](https://img.shields.io/badge/docs.rs-rusty--train-yellow)][docs]
+[![guide](https://img.shields.io/badge/guide-rusty--train-green?logo=read-the-docs)][guide]
+
 A graphical user interface for constructing 18xx maps and identifying optimal train routes.
 
 ## Example usage
@@ -154,3 +159,7 @@ at your option.
 ## Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+
+[crates]: https://crates.io/crates/rusty-train
+[docs]: https://docs.rs/rusty-train
+[guide]: https://robmoss.github.io/rusty_train
