@@ -748,13 +748,46 @@ impl Trains {
         let num_trains = self.train_count();
 
         // Index visit bonuses by location.
-        let visit_bonuses: BTreeMap<HexAddress, usize> = bonuses
-            .iter()
-            .filter_map(|b| match b {
-                Bonus::VisitBonus { locn, bonus } => Some((*locn, *bonus)),
-                Bonus::ConnectionBonus { .. } => None,
-            })
-            .collect();
+        // Add train-specific visit bonuses that exceed general visit bonuses
+        // (if any).
+        let visit_bonuses: BTreeMap<Train, BTreeMap<HexAddress, usize>> =
+            self.trains
+                .keys()
+                .copied()
+                .map(|t| {
+                    // Collect the general visit bonuses.
+                    let mut train_bonuses: BTreeMap<HexAddress, usize> =
+                        bonuses
+                            .iter()
+                            .filter_map(|b| match b {
+                                Bonus::VisitBonus { locn, bonus } => {
+                                    Some((*locn, *bonus))
+                                }
+                                Bonus::VisitWithTrainBonus { .. } => None,
+                                Bonus::ConnectionBonus { .. } => None,
+                            })
+                            .collect();
+                    // Add any train-specific bonuses that exceed a matching
+                    // general bonus, or for which there is no general bonus.
+                    for b in &bonuses {
+                        if let Bonus::VisitWithTrainBonus {
+                            locn,
+                            train,
+                            bonus,
+                        } = b
+                        {
+                            if *train == t {
+                                let existing_bonus =
+                                    train_bonuses.get(locn).unwrap_or(&0);
+                                if bonus > existing_bonus {
+                                    train_bonuses.insert(*locn, *bonus);
+                                }
+                            }
+                        }
+                    }
+                    (t, train_bonuses)
+                })
+                .collect();
 
         // Index connection bonuses by location.
         let connect_bonuses: BTreeMap<HexAddress, (Vec<HexAddress>, usize)> =
@@ -762,6 +795,7 @@ impl Trains {
                 .into_iter()
                 .filter_map(|b| match b {
                     Bonus::VisitBonus { .. } => None,
+                    Bonus::VisitWithTrainBonus { .. } => None,
                     Bonus::ConnectionBonus {
                         from,
                         to_any,
@@ -782,7 +816,7 @@ impl Trains {
                         train
                             .revenue_for(
                                 &path_tbl[path_ix],
-                                &visit_bonuses,
+                                visit_bonuses.get(train).unwrap(),
                                 &connect_bonuses,
                             )
                             .map(|revenue| (*train, revenue))
