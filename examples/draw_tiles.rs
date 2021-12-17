@@ -25,6 +25,7 @@ fn test_draw_tiles() -> Result {
         ("tile_1830.json", 8, 13, Orientation::PointedTop),
         ("tile_1861.json", 8, 16, Orientation::FlatTop),
         ("tile_1867.json", 8, 16, Orientation::FlatTop),
+        ("tile_1889.json", 5, 16, Orientation::FlatTop),
     ];
     for (basename, rows, cols, orientation) in &try_files {
         let json_file = json_dir.join(basename);

@@ -1,0 +1,1837 @@
+{
+  "tiles": [
+    {
+      "name": "3",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardL": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "Centre"
+        }
+      ]
+    },
+    {
+      "name": "5",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.3
+        }
+      ]
+    },
+    {
+      "name": "6",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "7",
+      "colour": "Yellow",
+      "track": [
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "8",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "9",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "57",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "58",
+      "colour": "Yellow",
+      "track": [
+        {
+          "GentleR": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "GentleR": "Bottom",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.5
+        }
+      ]
+    },
+    {
+      "name": "437",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Top",
+          "dit": [
+            "End",
+            30,
+            "Circle"
+          ]
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LowerLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "438",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Note": "Y80",
+          "location": "TopLeftCorner",
+          "to_centre": 0.125
+        },
+        {
+          "City": "K",
+          "location": "UpperRightFace",
+          "to_centre": 0.2
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "12",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "13",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "UpperLeftFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "14",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "15",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "16",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleR": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "19",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "20",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "LowerLeft"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "23",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "24",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "25",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "26",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "27",
+      "colour": "Green",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "28",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardR": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "29",
+      "colour": "Green",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "205",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "206",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "LeftCorner",
+          "to_centre": 0.25
+        }
+      ]
+    },
+    {
+      "name": "439",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "Note": "Y80",
+          "location": "BottomLeftCorner",
+          "to_centre": 0.125
+        },
+        {
+          "City": "K",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "440",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "City": "T",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "39",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardL": "Bottom"
+        },
+        {
+          "HardL": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "40",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "GentleL": "UpperRight"
+        }
+      ]
+    },
+    {
+      "name": "41",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "HardL": "Top"
+        }
+      ]
+    },
+    {
+      "name": "42",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "HardR": "Top"
+        }
+      ]
+    },
+    {
+      "name": "45",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardR": "Top"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "46",
+      "colour": "Brown",
+      "track": [
+        {
+          "GentleL": "UpperLeft"
+        },
+        {
+          "HardL": "Top"
+        },
+        {
+          "GentleL": "Bottom"
+        },
+        {
+          "Straight": "Bottom"
+        }
+      ]
+    },
+    {
+      "name": "47",
+      "colour": "Brown",
+      "track": [
+        {
+          "Straight": "Bottom"
+        },
+        {
+          "GentleR": "Bottom"
+        },
+        {
+          "GentleL": "LowerLeft"
+        },
+        {
+          "Straight": "LowerLeft"
+        }
+      ]
+    },
+    {
+      "name": "448",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "465",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "City": "Ki",
+          "location": "BottomLeftCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "466",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "City": "T",
+          "location": "BottomRightCorner",
+          "to_centre": 0.25
+        },
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.2
+        }
+      ]
+    },
+    {
+      "name": "492",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Triple": "Centre",
+          "revenue": 80
+        }
+      ],
+      "labels": [
+        {
+          "City": "K",
+          "location": "TopRightCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.15
+        }
+      ]
+    },
+    {
+      "name": "611",
+      "colour": "Brown",
+      "track": [
+        {
+          "Mid": "Bottom"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.125
+        }
+      ]
+    },
+    {
+      "name": "Imabari_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              30,
+              true
+            ],
+            [
+              "Brown",
+              60,
+              false
+            ],
+            [
+              "Grey",
+              100,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "to_centre": 0.35
+        },
+        {
+          "MapLocation": "Imabari",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Imabari_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 60
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              30,
+              false
+            ],
+            [
+              "Brown",
+              60,
+              true
+            ],
+            [
+              "Grey",
+              100,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "to_centre": 0.35
+        },
+        {
+          "MapLocation": "Imabari",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Sakaide & Okoyama_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ],
+            [
+              "Grey",
+              80,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "nudge": [
+            "S60W",
+            0.5
+          ]
+        },
+        {
+          "MapLocation": "Sakaide & Okoyama",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Sakaide & Okoyama_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              true
+            ],
+            [
+              "Grey",
+              80,
+              false
+            ]
+          ],
+          "location": "RightCorner",
+          "nudge": [
+            "S60W",
+            0.5
+          ]
+        },
+        {
+          "MapLocation": "Sakaide & Okoyama",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "Bottom",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Naruto & Awaji_Yw",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              20,
+              true
+            ],
+            [
+              "Brown",
+              40,
+              false
+            ],
+            [
+              "Grey",
+              80,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Naruto & Awaji",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Naruto & Awaji_Bn",
+      "colour": "Red",
+      "track": [
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "PhaseRevenueVert": [
+            [
+              "Yellow",
+              20,
+              false
+            ],
+            [
+              "Brown",
+              40,
+              true
+            ],
+            [
+              "Grey",
+              80,
+              false
+            ]
+          ],
+          "location": "BottomFace",
+          "to_centre": 0.1
+        },
+        {
+          "MapLocation": "Naruto & Awaji",
+          "location": "TopFace",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false,
+      "offboard_faces": [
+        "UpperLeft",
+        "LowerLeft"
+      ]
+    },
+    {
+      "name": "Anan",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Anan",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Nahari",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Nahari",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kubokawa",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Kubokawa",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Sukumo",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Sukumo",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Matsuyama",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Matsuyama",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Saijou",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Saijou",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Niihama",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Niihama",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kotohira",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Kotohira",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        },
+        {
+          "City": "K",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.55
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Marugame",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Marugame",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Tokushima",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Tokushima",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ikeda",
+      "colour": "Empty",
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 0
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Ikeda",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Muki",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Muki",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Nangoku",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Nangoku",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Nakamura",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Nakamura",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ritsurin Kouen",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Ritsurin Kouen",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Komatsujima",
+      "colour": "Empty",
+      "track": [
+        {
+          "Straight": "Bottom",
+          "dit": [
+            "End",
+            10,
+            "Circle"
+          ],
+          "span": [
+            0.5,
+            0.5
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Komatsujima",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.425
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Mountain",
+      "colour": "Empty",
+      "labels": [
+        {
+          "Note": "Y80: Mountain",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "River",
+      "colour": "Empty",
+      "labels": [
+        {
+          "Note": "Y80: River",
+          "location": "Centre"
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Ohzu",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 20
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "TopFace",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "Ohzu",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.55
+          ]
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Takamatsu",
+      "colour": "Yellow",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "Bottom"
+        }
+      ],
+      "cities": [
+        {
+          "Single": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "Revenue": 0,
+          "location": "RightCorner",
+          "to_centre": 0.15
+        },
+        {
+          "MapLocation": "Takamatsu",
+          "location": "Centre",
+          "nudge": [
+            "N",
+            0.6
+          ]
+        },
+        {
+          "City": "T",
+          "location": "BottomLeftCorner",
+          "to_centre": 0.08
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Kouchi",
+      "colour": "Green",
+      "track": [
+        {
+          "Mid": "UpperLeft"
+        },
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "UpperRight"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 30
+        }
+      ],
+      "labels": [
+        {
+          "City": "Ki",
+          "location": "BottomLeftCorner",
+          "to_centre": 0.08
+        },
+        {
+          "Note": "Y80",
+          "location": "BottomRightCorner",
+          "to_centre": 0.125
+        },
+        {
+          "Revenue": 0,
+          "location": "TopRightCorner",
+          "to_centre": 0.15
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Muroto",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardL": "Top",
+          "dit": [
+            "End",
+            20,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "Top",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Muroto",
+          "location": "Centre"
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.125
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Uwajima",
+      "colour": "Grey",
+      "track": [
+        {
+          "Mid": "Top"
+        },
+        {
+          "Mid": "LowerLeft"
+        },
+        {
+          "Mid": "LowerRight"
+        }
+      ],
+      "cities": [
+        {
+          "Double": "Centre",
+          "revenue": 40
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Uwajima",
+          "location": "Centre",
+          "nudge": [
+            "S",
+            0.55
+          ]
+        },
+        {
+          "Revenue": 0,
+          "location": "TopLeftCorner",
+          "to_centre": 0.1
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Yawatahama",
+      "colour": "Grey",
+      "track": [
+        {
+          "HardL": "LowerRight",
+          "dit": [
+            "End",
+            20,
+            "Bar"
+          ],
+          "span": [
+            0.0,
+            0.5
+          ]
+        },
+        {
+          "HardL": "LowerRight",
+          "span": [
+            0.5,
+            1.0
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "MapLocation": "Yawatahama",
+          "location": "Centre"
+        },
+        {
+          "Revenue": 0,
+          "location": "BottomLeftCorner",
+          "to_centre": 0.125
+        }
+      ],
+      "show_tile_name": false
+    },
+    {
+      "name": "Grey_Gentle",
+      "colour": "Grey",
+      "track": [
+        {
+          "GentleR": "LowerLeft"
+        }
+      ],
+      "show_tile_name": false
+    }
+  ]
+}

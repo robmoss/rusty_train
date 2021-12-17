@@ -3,8 +3,8 @@ use navig18xx::prelude::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let hex_max_diameter = 125.0;
-    let num_rows = 6;
-    let num_cols = 14;
+    let num_rows = 7;
+    let num_cols = 15;
     let margin = 10;
     let bg_rgba = Some(Colour::WHITE);
     let png_file = "tile_catalogue.png";

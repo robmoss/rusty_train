@@ -9,6 +9,7 @@ use n18token::{Token, Tokens};
 pub mod _1830;
 pub mod _1861;
 pub mod _1867;
+pub mod _1889;
 
 /// Creates a new game of 1830: Railways and Robber Barons.
 pub fn new_1830() -> _1830::Game {
@@ -25,12 +26,18 @@ pub fn new_1867() -> _1867::Game {
     _1867::Game::default()
 }
 
+/// Creates a new game of 1889: History of Shikoku Railways (Shikoku 1889).
+pub fn new_1889() -> _1889::Game {
+    _1889::Game::default()
+}
+
 /// Returns a vector containing each game defined in this crate.
 pub fn games() -> Vec<Box<dyn Game>> {
     let games: Vec<Box<dyn Game>> = vec![
         Box::new(new_1830()),
         Box::new(new_1861()),
         Box::new(new_1867()),
+        Box::new(new_1889()),
     ];
     games
 }
