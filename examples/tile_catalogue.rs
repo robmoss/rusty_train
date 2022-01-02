@@ -58,7 +58,8 @@ fn place_tiles(
     for row in &rows {
         for col in &cols {
             let addr = HexAddress::new(*row, *col);
-            tile_addrs.push(format!("{}", addr))
+            let addr_string = coords.format(&addr).unwrap();
+            tile_addrs.push(addr_string)
         }
     }
 
