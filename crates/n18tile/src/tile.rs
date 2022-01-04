@@ -177,11 +177,30 @@ impl Tile {
 
     /// Identifies the tile as an off-board tile that has `faces` adjacent to
     /// on-board tiles.
+    ///
+    /// # Panics
+    ///
+    /// Panics if any face in `faces` is not connected to a track segment.
     pub fn with_offboard_faces<T>(mut self, faces: T) -> Self
     where
         T: IntoIterator<Item = HexFace>,
     {
-        self.offboard_faces = Some(faces.into_iter().collect());
+        // Ensure that each of these faces is connected to a track segment.
+        let faces: Vec<HexFace> = faces.into_iter().collect();
+        for face in &faces {
+            let start = Connection::Face { face: *face };
+            let conns = self.conns.connections_from(&start);
+            let has_track_conn = conns
+                .iter()
+                .any(|conn| matches!(conn, Connection::Track { .. }));
+            if !has_track_conn {
+                panic!(
+                    "Tile {} has no track on offboard face {:?}",
+                    self.name, face
+                )
+            }
+        }
+        self.offboard_faces = Some(faces);
         self
     }
 

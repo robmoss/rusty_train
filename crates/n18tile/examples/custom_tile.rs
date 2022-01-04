@@ -22,7 +22,7 @@ fn draw_custom_tile(output_dir: &str) {
     let tile = Tile::new(
         Red,
         "Custom1",
-        vec![Track::straight(UpperRight), Track::gentle_l(LowerLeft)],
+        vec![Track::straight(UpperRight), Track::gentle_r(LowerLeft)],
         vec![],
         &hex,
     )
