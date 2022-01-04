@@ -1,8 +1,5 @@
 ## n18route
 
-- `n18route::bonus`: to support the bonus off-board revenue for diesel trains in 1889, we need to add a `VisitWithTrainBonus`.
-  This would only yield bonus revenue for the relevant off-board tiles if the route is operated by a **specific train type** (i.e., the diesel trains).
-
 - `n18route::builder`: note in the doc strings that the "to_" prefix **is not** a type conversion; these connectivity functions.
 
 - `n18route::comb`: odd that splitting at not-half-way gives worse performance:
