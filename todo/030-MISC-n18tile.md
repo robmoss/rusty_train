@@ -6,6 +6,8 @@
   - Remove the custom position adjustments?
   - Define `Delta::coord(hex: &Hex, from: Coord) -> Coord` and use this in `HexPosition::to_coord()` and `City::translate_coords()`?
 
+- `n18tile::city`: add support for fine-grained rotation of cities; see the starting map tile for Kouchi in 1889 for an example.
+
 - Replace the `bool` field in `n18tile::label::PhaseRevenue` and `n18tile::label::PhaseRevenueVert` with a new enum type that has variants `Normal` and `Emphasise`?
 
 - `n18tile::tile::Tile`:
