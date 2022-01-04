@@ -171,10 +171,6 @@
 <h2 id="n18route"><a class="header" href="#n18route">n18route</a></h2>
 <ul>
 <li>
-<p><code>n18route::bonus</code>: to support the bonus off-board revenue for diesel trains in 1889, we need to add a <code>VisitWithTrainBonus</code>.
-This would only yield bonus revenue for the relevant off-board tiles if the route is operated by a <strong>specific train type</strong> (i.e., the diesel trains).</p>
-</li>
-<li>
 <p><code>n18route::builder</code>: note in the doc strings that the “to_“ prefix <strong>is not</strong> a type conversion; these connectivity functions.</p>
 </li>
 <li>
@@ -232,6 +228,9 @@ If not, store the starting city_ix in the context?</p>
 <li>Remove the custom position adjustments?</li>
 <li>Define <code>Delta::coord(hex: &amp;Hex, from: Coord) -&gt; Coord</code> and use this in <code>HexPosition::to_coord()</code> and <code>City::translate_coords()</code>?</li>
 </ul>
+</li>
+<li>
+<p><code>n18tile::city</code>: add support for fine-grained rotation of cities; see the starting map tile for Kouchi in 1889 for an example.</p>
 </li>
 <li>
 <p>Replace the <code>bool</code> field in <code>n18tile::label::PhaseRevenue</code> and <code>n18tile::label::PhaseRevenueVert</code> with a new enum type that has variants <code>Normal</code> and <code>Emphasise</code>?</p>
