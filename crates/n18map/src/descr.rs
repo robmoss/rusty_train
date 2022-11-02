@@ -37,9 +37,7 @@ impl<'a> From<&'a Descr>
     }
 }
 
-impl<'a> From<(Orientation, BTreeMap<HexAddress, Option<TileDescr>>)>
-    for Descr
-{
+impl From<(Orientation, BTreeMap<HexAddress, Option<TileDescr>>)> for Descr {
     fn from(
         src: (Orientation, BTreeMap<HexAddress, Option<TileDescr>>),
     ) -> Self {

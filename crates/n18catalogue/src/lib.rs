@@ -305,8 +305,7 @@ impl Builder {
     {
         let existing: Vec<usize> = tiles
             .into_iter()
-            .map(|tile| self.add_unlimited_tile(tile))
-            .flatten()
+            .filter_map(|tile| self.add_unlimited_tile(tile))
             .collect();
         if existing.is_empty() {
             None
@@ -323,8 +322,7 @@ impl Builder {
     {
         let existing: Vec<usize> = tiles
             .into_iter()
-            .map(|(tile, count)| self.add_tile(tile, count))
-            .flatten()
+            .filter_map(|(tile, count)| self.add_tile(tile, count))
             .collect();
         if existing.is_empty() {
             None
@@ -341,8 +339,7 @@ impl Builder {
     {
         let existing: Vec<usize> = tiles
             .into_iter()
-            .map(|tile| self.add_tile(tile, Availability::Unavailable))
-            .flatten()
+            .filter_map(|tile| self.add_tile(tile, Availability::Unavailable))
             .collect();
         if existing.is_empty() {
             None

@@ -48,7 +48,7 @@ pub fn select_index<F>(
     let title_label = gtk::Label::new(Some(title));
 
     // Display the companies as a list.
-    let list = gtk::ListBoxBuilder::new()
+    let list = gtk::builders::ListBoxBuilder::new()
         .selection_mode(gtk::SelectionMode::Browse)
         .activate_on_single_click(false)
         .margin_top(4)

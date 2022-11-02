@@ -232,7 +232,7 @@ impl UiState for ReplaceTile {
                     tile,
                     &self.net_rotation(),
                 )
-                .unwrap_or_else(std::collections::BTreeMap::new);
+                .unwrap_or_default();
                 n18brush::draw_tile_and_tokens_at(
                     hex,
                     ctx,

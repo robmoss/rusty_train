@@ -94,7 +94,7 @@ impl Canvas {
         .expect("Could not create image surface");
         let ctx = cairo::Context::new(&new_surface)
             .expect("Could not create image context");
-        ctx.set_source_surface(&source, 0.0, 0.0).unwrap();
+        ctx.set_source_surface(&*source, 0.0, 0.0).unwrap();
         ctx.set_operator(cairo::Operator::Source);
         ctx.paint().unwrap();
         new_surface
@@ -115,7 +115,7 @@ impl Canvas {
                 .expect("Could not create image surface");
         let ctx = cairo::Context::new(&new_surface)
             .expect("Could not create image context");
-        ctx.set_source_surface(&source, 0.0, 0.0).unwrap();
+        ctx.set_source_surface(&*source, 0.0, 0.0).unwrap();
         ctx.set_operator(cairo::Operator::Source);
         ctx.paint().unwrap();
         new_surface
@@ -141,7 +141,7 @@ impl Canvas {
                 .expect("Could not create image surface");
         let ctx = cairo::Context::new(&new_surface)
             .expect("Could not create image context");
-        ctx.set_source_surface(&source, x0, y0).unwrap();
+        ctx.set_source_surface(&*source, x0, y0).unwrap();
         ctx.set_operator(cairo::Operator::Source);
         ctx.paint().unwrap();
         new_surface

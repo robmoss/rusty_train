@@ -7,6 +7,7 @@ use n18hex::{Coord, Orientation};
 use crate::{Assets, UiState};
 
 /// The starting UI state: no game, no map.
+#[derive(Default)]
 pub struct Start {}
 
 impl Start {
@@ -20,12 +21,6 @@ impl Start {
         // NOTE: a map must have at least one hex.
         let hexes = vec![n18map::HexAddress::new(0, 0)];
         n18map::Map::new(tiles.into(), tokens, hexes, Orientation::default())
-    }
-}
-
-impl Default for Start {
-    fn default() -> Self {
-        Start {}
     }
 }
 

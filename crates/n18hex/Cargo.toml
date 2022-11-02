@@ -3,7 +3,7 @@ name = "n18hex"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Defines the geometry of hexagonal tiles for 18xx."
 repository = "https://github.com/robmoss/rusty_train"
 keywords = ["18xx", "optimisation", "optimization"]
@@ -13,6 +13,6 @@ categories = ["algorithms", "graphics"]
 
 [dependencies]
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
-pango = "0.14"
-pangocairo = "0.14"
+cairo-rs = { version = "0.16", features = ["png", "pdf", "svg"] }
+pango = "0.16"
+pangocairo = "0.16"

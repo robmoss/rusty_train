@@ -79,7 +79,7 @@ pub fn build(application: &gtk::Application) {
     let surface = ui.canvas.surface();
     drawing_area.connect_draw(move |_da, ctx| {
         let surf = surface.read().expect("Could not access drawing surface");
-        ctx.set_source_surface(&surf, 0.0, 0.0).unwrap();
+        ctx.set_source_surface(&*surf, 0.0, 0.0).unwrap();
         ctx.paint().unwrap();
         Inhibit(false)
     });

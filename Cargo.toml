@@ -3,7 +3,7 @@ name = "rusty-train"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "A graphical user interface for constructing 18xx maps and identifying optimal train routes."
 repository = "https://github.com/robmoss/rusty_train"
 readme = "README.md"
@@ -29,14 +29,13 @@ default-members = ["crates/*", "."]
 [dependencies]
 navig18xx = { path = "./crates/navig18xx", version = "0.1.0" }
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
-# Use features provided by GTK 3.20 (native file choosers).
-gtk = { version = "0.14", features = ["v3_20"] }
-gdk = "0.14"
-glib = "0.14"
+cairo-rs = { version = "0.16", features = ["png", "pdf", "svg"] }
+gtk = "0.16"
+gdk = "0.16"
+glib = "0.16"
 chrono = "0.4"
 log = "0.4"
-env_logger = "0.7"
+env_logger = "0.9"
 
 [dev-dependencies]
 # NOTE: list additional dependencies required by any of the examples here.

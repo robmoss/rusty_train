@@ -198,10 +198,10 @@ impl Size {
 
 impl From<pango::Rectangle> for Size {
     fn from(rect: pango::Rectangle) -> Self {
-        let width = rect.width as f64;
-        let height = rect.height as f64;
-        let dx = rect.x as f64;
-        let dy = rect.y as f64;
+        let width = rect.width() as f64;
+        let height = rect.height() as f64;
+        let dx = rect.x() as f64;
+        let dy = rect.y() as f64;
         Self {
             width,
             height,
@@ -355,8 +355,7 @@ impl Text {
     pub fn labeller<'a>(&self, ctx: &'a Context, hex: &Hex) -> Labeller<'a> {
         let scale = hex.max_d / 125.0;
         let font_descr = self.describe(scale);
-        let layout = pangocairo::create_layout(ctx)
-            .expect("Could not create Pango layout");
+        let layout = pangocairo::create_layout(ctx);
         layout.set_font_description(Some(&font_descr));
         layout.set_alignment(self.align);
         layout.set_wrap(self.wrap);

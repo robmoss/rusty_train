@@ -3,7 +3,7 @@ name = "n18example"
 version = "0.1.0"
 license = "MIT OR Apache-2.0"
 authors = ["Rob Moss <robm.dev@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Build example figures of 18xx tiles, maps, and routes."
 repository = "https://github.com/robmoss/rusty_train"
 keywords = ["18xx", "optimisation", "optimization"]
@@ -22,4 +22,4 @@ n18game = { path = "../n18game", version = "0.1.0" }
 n18brush = { path = "../n18brush", version = "0.1.0" }
 
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.14", features = ["png", "pdf", "svg"] }
+cairo-rs = { version = "0.16", features = ["png", "pdf", "svg"] }

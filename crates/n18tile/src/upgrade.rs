@@ -167,13 +167,9 @@ fn flow_matrix_tokens(
     for (token_n, token) in tokens_iter.enumerate() {
         let token_ix = token_n + 1;
         // Find the city, if any, to which this token is connected.
-        let city_n = (0..city_count).find_map(|city_n| {
+        let city_n = (0..city_count).find(|city_n| {
             let city_ix = city_n + token_count + 1;
-            if flow_mat[(token_ix, city_ix)] == 1 {
-                Some(city_n)
-            } else {
-                None
-            }
+            flow_mat[(token_ix, city_ix)] == 1
         });
         if let Some(n) = city_n {
             // Place token in the next free space in this city.

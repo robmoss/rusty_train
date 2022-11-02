@@ -83,12 +83,10 @@ impl Path {
             );
         }
         let mut steps = self.steps.clone();
-        let mut other_steps: Vec<_> =
-            other.steps[1..].iter().copied().collect();
+        let mut other_steps: Vec<_> = other.steps[1..].to_vec();
         steps.append(&mut other_steps);
         let mut visits = self.visits.clone();
-        let mut other_visits: Vec<_> =
-            other.visits[1..].iter().copied().collect();
+        let mut other_visits: Vec<_> = other.visits[1..].to_vec();
         // NOTE: ensure the visits are in order, so start from the end of
         // self's path and travel to the self's start, which is also other's
         // start, and continue on to other's end.

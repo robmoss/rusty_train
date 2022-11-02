@@ -9,7 +9,6 @@ use n18map::{Coordinates, HexAddress, Map};
 use n18route::{Path, Route};
 use n18tile::Tile;
 use n18token::{Token, Tokens};
-use std::ops::Deref;
 
 pub struct Example {
     hex: Hex,
@@ -219,7 +218,7 @@ impl Example {
         dy: f64,
         background: Option<C>,
     ) where
-        S: Deref<Target = cairo::Surface>,
+        S: AsRef<cairo::Surface>,
         C: Into<Colour>,
     {
         let ctx = Context::new(surf).expect("Can't create cairo::Context");

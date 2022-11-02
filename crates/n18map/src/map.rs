@@ -457,7 +457,7 @@ impl Map {
             try_placing_tokens(
                 orig_tile, orig_rotn, tokens, new_tile, new_rotn,
             )
-            .unwrap_or_else(BTreeMap::new)
+            .unwrap_or_default()
         } else {
             BTreeMap::new()
         };

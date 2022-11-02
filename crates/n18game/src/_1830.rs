@@ -265,7 +265,8 @@ impl super::Game for Game {
             map.add_label_at(addr, Label::City("B".to_string()));
         }
         // New York: "NY".
-        for locn in [Location::NewYork] {
+        {
+            let locn = Location::NewYork;
             let addr = locn.address();
             map.add_label_at(addr, Label::City("NY".to_string()));
         }
