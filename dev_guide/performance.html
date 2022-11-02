@@ -176,7 +176,7 @@ They can operate tens of thousands of paths, and with 2 trains this results in h
 <tr><td>B-Trees</td><td align="right">0:05</td><td align="right">0:45</td><td align="right">2:01</td></tr>
 <tr><td><strong>Improvement:</strong></td><td align="right"><strong>86%</strong></td><td align="right"><strong>86%</strong></td><td align="right"><strong>85%</strong></td></tr>
 </tbody></table>
-<p>These times were obtained by running <code>cargo test --release 1867_bc</code> using Rust 1.48.0 on Debian Buster (Linux kernel 5.10.28) with 8 GB RAM and an Intel Core i7-5600U CPU (2 cores, 4 MB cache).
+<p>These times were obtained by running <code>cargo test --release 1867_bc -- --include-ignored</code> using Rust 1.48.0 on Debian Buster (Linux kernel 5.10.28) with 8 GB RAM and an Intel Core i7-5600U CPU (2 cores, 4 MB cache).
 The times reported for the <strong>B-Trees</strong> optimisation were obtained using Rust 1.54.0 and Linux kernel 5.10.46, but these software updates did not change the times obtained for the <strong>Parallel iterator</strong> optimisation.</p>
 
                     </main>
