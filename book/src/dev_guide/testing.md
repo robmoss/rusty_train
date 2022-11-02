@@ -29,3 +29,9 @@ Compare changed output images by making a copy of the original image and identif
 git show HEAD:path/to/image.png > original_image.png
 compare -compose src original_image.png path/to/image.png diff.png
 ```
+
+Alternatively, you can use the provided `img-diff.sh` script:
+
+```shell
+./img-diff.sh path/to/image.png
+```
