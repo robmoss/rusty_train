@@ -1059,7 +1059,7 @@ impl<'a> Iterator for EmptyHexIter<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let mut item = self.iter.next();
         while let Some(hex_state) = item {
-            if hex_state.tile_state == None {
+            if hex_state.tile_state.is_none() {
                 return Some(hex_state.addr);
             }
             item = self.iter.next();

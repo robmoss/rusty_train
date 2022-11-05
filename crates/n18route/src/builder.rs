@@ -297,7 +297,7 @@ impl<'a> RouteBuilder<'a> {
         let mut new_steps =
             self.find_steps_to(curr, Connection::City { ix })?;
         self.steps.append(&mut new_steps);
-        let revenue = if stop { 1 } else { 0 };
+        let revenue = usize::from(stop);
         self.num_cities += 1;
         self.num_visits += 1;
         self.visits.push(Visit {
@@ -325,7 +325,7 @@ impl<'a> RouteBuilder<'a> {
         let mut new_steps =
             self.find_steps_to(curr, Connection::Dit { ix })?;
         self.steps.append(&mut new_steps);
-        let revenue = if stop { 1 } else { 0 };
+        let revenue = usize::from(stop);
         self.num_dits += 1;
         self.num_visits += 1;
         self.visits.push(Visit {
@@ -375,11 +375,10 @@ impl<'a> RouteBuilder<'a> {
             .map
             .tile_at(src.addr)
             .ok_or(Error::NoTileAtHex(src.addr))?;
-        let mut steps = self
-            .depth_first_search(
-                &mut seen, tile, &src.addr, &src.conn, &dest, 0,
-            )
-            .ok_or(Error::NotConnected(src.addr, src.conn, dest))?;
+        let mut steps = Self::depth_first_search(
+            &mut seen, tile, &src.addr, &src.conn, &dest,
+        )
+        .ok_or(Error::NotConnected(src.addr, src.conn, dest))?;
         // NOTE: if dest is HexFace, also add the adjacent face on the next hex
         if let Connection::Face { face } = dest {
             let adj = self
@@ -398,13 +397,11 @@ impl<'a> RouteBuilder<'a> {
     }
 
     fn depth_first_search(
-        &self,
         seen: &mut BTreeSet<Connection>,
         tile: &Tile,
         addr: &HexAddress,
         src: &Connection,
         dest: &Connection,
-        level: usize,
     ) -> Option<Vec<Step>> {
         let mut found: Option<Vec<Step>> = None;
         for conn in tile.connections(src).unwrap() {
@@ -434,14 +431,8 @@ impl<'a> RouteBuilder<'a> {
                 }]);
                 break;
             } else {
-                let steps_opt = self.depth_first_search(
-                    seen,
-                    tile,
-                    addr,
-                    conn,
-                    dest,
-                    level + 1,
-                );
+                let steps_opt =
+                    Self::depth_first_search(seen, tile, addr, conn, dest);
                 if let Some(mut steps) = steps_opt {
                     // NOTE: need to insert the source connection.
                     steps.insert(
