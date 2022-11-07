@@ -172,6 +172,10 @@ impl Example {
         &self.rec_ctx
     }
 
+    pub fn coords(&self) -> &Coordinates {
+        &self.coords
+    }
+
     pub fn map(&self) -> &Map {
         &self.map
     }
