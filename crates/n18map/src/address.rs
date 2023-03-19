@@ -626,7 +626,7 @@ pub fn az_to_num(text: &str) -> Option<isize> {
 pub fn parse_az_and_digit(text: &str) -> Option<(isize, isize)> {
     let (ix, _) = text
         .char_indices()
-        .find(|(_ix, ch)| !('A'..='Z').contains(ch))?;
+        .find(|(_ix, ch)| !ch.is_ascii_uppercase())?;
     if ix < 1 {
         // NOTE: text must start with one or more uppercase letters.
         return None;

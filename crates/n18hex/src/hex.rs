@@ -280,20 +280,15 @@ impl HexCorner {
 
 /// The different hexagon orientations that may be used to form a hexagonal
 /// grid.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Orientation {
     /// Arrange hexagons in vertical columns; the top and bottom of each
     /// hexagon is flat.
+    #[default]
     FlatTop,
     /// Arrange hexagons in horizontal rows; the top and bottom of each
     /// hexagon is pointed.
     PointedTop,
-}
-
-impl Default for Orientation {
-    fn default() -> Self {
-        Orientation::FlatTop
-    }
 }
 
 impl Orientation {

@@ -122,9 +122,9 @@ fn main() -> Result<()> {
     let label_height = labeller.size(label_text).height;
     let coords = if centre_label {
         let image_width = example.content_size().0;
-        (0.5 * image_width, -2.0 * label_height as f64)
+        (0.5 * image_width, -2.0 * label_height)
     } else {
-        (0.0, -2.0 * label_height as f64)
+        (0.0, -2.0 * label_height)
     };
     labeller.draw(label_text, coords.into());
 

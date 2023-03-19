@@ -1074,8 +1074,9 @@ impl City {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Default, Serialize, Deserialize, PartialEq, Eq)]
 enum TileRotation {
+    #[default]
     Zero,
     Cw1,
     Cw2,
@@ -1087,12 +1088,6 @@ enum TileRotation {
 impl TileRotation {
     fn is_default(&self) -> bool {
         self == &Self::default()
-    }
-}
-
-impl Default for TileRotation {
-    fn default() -> Self {
-        TileRotation::Zero
     }
 }
 
