@@ -30,10 +30,10 @@ default-members = ["crates/*", "."]
 [dependencies]
 navig18xx = { path = "./crates/navig18xx", version = "0.1.0" }
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.16", features = ["png", "pdf", "svg"] }
-gtk = "0.16"
-gdk = "0.16"
-glib = "0.16"
+cairo-rs = { version = "0.17", features = ["png", "pdf", "svg"] }
+gtk = "0.17"
+gdk = "0.17"
+glib = "0.17"
 chrono = "0.4"
 log = "0.4"
 env_logger = "0.9"

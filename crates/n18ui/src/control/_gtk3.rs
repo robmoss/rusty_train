@@ -48,7 +48,7 @@ pub fn select_index<F>(
     let title_label = gtk::Label::new(Some(title));
 
     // Display the companies as a list.
-    let list = gtk::builders::ListBoxBuilder::new()
+    let list = gtk::ListBox::builder()
         .selection_mode(gtk::SelectionMode::Browse)
         .activate_on_single_click(false)
         .margin_top(4)
@@ -303,7 +303,7 @@ pub fn select_file_save<F>(
         .build();
 
     for filter in filters {
-        dialog.add_filter(filter)
+        dialog.add_filter(filter.clone())
     }
     if let Some(path) = default_path {
         dialog.set_current_name(path);
@@ -348,7 +348,7 @@ pub fn select_file_load<F>(
         .action(gtk::FileChooserAction::Open)
         .build();
     for filter in filters {
-        dialog.add_filter(filter)
+        dialog.add_filter(filter.clone())
     }
     if let Some(path) = default_path {
         dialog.set_current_name(path);
@@ -569,7 +569,7 @@ impl UiController for Gtk3Controller {
             let label = gtk::Label::builder()
                 .use_markup(true)
                 .selectable(false)
-                .label(&format!("<b>{}</b>", text))
+                .label(format!("<b>{}</b>", text))
                 .expand(true)
                 .halign(gtk::Align::Center)
                 .build();

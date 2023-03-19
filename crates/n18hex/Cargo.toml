@@ -13,6 +13,6 @@ categories = ["algorithms", "graphics"]
 
 [dependencies]
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.16", features = ["png", "pdf", "svg"] }
-pango = "0.16"
-pangocairo = "0.16"
+cairo-rs = { version = "0.17", features = ["png", "pdf", "svg"] }
+pango = "0.17"
+pangocairo = "0.17"

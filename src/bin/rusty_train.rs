@@ -158,7 +158,7 @@ fn start_message() -> gtk::Grid {
             let label = gtk::Label::builder()
                 .use_markup(true)
                 .selectable(false)
-                .label(&format!("<b>{}:</b> ", text))
+                .label(format!("<b>{}:</b> ", text))
                 .expand(true)
                 .halign(gtk::Align::End)
                 .build();
@@ -170,7 +170,7 @@ fn start_message() -> gtk::Grid {
         .for_each(|(ix, text)| {
             let label = gtk::Label::builder()
                 .selectable(false)
-                .label(text)
+                .label(*text)
                 .expand(true)
                 .halign(gtk::Align::Start)
                 .build();
