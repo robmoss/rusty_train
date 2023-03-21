@@ -18,5 +18,5 @@ n18route = { path = "../n18route", version = "0.1.0" }
 n18tile = { path = "../n18tile", version = "0.1.0" }
 n18token = { path = "../n18token", version = "0.1.0" }
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.17", features = ["png", "pdf", "svg"] }
+cairo-rs = { version = "0.18", features = ["png", "pdf", "svg"] }
 log = "0.4"

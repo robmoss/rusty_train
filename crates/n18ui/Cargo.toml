@@ -22,9 +22,9 @@ n18game = { path = "../n18game", version = "0.1.0" }
 n18brush = { path = "../n18brush", version = "0.1.0" }
 
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.17", features = ["png", "pdf", "svg"] }
-gtk = "0.17"
-gdk = "0.17"
-glib = "0.17"
+cairo-rs = { version = "0.18", features = ["png", "pdf", "svg"] }
+gtk4 = "0.7"
+gdk4 = "0.7"
+glib = "0.18"
 chrono = "0.4"
 log = "0.4"

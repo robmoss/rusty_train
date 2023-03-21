@@ -1,5 +1,13 @@
 # Changelog
 
+## Rusty Train 0.2.0 (2023-MM-DD)
+
+- Add support for 1889: History of Shikoku Railways (Shikoku 1889).
+
+- Add support for train-specific route bonuses (`VisitWithTrainBonus`).
+
+- Migrate to GTK 4.
+
 ## Rusty Train 0.1.0 (2021-10-08)
 
 Initial release.

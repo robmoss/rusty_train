@@ -17,10 +17,10 @@ n18tile = { path = "../n18tile", version = "0.1.0" }
 n18token = { path = "../n18token", version = "0.1.0" }
 n18map = { path = "../n18map", version = "0.1.0" }
 log = "0.4"
-rayon = "1.5"
+rayon = "1.7"
 
 [dev-dependencies]
 n18catalogue = { path = "../n18catalogue", version = "0.1.0" }
 n18brush = { path = "../n18brush", version = "0.1.0" }
-cairo-rs = { version = "0.17" }
-env_logger = "0.9"
+cairo-rs = { version = "0.18" }
+env_logger = "0.10"

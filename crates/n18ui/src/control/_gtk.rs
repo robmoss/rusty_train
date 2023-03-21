@@ -1,6 +1,7 @@
-//! Provides a user interface controller for GTK 3.
+//! Provides a user interface controller for GTK 4.
 
 use gtk::prelude::*;
+use gtk4 as gtk;
 use std::collections::BTreeMap;
 
 use n18game::{DividendOptions, Game};
@@ -51,15 +52,15 @@ pub fn select_index<F>(
     let list = gtk::ListBox::builder()
         .selection_mode(gtk::SelectionMode::Browse)
         .activate_on_single_click(false)
-        .margin_top(4)
-        .margin_bottom(4)
-        .margin_start(4)
-        .margin_end(4)
+        .margin_top(padding)
+        .margin_bottom(padding)
+        .margin_start(padding)
+        .margin_end(padding)
         .build();
 
     items.iter().for_each(|item| {
         let item_label = gtk::Label::new(Some(item));
-        list.add(&item_label);
+        list.append(&item_label);
     });
 
     // Select the first item.
@@ -82,8 +83,8 @@ pub fn select_index<F>(
 
     content.set_spacing(padding);
     content.set_orientation(gtk::Orientation::Vertical);
-    content.pack_start(&title_label, true, false, padding as u32);
-    content.pack_start(&list, true, false, padding as u32);
+    content.append(&title_label);
+    content.append(&list);
 
     dialog.connect_response(move |dlg, response| {
         dlg.hide();
@@ -94,7 +95,7 @@ pub fn select_index<F>(
         };
         callback(ix)
     });
-    dialog.show_all();
+    dialog.show();
 }
 
 /// Prompts the user to select the trains and operating bonuses for a company,
@@ -158,24 +159,24 @@ pub fn select_trains<F>(
     option_box.set_margin_top(padding);
     option_box.set_margin_start(padding);
     option_box.set_margin_end(padding);
-    content.pack_start(&train_col, true, true, padding as u32);
-    content.pack_start(&option_col, true, true, padding as u32);
+    content.append(&train_col);
+    content.append(&option_col);
     option_box.set_valign(gtk::Align::Center);
     option_box.set_vexpand(true);
-    option_col.pack_start(&option_box, true, false, padding as u32);
+    option_col.append(&option_box);
 
     let mut trains = Vec::with_capacity(train_types.len());
     train_types.iter().for_each(|train| {
         let row =
             add_spinner(train, train_names.get(train).unwrap(), &mut trains);
-        train_col.pack_start(&row, false, false, padding as u32)
+        train_col.append(&row)
     });
     options.iter().for_each(|btn| {
         btn.set_margin_bottom(padding);
         btn.set_margin_top(padding);
         btn.set_margin_start(padding);
         btn.set_margin_end(padding);
-        option_box.pack_start(btn, false, false, padding as u32)
+        option_box.append(btn)
     });
 
     // NOTE: we need to collect these values into a vector so that they can
@@ -203,7 +204,7 @@ pub fn select_trains<F>(
             callback(None)
         }
     });
-    dialog.show_all();
+    dialog.show();
 }
 
 /// Prompts the user to select a game phase, and provides this phase (if any)
@@ -232,7 +233,11 @@ where
         .iter()
         .for_each(|name| combo.append(Some(name), name));
     combo.set_active_id(phase_names.get(current_phase).copied());
-    content.pack_start(&combo, true, false, padding);
+    combo.set_margin_bottom(padding);
+    combo.set_margin_top(padding);
+    combo.set_margin_start(padding);
+    combo.set_margin_end(padding);
+    content.append(&combo);
 
     let phase_names: Vec<String> =
         phase_names.iter().map(|s| s.to_string()).collect();
@@ -252,7 +257,7 @@ where
             callback(None)
         }
     });
-    dialog.show_all();
+    dialog.show();
 }
 
 /// Returns a `gtk::Box` that contains a `gtk::SpinButton` and a `gtk::Label`,
@@ -270,8 +275,8 @@ fn add_spinner<'a>(
     label.set_justify(gtk::Justification::Left);
     label.set_hexpand(true);
     let row = gtk::Box::new(gtk::Orientation::Horizontal, 16);
-    row.pack_start(&label, true, true, 0);
-    row.pack_end(&spin, false, false, 0);
+    row.append(&label);
+    row.append(&spin);
     let padding = 4;
     row.set_margin_bottom(padding);
     row.set_margin_top(padding);
@@ -299,11 +304,10 @@ pub fn select_file_save<F>(
         .title(title)
         .transient_for(window)
         .action(gtk::FileChooserAction::Save)
-        .do_overwrite_confirmation(true)
         .build();
 
     for filter in filters {
-        dialog.add_filter(filter.clone())
+        dialog.add_filter(filter)
     }
     if let Some(path) = default_path {
         dialog.set_current_name(path);
@@ -318,7 +322,11 @@ pub fn select_file_save<F>(
     dialog.connect_response(move |_dlg, response| {
         live_dialog.hide();
         if response == gtk::ResponseType::Accept {
-            let dest = live_dialog.filename().expect("Couldn't get filename");
+            let dest = live_dialog
+                .file()
+                .expect("Couldn't get file")
+                .path()
+                .expect("Couldn't get filename");
             callback(Some(dest))
         } else {
             callback(None)
@@ -348,7 +356,7 @@ pub fn select_file_load<F>(
         .action(gtk::FileChooserAction::Open)
         .build();
     for filter in filters {
-        dialog.add_filter(filter.clone())
+        dialog.add_filter(filter)
     }
     if let Some(path) = default_path {
         dialog.set_current_name(path);
@@ -363,7 +371,11 @@ pub fn select_file_load<F>(
     dialog.connect_response(move |_dlg, response| {
         live_dialog.hide();
         if response == gtk::ResponseType::Accept {
-            let dest = live_dialog.filename().expect("Couldn't get filename");
+            let dest = live_dialog
+                .file()
+                .expect("Couldn't get file")
+                .path()
+                .expect("Couldn't get filename");
             callback(Some(dest))
         } else {
             callback(None)
@@ -396,21 +408,21 @@ pub fn game_file_filters() -> Vec<gtk::FileFilter> {
     vec![filter_game, filter_all]
 }
 
-/// A user interface controller for GTK 3, which draws the game map on a
+/// A user interface controller for GTK, which draws the game map on a
 /// `DrawingArea` widget.
-pub struct Gtk3Controller {
-    window: ::gtk::Window,
-    draw_area: ::gtk::DrawingArea,
+pub struct GtkController {
+    window: gtk::Window,
+    draw_area: gtk::DrawingArea,
     ping_tx: glib::Sender<PingDest>,
 }
 
-impl Gtk3Controller {
+impl GtkController {
     pub fn new(
-        window: ::gtk::Window,
-        draw_area: ::gtk::DrawingArea,
+        window: gtk::Window,
+        draw_area: gtk::DrawingArea,
         ping_tx: glib::Sender<PingDest>,
     ) -> Self {
-        Gtk3Controller {
+        GtkController {
             window,
             draw_area,
             ping_tx,
@@ -418,7 +430,7 @@ impl Gtk3Controller {
     }
 }
 
-impl UiController for Gtk3Controller {
+impl UiController for GtkController {
     fn quit(&mut self) {
         self.window.close();
     }
@@ -428,7 +440,7 @@ impl UiController for Gtk3Controller {
     }
 
     fn set_window_title(&mut self, title: &str) {
-        self.window.set_title(title)
+        self.window.set_title(Some(title))
     }
 
     fn window_title(&self) -> Option<String> {
@@ -555,13 +567,17 @@ impl UiController for Gtk3Controller {
         let any_withheld = dividends.iter().any(|d| d.withheld.is_some());
 
         let grid = gtk::Grid::builder()
-            .expand(true)
+            .hexpand(true)
+            .vexpand(true)
             .halign(gtk::Align::Center)
             .valign(gtk::Align::Center)
             .column_spacing(24)
             .row_spacing(8)
             .row_homogeneous(true)
-            .margin(16)
+            .margin_bottom(16)
+            .margin_top(16)
+            .margin_start(16)
+            .margin_end(16)
             .build();
 
         // Add a title label to a (column, row) cell.
@@ -570,7 +586,8 @@ impl UiController for Gtk3Controller {
                 .use_markup(true)
                 .selectable(false)
                 .label(format!("<b>{}</b>", text))
-                .expand(true)
+                .hexpand(true)
+                .vexpand(true)
                 .halign(gtk::Align::Center)
                 .build();
             grid.attach(&label, column as i32, row as i32, 1, 1);
@@ -582,7 +599,8 @@ impl UiController for Gtk3Controller {
                 .use_markup(false)
                 .selectable(false)
                 .label(text)
-                .expand(true)
+                .hexpand(true)
+                .vexpand(true)
                 .halign(gtk::Align::End)
                 .build();
             grid.attach(&label, column as i32, row as i32, 1, 1);
@@ -619,13 +637,13 @@ impl UiController for Gtk3Controller {
         }
 
         let content = dialog.content_area();
-        content.set_child(Some(&grid));
+        content.append(&grid);
 
         dialog.connect_response(move |dlg, _response| {
             dlg.hide();
             callback()
         });
 
-        dialog.show_all();
+        dialog.show();
     }
 }

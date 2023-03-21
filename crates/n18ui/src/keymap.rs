@@ -1,3 +1,5 @@
+use gdk4 as gdk;
+
 use crate::state::edit_tokens::EditTokens;
 use crate::state::replace_tile::ReplaceTile;
 use crate::state::search::SelectCompany;
@@ -7,10 +9,7 @@ use crate::{
 };
 
 /// Type alias for key identifiers.
-pub type Key = gdk::keys::Key;
-
-/// Alias for key identifier constants.
-use gdk::keys::constants as key;
+pub type Key = gdk::Key;
 
 /// Describes a mouse button being clicked.
 pub struct ButtonPress {
@@ -21,14 +20,6 @@ pub struct ButtonPress {
     /// The button that was clicked; `1` typically corresponds to the left
     /// button, `2` to the middle button, and `3` to the right button.
     pub button: u32,
-}
-
-impl From<&gdk::EventButton> for ButtonPress {
-    fn from(event: &gdk::EventButton) -> Self {
-        let (x, y) = event.position();
-        let button = event.button();
-        ButtonPress { x, y, button }
-    }
 }
 
 /// Describes a keyboard key being pressed.
@@ -43,12 +34,11 @@ pub struct KeyPress {
     pub shift: bool,
 }
 
-impl From<&gdk::EventKey> for KeyPress {
-    fn from(event: &gdk::EventKey) -> Self {
-        let key = event.keyval();
-        let modifiers = event.state();
+impl From<(Key, gdk::ModifierType)> for KeyPress {
+    fn from(source: (Key, gdk::ModifierType)) -> Self {
+        let (key, modifiers) = source;
         let ctrl = modifiers.contains(gdk::ModifierType::CONTROL_MASK);
-        let alt = modifiers.contains(gdk::ModifierType::MOD1_MASK);
+        let alt = modifiers.contains(gdk::ModifierType::ALT_MASK);
         let shift = modifiers.contains(gdk::ModifierType::SHIFT_MASK);
 
         KeyPress {
@@ -166,18 +156,18 @@ impl Submap for DefaultMode {
     ) -> Option<(UiResponse, Option<State>)> {
         state.as_default_mut().and_then(|state| {
             match (&event.key, event.ctrl) {
-                (&key::e, false) | (&key::E, false) => {
+                (&Key::e, false) | (&Key::E, false) => {
                     ReplaceTile::with_any(&assets.map, state.active_hex())
                         .map(|new_state| {
                             (UiResponse::Redraw, Some(new_state.into()))
                         })
                         .or(Some((UiResponse::None, None)))
                 }
-                (&key::p, false) | (&key::P, false) => {
+                (&Key::p, false) | (&Key::P, false) => {
                     state.select_phase(assets, controller);
                     Some((UiResponse::None, None))
                 }
-                (&key::r, false) | (&key::R, false) => {
+                (&Key::r, false) | (&Key::R, false) => {
                     // Allow the user to select a company and trains, and find the
                     // routes that earn the most revenue.
                     SelectCompany::new(assets, controller, state.active_hex())
@@ -186,14 +176,14 @@ impl Submap for DefaultMode {
                         })
                         .or(Some((UiResponse::None, None)))
                 }
-                (&key::t, false) | (&key::T, false) => {
+                (&Key::t, false) | (&Key::T, false) => {
                     EditTokens::try_new(&assets.map, state.active_hex())
                         .map(|new_state| {
                             (UiResponse::Redraw, Some(new_state.into()))
                         })
                         .or(Some((UiResponse::None, None)))
                 }
-                (&key::u, false) | (&key::U, false) => {
+                (&Key::u, false) | (&Key::U, false) => {
                     // Upgrade tile or place tile on empty hex.
                     ReplaceTile::maybe_upgrade(assets, state.active_hex())
                         .map(|new_state| {
@@ -201,7 +191,7 @@ impl Submap for DefaultMode {
                         })
                         .or(Some((UiResponse::None, None)))
                 }
-                (&key::Left, false) => {
+                (&Key::Left, false) => {
                     let new_addr = assets.map.prev_col(state.active_hex());
                     if new_addr == state.active_hex() {
                         Some((UiResponse::None, None))
@@ -210,7 +200,7 @@ impl Submap for DefaultMode {
                         Some((UiResponse::Redraw, None))
                     }
                 }
-                (&key::Right, false) => {
+                (&Key::Right, false) => {
                     let new_addr = assets.map.next_col(state.active_hex());
                     if new_addr == state.active_hex() {
                         Some((UiResponse::None, None))
@@ -219,7 +209,7 @@ impl Submap for DefaultMode {
                         Some((UiResponse::Redraw, None))
                     }
                 }
-                (&key::Up, false) => {
+                (&Key::Up, false) => {
                     let new_addr = assets.map.prev_row(state.active_hex());
                     if new_addr == state.active_hex() {
                         Some((UiResponse::None, None))
@@ -228,7 +218,7 @@ impl Submap for DefaultMode {
                         Some((UiResponse::Redraw, None))
                     }
                 }
-                (&key::Down, false) => {
+                (&Key::Down, false) => {
                     let new_addr = assets.map.next_row(state.active_hex());
                     if new_addr == state.active_hex() {
                         Some((UiResponse::None, None))
@@ -237,7 +227,7 @@ impl Submap for DefaultMode {
                         Some((UiResponse::Redraw, None))
                     }
                 }
-                (&key::less, false) | (&key::comma, false) => {
+                (&Key::less, false) | (&Key::comma, false) => {
                     // NOTE: unlike upgrading a tile, when rotating the current
                     // tile we should not try moving the currently-placed tokens
                     // to maintain their connectivity.
@@ -258,7 +248,7 @@ impl Submap for DefaultMode {
                     }
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::greater, false) | (&key::period, false) => {
+                (&Key::greater, false) | (&Key::period, false) => {
                     if let Some(hs) =
                         assets.map.hex_state_mut(state.active_hex())
                     {
@@ -266,7 +256,7 @@ impl Submap for DefaultMode {
                     }
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::BackSpace, false) | (&key::Delete, false) => {
+                (&Key::BackSpace, false) | (&Key::Delete, false) => {
                     // TODO: allow this action to be undone?
                     assets.map.remove_tile(state.active_hex());
                     Some((UiResponse::Redraw, None))
@@ -325,12 +315,12 @@ impl Submap for FoundRoutesMode {
     ) -> Option<(UiResponse, Option<State>)> {
         state.as_find_routes_found_mut().and_then(|state| {
             match (&event.key, event.ctrl) {
-                (&key::Escape, false) | (&key::Return, false) => {
+                (&Key::Escape, false) | (&Key::Return, false) => {
                     // Exit this mode.
                     let new_state = State::default_state(state.active_hex());
                     Some((UiResponse::Redraw, Some(new_state)))
                 }
-                (&key::Left, _) | (&key::Up, _) => {
+                (&Key::Left, _) | (&Key::Up, _) => {
                     let action = if state.highlight_previous_route() {
                         controller
                             .set_window_title(&state.window_title(assets));
@@ -340,7 +330,7 @@ impl Submap for FoundRoutesMode {
                     };
                     Some((action, None))
                 }
-                (&key::Right, _) | (&key::Down, _) => {
+                (&Key::Right, _) | (&Key::Down, _) => {
                     let action = if state.highlight_next_route() {
                         controller
                             .set_window_title(&state.window_title(assets));
@@ -350,7 +340,7 @@ impl Submap for FoundRoutesMode {
                     };
                     Some((action, None))
                 }
-                (&key::d, _) | (&key::D, _) => {
+                (&Key::d, _) | (&Key::D, _) => {
                     let action = if state.show_dividends(assets, controller) {
                         UiResponse::Redraw
                     } else {
@@ -383,37 +373,37 @@ impl Submap for EditTokensMode {
     ) -> Option<(UiResponse, Option<State>)> {
         state.as_edit_tokens_mut().and_then(|state| {
             match (&event.key, event.ctrl) {
-                (&key::Escape, false) => {
+                (&Key::Escape, false) => {
                     // Exit this mode, discarding any changes.
                     state.restore_tokens(&mut assets.map);
                     let new_state = State::default_state(state.active_hex());
                     Some((UiResponse::Redraw, Some(new_state)))
                 }
-                (&key::Return, false) => {
+                (&Key::Return, false) => {
                     // Exit this mode, retaining any changes.
                     let new_state = State::default_state(state.active_hex());
                     Some((UiResponse::Redraw, Some(new_state)))
                 }
-                (&key::Left, false) => {
+                (&Key::Left, false) => {
                     state.previous_token_space();
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::Right, false) => {
+                (&Key::Right, false) => {
                     state.next_token_space();
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::Down, false) => {
+                (&Key::Down, false) => {
                     state.select_previous_token(assets);
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::Up, false) => {
+                (&Key::Up, false) => {
                     state.select_next_token(assets);
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::_0, false)
-                | (&key::KP_0, false)
-                | (&key::BackSpace, false)
-                | (&key::Delete, false) => {
+                (&Key::_0, false)
+                | (&Key::KP_0, false)
+                | (&Key::BackSpace, false)
+                | (&Key::Delete, false) => {
                     // Remove the current token
                     state.clear_token_space(&mut assets.map);
                     Some((UiResponse::Redraw, None))
@@ -443,12 +433,12 @@ impl Submap for ReplaceTileMode {
     ) -> Option<(UiResponse, Option<State>)> {
         state.as_replace_tile_mut().and_then(|state| {
             match (&event.key, event.ctrl) {
-                (&key::Escape, false) => {
+                (&Key::Escape, false) => {
                     // Exit this mode, discarding any changes.
                     let new_state = State::default_state(state.active_hex());
                     Some((UiResponse::Redraw, Some(new_state)))
                 }
-                (&key::Return, false) => {
+                (&Key::Return, false) => {
                     // Exit this mode, retaining any changes.
                     let action = if state.place_candidate(&mut assets.map) {
                         UiResponse::Redraw
@@ -458,11 +448,11 @@ impl Submap for ReplaceTileMode {
                     let new_state = State::default_state(state.active_hex());
                     Some((action, Some(new_state)))
                 }
-                (&key::o, false) | (&key::O, false) => {
+                (&Key::o, false) | (&Key::O, false) => {
                     state.toggle_original_tile();
                     Some((UiResponse::Redraw, None))
                 }
-                (&key::Down, false) => {
+                (&Key::Down, false) => {
                     let action = if state.select_previous_candidate() {
                         UiResponse::Redraw
                     } else {
@@ -470,7 +460,7 @@ impl Submap for ReplaceTileMode {
                     };
                     Some((action, None))
                 }
-                (&key::Up, false) => {
+                (&Key::Up, false) => {
                     let action = if state.select_next_candidate() {
                         UiResponse::Redraw
                     } else {
@@ -478,7 +468,7 @@ impl Submap for ReplaceTileMode {
                     };
                     Some((action, None))
                 }
-                (&key::less, false) | (&key::comma, false) => {
+                (&Key::less, false) | (&Key::comma, false) => {
                     let action = if state.rotate_candidate_anti_cw() {
                         UiResponse::Redraw
                     } else {
@@ -486,7 +476,7 @@ impl Submap for ReplaceTileMode {
                     };
                     Some((action, None))
                 }
-                (&key::greater, false) | (&key::period, false) => {
+                (&Key::greater, false) | (&Key::period, false) => {
                     let action = if state.rotate_candidate_cw() {
                         UiResponse::Redraw
                     } else {
@@ -526,10 +516,10 @@ impl Submap for Global {
     ) -> Option<(UiResponse, Option<State>)> {
         let is_start = state.as_start().is_some();
         match (&event.key, event.ctrl) {
-            (&key::q, false) | (&key::Q, false) => {
+            (&Key::q, false) | (&Key::Q, false) => {
                 Some((UiResponse::Quit, None))
             }
-            (&key::n, true) | (&key::N, true) => {
+            (&Key::n, true) | (&Key::N, true) => {
                 // Prompt the user to select a game, and load its starting map.
                 let game_names: Vec<&str> = assets.games.names();
                 let ping_tx = controller.ping_tx();
@@ -546,7 +536,7 @@ impl Submap for Global {
                 );
                 Some((UiResponse::None, None))
             }
-            (&key::o, true) | (&key::O, true) => {
+            (&Key::o, true) | (&Key::O, true) => {
                 let ping_tx = controller.ping_tx();
                 let send_tx = sender.clone();
                 controller.select_game_load(
@@ -563,7 +553,7 @@ impl Submap for Global {
                 );
                 Some((UiResponse::None, None))
             }
-            (&key::s, true) | (&key::S, true) => {
+            (&Key::s, true) | (&Key::S, true) => {
                 if is_start {
                     return None;
                 }
@@ -583,7 +573,7 @@ impl Submap for Global {
                 );
                 Some((UiResponse::None, None))
             }
-            (&key::s, false) | (&key::S, false) => {
+            (&Key::s, false) | (&Key::S, false) => {
                 if is_start {
                     return None;
                 }
@@ -619,13 +609,13 @@ impl Submap for Global {
                 );
                 Some((UiResponse::None, None))
             }
-            (&key::plus, false) | (&key::equal, false) => {
+            (&Key::plus, false) | (&Key::equal, false) => {
                 if is_start {
                     return None;
                 }
                 Some((UiResponse::ZoomIn, None))
             }
-            (&key::minus, false) | (&key::underscore, false) => {
+            (&Key::minus, false) | (&Key::underscore, false) => {
                 if is_start {
                     return None;
                 }

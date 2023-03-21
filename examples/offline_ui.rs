@@ -1,6 +1,8 @@
 use navig18xx::prelude::*;
 use navig18xx::ui::*;
 
+use gdk4 as gdk;
+
 mod output;
 use output::Dir;
 
@@ -43,18 +45,18 @@ fn build_ui() -> UserInterface {
     ui.draw();
 
     // Place a token in the bottom token space.
-    feed_key(&mut ui, gdk::keys::constants::t);
-    feed_key(&mut ui, gdk::keys::constants::Up);
-    feed_key(&mut ui, gdk::keys::constants::Up);
-    feed_key(&mut ui, gdk::keys::constants::Return);
+    feed_key(&mut ui, gdk::Key::t);
+    feed_key(&mut ui, gdk::Key::Up);
+    feed_key(&mut ui, gdk::Key::Up);
+    feed_key(&mut ui, gdk::Key::Return);
 
     // Rotate the tile two turns clockwise.
-    feed_key(&mut ui, gdk::keys::constants::period);
-    feed_key(&mut ui, gdk::keys::constants::period);
+    feed_key(&mut ui, gdk::Key::period);
+    feed_key(&mut ui, gdk::Key::period);
 
     // Upgrade the Moscow tile to green.
-    feed_key(&mut ui, gdk::keys::constants::u);
-    feed_key(&mut ui, gdk::keys::constants::Return);
+    feed_key(&mut ui, gdk::Key::u);
+    feed_key(&mut ui, gdk::Key::Return);
 
     ui
 }

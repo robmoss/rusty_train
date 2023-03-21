@@ -1,5 +1,8 @@
 use std::io::Write;
 
+use gdk4 as gdk;
+use gtk4 as gtk;
+
 use gtk::prelude::*;
 use gtk::DrawingArea;
 
@@ -41,9 +44,8 @@ pub fn build(application: &gtk::Application) {
 
     let window = gtk::ApplicationWindow::new(application);
     let bar = gtk::HeaderBar::new();
-    let adj: Option<&gtk::Adjustment> = None;
-    let scrolled_win = gtk::ScrolledWindow::new(adj, adj);
-    let drawing_area = Box::new(DrawingArea::new)();
+    let scrolled_win = gtk::ScrolledWindow::new();
+    let drawing_area = DrawingArea::new();
     scrolled_win.set_child(Some(&drawing_area));
 
     // Create a second channel for sending "pings", which can be used to
@@ -51,10 +53,10 @@ pub fn build(application: &gtk::Application) {
     // We provide the sender to each `state` method, so that they can make use
     // of it as necessary.
     let (ping_tx, ping_rx) =
-        glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        glib::MainContext::channel(glib::Priority::default());
 
     let win = window.clone().upcast::<gtk::Window>();
-    let controller = navig18xx::ui::control::Gtk3Controller::new(
+    let controller = navig18xx::ui::control::GtkController::new(
         win,
         drawing_area.clone(),
         ping_tx,
@@ -66,49 +68,54 @@ pub fn build(application: &gtk::Application) {
     );
     ui.draw();
 
-    bar.set_title(Some("Rusty Train"));
+    window.set_title(Some("Rusty Train"));
     bar.set_decoration_layout(Some("menu:close"));
-    bar.set_show_close_button(true);
+    bar.set_show_title_buttons(true);
     window.set_titlebar(Some(&bar));
 
     // Create a channel to pass UI events to the `state` event handlers.
     let (tx, rx) =
-        glib::MainContext::sync_channel(glib::PRIORITY_DEFAULT, 100);
+        glib::MainContext::sync_channel(glib::Priority::default(), 100);
 
     // Let the UI draw on the window.
     let surface = ui.canvas.surface();
-    drawing_area.connect_draw(move |_da, ctx| {
+    drawing_area.set_draw_func(move |_da, ctx, _width, _height| {
         let surf = surface.read().expect("Could not access drawing surface");
         ctx.set_source_surface(&*surf, 0.0, 0.0).unwrap();
         ctx.paint().unwrap();
-        Inhibit(false)
     });
 
     // Let the UI handle mouse button events.
     let tx_ = tx.clone();
-    drawing_area.connect_button_press_event(move |_widget, event| {
-        tx_.send(UiEvent::ButtonPress(event.into()))
+    let click_forwarder = gtk::GestureClick::builder()
+        .button(gdk::BUTTON_PRIMARY)
+        .n_points(1)
+        .build();
+    click_forwarder.connect_pressed(move |_self, _count, x, y| {
+        let button = gdk::BUTTON_PRIMARY;
+        let event = navig18xx::ui::ButtonPress { x, y, button };
+        tx_.send(UiEvent::ButtonPress(event))
             .expect("Could not send ButtonPress event");
-        Inhibit(false)
     });
-    window.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
-    scrolled_win.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
-    drawing_area.add_events(gdk::EventMask::BUTTON_PRESS_MASK);
+    drawing_area.add_controller(click_forwarder);
 
     // Let the UI handle keyboard events.
     let tx_ = tx.clone();
-    window.connect_key_press_event(move |_widget, event| {
-        tx_.send(UiEvent::KeyPress(event.into()))
-            .expect("Could not send KeyPress event");
-        Inhibit(false)
-    });
-    window.add_events(gdk::EventMask::KEY_PRESS_MASK);
+    let key_forwarder = gtk::EventControllerKey::new();
+    key_forwarder.connect_key_pressed(
+        move |_self, key, _keycode, modifiers| {
+            tx_.send(UiEvent::KeyPress((key, modifiers).into()))
+                .expect("Could not send KeyPress event");
+            glib::Propagation::Proceed
+        },
+    );
+    window.add_controller(key_forwarder);
 
     // Pass each "ping" event to the current UI state.
     ping_rx.attach(None, move |dest| {
         tx.send(UiEvent::PingCurrentState(dest))
             .expect("Could not send Ping event");
-        glib::source::Continue(true)
+        glib::ControlFlow::Continue
     });
 
     // Show the starting message, rather than the map content.
@@ -130,24 +137,25 @@ pub fn build(application: &gtk::Application) {
         // When a game is started or loaded, hide the starting message and
         // show the map content instead.
         if start_visible && ui.state.as_start().is_none() {
-            _window.remove(&start_widget);
-            _window.add(&scrolled_win);
-            _window.show_all();
+            // NOTE: unlike GTK 3, GTK 4 allows us to replace the existing
+            // child widget.
+            _window.set_child(Some(&scrolled_win));
             start_visible = false;
         }
 
-        glib::source::Continue(true)
+        glib::ControlFlow::Continue
     });
 
     // Display the window.
-    window.show_all();
+    window.show();
 }
 
 /// Returns a Grid containing labels that identify the available key bindings
 /// when Rusty Train is launched.
 fn start_message() -> gtk::Grid {
     let grid = gtk::Grid::builder()
-        .expand(true)
+        .hexpand(true)
+        .vexpand(true)
         .halign(gtk::Align::Center)
         .valign(gtk::Align::Center)
         .build();
@@ -159,7 +167,7 @@ fn start_message() -> gtk::Grid {
                 .use_markup(true)
                 .selectable(false)
                 .label(format!("<b>{}:</b> ", text))
-                .expand(true)
+                .hexpand(true)
                 .halign(gtk::Align::End)
                 .build();
             grid.attach(&label, 0, ix as i32, 1, 1);
@@ -171,7 +179,7 @@ fn start_message() -> gtk::Grid {
             let label = gtk::Label::builder()
                 .selectable(false)
                 .label(*text)
-                .expand(true)
+                .hexpand(true)
                 .halign(gtk::Align::Start)
                 .build();
             grid.attach(&label, 1, ix as i32, 1, 1);

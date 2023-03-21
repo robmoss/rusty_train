@@ -3,10 +3,10 @@ use n18route::Trains;
 
 use crate::PingDest;
 
-mod _gtk3;
+mod _gtk;
 
 #[doc(inline)]
-pub use _gtk3::Gtk3Controller;
+pub use _gtk::GtkController;
 
 #[derive(Clone)]
 pub enum PingSender {
@@ -106,13 +106,13 @@ pub trait UiController {
 }
 
 pub enum Controller {
-    Gtk3(Gtk3Controller),
+    Gtk(GtkController),
     Dummy(DummyController),
 }
 
-impl From<Gtk3Controller> for Controller {
-    fn from(ctrl: Gtk3Controller) -> Self {
-        Controller::Gtk3(ctrl)
+impl From<GtkController> for Controller {
+    fn from(ctrl: GtkController) -> Self {
+        Controller::Gtk(ctrl)
     }
 }
 
@@ -126,7 +126,7 @@ impl UiController for Controller {
     fn quit(&mut self) {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.quit(),
+            Gtk(ctrl) => ctrl.quit(),
             Dummy(ctrl) => ctrl.quit(),
         }
     }
@@ -134,7 +134,7 @@ impl UiController for Controller {
     fn redraw(&self) {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.redraw(),
+            Gtk(ctrl) => ctrl.redraw(),
             Dummy(ctrl) => ctrl.redraw(),
         }
     }
@@ -142,7 +142,7 @@ impl UiController for Controller {
     fn set_window_title(&mut self, title: &str) {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.set_window_title(title),
+            Gtk(ctrl) => ctrl.set_window_title(title),
             Dummy(ctrl) => ctrl.set_window_title(title),
         }
     }
@@ -150,7 +150,7 @@ impl UiController for Controller {
     fn window_title(&self) -> Option<String> {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.window_title(),
+            Gtk(ctrl) => ctrl.window_title(),
             Dummy(ctrl) => ctrl.window_title(),
         }
     }
@@ -158,7 +158,7 @@ impl UiController for Controller {
     fn resize(&mut self, width: i32, height: i32) {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.resize(width, height),
+            Gtk(ctrl) => ctrl.resize(width, height),
             Dummy(ctrl) => ctrl.resize(width, height),
         }
     }
@@ -166,7 +166,7 @@ impl UiController for Controller {
     fn ping_tx(&self) -> PingSender {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.ping_tx(),
+            Gtk(ctrl) => ctrl.ping_tx(),
             Dummy(ctrl) => ctrl.ping_tx(),
         }
     }
@@ -177,7 +177,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.select_string(title, strings, callback),
+            Gtk(ctrl) => ctrl.select_string(title, strings, callback),
             Dummy(ctrl) => ctrl.select_string(title, strings, callback),
         }
     }
@@ -188,7 +188,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.select_index(title, strings, callback),
+            Gtk(ctrl) => ctrl.select_index(title, strings, callback),
             Dummy(ctrl) => ctrl.select_index(title, strings, callback),
         }
     }
@@ -199,7 +199,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.select_trains(game, title, callback),
+            Gtk(ctrl) => ctrl.select_trains(game, title, callback),
             Dummy(ctrl) => ctrl.select_trains(game, title, callback),
         }
     }
@@ -210,7 +210,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => ctrl.select_phase(game, callback),
+            Gtk(ctrl) => ctrl.select_phase(game, callback),
             Dummy(ctrl) => ctrl.select_phase(game, callback),
         }
     }
@@ -225,7 +225,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => {
+            Gtk(ctrl) => {
                 ctrl.select_screenshot_save(title, default_path, callback)
             }
             Dummy(ctrl) => {
@@ -244,9 +244,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => {
-                ctrl.select_game_save(title, default_path, callback)
-            }
+            Gtk(ctrl) => ctrl.select_game_save(title, default_path, callback),
             Dummy(ctrl) => {
                 ctrl.select_game_save(title, default_path, callback)
             }
@@ -263,9 +261,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => {
-                ctrl.select_game_load(title, default_path, callback)
-            }
+            Gtk(ctrl) => ctrl.select_game_load(title, default_path, callback),
             Dummy(ctrl) => {
                 ctrl.select_game_load(title, default_path, callback)
             }
@@ -284,7 +280,7 @@ impl UiController for Controller {
     {
         use Controller::*;
         match self {
-            Gtk3(ctrl) => {
+            Gtk(ctrl) => {
                 ctrl.show_dividends(abbrev, revenue, options, callback)
             }
             Dummy(ctrl) => {
