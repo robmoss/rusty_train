@@ -104,7 +104,7 @@ fn save_1867_bc_routes(
     // Save an image of the map prior to drawing any routes.
     state.example.draw_map();
     let out_file = image_dir.join("1867_bc.png");
-    save_png(&state.example, &out_file);
+    save_png(&state.example, out_file);
 
     // Draw the best routes for each company in turn.
     for company in &state.companies {

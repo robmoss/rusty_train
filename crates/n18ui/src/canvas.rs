@@ -1,5 +1,6 @@
 use log::info;
-use std::sync::{Arc, RwLock};
+use std::rc::Rc;
+use std::sync::RwLock;
 
 use crate::{Assets, State};
 use n18hex::Hex;
@@ -55,7 +56,7 @@ pub fn max_surface_dims(
 
 pub struct Canvas {
     // NOTE: we need to share the surface with the main event loop and the UI.
-    surface: Arc<RwLock<cairo::ImageSurface>>,
+    surface: Rc<RwLock<cairo::ImageSurface>>,
     context: cairo::Context,
     width: i32,
     height: i32,
@@ -68,7 +69,7 @@ impl Canvas {
                 .expect("Could not create ImageSurface");
         let context = cairo::Context::new(&surface)
             .expect("Could not create cairo::Context");
-        let surface = Arc::new(RwLock::new(surface));
+        let surface = Rc::new(RwLock::new(surface));
         Canvas {
             surface,
             context,
@@ -77,8 +78,8 @@ impl Canvas {
         }
     }
 
-    pub fn surface(&self) -> Arc<RwLock<cairo::ImageSurface>> {
-        Arc::clone(&self.surface)
+    pub fn surface(&self) -> Rc<RwLock<cairo::ImageSurface>> {
+        Rc::clone(&self.surface)
     }
 
     pub fn copy_surface(&self) -> cairo::ImageSurface {

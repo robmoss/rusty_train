@@ -265,7 +265,7 @@ pub fn initial_tiles(hex: &Hex) -> Vec<Tile> {
 
 /// Returns the tiles for each off-board location.
 pub fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
-    let suffixes = vec!["Yw", "Bn"];
+    let suffixes = ["Yw", "Bn"];
 
     let imabari: Vec<Tile> = suffixes
         .iter()

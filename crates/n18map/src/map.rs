@@ -502,10 +502,7 @@ impl Map {
     /// (i.e., you can place an "O" tile on top of a "Y" tile, if the hex has
     /// both "O" and "Y" labels).
     pub fn add_label_at(&mut self, addr: HexAddress, label: Label) {
-        self.labels_tbl
-            .entry(addr)
-            .or_insert_with(Vec::new)
-            .push(label)
+        self.labels_tbl.entry(addr).or_default().push(label)
     }
 
     /// Returns the labels associated with the specified map hex.
@@ -1190,7 +1187,7 @@ mod tests {
 
         // NOTE: iterate over starting connection and, for each, check that it
         // has the expected connections, and only the expected connections.
-        let starts = vec![
+        let starts = [
             (HexAddress::new(0, 0), Connection::City { ix: 0 }),
             (HexAddress::new(0, 1), Connection::City { ix: 0 }),
             (HexAddress::new(1, 1), Connection::City { ix: 0 }),

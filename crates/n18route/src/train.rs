@@ -539,7 +539,7 @@ fn best_stop_ixs(
             .filter(|(ix, _revenue)| !must_not_skip_ixs.contains(ix))
             .take(new_num_to_keep)
             .map(|(ix, _rev)| *ix)
-            .chain(new_stop_ixs.into_iter())
+            .chain(new_stop_ixs)
             .collect();
         let new_ixs: Vec<usize> = must_stop_ixs
             .iter()

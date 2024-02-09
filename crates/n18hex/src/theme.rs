@@ -23,6 +23,7 @@ use std::collections::BTreeMap;
 
 use crate::{Coord, Hex, HexColour};
 use cairo::Context;
+use pangocairo::functions::{create_layout, show_layout, update_layout};
 
 /// Defines relative and absolute lengths.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -233,8 +234,8 @@ impl<'a> Labeller<'a> {
         self.context.move_to(coord.x, coord.y);
         self.colour.apply_colour(self.context);
         self.layout.set_text(text);
-        pangocairo::update_layout(self.context, &self.layout);
-        pangocairo::show_layout(self.context, &self.layout);
+        update_layout(self.context, &self.layout);
+        show_layout(self.context, &self.layout);
         self.context.new_path();
     }
 
@@ -256,8 +257,8 @@ impl<'a> Labeller<'a> {
         self.context.rel_move_to(coord.x, coord.y);
         self.colour.apply_colour(self.context);
         self.layout.set_text(text);
-        pangocairo::update_layout(self.context, &self.layout);
-        pangocairo::show_layout(self.context, &self.layout);
+        update_layout(self.context, &self.layout);
+        show_layout(self.context, &self.layout);
         self.context.new_path();
         true
     }
@@ -355,7 +356,7 @@ impl Text {
     pub fn labeller<'a>(&self, ctx: &'a Context, hex: &Hex) -> Labeller<'a> {
         let scale = hex.max_d / 125.0;
         let font_descr = self.describe(scale);
-        let layout = pangocairo::create_layout(ctx);
+        let layout = create_layout(ctx);
         layout.set_font_description(Some(&font_descr));
         layout.set_alignment(self.align);
         layout.set_wrap(self.wrap);

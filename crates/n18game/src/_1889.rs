@@ -283,7 +283,7 @@ impl super::Game for Game {
         self.phase = phase;
 
         let suffix = match phase {
-            0 | 1 | 2 => "Yw",
+            0..=2 => "Yw",
             _ => "Bn",
         };
 

@@ -976,7 +976,7 @@ fn central_asia(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Central Asia";
-    let revenues = vec![10, 20, 30, 40];
+    let revenues = [10, 20, 30, 40];
     revenues
         .iter()
         .enumerate()
@@ -1021,7 +1021,7 @@ fn romania(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Romania";
-    let revenues = vec![10, 20, 30, 30];
+    let revenues = [10, 20, 30, 30];
     revenues
         .iter()
         .enumerate()
@@ -1070,7 +1070,7 @@ fn caucasus(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Caucasus";
-    let revenues = vec![10, 20, 40, 60];
+    let revenues = [10, 20, 40, 60];
     revenues
         .iter()
         .enumerate()
@@ -1130,7 +1130,7 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Poland";
-    let revenues = vec![30, 40, 50, 70];
+    let revenues = [30, 40, 50, 70];
     revenues
         .iter()
         .enumerate()

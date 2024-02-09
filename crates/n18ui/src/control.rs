@@ -10,7 +10,7 @@ pub use _gtk::GtkController;
 
 #[derive(Clone)]
 pub enum PingSender {
-    Glib(glib::Sender<PingDest>),
+    Async(async_channel::Sender<PingDest>),
     Mpsc(std::sync::mpsc::Sender<PingDest>),
     IgnorePings,
 }
@@ -22,11 +22,10 @@ impl PingSender {
     ) -> Result<(), Box<dyn std::error::Error>> {
         use PingSender::*;
         match self {
-            Glib(sender) => sender.send(dest),
-            Mpsc(sender) => sender.send(dest),
+            Async(sender) => sender.send_blocking(dest).map_err(|e| e.into()),
+            Mpsc(sender) => sender.send(dest).map_err(|e| e.into()),
             IgnorePings => Ok(()),
         }
-        .map_err(|e| e.into())
     }
 }
 

@@ -298,7 +298,7 @@ impl City {
                 // Each circle is centred at the tip of an equilateral triangle
                 // with side length 2 * radius; it has height radius * sqrt(3).
                 let half_height = radius * (3.0_f64).sqrt() / 2.0;
-                let centres = vec![
+                let centres = [
                     (-radius, half_height),
                     (radius, half_height),
                     (0.0, -half_height),

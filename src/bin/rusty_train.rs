@@ -52,8 +52,7 @@ pub fn build(application: &gtk::Application) {
     // trigger non-UI events, such as messages from tasks in other threads.
     // We provide the sender to each `state` method, so that they can make use
     // of it as necessary.
-    let (ping_tx, ping_rx) =
-        glib::MainContext::channel(glib::Priority::default());
+    let (ping_tx, ping_rx) = async_channel::unbounded();
 
     let win = window.clone().upcast::<gtk::Window>();
     let controller = navig18xx::ui::control::GtkController::new(
@@ -74,8 +73,7 @@ pub fn build(application: &gtk::Application) {
     window.set_titlebar(Some(&bar));
 
     // Create a channel to pass UI events to the `state` event handlers.
-    let (tx, rx) =
-        glib::MainContext::sync_channel(glib::Priority::default(), 100);
+    let (tx, rx) = async_channel::unbounded();
 
     // Let the UI draw on the window.
     let surface = ui.canvas.surface();
@@ -94,7 +92,7 @@ pub fn build(application: &gtk::Application) {
     click_forwarder.connect_pressed(move |_self, _count, x, y| {
         let button = gdk::BUTTON_PRIMARY;
         let event = navig18xx::ui::ButtonPress { x, y, button };
-        tx_.send(UiEvent::ButtonPress(event))
+        tx_.send_blocking(UiEvent::ButtonPress(event))
             .expect("Could not send ButtonPress event");
     });
     drawing_area.add_controller(click_forwarder);
@@ -104,7 +102,7 @@ pub fn build(application: &gtk::Application) {
     let key_forwarder = gtk::EventControllerKey::new();
     key_forwarder.connect_key_pressed(
         move |_self, key, _keycode, modifiers| {
-            tx_.send(UiEvent::KeyPress((key, modifiers).into()))
+            tx_.send_blocking(UiEvent::KeyPress((key, modifiers).into()))
                 .expect("Could not send KeyPress event");
             glib::Propagation::Proceed
         },
@@ -112,10 +110,12 @@ pub fn build(application: &gtk::Application) {
     window.add_controller(key_forwarder);
 
     // Pass each "ping" event to the current UI state.
-    ping_rx.attach(None, move |dest| {
-        tx.send(UiEvent::PingCurrentState(dest))
-            .expect("Could not send Ping event");
-        glib::ControlFlow::Continue
+    glib::spawn_future_local(async move {
+        while let Ok(dest) = ping_rx.recv().await {
+            tx.send(UiEvent::PingCurrentState(dest))
+                .await
+                .expect("Could not send Ping event");
+        }
     });
 
     // Show the starting message, rather than the map content.
@@ -126,24 +126,24 @@ pub fn build(application: &gtk::Application) {
     // Dispatch events to the appropriate handler.
     // Note that this closure owns `ui_state`.
     let _window = window.clone();
-    rx.attach(None, move |event| {
-        let response = match event {
-            UiEvent::ButtonPress(event) => ui.handle_button_press(&event),
-            UiEvent::KeyPress(event) => ui.handle_key_press(&event),
-            UiEvent::PingCurrentState(dest) => ui.ping(dest),
-        };
-        ui.respond(response);
+    glib::spawn_future_local(async move {
+        while let Ok(event) = rx.recv().await {
+            let response = match event {
+                UiEvent::ButtonPress(event) => ui.handle_button_press(&event),
+                UiEvent::KeyPress(event) => ui.handle_key_press(&event),
+                UiEvent::PingCurrentState(dest) => ui.ping(dest),
+            };
+            ui.respond(response);
 
-        // When a game is started or loaded, hide the starting message and
-        // show the map content instead.
-        if start_visible && ui.state.as_start().is_none() {
-            // NOTE: unlike GTK 3, GTK 4 allows us to replace the existing
-            // child widget.
-            _window.set_child(Some(&scrolled_win));
-            start_visible = false;
+            // When a game is started or loaded, hide the starting message and
+            // show the map content instead.
+            if start_visible && ui.state.as_start().is_none() {
+                // NOTE: unlike GTK 3, GTK 4 allows us to replace the existing
+                // child widget.
+                _window.set_child(Some(&scrolled_win));
+                start_visible = false;
+            }
         }
-
-        glib::ControlFlow::Continue
     });
 
     // Display the window.

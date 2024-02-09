@@ -237,8 +237,7 @@ impl Connections {
             Some(conns) => conns.iter().collect(),
             None => vec![],
         };
-        while !to_visit.is_empty() {
-            let conn = to_visit.pop().unwrap();
+        while let Some(conn) = to_visit.pop() {
             if visited.contains(conn) {
                 continue;
             }

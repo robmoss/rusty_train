@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // - The third is connected to the upper-right hex face.
     let moscow = cat.tile("Moscow").unwrap();
     let conns_moscow =
-        vec![HexFace::Bottom, HexFace::UpperLeft, HexFace::UpperRight];
+        [HexFace::Bottom, HexFace::UpperLeft, HexFace::UpperRight];
 
     // This tile has 3 single-token cities:
     // - The first is connected to the bottom and lower-left faces;
@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // - The third is connected to the upper-right and lower-right faces.
     let tile_637 = cat.tile("637").unwrap();
 
-    let token_names = vec!["KB", "KK", "KR"];
+    let token_names = ["KB", "KK", "KR"];
     let tok_kb = game.token("KB");
     let tok_kk = game.token("KK");
     let tok_kr = game.token("KR");
@@ -33,10 +33,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token_spaces = moscow.token_spaces();
 
     assert_eq!(token_spaces.len(), 3);
-    let tokens_table: BTreeMap<TokenSpace, Token> = token_spaces
-        .into_iter()
-        .zip(placed_tokens.into_iter())
-        .collect();
+    let tokens_table: BTreeMap<TokenSpace, Token> =
+        token_spaces.into_iter().zip(placed_tokens).collect();
 
     let rotns: Vec<RotateCW> = vec![Zero, One, Two, Three, Four, Five];
     for orig_rotn in &rotns {

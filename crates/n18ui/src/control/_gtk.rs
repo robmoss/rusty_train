@@ -413,14 +413,14 @@ pub fn game_file_filters() -> Vec<gtk::FileFilter> {
 pub struct GtkController {
     window: gtk::Window,
     draw_area: gtk::DrawingArea,
-    ping_tx: glib::Sender<PingDest>,
+    ping_tx: async_channel::Sender<PingDest>,
 }
 
 impl GtkController {
     pub fn new(
         window: gtk::Window,
         draw_area: gtk::DrawingArea,
-        ping_tx: glib::Sender<PingDest>,
+        ping_tx: async_channel::Sender<PingDest>,
     ) -> Self {
         GtkController {
             window,
@@ -452,7 +452,7 @@ impl UiController for GtkController {
     }
 
     fn ping_tx(&self) -> PingSender {
-        PingSender::Glib(self.ping_tx.clone())
+        PingSender::Async(self.ping_tx.clone())
     }
 
     fn select_string<F>(&mut self, title: &str, strings: &[&str], callback: F)

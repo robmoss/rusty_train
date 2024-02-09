@@ -29,7 +29,7 @@ impl From<Vec<(String, Token)>> for Tokens {
 
 impl From<Tokens> for Vec<(String, Token)> {
     fn from(src: Tokens) -> Self {
-        src.names.into_iter().zip(src.tokens.into_iter()).collect()
+        src.names.into_iter().zip(src.tokens).collect()
     }
 }
 

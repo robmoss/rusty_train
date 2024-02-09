@@ -809,7 +809,7 @@ fn starting_city_tiles(hex: &Hex) -> Vec<Tile> {
                 .label(Label::City("O".to_string()), oy_o_label_pos)
                 .label(Label::MapLocation(name.to_string()), city_label_pos)
         }))
-        .chain(vec![toronto, montreal, timmins_yw, timmins_gr].into_iter())
+        .chain([toronto, montreal, timmins_yw, timmins_gr])
         .collect()
 }
 
@@ -856,7 +856,7 @@ fn sault_ste_marie(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Sault Ste Marie";
-    vec![20, 30, 40, 40]
+    [20, 30, 40, 40]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
@@ -890,7 +890,7 @@ fn maritime_provinces(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Maritime Provinces";
-    vec![30, 30, 40, 40]
+    [30, 30, 40, 40]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
@@ -924,7 +924,7 @@ fn maine(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Maine";
-    vec![20, 30, 40, 40]
+    [20, 30, 40, 40]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
@@ -958,7 +958,7 @@ fn new_england(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "New England";
-    vec![30, 40, 50, 60]
+    [30, 40, 50, 60]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
@@ -989,7 +989,7 @@ fn buffalo(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Buffalo";
-    vec![30, 40, 50, 60]
+    [30, 40, 50, 60]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
@@ -1020,7 +1020,7 @@ fn detroit(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
     use n18tile::*;
 
     let name = "Detroit";
-    let mut tiles: Vec<Tile> = vec![30, 40, 50, 70]
+    let mut tiles: Vec<Tile> = [30, 40, 50, 70]
         .iter()
         .enumerate()
         .map(|(ix, &revenue)| {
