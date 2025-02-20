@@ -917,7 +917,7 @@ impl<'a> TrackCoords<'a> {
     }
 }
 
-impl<'a> Iterator for TrackCoords<'a> {
+impl Iterator for TrackCoords<'_> {
     type Item = Coord;
 
     fn next(&mut self) -> Option<Self::Item> {

@@ -166,7 +166,7 @@ pub mod par {
         }
     }
 
-    impl<'a, F: Fn(usize, usize) -> bool + Send + Sync> CombFiltProducer<'a, F> {
+    impl<F: Fn(usize, usize) -> bool + Send + Sync> CombFiltProducer<'_, F> {
         /// Determine where to split the interval `[a, b]` of values for the
         /// first element of each *k*-combination, such that each partition
         /// will contain about the same number of *k*-combinations.
@@ -210,8 +210,8 @@ pub mod par {
         }
     }
 
-    impl<'a, F: Fn(usize, usize) -> bool + Send + Sync> Iterator
-        for CombFiltProducer<'a, F>
+    impl<F: Fn(usize, usize) -> bool + Send + Sync> Iterator
+        for CombFiltProducer<'_, F>
     {
         type Item = Vec<usize>;
 
@@ -258,8 +258,8 @@ pub mod par {
         }
     }
 
-    impl<'a, F: Fn(usize, usize) -> bool + Send + Sync>
-        rayon::iter::plumbing::UnindexedProducer for CombFiltProducer<'a, F>
+    impl<F: Fn(usize, usize) -> bool + Send + Sync>
+        rayon::iter::plumbing::UnindexedProducer for CombFiltProducer<'_, F>
     {
         type Item = Vec<usize>;
 

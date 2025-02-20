@@ -220,7 +220,7 @@ impl std::convert::From<&n18tile::Track> for Track {
     fn from(src: &n18tile::Track) -> Self {
         use n18tile::TrackCurve::*;
 
-        let eps = std::f64::EPSILON;
+        let eps = f64::EPSILON;
         let span = if src.x0 == 0.0 && (src.x1 - 1.0).abs() < eps {
             None
         } else if src.x0 >= 0.0 && src.x1 <= 1.0 {

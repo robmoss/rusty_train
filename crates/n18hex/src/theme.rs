@@ -223,7 +223,7 @@ pub struct Labeller<'a> {
     vert: AlignV,
 }
 
-impl<'a> Labeller<'a> {
+impl Labeller<'_> {
     /// Draws the text relative to the provided coordinates, with respect to
     /// the specified horizontal and vertical alignments.
     pub fn draw(&self, text: &str, coord: Coord) {

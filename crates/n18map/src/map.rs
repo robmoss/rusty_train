@@ -1050,7 +1050,7 @@ impl<'a> EmptyHexIter<'a> {
     }
 }
 
-impl<'a> Iterator for EmptyHexIter<'a> {
+impl Iterator for EmptyHexIter<'_> {
     type Item = HexAddress;
 
     fn next(&mut self) -> Option<Self::Item> {
