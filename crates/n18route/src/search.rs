@@ -503,13 +503,13 @@ fn depth_first_search(
                     .unwrap()
                     .tokens()
                     .iter()
-                    .filter(|(&space, &_tok)| space.city_ix() == city_ix)
+                    .filter(|(space, _tok)| space.city_ix() == city_ix)
                     .collect();
                 let can_continue = token_spaces.is_empty()
                     || (city_tokens.len() < token_spaces.len())
                     || city_tokens
                         .iter()
-                        .any(|(&_space, &tok)| tok == query.criteria.token);
+                        .any(|(_space, tok)| **tok == query.criteria.token);
                 let more_visits_allowed =
                     ctx.can_continue(&query.criteria.path_limit);
                 if can_continue && more_visits_allowed {

@@ -513,11 +513,11 @@ impl std::convert::From<&n18tile::Label> for LabelType {
         use n18tile::Label as L;
 
         match src {
-            L::City(ref name) => LabelType::City(name.clone()),
-            L::CityKind(ref name) => LabelType::CityKind(name.clone()),
+            L::City(name) => LabelType::City(name.clone()),
+            L::CityKind(name) => LabelType::CityKind(name.clone()),
             L::TileName => LabelType::TileName(()),
-            L::MapLocation(ref name) => LabelType::MapLocation(name.clone()),
-            L::Note(ref text) => LabelType::Note(text.clone()),
+            L::MapLocation(name) => LabelType::MapLocation(name.clone()),
+            L::Note(text) => LabelType::Note(text.clone()),
             L::Revenue(revenue) => LabelType::Revenue(*revenue),
             L::PhaseRevenue(revenues) => {
                 let revs = revenues
@@ -831,15 +831,15 @@ impl Tile {
 impl From<&LabelType> for n18tile::Label {
     fn from(lt: &LabelType) -> Self {
         match lt {
-            LabelType::City(ref name) => n18tile::Label::City(name.clone()),
-            LabelType::CityKind(ref name) => {
+            LabelType::City(name) => n18tile::Label::City(name.clone()),
+            LabelType::CityKind(name) => {
                 n18tile::Label::CityKind(name.clone())
             }
             LabelType::TileName(()) => n18tile::Label::TileName,
-            LabelType::MapLocation(ref name) => {
+            LabelType::MapLocation(name) => {
                 n18tile::Label::MapLocation(name.clone())
             }
-            LabelType::Note(ref text) => n18tile::Label::Note(text.clone()),
+            LabelType::Note(text) => n18tile::Label::Note(text.clone()),
             LabelType::Revenue(ix) => n18tile::Label::Revenue(*ix),
             LabelType::PhaseRevenue(revenues) => {
                 let revs = revenues
