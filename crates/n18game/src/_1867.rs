@@ -275,9 +275,8 @@ impl Game {
         // Background colours for minor (yellow) and major (green) companies.
         let bg_yellow = Colour::from((223, 223, 0));
         let bg_green = Colour::from((0, 153, 63));
-        let bg_iter = std::iter::repeat(bg_yellow)
-            .take(16)
-            .chain(std::iter::repeat(bg_green).take(8));
+        let bg_iter = std::iter::repeat_n(bg_yellow, 16)
+            .chain(std::iter::repeat_n(bg_green, 8));
 
         let fg_colours = vec![
             Colour::from((0, 204, 204)), // Aqua
@@ -501,7 +500,7 @@ impl super::Game for Game {
         );
         for (addr, (tile_name, rotn)) in initial_tiles() {
             if !map.place_tile(addr, tile_name, rotn) {
-                println!("Could not place tile {} at {}", tile_name, addr)
+                println!("Could not place tile {tile_name} at {addr}")
             }
         }
         for (addr, label) in hex_labels() {
@@ -546,9 +545,9 @@ impl super::Game for Game {
             _ => "Gy",
         };
         for (addr, city_name) in &red_cities {
-            let tile_name = format!("{} {}", city_name, suffix);
+            let tile_name = format!("{city_name} {suffix}");
             if !map.place_tile(*addr, &tile_name, RotateCW::Zero) {
-                println!("Could not place tile {} at {}", tile_name, addr)
+                println!("Could not place tile {tile_name} at {addr}")
             }
         }
         let timmins_addr: HexAddress = (0, 3).into();
@@ -559,8 +558,7 @@ impl super::Game for Game {
         };
         if !map.place_tile(timmins_addr, timmins_tile, RotateCW::Zero) {
             println!(
-                "Could not place tile {} at {}",
-                timmins_tile, timmins_addr
+                "Could not place tile {timmins_tile} at {timmins_addr}"
             )
         }
         true

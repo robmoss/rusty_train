@@ -166,7 +166,7 @@ fn start_message() -> gtk::Grid {
             let label = gtk::Label::builder()
                 .use_markup(true)
                 .selectable(false)
-                .label(format!("<b>{}:</b> ", text))
+                .label(format!("<b>{text}:</b> "))
                 .hexpand(true)
                 .halign(gtk::Align::End)
                 .build();

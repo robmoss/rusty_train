@@ -94,13 +94,13 @@ impl Tile {
         // some invariant conditions and write test cases?
         let verbose = false;
         if verbose {
-            println!("Inspecting tile {} ...", name);
+            println!("Inspecting tile {name} ...");
         }
         for (i, track) in tracks.iter().enumerate() {
             for (j, other) in tracks.iter().enumerate().skip(i + 1) {
                 if track.crosses(other, hex, dt, ctx) {
                     if verbose {
-                        println!("    Tracks {} and {} cross", i, j);
+                        println!("    Tracks {i} and {j} cross");
                     }
                     // NOTE: if the underlying track's layer is Over, the
                     // overlying track needs to be in the Top layer.
@@ -123,7 +123,7 @@ impl Tile {
         if verbose {
             println!("    Have {} tracks", tracks.len());
             for (key, val) in track_layers.iter() {
-                println!("        key: {} val: {:?}", key, val);
+                println!("        key: {key} val: {val:?}");
             }
         }
         // NOTE: there can be zero, one, or multiple revenues for a tile.
@@ -145,13 +145,13 @@ impl Tile {
                     let track_layer = track_layers.get(&i).unwrap_or(&layer);
                     layer = std::cmp::max(layer, *track_layer);
                 } else if track.intersects_fill(city, hex, dt, ctx) {
-                    println!("WARNING: track crosses city, tile {}", name);
+                    println!("WARNING: track crosses city, tile {name}");
                     let track_layer = track_layers.get(&i).unwrap_or(&layer);
                     layer = std::cmp::max(layer, *track_layer);
                 }
             }
             if verbose {
-                println!("    City #{} in layer {:?}", cx, layer);
+                println!("    City #{cx} in layer {layer:?}");
             }
             cities_tbl.entry(layer).or_insert_with(Vec::new).push(cx)
         }
@@ -865,15 +865,13 @@ mod tests {
             let items_opt = tile.tracks_tbl.get(layer);
             assert!(
                 items_opt.is_some(),
-                "No items in {:?} draw layer",
-                layer
+                "No items in {layer:?} draw layer"
             );
             let items = items_opt.unwrap();
             assert_eq!(
                 items.len(),
                 1,
-                "Expected one track in {:?} draw layer",
-                layer
+                "Expected one track in {layer:?} draw layer"
             );
         }
         assert_eq!(tile.tracks_tbl.len(), 2, "Expected two drawing layers");
@@ -899,15 +897,13 @@ mod tests {
             let items_opt = tile.tracks_tbl.get(layer);
             assert!(
                 items_opt.is_some(),
-                "No items in {:?} draw layer",
-                layer
+                "No items in {layer:?} draw layer"
             );
             let items = items_opt.unwrap();
             assert_eq!(
                 items.len(),
                 1,
-                "Expected one track in {:?} draw layer",
-                layer
+                "Expected one track in {layer:?} draw layer"
             );
         }
         assert_eq!(tile.tracks_tbl.len(), 3, "Expected three drawing layers");

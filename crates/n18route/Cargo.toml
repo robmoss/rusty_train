@@ -22,5 +22,5 @@ rayon = "1.7"
 [dev-dependencies]
 n18catalogue = { path = "../n18catalogue", version = "0.1.0" }
 n18brush = { path = "../n18brush", version = "0.1.0" }
-cairo-rs = { version = "0.20" }
+cairo-rs = { version = "0.21" }
 env_logger = "0.10"

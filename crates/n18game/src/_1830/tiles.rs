@@ -462,7 +462,7 @@ fn single_token_cost_tiles(hex: &Hex) -> Vec<Tile> {
                 HexPosition::centre().in_dir(N, 0.425),
             )
             .label(
-                Label::Note(format!("${}", cost)),
+                Label::Note(format!("${cost}")),
                 HexPosition::centre().in_dir(S, 0.425),
             )
     })
@@ -529,7 +529,7 @@ fn double_dit_tiles(hex: &Hex) -> Vec<Tile> {
     .map(|&(a, b)| {
         Tile::new(
             HexColour::Empty,
-            format!("{}/{}", a, b),
+            format!("{a}/{b}"),
             vec![
                 Track::straight(HexFace::Bottom)
                     .with_span(0.3, 0.3)
@@ -591,7 +591,7 @@ fn offboard_chicago(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .enumerate()
         .map(|(ix, revenue)| {
             let suffix = suffixes[ix];
-            let name = format!("{}_{}", city, suffix);
+            let name = format!("{city}_{suffix}");
             Tile::new(
                 HexColour::Red,
                 name,
@@ -636,7 +636,7 @@ fn offboard_mexico_1(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .enumerate()
         .map(|(ix, revenue)| {
             let suffix = suffixes[ix];
-            let tile_name = format!("{}_{}", name, suffix);
+            let tile_name = format!("{name}_{suffix}");
             Tile::new(
                 HexColour::Red,
                 tile_name,
@@ -691,7 +691,7 @@ fn offboard_canada_1(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .enumerate()
         .map(|(ix, revenue)| {
             let suffix = suffixes[ix];
-            let name = format!("{}_{}", city, suffix);
+            let name = format!("{city}_{suffix}");
             Tile::new(
                 HexColour::Red,
                 name,
@@ -745,7 +745,7 @@ fn offboard_deep_south(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .enumerate()
         .map(|(ix, revenue)| {
             let suffix = suffixes[ix];
-            let name = format!("{}_{}", city, suffix);
+            let name = format!("{city}_{suffix}");
             Tile::new(
                 HexColour::Red,
                 name,
@@ -784,7 +784,7 @@ fn offboard_maritime(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .enumerate()
         .map(|(ix, revenue)| {
             let suffix = suffixes[ix];
-            let tile_name = format!("{}_{}", name, suffix);
+            let tile_name = format!("{name}_{suffix}");
             Tile::new(
                 HexColour::Red,
                 tile_name,

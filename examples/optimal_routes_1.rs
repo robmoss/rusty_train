@@ -77,7 +77,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         let best_routes = trains
             .select_routes(paths.clone(), bonuses.clone())
             .unwrap_or_else(|| {
-                panic!("Could not find optimal routes for {}", suffix)
+                panic!("Could not find optimal routes for {suffix}")
             });
 
         // Clear the image buffer.
@@ -96,7 +96,7 @@ fn optimal_routes_1(output_dir: &Dir) -> Result {
         }
 
         // Save the image to disk.
-        let basename = format!("opt_r1_{}.png", suffix);
+        let basename = format!("opt_r1_{suffix}.png");
         example.write_png(margin, bg_rgba, output_dir.join(basename));
     }
 

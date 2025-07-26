@@ -90,7 +90,7 @@ fn check_moscow_token(map: &Map, token: Token) {
         }
     });
     if let Some(tok_space) = maybe_space {
-        println!("Moscow token at {:?}", tok_space);
+        println!("Moscow token at {tok_space:?}");
     } else {
         panic!("Moscow token is missing");
     }
@@ -209,7 +209,7 @@ fn find_routes_for_phase(
         .unwrap();
     ctx.paint().unwrap();
     let basename =
-        format!("1861_ekat_phase_{}_{}-train.png", phase_name, train_name);
+        format!("1861_ekat_phase_{phase_name}_{train_name}-train.png");
     let filename = output_dir.join(basename);
     println!("Writing {} ...", filename.to_str().unwrap());
     let mut file =

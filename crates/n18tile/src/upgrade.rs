@@ -180,11 +180,11 @@ fn flow_matrix_tokens(
                 tokens_table.insert(*tok_space, *token);
             } else {
                 // NOTE: this should not be possible.
-                panic!("Token #{} has no token space?", token_n);
+                panic!("Token #{token_n} has no token space?");
             }
         } else {
             // NOTE: this should not be possible.
-            panic!("Token #{} -> NOWHERE", token_n);
+            panic!("Token #{token_n} -> NOWHERE");
         }
     }
 

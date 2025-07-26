@@ -271,7 +271,7 @@ pub fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
         .iter()
         .map(|suffix| {
             let locn_name = Location::Imabari.as_str();
-            let tile_name = format!("{}_{}", locn_name, suffix);
+            let tile_name = format!("{locn_name}_{suffix}");
             let is_yellow = *suffix == "Yw";
             let revenue = if is_yellow { 30 } else { 60 };
             Tile::new(
@@ -304,7 +304,7 @@ pub fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
         .iter()
         .map(|suffix| {
             let locn_name = Location::SakaideAndOkoyama.as_str();
-            let tile_name = format!("{}_{}", locn_name, suffix);
+            let tile_name = format!("{locn_name}_{suffix}");
             let is_yellow = *suffix == "Yw";
             let revenue = if is_yellow { 20 } else { 40 };
             Tile::new(
@@ -337,7 +337,7 @@ pub fn offboard_tiles(hex: &Hex) -> Vec<Tile> {
         .iter()
         .map(|suffix| {
             let locn_name = Location::NarutoAndAwaji.as_str();
-            let tile_name = format!("{}_{}", locn_name, suffix);
+            let tile_name = format!("{locn_name}_{suffix}");
             let is_yellow = *suffix == "Yw";
             let revenue = if is_yellow { 20 } else { 40 };
             Tile::new(

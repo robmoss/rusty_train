@@ -88,7 +88,7 @@ fn track_contained_in_hex() {
                         assert!(!ctx.in_stroke(start.x, start.y).unwrap());
                     }
                     let end = t.end(&hex);
-                    if (*x1 - 1.0).abs() < std::f64::EPSILON {
+                    if (*x1 - 1.0).abs() < f64::EPSILON {
                         assert!(ctx.in_stroke(end.x, end.y).unwrap());
                     // TODO: check that it intersects the correct face!
                     } else {
@@ -125,10 +125,10 @@ fn track_contained_in_hex() {
                     }
                     ctx.set_line_cap(line_cap);
 
-                    let name = format!("({:0.2}, {:0.2})", x0, x1);
+                    let name = format!("({x0:0.2}, {x1:0.2})");
                     Label::draw_custom_tile_name(&ctx, &hex, &name);
 
-                    let basename = format!("test-tcih-{:04}.png", counter);
+                    let basename = format!("test-tcih-{counter:04}.png");
                     let filename = output_dir.join(basename);
                     let mut file = std::fs::File::create(filename)
                         .expect("Couldn't create output PNG file");

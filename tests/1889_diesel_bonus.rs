@@ -140,7 +140,7 @@ fn find_optimal_route(
     ctx.set_source_surface(&rec_surf, margin - x0, margin - y0)
         .unwrap();
     ctx.paint().unwrap();
-    let basename = format!("1889_diesel_bonus_{}_{}-train.png", phase, train);
+    let basename = format!("1889_diesel_bonus_{phase}_{train}-train.png");
     let filename = output_dir.join(basename);
     println!("Writing {} ...", filename.to_str().unwrap());
     let mut file =

@@ -212,7 +212,7 @@ mod tests {
         cap[(4, 1)] = 3;
         cap[(4, 3)] = 2;
         let (net_flow, flow_mat) = cap.max_flow_mat();
-        println!("{}", flow_mat);
+        println!("{flow_mat}");
         assert_eq!(net_flow, expected_flow);
     }
 
@@ -232,7 +232,7 @@ mod tests {
         cap[(4, 3)] = 1;
         cap[(4, 5)] = 3;
         let (net_flow, flow_mat) = cap.max_flow_mat();
-        println!("{}", flow_mat);
+        println!("{flow_mat}");
         assert_eq!(net_flow, expected_flow);
     }
 
@@ -257,7 +257,7 @@ mod tests {
         cap[(4, 6)] = 1;
         cap[(5, 6)] = 9;
         let (net_flow, flow_mat) = cap.max_flow_mat();
-        println!("{}", flow_mat);
+        println!("{flow_mat}");
         assert_eq!(net_flow, expected_flow);
     }
 }

@@ -121,7 +121,7 @@ pub fn select_trains<F>(
         // ("Cancel", gtk::ResponseType::Reject),
     ];
     let flags = gtk::DialogFlags::all();
-    let title = format!("{} Trains", name);
+    let title = format!("{name} Trains");
     let dialog = gtk::Dialog::with_buttons(
         Some(&title),
         Some(parent),
@@ -552,7 +552,7 @@ impl UiController for GtkController {
         Self: Sized,
         F: Fn() + 'static,
     {
-        let title = format!("{} dividends", abbrev);
+        let title = format!("{abbrev} dividends");
         let buttons = [("OK", gtk::ResponseType::Accept)];
         let flags = gtk::DialogFlags::all();
         let dialog = gtk::Dialog::with_buttons(
@@ -585,7 +585,7 @@ impl UiController for GtkController {
             let label = gtk::Label::builder()
                 .use_markup(true)
                 .selectable(false)
-                .label(format!("<b>{}</b>", text))
+                .label(format!("<b>{text}</b>"))
                 .hexpand(true)
                 .vexpand(true)
                 .halign(gtk::Align::Center)
@@ -609,7 +609,7 @@ impl UiController for GtkController {
         // Create a column for each number of shares.
         add_title(0, 0, "# Shares");
         for i in 1..=n {
-            add_label(0, i, &format!("{}", i));
+            add_label(0, i, &format!("{i}"));
         }
 
         // Create a column for each kind of dividend.
@@ -617,7 +617,7 @@ impl UiController for GtkController {
             let column = ix + 1;
             add_title(column, 0, &format!("{}", div.kind));
             for (p_ix, amount) in div.share_payments.iter().enumerate() {
-                let text = format!("${}", amount);
+                let text = format!("${amount}");
                 add_label(column, p_ix + 1, &text);
             }
         }
@@ -630,7 +630,7 @@ impl UiController for GtkController {
             for (ix, div) in dividends.iter().enumerate() {
                 let column = ix + 1;
                 if let Some(amount) = div.withheld {
-                    let text = format!("${}", amount);
+                    let text = format!("${amount}");
                     add_label(column, row + 1, &text);
                 }
             }

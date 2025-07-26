@@ -186,7 +186,7 @@ impl Connections {
             if !(start_conns && end_conns) {
                 for (j, other) in tracks.iter().enumerate().skip(i + 1) {
                     if track.connected(other, hex, ctx) {
-                        println!("WARNING: tracks {} and {} connect", i, j);
+                        println!("WARNING: tracks {i} and {j} connect");
                     }
                 }
             }
@@ -316,16 +316,15 @@ mod tests {
                     if let Connection::Face { face } = track_conn {
                         if face != Bottom && face != LowerRight {
                             panic!(
-                                "Unexpected 2nd connection {:?}",
-                                track_conn
+                                "Unexpected 2nd connection {track_conn:?}"
                             );
                         }
                     } else {
-                        panic!("Unexpected 2nd connection {:?}", track_conn);
+                        panic!("Unexpected 2nd connection {track_conn:?}");
                     }
                 }
                 _ => {
-                    panic!("Unexpected connection: {:?} is not a track", conn)
+                    panic!("Unexpected connection: {conn:?} is not a track")
                 }
             }
         }

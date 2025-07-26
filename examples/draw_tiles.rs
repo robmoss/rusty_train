@@ -66,14 +66,14 @@ fn main() -> Result {
                 if let Some(row_str) = args.next() {
                     rows = row_str.parse::<usize>()?
                 } else {
-                    panic!("Missing argument for {}", arg)
+                    panic!("Missing argument for {arg}")
                 }
             }
             "-c" => {
                 if let Some(row_str) = args.next() {
                     cols = row_str.parse::<usize>()?
                 } else {
-                    panic!("Missing argument for {}", arg)
+                    panic!("Missing argument for {arg}")
                 }
             }
             "-f" => {
@@ -117,7 +117,7 @@ fn draw_tiles<P: AsRef<std::path::Path>>(
     let bg_rgba = Some(Colour::WHITE);
 
     let json_str = json_file.as_ref().to_str().unwrap();
-    println!("Reading {} ...", json_str);
+    println!("Reading {json_str} ...");
     let tiles = read_tiles(json_file)?;
 
     let example = place_tiles(hex, &tiles, rows, cols);

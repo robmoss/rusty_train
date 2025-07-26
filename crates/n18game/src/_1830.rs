@@ -241,7 +241,7 @@ impl super::Game for Game {
         for (addr, tile_opt) in hexes_and_tiles.into_iter() {
             if let Some((tile_name, rotation)) = tile_opt {
                 if !map.place_tile(addr, tile_name, rotation) {
-                    eprintln!("Could not place {} at {}", tile_name, addr);
+                    eprintln!("Could not place {tile_name} at {addr}");
                 }
             }
         }
@@ -312,11 +312,10 @@ impl super::Game for Game {
         for locn in offboard_phase_locns {
             let locn_addr = locn.address();
             let locn_name = locn.as_str();
-            let tile_name = format!("{}_{}", locn_name, suffix);
+            let tile_name = format!("{locn_name}_{suffix}");
             if !map.place_tile(locn_addr, &tile_name, RotateCW::Zero) {
                 println!(
-                    "Could not place tile {} at {}",
-                    tile_name, locn_addr
+                    "Could not place tile {tile_name} at {locn_addr}"
                 )
             }
         }

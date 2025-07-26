@@ -178,7 +178,7 @@ impl Search {
         trains: Trains,
         bonuses: Vec<bool>,
     ) -> Self {
-        let new_title = format!("{}: searching ...", abbrev);
+        let new_title = format!("{abbrev}: searching ...");
         controller.set_window_title(&new_title);
 
         // Search for the best routes in a separate thread, to avoid making

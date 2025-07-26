@@ -14,7 +14,7 @@ categories = ["algorithms", "graphics"]
 [dependencies]
 n18hex = { path = "../n18hex", version = "0.1.0" }
 # Include support for saving surfaces as PNG images.
-cairo-rs = { version = "0.20", features = ["png", "pdf", "svg"] }
+cairo-rs = { version = "0.21", features = ["png", "pdf", "svg"] }
 
 [[example]]
 name = "custom_tile"

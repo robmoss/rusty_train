@@ -81,31 +81,30 @@ impl std::fmt::Debug for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         use Error::*;
         match self {
-            InvalidHexAddress(s) => write!(f, "Invalid hex address {}", s),
-            NoTileAtHex(addr) => write!(f, "No tile at hex {}", addr),
+            InvalidHexAddress(s) => write!(f, "Invalid hex address {s}"),
+            NoTileAtHex(addr) => write!(f, "No tile at hex {addr}"),
             NoTileAdjacent(addr, face) => {
-                write!(f, "No tile adjacent to hex {}, face {:?}", addr, face)
+                write!(f, "No tile adjacent to hex {addr}, face {face:?}")
             }
             InvalidCity(addr, ix) => {
-                write!(f, "No city #{} at hex {}", ix, addr)
+                write!(f, "No city #{ix} at hex {addr}")
             }
             InvalidDit(addr, ix) => {
-                write!(f, "No dit #{} at hex {}", ix, addr)
+                write!(f, "No dit #{ix} at hex {addr}")
             }
             NotConnected(addr, _src, dest) => match dest {
                 Connection::City { ix } => {
-                    write!(f, "No connection to city #{} on hex {}", ix, addr)
+                    write!(f, "No connection to city #{ix} on hex {addr}")
                 }
                 Connection::Dit { ix } => {
-                    write!(f, "No connection to dit #{} on hex {}", ix, addr)
+                    write!(f, "No connection to dit #{ix} on hex {addr}")
                 }
                 Connection::Face { face } => {
-                    write!(f, "No connection to {:?} on hex {}", face, addr)
+                    write!(f, "No connection to {face:?} on hex {addr}")
                 }
                 Connection::Track { ix, .. } => write!(
                     f,
-                    "No connection to track #{} on hex {}",
-                    ix, addr
+                    "No connection to track #{ix} on hex {addr}"
                 ),
             },
         }
@@ -115,7 +114,7 @@ impl std::fmt::Debug for Error {
 /// Required in order to implement `std::error::Error`.
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 

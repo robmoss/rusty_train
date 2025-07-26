@@ -801,7 +801,7 @@ impl Theme {
     pub fn apply_hex_colour(&self, ctx: &Context, hc: HexColour) {
         let colour = self
             .hex_colour(hc)
-            .unwrap_or_else(|| panic!("No colour defined for {:?}", hc));
+            .unwrap_or_else(|| panic!("No colour defined for {hc:?}"));
         self.apply_colour(ctx, colour)
     }
 
@@ -1011,7 +1011,7 @@ impl std::fmt::Display for ParseColourError {
 
 impl From<std::num::ParseIntError> for ParseColourError {
     fn from(src: std::num::ParseIntError) -> Self {
-        let input = format!("{}", src);
+        let input = format!("{src}");
         ParseColourError { input }
     }
 }
@@ -1051,7 +1051,7 @@ mod test {
     fn to_rgb(theme: &Theme, hc: HexColour) {
         let colour = theme
             .hex_colour(hc)
-            .unwrap_or_else(|| panic!("No colour defined for {:?}", hc));
+            .unwrap_or_else(|| panic!("No colour defined for {hc:?}"));
         let rgb_string = colour.as_rgb();
         println!("{:6} = {}", format!("{:?}", hc), rgb_string)
     }
@@ -1099,7 +1099,7 @@ mod test {
             for g in &in_vals {
                 for b in &in_vals {
                     // Parse the #RRGGBB input string.
-                    let input = format!("#{:02x}{:02x}{:02x}", r, g, b);
+                    let input = format!("#{r:02x}{g:02x}{b:02x}");
                     let parsed = input.parse::<Colour>();
                     assert!(parsed.is_ok());
                     let colour = parsed.unwrap();
@@ -1109,7 +1109,7 @@ mod test {
                     assert_eq!(*b, colour.blue);
                     for a in &in_vals {
                         // Parse the #RRGGBBAA input string.
-                        let input_a = format!("{}{:02x}", input, a);
+                        let input_a = format!("{input}{a:02x}");
                         let parsed_a = input_a.parse::<Colour>();
                         assert!(parsed_a.is_ok());
                         let colour_a = parsed_a.unwrap();

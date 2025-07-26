@@ -90,9 +90,8 @@ impl Game {
         // Background colours for minor (yellow) and major (green) companies.
         let bg_yellow = Colour::from((223, 223, 0));
         let bg_green = Colour::from((0, 153, 63));
-        let bg_iter = std::iter::repeat(bg_yellow)
-            .take(16)
-            .chain(std::iter::repeat(bg_green).take(8));
+        let bg_iter = std::iter::repeat_n(bg_yellow, 16)
+            .chain(std::iter::repeat_n(bg_green, 8));
 
         let fg_colours = vec![
             Colour::from((0, 204, 204)), // Aqua
@@ -308,7 +307,7 @@ impl super::Game for Game {
         );
         for (addr, (tile_name, rotn)) in initial_tiles() {
             if !map.place_tile(addr, tile_name, rotn) {
-                println!("Could not place tile {} at {}", tile_name, addr)
+                println!("Could not place tile {tile_name} at {addr}")
             }
         }
         for (addr, label) in hex_labels() {
@@ -353,9 +352,9 @@ impl super::Game for Game {
             _ => "Gy",
         };
         for (addr, city_name) in &red_cities {
-            let tile_name = format!("{} {}", city_name, suffix);
+            let tile_name = format!("{city_name} {suffix}");
             if !map.place_tile(*addr, &tile_name, RotateCW::Zero) {
-                println!("Could not place tile {} at {}", tile_name, addr)
+                println!("Could not place tile {tile_name} at {addr}")
             }
         }
         // Show a green token space in Ekaterinburg for phase 2,
@@ -363,7 +362,7 @@ impl super::Game for Game {
         let ekat_addr: HexAddress = (2, 16).into();
         let ekat_tile = if phase == 0 { "Ekat Yw" } else { "Ekat Gr" };
         if !map.place_tile(ekat_addr, ekat_tile, RotateCW::Zero) {
-            println!("Could not place tile {} at {}", ekat_tile, ekat_addr)
+            println!("Could not place tile {ekat_tile} at {ekat_addr}")
         }
         true
     }
@@ -1007,7 +1006,7 @@ fn central_asia(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         })
         .chain(vec![Tile::new(
             Red,
-            format!("{}2", name),
+            format!("{name}2"),
             vec![Track::gentle_l(Bottom), Track::hard_l(Bottom)],
             vec![],
             hex,
@@ -1052,7 +1051,7 @@ fn romania(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         })
         .chain(vec![Tile::new(
             Red,
-            format!("{}2", name),
+            format!("{name}2"),
             vec![
                 Track::straight(Bottom),
                 Track::gentle_r(Bottom),
@@ -1102,7 +1101,7 @@ fn caucasus(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .chain(vec![
             Tile::new(
                 Red,
-                format!("{}2", name),
+                format!("{name}2"),
                 vec![
                     Track::gentle_r(LowerLeft),
                     Track::straight(LowerLeft),
@@ -1115,7 +1114,7 @@ fn caucasus(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
             .with_offboard_faces([UpperLeft, Top, UpperRight]),
             Tile::new(
                 Red,
-                format!("{}3", name),
+                format!("{name}3"),
                 vec![Track::hard_l(UpperLeft), Track::gentle_l(UpperLeft)],
                 vec![],
                 hex,
@@ -1164,7 +1163,7 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
         .chain(vec![
             Tile::new(
                 Red,
-                format!("{}2", name),
+                format!("{name}2"),
                 vec![Track::gentle_r(Bottom), Track::hard_r(Bottom)],
                 vec![],
                 hex,
@@ -1172,7 +1171,7 @@ fn poland(hex: &Hex, suffixes: &[&str]) -> Vec<Tile> {
             .with_offboard_faces([UpperRight, LowerRight]),
             Tile::new(
                 Red,
-                format!("{}3", name),
+                format!("{name}3"),
                 vec![
                     Track::straight(Bottom),
                     Track::gentle_r(Bottom),

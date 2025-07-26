@@ -64,7 +64,7 @@ impl Rounding {
                 if remainder == 0 {
                     revenue / share_count
                 } else {
-                    panic!("Exact rounding is invalid for {} revenue and {} shares", revenue, share_count)
+                    panic!("Exact rounding is invalid for {revenue} revenue and {share_count} shares")
                 }
             }
             Up => {
@@ -110,7 +110,7 @@ impl std::fmt::Display for DividendKind {
             DividendKind::Full => "Full-pay",
             DividendKind::Half { .. } => "Half-pay",
         };
-        write!(f, "{}", descr)
+        write!(f, "{descr}")
     }
 }
 
@@ -303,7 +303,7 @@ pub trait Game {
     /// Panics if there is no company with the given name.
     fn company(&self, abbrev: &str) -> &Company {
         self.try_company(abbrev)
-            .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
+            .unwrap_or_else(|| panic!("No company named '{abbrev}'"))
     }
 
     /// Returns the options available to a company for distributing dividends
@@ -322,7 +322,7 @@ pub trait Game {
     /// Panics if there is no token with the given name.
     fn token(&self, abbrev: &str) -> &Token {
         self.try_token(abbrev)
-            .unwrap_or_else(|| panic!("No company named '{}'", abbrev))
+            .unwrap_or_else(|| panic!("No company named '{abbrev}'"))
     }
 
     /// Returns the named train types in this game, in the order that they
@@ -348,7 +348,7 @@ pub trait Game {
     /// Panics if there is no train with the given name.
     fn train(&self, name: &str) -> &Train {
         self.try_train(name)
-            .unwrap_or_else(|| panic!("No train named '{}'", name))
+            .unwrap_or_else(|| panic!("No train named '{name}'"))
     }
 
     /// Returns the train with the given name, if the train exists.

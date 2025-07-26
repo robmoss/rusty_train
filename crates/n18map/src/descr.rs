@@ -137,11 +137,11 @@ impl Descr {
                     .map(|(space_ix, token_name)| {
                         let token_opt = map.try_token(token_name);
                         if token_opt.is_none() {
-                            eprintln!("No token for '{}'", token_name);
+                            eprintln!("No token for '{token_name}'");
                             eprintln!("Token names: {:?}", map.token_names());
                         }
                         let token = token_opt.unwrap_or_else(|| {
-                            panic!("No token for '{}'", token_name)
+                            panic!("No token for '{token_name}'")
                         });
                         (space_ix, token)
                     })

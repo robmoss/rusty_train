@@ -485,7 +485,7 @@ impl Coordinates {
 
         if letter > 0 {
             let mut output = num_to_az(letter)?;
-            output.push_str(&format!("{}", digits));
+            output.push_str(&format!("{digits}"));
             Some(output)
         } else {
             None

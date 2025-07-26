@@ -156,8 +156,7 @@ impl Map {
             let valid_names = self.tokens.names();
             if valid_names.is_empty() {
                 panic!(
-                    "Invalid token name '{}'; this map has no tokens",
-                    name
+                    "Invalid token name '{name}'; this map has no tokens"
                 )
             } else {
                 panic!(
@@ -182,7 +181,7 @@ impl Map {
     pub fn token_name(&self, token: &Token) -> &str {
         self.tokens
             .name(token)
-            .unwrap_or_else(|| panic!("Unknown token {:?}", token))
+            .unwrap_or_else(|| panic!("Unknown token {token:?}"))
     }
 
     /// Returns the barriers across which track cannot be built, or for which
@@ -222,7 +221,7 @@ impl Map {
     pub fn hex_state(&self, addr: HexAddress) -> Option<&MapTile> {
         self.hexes
             .get(&addr)
-            .unwrap_or_else(|| panic!("Invalid address {:#?}", addr))
+            .unwrap_or_else(|| panic!("Invalid address {addr:#?}"))
             .as_ref()
     }
 
@@ -240,7 +239,7 @@ impl Map {
     ) -> Option<&mut MapTile> {
         self.hexes
             .get_mut(&addr)
-            .unwrap_or_else(|| panic!("Invalid address {:#?}", addr))
+            .unwrap_or_else(|| panic!("Invalid address {addr:#?}"))
             .as_mut()
     }
 
@@ -1209,8 +1208,7 @@ mod tests {
             // Check that each city is connected to the end of a different
             // track segment.
             for j in 0..conns.len() {
-                assert!(conns.iter().any(|&c| c
-                    == Connection::Track {
+                assert!(conns.contains(&Connection::Track {
                         ix: j,
                         end: TrackEnd::End
                     }));
@@ -1244,8 +1242,7 @@ mod tests {
                                 track_to_track += 1;
                             } else {
                                 panic!(
-                                    "Invalid adjacent connection {:?}",
-                                    conn
+                                    "Invalid adjacent connection {conn:?}"
                                 )
                             }
                         }

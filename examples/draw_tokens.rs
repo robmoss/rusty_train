@@ -60,10 +60,9 @@ fn draw_tokens(output_dir: &output::Dir) -> Result {
     let bg_yellow = Colour::from((223, 223, 0));
     let bg_green = Colour::from((0, 153, 63));
     let bg_dark_green = Colour::from((0, 77, 31));
-    let bg_iter = std::iter::repeat(bg_yellow)
-        .take(16)
-        .chain(std::iter::repeat(bg_green).take(8))
-        .chain(std::iter::repeat(bg_dark_green).take(16));
+    let bg_iter = std::iter::repeat_n(bg_yellow, 16)
+        .chain(std::iter::repeat_n(bg_green, 8))
+        .chain(std::iter::repeat_n(bg_dark_green, 16));
 
     // Foreground colours.
     let aqua = Colour::from((0, 204, 204));
