@@ -239,11 +239,10 @@ impl super::Game for Game {
 
         // Place the initial tiles.
         for (addr, tile_opt) in hexes_and_tiles.into_iter() {
-            if let Some((tile_name, rotation)) = tile_opt {
-                if !map.place_tile(addr, tile_name, rotation) {
+            if let Some((tile_name, rotation)) = tile_opt
+                && !map.place_tile(addr, tile_name, rotation) {
                     eprintln!("Could not place {tile_name} at {addr}");
                 }
-            }
         }
 
         // Add City labels to the map, so that appropriate tile upgrades can

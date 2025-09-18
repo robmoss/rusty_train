@@ -71,8 +71,8 @@ impl UiState for SelectCompany {
                     None
                 }
             });
-            if let Some(abbrev) = abbrev_opt {
-                if let Some(token) = assets.map.try_token(&abbrev) {
+            if let Some(abbrev) = abbrev_opt
+                && let Some(token) = assets.map.try_token(&abbrev) {
                     let b = State::FindRoutesTrains(SelectTrains::new(
                         assets,
                         controller,
@@ -82,7 +82,6 @@ impl UiState for SelectCompany {
                     ));
                     return (UiResponse::Redraw, Some(b));
                 }
-            }
         }
 
         // Return to the default state.

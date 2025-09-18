@@ -104,12 +104,11 @@ impl Tile {
                     }
                     // NOTE: if the underlying track's layer is Over, the
                     // overlying track needs to be in the Top layer.
-                    if let Some(l) = track_layers.get(&i) {
-                        if l == &DrawLayer::Over {
+                    if let Some(l) = track_layers.get(&i)
+                        && l == &DrawLayer::Over {
                             track_layers.insert(j, DrawLayer::Topmost);
                             continue;
                         }
-                    }
                     let this_layer = default_layer.below().unwrap();
                     let other_layer = default_layer.above().unwrap();
                     track_layers.insert(i, this_layer);

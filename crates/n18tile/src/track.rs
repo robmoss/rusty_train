@@ -645,7 +645,7 @@ impl Track {
         }
     }
 
-    pub fn coords(&self, hex: &Hex, dt: f64) -> TrackCoords {
+    pub fn coords(&self, hex: &Hex, dt: f64) -> TrackCoords<'_> {
         // TODO: test cases, ensure that all coords are in the stroke!
         // Also check that all strokes are within hex!
         TrackCoords::new(self, hex, dt)

@@ -137,8 +137,8 @@ impl Connections {
                         continue;
                     }
                     let conn_opt = track.connected_at(other, hex, ctx);
-                    if let Some((conn_end, other_end)) = conn_opt {
-                        if conn_end == dit_end {
+                    if let Some((conn_end, other_end)) = conn_opt
+                        && conn_end == dit_end {
                             dit_conns
                                 .entry(dit_ix)
                                 .or_insert_with(Vec::new)
@@ -151,7 +151,6 @@ impl Connections {
                                 .or_insert_with(Vec::new)
                                 .push(Connection::Dit { ix: dit_ix });
                         }
-                    }
                 }
             }
         }

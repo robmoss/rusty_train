@@ -327,11 +327,10 @@ fn highlight_steps(hex: &Hex, ctx: &Context, map: &Map, steps: &[Step]) {
         // For tiles that only show off-board track segments, highlight only
         // these segments.
         if tile.only_draw_offboard_track() {
-            if let Connection::Face { face } = step.conn {
-                if tile.define_offboard_track_inner_path(ctx, hex, &face) {
+            if let Connection::Face { face } = step.conn
+                && tile.define_offboard_track_inner_path(ctx, hex, &face) {
                     ctx.fill().unwrap()
                 }
-            }
         } else if let Connection::Track { ix, end: _ } = step.conn {
             let track = tile.tracks()[ix];
             track.define_path(hex, ctx);

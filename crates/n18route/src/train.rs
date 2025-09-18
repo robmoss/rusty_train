@@ -775,15 +775,13 @@ impl Trains {
                             train,
                             bonus,
                         } = b
-                        {
-                            if *train == t {
+                            && *train == t {
                                 let existing_bonus =
                                     train_bonuses.get(locn).unwrap_or(&0);
                                 if bonus > existing_bonus {
                                     train_bonuses.insert(*locn, *bonus);
                                 }
                             }
-                        }
                     }
                     (t, train_bonuses)
                 })
