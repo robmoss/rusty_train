@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 use super::{Company, DividendKind, DividendOptions, Rounding};
 use n18catalogue::{Builder, Catalogue, Kind};
 use n18hex::{
-    Colour, Hex, HexColour, HexFace, HexPosition, Orientation, RotateCW,
+    Colour, Hex, HexFace, HexPosition, Orientation, RotateCW,
 };
 use n18map::{Coordinates, FirstRow, HexAddress, Letters, Map};
 use n18route::{Bonus, ConflictRule, Train, TrainType};

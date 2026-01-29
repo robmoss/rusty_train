@@ -5,7 +5,9 @@ use n18hex::{Coord, Hex, HexCorner, HexFace, PI};
 
 /// The shapes that track segments may take.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Default)]
 pub enum TrackCurve {
+    #[default]
     Straight,
     GentleL,
     HardL,
@@ -13,11 +15,6 @@ pub enum TrackCurve {
     HardR,
 }
 
-impl Default for TrackCurve {
-    fn default() -> Self {
-        Self::Straight
-    }
-}
 
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 enum TrackPath {
